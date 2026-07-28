@@ -99,7 +99,7 @@ function App() {
         <div className="topbar-row">
           <div className="brand">
             <span className="brand-mark" aria-hidden />
-            <span className="brand-name">Anker</span>
+            <span className="brand-name">Tagesanker</span>
           </div>
           {!showIntro && !regulateOpen && (
             <RegulateButton onClick={openRegulate} />

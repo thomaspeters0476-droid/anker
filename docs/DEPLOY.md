@@ -1,4 +1,4 @@
-# Anker — Deploy & Entwicklung
+# Tagesanker — Deploy & Entwicklung
 
 ---
 
@@ -56,7 +56,7 @@ Nach Push auf `main` typischerweise automatisches Deployment.
 | Variable | Beispiel | Pflicht |
 |----------|----------|---------|
 | `RESEND_API_KEY` | `re_...` | ja für Mail |
-| `RESEND_FROM` | `Anker <noreply@tagesanker.de>` | ja — Domain in Resend verifiziert |
+| `RESEND_FROM` | `Tagesanker <noreply@tagesanker.de>` | ja — Domain in Resend verifiziert |
 
 Ohne diese Vars: API liefert 503; abgelaufene Geistesblitze mit gesetzter E-Mail bleiben in der App (kein stilles Löschen).
 

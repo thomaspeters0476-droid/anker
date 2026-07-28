@@ -83,7 +83,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }> = []
 
   const lines: string[] = [
-    'Anker — abgelaufene Geistesblitze',
+    'Tagesanker — abgelaufene Geistesblitze',
     '',
     `Diese Ideen waren länger als ${retentionDays} Tage in der App und werden danach gelöscht.`,
     'Kein Archiv-Druck — nur eine Kopie für dich.',
@@ -133,13 +133,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   })
 
   lines.push('—')
-  lines.push('Gesendet von Anker · tagesanker.de')
+  lines.push('Gesendet von Tagesanker · tagesanker.de')
 
   const resend = new Resend(apiKey)
   const { error } = await resend.emails.send({
     from,
     to: email,
-    subject: `Anker: ${sparks.length} Geistesblitz${sparks.length === 1 ? '' : 'e'} (nach ${retentionDays} Tagen)`,
+    subject: `Tagesanker: ${sparks.length} Geistesblitz${sparks.length === 1 ? '' : 'e'} (nach ${retentionDays} Tagen)`,
     text: lines.join('\n'),
     attachments: attachments.map((a) => ({
       filename: a.filename,

@@ -1,4 +1,4 @@
-# Anker — Buddy
+# Tagesanker — Buddy
 
 Lokale Texthilfe — **entlasten, nicht bewerten**. Keine KI in der Testphase.
 

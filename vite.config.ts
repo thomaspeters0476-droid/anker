@@ -14,8 +14,8 @@ export default defineConfig({
         'icon-512.png',
       ],
       manifest: {
-        name: 'Anker',
-        short_name: 'Anker',
+        name: 'Tagesanker',
+        short_name: 'Tagesanker',
         description: 'Eine Sache. Realistisch. Zurückfinden.',
         theme_color: '#2f6f5e',
         background_color: '#e8f0ec',

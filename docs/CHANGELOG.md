@@ -1,4 +1,4 @@
-# Anker — Changelog
+# Tagesanker — Changelog
 
 Format: neueste zuerst. Bei Releases kurz ergänzen.
 
@@ -6,9 +6,9 @@ Format: neueste zuerst. Bei Releases kurz ergänzen.
 
 ## Unreleased
 
-- Domains **tagesanker.de** und **tagesanker.app** gesichert (DNS→Vercel folgt)
-- Runterregeln-Modus (Atem / Sinne / Körper) — Button „Ruhe“
-- Optionale E-Mail für Geistesblitze nach 7 Tagen; Sparks löschbar; Handbuch in Settings
+- Öffentlicher Name **Tagesanker** (UI, PWA, Mails, Doku); Kurzform „Anker“ ok in Metaphern/Buddy
+- Domains **tagesanker.de** / **tagesanker.app** an Vercel; DNS beim Registrar folgt
+- Runterregeln-Modus (Button „Ruhe“); Geistesblitz-Mail nach 7 Tagen; Sparks löschbar
 - Dokuhub unter `docs/`; kontextreicher Buddy
 
 ---

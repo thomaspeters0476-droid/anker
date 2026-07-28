@@ -1,4 +1,4 @@
-# Anker — Handbuch
+# Tagesanker — Handbuch
 
 Alle Funktionen aus Nutzersicht. Schnellstart: [ANKER_ERSTE_SCHRITTE.md](./ANKER_ERSTE_SCHRITTE.md).
 

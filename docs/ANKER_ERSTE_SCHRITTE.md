@@ -1,4 +1,4 @@
-# Anker — Erste Schritte
+# Tagesanker — Erste Schritte
 
 Vom Öffnen bis zum ersten fokussierten Block.
 

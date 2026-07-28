@@ -840,7 +840,7 @@ export function PlanScreen({
             {perm === 'denied' && (
               <p className="block-hint">
                 Mitteilungen sind blockiert. In den Handy-Einstellungen bei
-                Anker erlauben.
+                Tagesanker erlauben.
               </p>
             )}
             {notifMsg && <p className="export-msg">{notifMsg}</p>}

@@ -13,7 +13,7 @@ export function PwaGuide({ compact = false }: Props) {
     return (
       <div className="pwa-guide installed">
         <p>
-          <strong>Gut:</strong> Anker ist als App auf dem Gerät. Erinnerungen
+          <strong>Gut:</strong> Tagesanker ist als App auf dem Gerät. Erinnerungen
           funktionieren am besten so.
         </p>
       </div>
@@ -24,7 +24,7 @@ export function PwaGuide({ compact = false }: Props) {
     <div className={`pwa-guide ${compact ? 'compact' : ''}`}>
       <h3>Erinnerungen am Handy</h3>
       <p className="pwa-lead">
-        Kurz gesagt: Anker einmal auf den Startbildschirm legen. Dann wie eine
+        Kurz gesagt: Tagesanker einmal auf den Startbildschirm legen. Dann wie eine
         normale App öffnen — und Mitteilungen erlauben.
       </p>
 
@@ -40,7 +40,7 @@ export function PwaGuide({ compact = false }: Props) {
               <strong>Hinzufügen</strong> tippen.
             </li>
             <li>
-              Anker vom Home-Bildschirm öffnen (nicht über Safari).
+              Tagesanker vom Home-Bildschirm öffnen (nicht über Safari).
             </li>
             <li>
               Wenn gefragt: <strong>Mitteilungen erlauben</strong>.
@@ -64,7 +64,7 @@ export function PwaGuide({ compact = false }: Props) {
             <li>
               <strong>Installieren</strong> / <strong>Hinzufügen</strong>.
             </li>
-            <li>Anker vom Startbildschirm öffnen.</li>
+            <li>Tagesanker vom Startbildschirm öffnen.</li>
             <li>
               Wenn gefragt: <strong>Benachrichtigungen erlauben</strong>.
             </li>

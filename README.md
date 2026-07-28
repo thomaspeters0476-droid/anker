@@ -1,4 +1,4 @@
-# Anker
+# Tagesanker
 
 **Eine Sache. Realistisch. Zurückfinden.**
 
@@ -11,6 +11,8 @@ Web-App für fokussiertes Tagesarbeiten — ADHS-freundlich: wenig planen, eine 
 | **Repo** | https://github.com/thomaspeters0476-droid/anker |
 | **Dokumentation** | [`docs/README.md`](docs/README.md) ← **Dokuhub** |
 | **One-Pager** | [`docs/anker-onepager.pdf`](docs/anker-onepager.pdf) |
+
+Kurzform in Texten/Buddy: manchmal noch „Anker“ — die Marke heißt **Tagesanker**.
 
 ---
 

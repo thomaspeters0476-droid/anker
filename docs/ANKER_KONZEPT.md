@@ -1,6 +1,6 @@
-# Anker — Gesamtkonzept
+# Tagesanker — Gesamtkonzept
 
-**Produkt:** Fokus-Web-App · Tagline **„Eine Sache. Realistisch. Zurückfinden.“**  
+**Produkt:** Fokus-Web-App · Marke **Tagesanker** · Tagline **„Eine Sache. Realistisch. Zurückfinden.“**  
 **Domains:** [tagesanker.de](https://tagesanker.de) · [tagesanker.app](https://tagesanker.app) *(gesichert)*  
 **Live (interim):** [anker-dun.vercel.app](https://anker-dun.vercel.app)  
 **Stand:** Juli 2026 · **MVP / Testphase** (kostenlos, kein Login)
@@ -11,7 +11,7 @@ Dieses Dokument fasst Produkt, Haltung und Funktionen zusammen. Technik: [ARCHIT
 
 ## Inhaltsverzeichnis
 
-1. [Was ist Anker?](#1-was-ist-anker)
+1. [Was ist Tagesanker?](#1-was-ist-tagesanker)
 2. [Marke & Domain](#2-marke--domain)
 3. [Zielgruppe](#3-zielgruppe)
 4. [Haltung & Leitprinzipien](#4-haltung--leitprinzipien)
@@ -32,15 +32,15 @@ Dieses Dokument fasst Produkt, Haltung und Funktionen zusammen. Technik: [ARCHIT
 
 ---
 
-## 1. Was ist Anker?
+## 1. Was ist Tagesanker?
 
-Anker ist eine **Web-App für fokussiertes Tagesarbeiten** — ADHS-freundlich:
+**Tagesanker** ist eine **Web-App für fokussiertes Tagesarbeiten** — ADHS-freundlich:
 
 - wenig und realistisch planen
 - **eine Sache** nach der anderen
 - sanft **zurückfinden**, wenn die Aufmerksamkeit driftet
 
-**Anker ≠ Produktivitäts-System:** Keine Scores, keine Streaks, keine Stimmungs-Historie, kein Wettbewerb mit sich selbst. Ziel ist Halt und Entlastung — nicht „mehr Output“.
+**Tagesanker ≠ Produktivitäts-System:** Keine Scores, keine Streaks, keine Stimmungs-Historie, kein Wettbewerb mit sich selbst. Ziel ist Halt und Entlastung — nicht „mehr Output“.
 
 ---
 
@@ -48,11 +48,12 @@ Anker ist eine **Web-App für fokussiertes Tagesarbeiten** — ADHS-freundlich:
 
 | | |
 |---|---|
-| **App-Name in der UI** | Anker |
+| **Marke / App-Name** | **Tagesanker** (UI, PWA, Home-Bildschirm, Mails) |
+| **Kurzform** | „Anker“ darf in Buddy-Texten oder Alltagsanker-Metapher vorkommen |
 | **Öffentliche Domains** | **tagesanker.de**, **tagesanker.app** (beide gesichert) |
-| **Deploy heute** | Vercel-URL `anker-dun.vercel.app` bis DNS umgestellt ist |
+| **Deploy heute** | Vercel-URL bis DNS umgestellt ist |
 
-„Tagesanker“ trägt den Alltags-Gedanken in der Domain; in der App bleibt der kurze Name **Anker**. Beide Domains sollen auf dasselbe Deployment zeigen (`.app` oft für die PWA/App-Story, `.de` für den deutschsprachigen Einstieg).
+Beide Domains zeigen auf dasselbe Deployment (`.app` oft für die PWA-Story, `.de` für den deutschsprachigen Einstieg).
 
 Details DNS/Vercel: [DEPLOY.md](./DEPLOY.md).
 

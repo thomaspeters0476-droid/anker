@@ -58,7 +58,7 @@ export function hasAudioSparks(sparks: Spark[]): boolean {
 
 export function sparksToText(sparks: Spark[]): string {
   const lines = [
-    'Geistesblitze — Anker',
+    'Geistesblitze — Tagesanker',
     `Export: ${stamp(new Date().toISOString())}`,
     '',
   ]
@@ -121,7 +121,7 @@ export async function exportSparksPdf(sparks: Spark[]) {
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
   doc.setTextColor(80)
-  doc.text(`Anker · ${stamp(new Date().toISOString())}`, margin, y)
+  doc.text(`Tagesanker · ${stamp(new Date().toISOString())}`, margin, y)
   doc.setTextColor(0)
   y += 10
 

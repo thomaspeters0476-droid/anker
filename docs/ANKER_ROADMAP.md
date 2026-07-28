@@ -1,4 +1,4 @@
-# Anker — Roadmap
+# Tagesanker — Roadmap
 
 **Konzept:** [ANKER_KONZEPT.md](./ANKER_KONZEPT.md) · **Stand:** Juli 2026
 
@@ -56,7 +56,8 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 
 | Datum | Entscheidung |
 |-------|----------------|
-| Jul 2026 | Domains **tagesanker.de** + **tagesanker.app** gesichert; UI-Name bleibt Anker |
+| Jul 2026 | Öffentlicher Name **Tagesanker** (UI/PWA); Domains tagesanker.de / .app |
+| Jul 2026 | Domains **tagesanker.de** + **tagesanker.app** gesichert |
 | Jul 2026 | Test gratis; Abo-Kommunikation erst Verkaufsversion |
 | Jul 2026 | Sync vor Preiserhöhung / 3,99er-Story |
 | Jul 2026 | Buddy zuerst kontextreich lokal, KI optional später |

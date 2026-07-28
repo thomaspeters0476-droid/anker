@@ -1,15 +1,18 @@
-# Anker — Dokuhub
+# Tagesanker — Dokuhub
 
 Zentrale Dokumentation für Produkt, Nutzer und Technik.  
 Bei neuen Features: passende Spec hier pflegen und [`CHANGELOG.md`](./CHANGELOG.md) ergänzen.
 
 | | |
 |---|---|
+| **Marke** | **Tagesanker** (UI, PWA, Mails) |
 | **Domains** | [tagesanker.de](https://tagesanker.de) · [tagesanker.app](https://tagesanker.app) *(gesichert, DNS→Vercel folgt)* |
 | **Live (interim)** | https://anker-dun.vercel.app |
 | **Repo** | https://github.com/thomaspeters0476-droid/anker |
 | **Status** | MVP / Testphase — kostenlos, kein Abo in der App |
 | **Stand** | Juli 2026 |
+
+Dateinamen mit Präfix `ANKER_` bleiben vorerst (Repo-Historie); Inhalt spricht von **Tagesanker**.
 
 ---
 
@@ -35,7 +38,7 @@ Bei neuen Features: passende Spec hier pflegen und [`CHANGELOG.md`](./CHANGELOG.
 | [ARCHITEKTUR.md](./ARCHITEKTUR.md) | Screens, Module, Ablauf |
 | [DATENMODELL.md](./DATENMODELL.md) | DayState, Prefs, localStorage, Retention |
 | [BUDDY.md](./BUDDY.md) | Ton, Kontext (`BuddyCtx`), Regeln |
-| [DEPLOY.md](./DEPLOY.md) | Lokal, Vercel, PWA, One-Pager-Skript |
+| [DEPLOY.md](./DEPLOY.md) | Lokal, Vercel, PWA, Domains, One-Pager-Skript |
 | [CHANGELOG.md](./CHANGELOG.md) | Release-Historie |
 
 ---

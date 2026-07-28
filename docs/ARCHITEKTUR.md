@@ -1,4 +1,4 @@
-# Anker — Architektur
+# Tagesanker — Architektur
 
 **Stack:** Vite 8 · React 19 · TypeScript · vite-plugin-pwa · jsPDF  
 **Kein Backend** in der Testphase — Persistenz über `localStorage`.

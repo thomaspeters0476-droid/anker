@@ -149,7 +149,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
           const title = current.title
           const send = () =>
             notify(
-              'Anker · Fokus wartet',
+              'Tagesanker · Fokus wartet',
               `Sanfte Erinnerung: „${title}“ liegt noch bereit.`,
               'anker-away',
             )
@@ -228,7 +228,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     setBuddyMsg(feierabend(ctxFromDay(day, { lifeLeft })))
     if (day.notificationsEnabled) {
       notifyIfHidden(
-        'Anker · Feierabend',
+        'Tagesanker · Feierabend',
         lifeLeft > 0
           ? 'Arbeit erledigt. Geistesblitze frei — noch Alltag.'
           : 'Arbeit erledigt. Geistesblitze frei.',
@@ -248,7 +248,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
         sleepNotifiedRef.current = true
         setBuddyMsg(sleepReminder(ctxFromDay(day)))
         notifyIfHidden(
-          'Anker · Schlaf-Anker',
+          'Tagesanker · Schlaf-Anker',
           'Rechtzeitig schlafen steht noch offen.',
           'anker-sleep',
         )
@@ -289,7 +289,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
         )
         if (day.notificationsEnabled) {
           notifyIfHidden(
-            'Anker · Check-in',
+            'Tagesanker · Check-in',
             `Noch bei „${active.title}“?`,
             'anker-checkin',
           )

@@ -1,4 +1,4 @@
-# Anker — Datenmodell
+# Tagesanker — Datenmodell
 
 Persistenz: **Browser `localStorage`**. Ablauf-Mails über Vercel/Resend (optional).
 
