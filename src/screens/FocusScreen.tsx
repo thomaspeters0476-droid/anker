@@ -2,15 +2,21 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { DayState, Spark, Task } from '../types'
 import { workTasksSettled } from '../types'
 import {
+  anotherRound,
   afterDone,
   afterDrift,
+  afterPause,
+  afterStill,
+  backToFocus,
   checkInPrompt,
+  ctxFromDay,
   feierabend,
   lifeContinue,
   sleepReminder,
   sparkParked,
   sparkVaultLocked,
   startFocus,
+  timeboxOver,
   welcomeBack,
 } from '../buddy'
 import { SIZE_LABEL } from '../capacity'
@@ -75,7 +81,7 @@ export function FocusScreen({ day, setDay }: Props) {
   const [captureOpen, setCaptureOpen] = useState(false)
   const [vaultVisible, setVaultVisible] = useState(false)
   const [buddyMsg, setBuddyMsg] = useState(() =>
-    active ? startFocus(active, day.buddyTone) : '',
+    active ? startFocus(active, ctxFromDay(day)) : '',
   )
   const elapsedRef = useRef(0)
   const activeIdRef = useRef(active?.id)
@@ -87,6 +93,8 @@ export function FocusScreen({ day, setDay }: Props) {
   const frozenByAwayRef = useRef(false)
   const runningRef = useRef(running)
   runningRef.current = running
+  const secondsLeftRef = useRef(secondsLeft)
+  secondsLeftRef.current = secondsLeft
 
   function clearAwayNudges() {
     if (awayNudgeTimerRef.current != null) {
@@ -150,7 +158,7 @@ export function FocusScreen({ day, setDay }: Props) {
       clearAwayNudges()
       if (frozenByAwayRef.current) {
         const current = day.tasks.find((t) => t.status === 'active')
-        setBuddyMsg(welcomeBack(current, day.buddyTone))
+        setBuddyMsg(welcomeBack(current, ctxFromDay(day)))
         frozenByAwayRef.current = false
       }
     }
@@ -168,7 +176,9 @@ export function FocusScreen({ day, setDay }: Props) {
     day.awayNudgeEveryMin,
     day.awayNudgeMax,
     day.buddyTone,
+    day.mood,
     day.tasks,
+    day.sparks.length,
   ])
 
   useEffect(() => {
@@ -180,20 +190,20 @@ export function FocusScreen({ day, setDay }: Props) {
       setShowCheckIn(false)
       elapsedRef.current = 0
       if (inFeierabend && active.kind === 'life') {
-        setBuddyMsg(feierabend(day.buddyTone, lifeLeft))
+        setBuddyMsg(feierabend(ctxFromDay(day, { lifeLeft })))
       } else if (active.kind === 'life') {
-        setBuddyMsg(lifeContinue(active, day.buddyTone))
+        setBuddyMsg(lifeContinue(active, ctxFromDay(day)))
       } else {
-        setBuddyMsg(startFocus(active, day.buddyTone))
+        setBuddyMsg(startFocus(active, ctxFromDay(day)))
       }
     }
-  }, [active, day.buddyTone, inFeierabend, lifeLeft])
+  }, [active, day, inFeierabend, lifeLeft])
 
   // Feierabend-Hinweis einmal, wenn Arbeit fertig wird
   useEffect(() => {
     if (!inFeierabend || feierabendShownRef.current) return
     feierabendShownRef.current = true
-    setBuddyMsg(feierabend(day.buddyTone, lifeLeft))
+    setBuddyMsg(feierabend(ctxFromDay(day, { lifeLeft })))
     if (day.notificationsEnabled) {
       notifyIfHidden(
         'Anker · Feierabend',
@@ -203,7 +213,7 @@ export function FocusScreen({ day, setDay }: Props) {
         'anker-feierabend',
       )
     }
-  }, [inFeierabend, day.buddyTone, day.notificationsEnabled, lifeLeft])
+  }, [inFeierabend, day, day.notificationsEnabled, lifeLeft])
 
   // Schlaf-Erinnerung ab 21 Uhr
   useEffect(() => {
@@ -214,7 +224,7 @@ export function FocusScreen({ day, setDay }: Props) {
       const hour = new Date().getHours()
       if (hour >= 21 && !sleepNotifiedRef.current) {
         sleepNotifiedRef.current = true
-        setBuddyMsg(sleepReminder(day.buddyTone))
+        setBuddyMsg(sleepReminder(ctxFromDay(day)))
         notifyIfHidden(
           'Anker · Schlaf-Anker',
           'Rechtzeitig schlafen steht noch offen.',
@@ -225,7 +235,7 @@ export function FocusScreen({ day, setDay }: Props) {
     tick()
     const id = window.setInterval(tick, 60_000)
     return () => window.clearInterval(id)
-  }, [day.notificationsEnabled, sleepPending, day.buddyTone])
+  }, [day.notificationsEnabled, sleepPending, day])
 
   useEffect(() => {
     if (!running || showCheckIn || captureOpen || !active) return
@@ -233,11 +243,7 @@ export function FocusScreen({ day, setDay }: Props) {
       setSecondsLeft((s) => {
         if (s <= 1) {
           setRunning(false)
-          setBuddyMsg(
-            day.buddyTone === 'kurz'
-              ? 'Zeitbox vorbei. Fertig oder weiter?'
-              : 'Zeitbox vorbei. Als fertig markieren — oder Timer nochmal starten.',
-          )
+          setBuddyMsg(timeboxOver(ctxFromDay(day)))
           return 0
         }
         return s - 1
@@ -247,7 +253,17 @@ export function FocusScreen({ day, setDay }: Props) {
         elapsedRef.current = 0
         setShowCheckIn(true)
         setRunning(false)
-        setBuddyMsg(checkInPrompt(active, day.buddyTone))
+        setBuddyMsg(
+          checkInPrompt(
+            active,
+            ctxFromDay(day, {
+              minutesLeft: Math.max(
+                0,
+                Math.ceil(secondsLeftRef.current / 60),
+              ),
+            }),
+          ),
+        )
         if (day.notificationsEnabled) {
           notifyIfHidden(
             'Anker · Check-in',
@@ -263,8 +279,8 @@ export function FocusScreen({ day, setDay }: Props) {
     showCheckIn,
     captureOpen,
     active,
+    day,
     day.checkInEveryMin,
-    day.buddyTone,
     day.notificationsEnabled,
   ])
 
@@ -291,15 +307,26 @@ export function FocusScreen({ day, setDay }: Props) {
       )
       const next = activateNext(updated)
       const workDone = workTasksSettled(updated)
+      const nextActive = next.find((t) => t.status === 'active')
       const lifeRemaining = updated.filter(
         (t) =>
           t.kind === 'life' &&
           (t.status === 'planned' || t.status === 'active'),
       ).length
+      const ctx = ctxFromDay(
+        { ...d, tasks: next },
+        {
+          lifeLeft: lifeRemaining,
+          nextTitle:
+            nextActive && nextActive.id !== active.id
+              ? nextActive.title
+              : undefined,
+        },
+      )
       if (workDone && active.kind === 'work') {
-        setBuddyMsg(feierabend(d.buddyTone, lifeRemaining))
+        setBuddyMsg(feierabend(ctx))
       } else {
-        setBuddyMsg(afterDone(active, d.buddyTone))
+        setBuddyMsg(afterDone(active, ctx))
       }
       return { ...d, tasks: next }
     })
@@ -328,25 +355,16 @@ export function FocusScreen({ day, setDay }: Props) {
 
   function onCheckIn(choice: 'still' | 'drift' | 'pause') {
     setShowCheckIn(false)
+    const ctx = ctxFromDay(day)
     if (choice === 'still') {
       setRunning(true)
-      setBuddyMsg(
-        active?.kind === 'life'
-          ? lifeContinue(active, day.buddyTone)
-          : day.buddyTone === 'kurz'
-            ? 'Weiter.'
-            : 'Gut. Weiter bei der einen Sache.',
-      )
+      setBuddyMsg(afterStill(active, ctx))
     } else if (choice === 'drift') {
       setRunning(true)
-      setBuddyMsg(afterDrift(day.buddyTone))
+      setBuddyMsg(afterDrift(ctx))
     } else {
       setRunning(false)
-      setBuddyMsg(
-        day.buddyTone === 'klar'
-          ? 'Pause. Timer gestoppt.'
-          : 'Pause ist okay. Wenn du bereit bist: Timer wieder starten.',
-      )
+      setBuddyMsg(afterPause(ctx))
     }
   }
 
@@ -359,13 +377,7 @@ export function FocusScreen({ day, setDay }: Props) {
   function closeCapture() {
     setCaptureOpen(false)
     if (active) {
-      setBuddyMsg(
-        active.kind === 'life'
-          ? lifeContinue(active, day.buddyTone)
-          : day.buddyTone === 'kurz'
-            ? 'Zurück zur Aufgabe.'
-            : `Zurück zu „${active.title}“.`,
-      )
+      setBuddyMsg(backToFocus(active, ctxFromDay(day)))
     }
     if (wasRunningRef.current && !showCheckIn) setRunning(true)
   }
@@ -383,16 +395,16 @@ export function FocusScreen({ day, setDay }: Props) {
         },
       ],
     }))
-    setBuddyMsg(sparkParked(nextCount, day.buddyTone))
+    setBuddyMsg(sparkParked(nextCount, ctxFromDay(day)))
   }
 
   function tryOpenVault() {
     if (!vaultOpen) {
-      setBuddyMsg(sparkVaultLocked(sparkCount, day.buddyTone))
+      setBuddyMsg(sparkVaultLocked(sparkCount, ctxFromDay(day)))
       return
     }
     if (active?.kind === 'life') {
-      setBuddyMsg(lifeContinue(active, day.buddyTone))
+      setBuddyMsg(lifeContinue(active, ctxFromDay(day)))
     }
     setVaultVisible(true)
   }
@@ -448,7 +460,7 @@ export function FocusScreen({ day, setDay }: Props) {
           <span className="buddy-label">Buddy</span>
           <p>
             {inFeierabend
-              ? feierabend(day.buddyTone, lifeLeft)
+              ? feierabend(ctxFromDay(day, { lifeLeft }))
               : 'Keine aktive Aufgabe mehr. Du kannst den Tag beenden oder etwas Offenes anwählen.'}
           </p>
         </div>
@@ -587,11 +599,7 @@ export function FocusScreen({ day, setDay }: Props) {
               if (!running && secondsLeft === 0 && active) {
                 setSecondsLeft(active.minutes * 60)
                 elapsedRef.current = 0
-                setBuddyMsg(
-                  day.buddyTone === 'kurz'
-                    ? 'Noch eine Runde.'
-                    : 'Noch eine Zeitbox — nur diese eine Sache.',
-                )
+                setBuddyMsg(anotherRound(ctxFromDay(day)))
               }
               setRunning((r) => !r)
             }}
@@ -644,7 +652,7 @@ export function FocusScreen({ day, setDay }: Props) {
           onClose={() => {
             setVaultVisible(false)
             if (active.kind === 'life') {
-              setBuddyMsg(lifeContinue(active, day.buddyTone))
+              setBuddyMsg(lifeContinue(active, ctxFromDay(day)))
             }
           }}
         />

@@ -1,0 +1,61 @@
+# Anker — Roadmap
+
+**Konzept:** [ANKER_KONZEPT.md](./ANKER_KONZEPT.md) · **Stand:** Juli 2026
+
+Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokumentieren, **nicht** in der Nutzer-UI.
+
+---
+
+## Jetzt (MVP live)
+
+- Plan → Fokus → Done
+- Kapazität S/M/L, Caps, Alltagsanker (ausblendbar + eigene persistent)
+- Tagesgefühl ohne Historie
+- Carry-over („Noch offen“) inkl. „Neuen Tag planen“
+- Geistesblitze (Notiz/Skizze/Audio), 7-Tage-Vault, Feierabend
+- Weicher Freeze + optionale Away-Nudges
+- PWA, Intro, Browser-Erinnerungen
+- Kontextreicher Buddy (lokal, `BuddyCtx`) — siehe [BUDDY.md](./BUDDY.md)
+- One-Pager unter `docs/`
+
+---
+
+## Als Nächstes
+
+| Thema | Ziel |
+|-------|------|
+| **Sync** | Einstellungen und Tagesstand zwischen Geräten (Account/Backend TBD) |
+| Buddy-Feinschliff | mehr Situationen abdecken, Ton beibehalten (entlasten) |
+| Stabilität PWA | Notifications auf iOS/Android zuverlässiger nach Install |
+| Doku/Prozess | CHANGELOG bei Releases pflegen |
+
+---
+
+## Später
+
+| Thema | Hinweis |
+|-------|---------|
+| **Verkaufsversion / Abo** | Zielrichtung (intern): ca. **2,99 €/Monat**, **19,99 €/Jahr**, **7 Tage Trial**. Argument u. a. werbefrei = weniger Ablenkung — **erst dann in UI/Marketing** |
+| Store-Wrapper | z. B. Capacitor (u. a. M1-Mac-Build) |
+| Optional KI-Buddy | opt-in, kurz, entlastend — Kosten/Datenschutz klären |
+| Datenschutz-Paket | wenn Cloud/Sync: TOMs, AVV, Impressum-Anbindung |
+
+---
+
+## Bewusst zurückgestellt
+
+- Scores, Streaks, Leaderboards
+- Mood-Historie / „Produktivitäts-Reports“
+- Werbung in der App
+- Soziales / Buddy-zu-Buddy-Chat als Pflicht
+
+---
+
+## Entscheidungslog
+
+| Datum | Entscheidung |
+|-------|----------------|
+| Jul 2026 | Test gratis; Abo-Kommunikation erst Verkaufsversion |
+| Jul 2026 | Sync vor Preiserhöhung / 3,99er-Story |
+| Jul 2026 | Buddy zuerst kontextreich lokal, KI optional später |
+| Jul 2026 | Dokuhub analog Schwundbuch (`docs/`) |

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { DayState } from '../types'
 import { workTasksSettled } from '../types'
-import { dayDone } from '../buddy'
+import { ctxFromDay, dayDone } from '../buddy'
 import { emptyDay, rollDayForward } from '../storage'
 import { SparkVault } from '../components/SparkVault'
 
@@ -13,7 +13,7 @@ type Props = {
 export function DoneScreen({ day, setDay }: Props) {
   const done = day.tasks.filter((t) => t.status === 'done')
   const skipped = day.tasks.filter((t) => t.status === 'skipped')
-  const msg = dayDone(done.length, day.tasks.length, day.buddyTone)
+  const msg = dayDone(done.length, day.tasks.length, ctxFromDay(day))
   const unlocked = workTasksSettled(day.tasks)
   const [vaultVisible, setVaultVisible] = useState(false)
 

@@ -7,7 +7,7 @@ import {
   normalizeTitleList,
   visibleLifeAnchors,
 } from '../types'
-import { capacityHint, greeting } from '../buddy'
+import { capacityHint, ctxFromDay, planBuddy } from '../buddy'
 import {
   SIZE_LABEL,
   SIZE_MINUTES,
@@ -37,7 +37,6 @@ import {
   capacityForMood,
   lifeMaxForMood,
   minutesForSize,
-  moodBuddyLine,
   type DayMood,
 } from '../mood'
 import { SPARK_RETENTION_DAYS } from '../storage'
@@ -78,8 +77,15 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
 
   const hint = useMemo(
     () =>
-      capacityHint(usedPts, maxPts, life.length, day.lifeMax, day.buddyTone),
-    [usedPts, maxPts, life.length, day.lifeMax, day.buddyTone],
+      capacityHint(
+        usedPts,
+        maxPts,
+        life.length,
+        day.lifeMax,
+        day.buddyTone,
+        day.mood,
+      ),
+    [usedPts, maxPts, life.length, day.lifeMax, day.buddyTone, day.mood],
   )
 
   const lifeAnchors = useMemo(
@@ -330,9 +336,7 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
       <div className="buddy-card" role="status">
         <span className="buddy-label">Buddy</span>
         <p>
-          {day.mood
-            ? moodBuddyLine(day.mood)
-            : greeting(day.buddyTone)}
+          {planBuddy(ctxFromDay(day, { carryCount: carry.length }))}
         </p>
       </div>
 
