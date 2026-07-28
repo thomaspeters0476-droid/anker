@@ -30,6 +30,15 @@ import {
 } from '../notifications'
 import { PwaGuide } from '../components/PwaGuide'
 import { isStandaloneApp } from '../pwa'
+import {
+  MOOD_OPTIONS,
+  capacityForMood,
+  lifeMaxForMood,
+  minutesForSize,
+  moodBuddyLine,
+  type DayMood,
+} from '../mood'
+import { SPARK_RETENTION_DAYS } from '../storage'
 
 type Props = {
   day: DayState
@@ -98,7 +107,7 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
       kind: 'work',
       status: 'planned',
       size,
-      minutes: SIZE_MINUTES[size],
+      minutes: minutesForSize(size, day.mood),
     }
     setDay((d) => ({ ...d, tasks: [...d.tasks, task] }))
     setWorkDraft('')
@@ -109,17 +118,67 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
   }
 
   function changeCapacity(size: TaskSize, value: number) {
-    setDay((d) => ({
-      ...d,
-      capacity: setCapacitySize(d.capacity, size, value, usedCapacity(d.tasks)),
-    }))
+    setDay((d) => {
+      const baseline = setCapacitySize(
+        d.baselineCapacity ?? d.capacity,
+        size,
+        value,
+        usedCapacity(d.tasks),
+      )
+      const mood = d.mood
+      const capacity = mood ? capacityForMood(baseline, mood) : baseline
+      return {
+        ...d,
+        baselineCapacity: baseline,
+        capacity,
+      }
+    })
   }
 
   function changeLifeMax(value: number) {
-    setDay((d) => ({
-      ...d,
-      lifeMax: clampLifeMax(value, life.length),
-    }))
+    setDay((d) => {
+      const baselineLifeMax = clampLifeMax(
+        value,
+        life.length,
+      )
+      const mood = d.mood
+      const lifeMax = mood
+        ? lifeMaxForMood(baselineLifeMax, mood)
+        : baselineLifeMax
+      // Floor: nicht unter bereits geplante Alltagsaufgaben
+      const floored = clampLifeMax(lifeMax, life.length)
+      return {
+        ...d,
+        baselineLifeMax,
+        lifeMax: floored,
+      }
+    })
+  }
+
+  function applyMood(mood: DayMood) {
+    setDay((d) => {
+      const baseline = d.baselineCapacity ?? d.capacity
+      const baselineLife = d.baselineLifeMax ?? d.lifeMax
+      const capacity = capacityForMood(baseline, mood)
+      const lifeMax = clampLifeMax(
+        lifeMaxForMood(baselineLife, mood),
+        d.tasks.filter((t) => t.kind === 'life').length,
+      )
+      const tasks = d.tasks.map((t) =>
+        t.kind === 'work'
+          ? { ...t, minutes: minutesForSize(t.size, mood) }
+          : t,
+      )
+      return {
+        ...d,
+        mood,
+        baselineCapacity: baseline,
+        baselineLifeMax: baselineLife,
+        capacity,
+        lifeMax,
+        tasks,
+      }
+    })
   }
 
   function toggleCarry(index: number) {
@@ -218,8 +277,37 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
     <section className="screen plan-screen">
       <div className="buddy-card" role="status">
         <span className="buddy-label">Buddy</span>
-        <p>{greeting(day.buddyTone)}</p>
+        <p>
+          {day.mood
+            ? moodBuddyLine(day.mood)
+            : greeting(day.buddyTone)}
+        </p>
       </div>
+
+      {!day.started && (
+        <div className="block block--mood">
+          <div className="block-head">
+            <h2>Wie fühlst du dich heute?</h2>
+          </div>
+          <p className="block-hint">
+            Nur für heute — wird nicht gespeichert oder bewertet. Steuert Menge
+            und Zeit.
+          </p>
+          <div className="mood-picker" role="group" aria-label="Tagesgefühl">
+            {MOOD_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                className={`mood-opt ${day.mood === opt.id ? 'active' : ''}`}
+                onClick={() => applyMood(opt.id)}
+              >
+                <span className="mood-label">{opt.label}</span>
+                <small>{opt.hint}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {carry.length > 0 && !day.started && (
         <div className="block block--carry">
@@ -314,7 +402,7 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
                   onClick={() => setWorkSize(size)}
                 >
                   {SIZE_LABEL[size]}
-                  <small>{SIZE_MINUTES[size]} Min</small>
+                  <small>{minutesForSize(size, day.mood)} Min</small>
                 </button>
               ))}
             </div>
@@ -462,11 +550,9 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
           <summary>Einstellungen · Kapazität</summary>
 
           <p className="block-hint settings-intro">
-            Wie viel Arbeit schaffst du realistisch? Höchstgrenzen:{' '}
-            {HARD_CAPS.large} groß / {HARD_CAPS.medium} mittel /{' '}
-            {HARD_CAPS.small} klein — zusammen max. {MAX_DAY_POINTS} Punkte
-            (groß=3, mittel=2, klein=1). Setzt du eine Größe hoch, rutschen die
-            anderen automatisch runter.
+            Grundeinstellung (ohne Stimmung). Die Tagesfrage skaliert davon ab —
+            Stimmung wird nicht historisch gespeichert. Geistesblitze bleiben max.{' '}
+            {SPARK_RETENTION_DAYS} Tage.
           </p>
 
           <div className="cap-controls">
@@ -478,29 +564,39 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
                     type="button"
                     className="ghost"
                     aria-label={`${SIZE_LABEL[size]} weniger`}
-                    disabled={day.capacity[size] <= used[size]}
+                    disabled={
+                      (day.baselineCapacity ?? day.capacity)[size] <=
+                      used[size]
+                    }
                     onClick={() =>
-                      changeCapacity(size, day.capacity[size] - 1)
+                      changeCapacity(
+                        size,
+                        (day.baselineCapacity ?? day.capacity)[size] - 1,
+                      )
                     }
                   >
                     −
                   </button>
-                  <strong>{day.capacity[size]}</strong>
+                  <strong>{(day.baselineCapacity ?? day.capacity)[size]}</strong>
                   <button
                     type="button"
                     className="ghost"
                     aria-label={`${SIZE_LABEL[size]} mehr`}
                     disabled={
-                      day.capacity[size] >= HARD_CAPS[size] ||
+                      (day.baselineCapacity ?? day.capacity)[size] >=
+                        HARD_CAPS[size] ||
                       setCapacitySize(
-                        day.capacity,
+                        day.baselineCapacity ?? day.capacity,
                         size,
-                        day.capacity[size] + 1,
+                        (day.baselineCapacity ?? day.capacity)[size] + 1,
                         used,
-                      )[size] === day.capacity[size]
+                      )[size] === (day.baselineCapacity ?? day.capacity)[size]
                     }
                     onClick={() =>
-                      changeCapacity(size, day.capacity[size] + 1)
+                      changeCapacity(
+                        size,
+                        (day.baselineCapacity ?? day.capacity)[size] + 1,
+                      )
                     }
                   >
                     +
@@ -522,18 +618,27 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
                 type="button"
                 className="ghost"
                 aria-label="Weniger Alltagsanker"
-                disabled={day.lifeMax <= Math.max(1, life.length)}
-                onClick={() => changeLifeMax(day.lifeMax - 1)}
+                disabled={
+                  (day.baselineLifeMax ?? day.lifeMax) <=
+                  Math.max(1, life.length)
+                }
+                onClick={() =>
+                  changeLifeMax((day.baselineLifeMax ?? day.lifeMax) - 1)
+                }
               >
                 −
               </button>
-              <strong>{day.lifeMax}</strong>
+              <strong>{day.baselineLifeMax ?? day.lifeMax}</strong>
               <button
                 type="button"
                 className="ghost"
                 aria-label="Mehr Alltagsanker"
-                disabled={day.lifeMax >= LIFE_MAX_HARD}
-                onClick={() => changeLifeMax(day.lifeMax + 1)}
+                disabled={
+                  (day.baselineLifeMax ?? day.lifeMax) >= LIFE_MAX_HARD
+                }
+                onClick={() =>
+                  changeLifeMax((day.baselineLifeMax ?? day.lifeMax) + 1)
+                }
               >
                 +
               </button>

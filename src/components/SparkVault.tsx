@@ -56,6 +56,10 @@ export function SparkVault({ sparks, unlocked, onClose }: Props) {
               ? 'Arbeitsaufgaben erledigt — jetzt darfst du stöbern.'
               : 'Noch verschlossen. Erst die Arbeitsaufgaben.'}
           </p>
+          <p className="vault-retain">
+            Ideen bleiben höchstens 7 Tage — dann weg. Bitte exportieren, wenn
+            wichtig. Kein Archiv, keine Bewertung.
+          </p>
         </div>
 
         {!unlocked ? (

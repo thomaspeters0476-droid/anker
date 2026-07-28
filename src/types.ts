@@ -40,8 +40,13 @@ export interface DayState {
   checkInEveryMin: number
   buddyTone: 'warm' | 'kurz' | 'klar'
   capacity: CapacitySettings
+  /** Einstellungswert — Stimmung skaliert davon ab (nicht die Stimmung selbst speichern langfristig) */
+  baselineCapacity?: CapacitySettings
   /** Max. Alltagsanker heute (1–LIFE_MAX_HARD) */
   lifeMax: number
+  baselineLifeMax?: number
+  /** Nur heute, transient — keine Historie */
+  mood?: 'good' | 'ok' | 'hard' | null
   /** Einführung-Button auf der Plan-Oberfläche */
   introButtonOnSurface: boolean
   /** Browser-Erinnerungen (Check-in / Alltag) */
