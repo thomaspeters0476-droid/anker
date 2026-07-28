@@ -15,6 +15,10 @@ const STEPS = [
     title: 'Zurückfinden',
     text: 'Der Buddy fragt zwischendurch nach. Geistesblitze kannst du kurz parken. Am Handy: App auf den Startbildschirm legen — dann kommen Erinnerungen besser an.',
   },
+  {
+    title: 'Weicher Freeze',
+    text: 'Verlässt du die App, pausiert der Timer sanft. Optional erinnern dich Mitteilungen, zurückzukommen — ohne dich einzusperren. Anpassen oder ausstellen: unten unter Einstellungen.',
+  },
 ] as const
 
 type Props = {

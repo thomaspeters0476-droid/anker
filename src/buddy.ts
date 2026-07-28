@@ -156,6 +156,23 @@ export function lifeContinue(task: Task, tone: Tone): string {
   )
 }
 
+export function welcomeBack(task: Task | undefined, tone: Tone): string {
+  if (!task) {
+    return pick(
+      tone,
+      'Willkommen zurück. Kein Drama — einfach weitermachen, wenn du magst.',
+      'Wieder da. Weiter?',
+      'Zurück. Fortsetzen möglich.',
+    )
+  }
+  return pick(
+    tone,
+    `Willkommen zurück. Weiter bei „${task.title}“? Der Timer war pausiert.`,
+    `Zurück. Weiter: ${task.title}?`,
+    `Wieder im Fokus: „${task.title}“. Timer pausiert.`,
+  )
+}
+
 export function feierabend(tone: Tone, lifeLeft: number): string {
   if (lifeLeft <= 0) {
     return pick(

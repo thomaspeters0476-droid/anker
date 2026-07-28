@@ -51,6 +51,12 @@ export interface DayState {
   introButtonOnSurface: boolean
   /** Browser-Erinnerungen (Check-in / Alltag) */
   notificationsEnabled: boolean
+  /** Weicher Freeze: pausieren beim Verlassen */
+  softFreezeEnabled: boolean
+  /** Mitteilungen beim Wegsein: off | once | repeat */
+  awayNudgeMode: 'off' | 'once' | 'repeat'
+  awayNudgeEveryMin: number
+  awayNudgeMax: number
 }
 
 /** Geistesblitzspeicher: erst wenn keine Arbeitsaufgabe mehr offen ist */

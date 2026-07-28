@@ -11,11 +11,12 @@ import {
   sparkParked,
   sparkVaultLocked,
   startFocus,
+  welcomeBack,
 } from '../buddy'
 import { SIZE_LABEL } from '../capacity'
 import { SparkCapture } from '../components/SparkCapture'
 import { SparkVault } from '../components/SparkVault'
-import { notifyIfHidden } from '../notifications'
+import { notify, notifyIfHidden } from '../notifications'
 
 type Props = {
   day: DayState
@@ -81,6 +82,94 @@ export function FocusScreen({ day, setDay }: Props) {
   const wasRunningRef = useRef(true)
   const sleepNotifiedRef = useRef(false)
   const feierabendShownRef = useRef(false)
+  const awayNudgeCountRef = useRef(0)
+  const awayNudgeTimerRef = useRef<number | null>(null)
+  const frozenByAwayRef = useRef(false)
+  const runningRef = useRef(running)
+  runningRef.current = running
+
+  function clearAwayNudges() {
+    if (awayNudgeTimerRef.current != null) {
+      window.clearInterval(awayNudgeTimerRef.current)
+      awayNudgeTimerRef.current = null
+    }
+    awayNudgeCountRef.current = 0
+  }
+
+  // Weicher Freeze: Tab/App verlassen
+  useEffect(() => {
+    if (!day.softFreezeEnabled || !day.started) return
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        const current = day.tasks.find((t) => t.status === 'active')
+        if (!current) return
+
+        frozenByAwayRef.current = runningRef.current
+        if (runningRef.current) setRunning(false)
+        clearAwayNudges()
+
+        const canNudge =
+          day.notificationsEnabled &&
+          day.awayNudgeMode !== 'off' &&
+          typeof Notification !== 'undefined' &&
+          Notification.permission === 'granted'
+
+        if (canNudge) {
+          const title = current.title
+          const send = () =>
+            notify(
+              'Anker · Fokus wartet',
+              `Sanfte Erinnerung: „${title}“ liegt noch bereit.`,
+              'anker-away',
+            )
+
+          awayNudgeCountRef.current = 1
+          send()
+
+          if (day.awayNudgeMode === 'repeat') {
+            const everyMs = day.awayNudgeEveryMin * 60 * 1000
+            const max = day.awayNudgeMax
+            awayNudgeTimerRef.current = window.setInterval(() => {
+              if (document.visibilityState !== 'hidden') {
+                clearAwayNudges()
+                return
+              }
+              if (awayNudgeCountRef.current >= max) {
+                clearAwayNudges()
+                return
+              }
+              awayNudgeCountRef.current += 1
+              send()
+            }, everyMs)
+          }
+        }
+        return
+      }
+
+      clearAwayNudges()
+      if (frozenByAwayRef.current) {
+        const current = day.tasks.find((t) => t.status === 'active')
+        setBuddyMsg(welcomeBack(current, day.buddyTone))
+        frozenByAwayRef.current = false
+      }
+    }
+
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      clearAwayNudges()
+    }
+  }, [
+    day.softFreezeEnabled,
+    day.started,
+    day.notificationsEnabled,
+    day.awayNudgeMode,
+    day.awayNudgeEveryMin,
+    day.awayNudgeMax,
+    day.buddyTone,
+    day.tasks,
+  ])
 
   useEffect(() => {
     if (!active) return

@@ -313,6 +313,19 @@
   gap: 0.55rem;
 }
 
+.freeze-settings {
+  margin-top: 0.35rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.freeze-nudge-row {
+  margin-top: 0.15rem;
+}
+
 .pwa-guide {
   padding: 0.9rem 1rem;
   border-radius: 14px;

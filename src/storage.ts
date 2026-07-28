@@ -1,7 +1,7 @@
 import type { CapacitySettings, DayState, Spark, Task } from './types'
 import { CHECK_IN_DEFAULT, LIFE_DEFAULT, clampLifeMax } from './types'
 import { DEFAULT_CAPACITY } from './capacity'
-import type { DayMood } from './mood'
+import { SOFT_FREEZE_DEFAULTS, type AwayNudgeMode } from './softFreeze'
 
 const DAY_KEY = 'fokus-buddy-day'
 const PREFS_KEY = 'anker-prefs'
@@ -18,6 +18,10 @@ export type Prefs = {
   lifeMax: number
   introButtonOnSurface: boolean
   notificationsEnabled: boolean
+  softFreezeEnabled: boolean
+  awayNudgeMode: AwayNudgeMode
+  awayNudgeEveryMin: number
+  awayNudgeMax: number
 }
 
 export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
@@ -30,7 +34,21 @@ function defaultPrefs(): Prefs {
     lifeMax: LIFE_DEFAULT,
     introButtonOnSurface: true,
     notificationsEnabled: false,
+    ...SOFT_FREEZE_DEFAULTS,
   }
+}
+
+function clampAwayEvery(n: number): number {
+  return Math.max(2, Math.min(15, Math.round(n)))
+}
+
+function clampAwayMax(n: number): number {
+  return Math.max(1, Math.min(5, Math.round(n)))
+}
+
+function parseAwayMode(v: unknown): AwayNudgeMode {
+  if (v === 'off' || v === 'once' || v === 'repeat') return v
+  return SOFT_FREEZE_DEFAULTS.awayNudgeMode
 }
 
 export function todayKey(): string {
@@ -49,6 +67,15 @@ export function loadPrefs(): Prefs {
       lifeMax: clampLifeMax(data.lifeMax ?? LIFE_DEFAULT),
       introButtonOnSurface: data.introButtonOnSurface ?? true,
       notificationsEnabled: data.notificationsEnabled ?? false,
+      softFreezeEnabled:
+        data.softFreezeEnabled ?? SOFT_FREEZE_DEFAULTS.softFreezeEnabled,
+      awayNudgeMode: parseAwayMode(data.awayNudgeMode),
+      awayNudgeEveryMin: clampAwayEvery(
+        data.awayNudgeEveryMin ?? SOFT_FREEZE_DEFAULTS.awayNudgeEveryMin,
+      ),
+      awayNudgeMax: clampAwayMax(
+        data.awayNudgeMax ?? SOFT_FREEZE_DEFAULTS.awayNudgeMax,
+      ),
     }
   } catch {
     return defaultPrefs()
@@ -119,6 +146,11 @@ function normalizeDay(data: DayState, prefs: Prefs, sparks: Spark[]): DayState {
       data.introButtonOnSurface ?? prefs.introButtonOnSurface,
     notificationsEnabled:
       data.notificationsEnabled ?? prefs.notificationsEnabled,
+    softFreezeEnabled:
+      data.softFreezeEnabled ?? prefs.softFreezeEnabled,
+    awayNudgeMode: data.awayNudgeMode ?? prefs.awayNudgeMode,
+    awayNudgeEveryMin: data.awayNudgeEveryMin ?? prefs.awayNudgeEveryMin,
+    awayNudgeMax: data.awayNudgeMax ?? prefs.awayNudgeMax,
     tasks: (data.tasks ?? []).map((t) => ({
       ...t,
       size: t.size ?? 'medium',
@@ -132,7 +164,9 @@ function unfinishedToCarry(tasks: Task[]): CarryItem[] {
   return tasks
     .filter(
       (t) =>
-        t.status === 'planned' || t.status === 'active' || t.status === 'skipped',
+        t.status === 'planned' ||
+        t.status === 'active' ||
+        t.status === 'skipped',
     )
     .map((t) => ({
       title: t.title,
@@ -170,9 +204,7 @@ export function loadDay(): DayState | null {
     const prefs = loadPrefs()
     let vault = loadSparksVault()
 
-    if (!raw) {
-      return null
-    }
+    if (!raw) return null
 
     const data = JSON.parse(raw) as DayState
 
@@ -194,27 +226,23 @@ export function loadDay(): DayState | null {
 }
 
 export function saveDay(state: DayState): void {
-  // Stimmung nur im Tagesobjekt (verschwindet mit dem Tag) — nie in Prefs
-  const toStore: DayState = {
-    ...state,
-    sparks: state.sparks,
-  }
-  localStorage.setItem(DAY_KEY, JSON.stringify(toStore))
+  localStorage.setItem(DAY_KEY, JSON.stringify(state))
   saveSparksVault(state.sparks)
   savePrefs({
-    capacity: {
-      ...(state.baselineCapacity ?? state.capacity),
-    },
+    capacity: { ...(state.baselineCapacity ?? state.capacity) },
     checkInEveryMin: state.checkInEveryMin,
     buddyTone: state.buddyTone,
     lifeMax: state.baselineLifeMax ?? state.lifeMax,
     introButtonOnSurface: state.introButtonOnSurface,
     notificationsEnabled: state.notificationsEnabled,
+    softFreezeEnabled: state.softFreezeEnabled,
+    awayNudgeMode: state.awayNudgeMode,
+    awayNudgeEveryMin: state.awayNudgeEveryMin,
+    awayNudgeMax: state.awayNudgeMax,
   })
 }
 
 export function clearDay(): void {
-  // Geistesblitze bleiben in der Vault — Tag-Daten weg
   localStorage.removeItem(DAY_KEY)
 }
 
@@ -233,8 +261,10 @@ export function emptyDay(): DayState {
     baselineLifeMax: prefs.lifeMax,
     introButtonOnSurface: prefs.introButtonOnSurface,
     notificationsEnabled: prefs.notificationsEnabled,
+    softFreezeEnabled: prefs.softFreezeEnabled,
+    awayNudgeMode: prefs.awayNudgeMode,
+    awayNudgeEveryMin: prefs.awayNudgeEveryMin,
+    awayNudgeMax: prefs.awayNudgeMax,
     mood: null,
   }
 }
-
-export type { DayMood }

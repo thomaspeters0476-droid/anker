@@ -698,7 +698,7 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
                   else setDay((d) => ({ ...d, notificationsEnabled: false }))
                 }}
               />
-              Erinnerungen einschalten (Check-in / Schlaf)
+              Erinnerungen einschalten (Check-in / Schlaf / Freeze)
             </label>
             {!isStandaloneApp() && (
               <p className="block-hint">
@@ -713,6 +713,92 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
               </p>
             )}
             {notifMsg && <p className="export-msg">{notifMsg}</p>}
+
+            <div className="freeze-settings">
+              <p className="export-label">Weicher Freeze</p>
+              <label className="intro-hide-check">
+                <input
+                  type="checkbox"
+                  checked={day.softFreezeEnabled}
+                  onChange={(e) =>
+                    setDay((d) => ({
+                      ...d,
+                      softFreezeEnabled: e.target.checked,
+                    }))
+                  }
+                />
+                Beim Verlassen Timer pausieren
+              </label>
+              <p className="block-hint">
+                Standard für ADHS: an, mit höchstens einer sanften Erinnerung.
+                Nicht einsperren — nur zurückrufen.
+              </p>
+
+              <label className="tone-row freeze-nudge-row" htmlFor="away-nudge">
+                Erinnerungen wenn weg
+                <select
+                  id="away-nudge"
+                  value={day.awayNudgeMode}
+                  disabled={!day.softFreezeEnabled}
+                  onChange={(e) =>
+                    setDay((d) => ({
+                      ...d,
+                      awayNudgeMode: e.target.value as
+                        | 'off'
+                        | 'once'
+                        | 'repeat',
+                    }))
+                  }
+                >
+                  <option value="off">Keine</option>
+                  <option value="once">Einmal (empfohlen)</option>
+                  <option value="repeat">Wiederholen</option>
+                </select>
+              </label>
+
+              {day.softFreezeEnabled && day.awayNudgeMode === 'repeat' && (
+                <>
+                  <div className="settings-row">
+                    <label htmlFor="away-every">
+                      Alle <strong>{day.awayNudgeEveryMin}</strong> Min.
+                    </label>
+                    <input
+                      id="away-every"
+                      type="range"
+                      min={2}
+                      max={10}
+                      step={1}
+                      value={day.awayNudgeEveryMin}
+                      onChange={(e) =>
+                        setDay((d) => ({
+                          ...d,
+                          awayNudgeEveryMin: Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="settings-row">
+                    <label htmlFor="away-max">
+                      Max. <strong>{day.awayNudgeMax}</strong> Hinweise
+                    </label>
+                    <input
+                      id="away-max"
+                      type="range"
+                      min={1}
+                      max={5}
+                      step={1}
+                      value={day.awayNudgeMax}
+                      onChange={(e) =>
+                        setDay((d) => ({
+                          ...d,
+                          awayNudgeMax: Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
           <label className="intro-hide-check settings-check">
