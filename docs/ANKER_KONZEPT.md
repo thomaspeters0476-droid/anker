@@ -149,6 +149,12 @@ Siehe [BUDDY.md](./BUDDY.md).
 
 ---
 
+## 10a. Runterregeln (Notfall)
+
+Stets erreichbarer Button oben rechts. Ein Klick → ruhiger Vollbild-Modus (Atmen 4/6, Sinne 5-4-3-2-1, Körper-Impulse). Timer pausiert; **Ich bin wieder da** kehrt zurück ohne Bewertung.
+
+---
+
 ## 11. Weicher Freeze
 
 Beim Verlassen der App (Tab/Hintergrund):

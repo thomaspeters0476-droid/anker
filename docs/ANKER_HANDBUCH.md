@@ -17,7 +17,8 @@ Alle Funktionen aus Nutzersicht. Schnellstart: [ANKER_ERSTE_SCHRITTE.md](./ANKER
 4. [Abschluss (Done)](#4-abschluss-done)
 5. [Einstellungen](#5-einstellungen)
 6. [Geistesblitze](#6-geistesblitze)
-7. [Daten auf dem Gerät](#7-daten-auf-dem-gerät)
+7. [Runterregeln (Notfall)](#7-runterregeln-notfall)
+8. [Daten auf dem Gerät](#8-daten-auf-dem-gerät)
 
 ---
 
@@ -150,7 +151,23 @@ Technik/Betrieb: [DEPLOY.md](./DEPLOY.md) (`RESEND_*` auf Vercel).
 
 ---
 
-## 7. Daten auf dem Gerät
+## 7. Runterregeln (Notfall)
+
+Oben rechts: Button **„Ruhe“** — immer erreichbar (außer Einführung). Einmaliger Hinweis erklärt ihn.
+
+Öffnet einen ruhigen Vollbild-Modus. Timer und Aufgaben sind ausgeblendet; im Fokus pausiert der Timer.
+
+| Impuls | Inhalt |
+|--------|--------|
+| Atmen | Pulsierender Kreis (4 s ein / 6 s aus) |
+| Sinne | 5-4-3-2-1-Impulse vom Buddy |
+| Körper | Kühle ins Gesicht / Wasser / Hand auf die Brust |
+
+**Ich bin wieder da** schließt den Modus. Der Timer bleibt pausiert — Fortsetzen ohne Druck.
+
+---
+
+## 8. Daten auf dem Gerät
 
 - Alles lokal im Browser dieses Geräts
 - Anderer Browser / Cache leeren = Daten weg (bis Sync existiert)

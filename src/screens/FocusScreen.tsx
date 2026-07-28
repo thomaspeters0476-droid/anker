@@ -27,6 +27,7 @@ import { notify, notifyIfHidden } from '../notifications'
 type Props = {
   day: DayState
   setDay: React.Dispatch<React.SetStateAction<DayState>>
+  regulateOpen?: boolean
 }
 
 function formatTime(sec: number) {
@@ -52,7 +53,7 @@ function activateNext(fromTasks: Task[]): Task[] {
   )
 }
 
-export function FocusScreen({ day, setDay }: Props) {
+export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
   const active = day.tasks.find((t) => t.status === 'active')
   const waiting = day.tasks.filter((t) => t.status === 'planned')
   const doneCount = day.tasks.filter((t) => t.status === 'done').length
@@ -91,10 +92,31 @@ export function FocusScreen({ day, setDay }: Props) {
   const awayNudgeCountRef = useRef(0)
   const awayNudgeTimerRef = useRef<number | null>(null)
   const frozenByAwayRef = useRef(false)
+  const regulateWasOpenRef = useRef(false)
   const runningRef = useRef(running)
   runningRef.current = running
   const secondsLeftRef = useRef(secondsLeft)
   secondsLeftRef.current = secondsLeft
+
+  // Runterregeln: Timer sanft pausieren; nach Rückkehr Hinweis, nicht auto-starten
+  useEffect(() => {
+    if (regulateOpen) {
+      if (runningRef.current) setRunning(false)
+      setShowCheckIn(false)
+      regulateWasOpenRef.current = true
+      return
+    }
+    if (regulateWasOpenRef.current) {
+      regulateWasOpenRef.current = false
+      setBuddyMsg(
+        day.buddyTone === 'kurz'
+          ? 'Wieder da. Weiter, wenn du magst.'
+          : day.buddyTone === 'klar'
+            ? 'Zurück. Timer pausiert — Fortsetzen möglich.'
+            : 'Willkommen zurück. Der Timer war pausiert. Kein Druck — einfach weiter, wenn du soweit bist.',
+      )
+    }
+  }, [regulateOpen, day.buddyTone])
 
   function clearAwayNudges() {
     if (awayNudgeTimerRef.current != null) {
@@ -238,7 +260,8 @@ export function FocusScreen({ day, setDay }: Props) {
   }, [day.notificationsEnabled, sleepPending, day])
 
   useEffect(() => {
-    if (!running || showCheckIn || captureOpen || !active) return
+    if (!running || showCheckIn || captureOpen || regulateOpen || !active)
+      return
     const id = window.setInterval(() => {
       setSecondsLeft((s) => {
         if (s <= 1) {
@@ -278,6 +301,7 @@ export function FocusScreen({ day, setDay }: Props) {
     running,
     showCheckIn,
     captureOpen,
+    regulateOpen,
     active,
     day,
     day.checkInEveryMin,

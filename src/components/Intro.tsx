@@ -19,6 +19,10 @@ const STEPS = [
     title: 'Weicher Freeze',
     text: 'Verlässt du die App, pausiert der Timer sanft. Optional erinnern dich Mitteilungen, zurückzukommen — ohne dich einzusperren. Anpassen oder ausstellen: unten unter Einstellungen.',
   },
+  {
+    title: 'Ruhe-Button',
+    text: 'Oben rechts steht „Ruhe“. Wenn es zu viel wird: tippen. Dann nur Atmen, Sinne, Körper — kein Timer, kein Plan. Zurück mit „Ich bin wieder da“.',
+  },
 ] as const
 
 type Props = {

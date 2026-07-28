@@ -177,8 +177,33 @@ export const HANDBOOK_SECTIONS: Section[] = [
     ],
   },
   {
+    id: 'regulate',
+    title: '7. Runterregeln',
+    blocks: [
+      {
+        type: 'p',
+        text: 'Oben rechts der Button „Ruhe“ — tippen, wenn es zu viel wird. Ruhiger Vollbild-Modus; Timer pausiert.',
+      },
+      {
+        type: 'rows',
+        rows: [
+          { label: 'Atmen', text: 'Kreis: 4 Sek. ein, 6 Sek. aus' },
+          { label: 'Sinne', text: '5-4-3-2-1 Impulse vom Buddy' },
+          {
+            label: 'Körper',
+            text: 'Kühle / Wasser / Hand auf die Brust',
+          },
+          {
+            label: 'Zurück',
+            text: '„Ich bin wieder da“ — Timer bleibt pausiert',
+          },
+        ],
+      },
+    ],
+  },
+  {
     id: 'data',
-    title: '7. Daten auf dem Gerät',
+    title: '8. Daten auf dem Gerät',
     blocks: [
       {
         type: 'ul',
