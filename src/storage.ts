@@ -10,6 +10,7 @@ export type Prefs = {
   checkInEveryMin: number
   buddyTone: DayState['buddyTone']
   lifeMax: number
+  introButtonOnSurface: boolean
 }
 
 function defaultPrefs(): Prefs {
@@ -18,6 +19,7 @@ function defaultPrefs(): Prefs {
     checkInEveryMin: CHECK_IN_DEFAULT,
     buddyTone: 'warm',
     lifeMax: LIFE_DEFAULT,
+    introButtonOnSurface: true,
   }
 }
 
@@ -35,6 +37,7 @@ export function loadPrefs(): Prefs {
       checkInEveryMin: data.checkInEveryMin ?? CHECK_IN_DEFAULT,
       buddyTone: data.buddyTone ?? 'warm',
       lifeMax: clampLifeMax(data.lifeMax ?? LIFE_DEFAULT),
+      introButtonOnSurface: data.introButtonOnSurface ?? true,
     }
   } catch {
     return defaultPrefs()
@@ -56,6 +59,8 @@ export function loadDay(): DayState | null {
       ...data,
       capacity: data.capacity ?? prefs.capacity,
       lifeMax: clampLifeMax(data.lifeMax ?? prefs.lifeMax),
+      introButtonOnSurface:
+        data.introButtonOnSurface ?? prefs.introButtonOnSurface,
       tasks: (data.tasks ?? []).map((t) => ({
         ...t,
         size: t.size ?? 'medium',
@@ -79,6 +84,7 @@ export function saveDay(state: DayState): void {
     checkInEveryMin: state.checkInEveryMin,
     buddyTone: state.buddyTone,
     lifeMax: state.lifeMax,
+    introButtonOnSurface: state.introButtonOnSurface,
   })
 }
 
@@ -97,5 +103,6 @@ export function emptyDay(): DayState {
     buddyTone: prefs.buddyTone,
     capacity: { ...prefs.capacity },
     lifeMax: prefs.lifeMax,
+    introButtonOnSurface: prefs.introButtonOnSurface,
   }
 }

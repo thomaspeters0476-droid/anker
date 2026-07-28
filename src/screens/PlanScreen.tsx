@@ -257,6 +257,30 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
         </div>
       )}
 
+      {onShowIntro && day.introButtonOnSurface && (
+        <div className="intro-surface">
+          <button
+            type="button"
+            className="secondary lg"
+            onClick={onShowIntro}
+          >
+            Einführung anzeigen
+          </button>
+          <label className="intro-hide-check">
+            <input
+              type="checkbox"
+              checked={false}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setDay((d) => ({ ...d, introButtonOnSurface: false }))
+                }
+              }}
+            />
+            Button ausblenden
+          </label>
+        </div>
+      )}
+
       <button
         type="button"
         className="primary lg start-btn"
@@ -410,7 +434,21 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
             />
           </div>
 
-          {onShowIntro && (
+          <label className="intro-hide-check settings-check">
+            <input
+              type="checkbox"
+              checked={day.introButtonOnSurface}
+              onChange={(e) =>
+                setDay((d) => ({
+                  ...d,
+                  introButtonOnSurface: e.target.checked,
+                }))
+              }
+            />
+            Einführungs-Button auf der Startseite
+          </label>
+
+          {onShowIntro && !day.introButtonOnSurface && (
             <button
               type="button"
               className="secondary lg intro-again"

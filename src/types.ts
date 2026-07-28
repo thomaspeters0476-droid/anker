@@ -42,6 +42,8 @@ export interface DayState {
   capacity: CapacitySettings
   /** Max. Alltagsanker heute (1–LIFE_MAX_HARD) */
   lifeMax: number
+  /** Einführung-Button auf der Plan-Oberfläche */
+  introButtonOnSurface: boolean
 }
 
 /** Geistesblitzspeicher: erst wenn keine Arbeitsaufgabe mehr offen ist */

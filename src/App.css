@@ -1051,4 +1051,29 @@
   margin-top: 1rem;
 }
 
+.intro-surface {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.intro-hide-check {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.intro-hide-check input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent);
+}
+
+.intro-hide-check.settings-check {
+  margin-top: 0.85rem;
+}
+
 
