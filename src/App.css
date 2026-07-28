@@ -990,4 +990,61 @@
   gap: 0.15rem;
 }
 
+.intro-screen {
+  padding-top: 1.25rem;
+  min-height: 55dvh;
+  justify-content: center;
+}
+
+.intro-progress {
+  margin: 0;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+}
+
+.intro-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  animation: softIn 0.35s ease both;
+}
+
+.intro-text {
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 28rem;
+  animation: softIn 0.4s ease both;
+}
+
+.intro-dots {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+
+.intro-dots span {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: rgba(28, 43, 36, 0.18);
+}
+
+.intro-dots span.on {
+  background: var(--accent);
+  transform: scale(1.15);
+}
+
+.intro-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
 

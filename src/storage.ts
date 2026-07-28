@@ -1,5 +1,5 @@
 import type { CapacitySettings, DayState } from './types'
-import { CHECK_IN_DEFAULT } from './types'
+import { CHECK_IN_DEFAULT, LIFE_DEFAULT, clampLifeMax } from './types'
 import { DEFAULT_CAPACITY } from './capacity'
 
 const DAY_KEY = 'fokus-buddy-day'
@@ -9,6 +9,16 @@ export type Prefs = {
   capacity: CapacitySettings
   checkInEveryMin: number
   buddyTone: DayState['buddyTone']
+  lifeMax: number
+}
+
+function defaultPrefs(): Prefs {
+  return {
+    capacity: { ...DEFAULT_CAPACITY },
+    checkInEveryMin: CHECK_IN_DEFAULT,
+    buddyTone: 'warm',
+    lifeMax: LIFE_DEFAULT,
+  }
 }
 
 export function todayKey(): string {
@@ -18,25 +28,16 @@ export function todayKey(): string {
 export function loadPrefs(): Prefs {
   try {
     const raw = localStorage.getItem(PREFS_KEY)
-    if (!raw) {
-      return {
-        capacity: { ...DEFAULT_CAPACITY },
-        checkInEveryMin: CHECK_IN_DEFAULT,
-        buddyTone: 'warm',
-      }
-    }
+    if (!raw) return defaultPrefs()
     const data = JSON.parse(raw) as Partial<Prefs>
     return {
       capacity: { ...DEFAULT_CAPACITY, ...data.capacity },
       checkInEveryMin: data.checkInEveryMin ?? CHECK_IN_DEFAULT,
       buddyTone: data.buddyTone ?? 'warm',
+      lifeMax: clampLifeMax(data.lifeMax ?? LIFE_DEFAULT),
     }
   } catch {
-    return {
-      capacity: { ...DEFAULT_CAPACITY },
-      checkInEveryMin: CHECK_IN_DEFAULT,
-      buddyTone: 'warm',
-    }
+    return defaultPrefs()
   }
 }
 
@@ -54,6 +55,7 @@ export function loadDay(): DayState | null {
     return {
       ...data,
       capacity: data.capacity ?? prefs.capacity,
+      lifeMax: clampLifeMax(data.lifeMax ?? prefs.lifeMax),
       tasks: (data.tasks ?? []).map((t) => ({
         ...t,
         size: t.size ?? 'medium',
@@ -76,6 +78,7 @@ export function saveDay(state: DayState): void {
     capacity: state.capacity,
     checkInEveryMin: state.checkInEveryMin,
     buddyTone: state.buddyTone,
+    lifeMax: state.lifeMax,
   })
 }
 
@@ -93,5 +96,6 @@ export function emptyDay(): DayState {
     checkInEveryMin: prefs.checkInEveryMin,
     buddyTone: prefs.buddyTone,
     capacity: { ...prefs.capacity },
+    lifeMax: prefs.lifeMax,
   }
 }

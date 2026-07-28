@@ -40,6 +40,8 @@ export interface DayState {
   checkInEveryMin: number
   buddyTone: 'warm' | 'kurz' | 'klar'
   capacity: CapacitySettings
+  /** Max. Alltagsanker heute (1–LIFE_MAX_HARD) */
+  lifeMax: number
 }
 
 /** Geistesblitzspeicher: erst wenn keine Arbeitsaufgabe mehr offen ist */
@@ -49,8 +51,13 @@ export function workTasksSettled(tasks: Task[]): boolean {
   return work.every((t) => t.status === 'done' || t.status === 'skipped')
 }
 
-export const LIFE_MAX = 3
+export const LIFE_MAX_HARD = 5
+export const LIFE_DEFAULT = 3
 export const CHECK_IN_DEFAULT = 20
+
+export function clampLifeMax(value: number, floor = 0): number {
+  return Math.max(Math.max(1, floor), Math.min(LIFE_MAX_HARD, Math.round(value)))
+}
 
 export const LIFE_TEMPLATES = [
   'Mit dem Hund gehen',

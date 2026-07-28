@@ -1,6 +1,10 @@
 import { useMemo, useState } from 'react'
 import type { DayState, Task, TaskKind, TaskSize } from '../types'
-import { LIFE_MAX, LIFE_TEMPLATES } from '../types'
+import {
+  LIFE_MAX_HARD,
+  LIFE_TEMPLATES,
+  clampLifeMax,
+} from '../types'
 import { capacityHint, greeting } from '../buddy'
 import {
   SIZE_LABEL,
@@ -38,8 +42,9 @@ export function PlanScreen({ day, setDay }: Props) {
   const maxPts = capacityPoints(day.capacity)
 
   const hint = useMemo(
-    () => capacityHint(usedPts, maxPts, life.length, day.buddyTone),
-    [usedPts, maxPts, life.length, day.buddyTone],
+    () =>
+      capacityHint(usedPts, maxPts, life.length, day.lifeMax, day.buddyTone),
+    [usedPts, maxPts, life.length, day.lifeMax, day.buddyTone],
   )
 
   function addTask(kind: TaskKind, title: string, size: TaskSize = 'small') {
@@ -47,7 +52,7 @@ export function PlanScreen({ day, setDay }: Props) {
     if (!trimmed) return
 
     if (kind === 'life') {
-      if (life.length >= LIFE_MAX) return
+      if (life.length >= day.lifeMax) return
       const task: Task = {
         id: uid(),
         title: trimmed,
@@ -83,6 +88,13 @@ export function PlanScreen({ day, setDay }: Props) {
     setDay((d) => ({
       ...d,
       capacity: setCapacitySize(d.capacity, size, value, usedCapacity(d.tasks)),
+    }))
+  }
+
+  function changeLifeMax(value: number) {
+    setDay((d) => ({
+      ...d,
+      lifeMax: clampLifeMax(value, life.length),
     }))
   }
 
@@ -181,7 +193,7 @@ export function PlanScreen({ day, setDay }: Props) {
         <div className="block-head">
           <h2>Alltag</h2>
           <span className="count">
-            {life.length}/{LIFE_MAX}
+            {life.length}/{day.lifeMax}
           </span>
         </div>
         <p className="block-hint">Zählt nicht in die Arbeitspunkte — nur Erinnern.</p>
@@ -200,7 +212,7 @@ export function PlanScreen({ day, setDay }: Props) {
             </li>
           ))}
         </ul>
-        {life.length < LIFE_MAX && (
+        {life.length < day.lifeMax && (
           <>
             <div className="chips">
               {LIFE_TEMPLATES.filter(
@@ -327,7 +339,36 @@ export function PlanScreen({ day, setDay }: Props) {
           </div>
 
           <p className="cap-points">
-            Tagesbudget: <strong>{maxPts}</strong> / {MAX_DAY_POINTS} Punkte
+            Tagesbudget Arbeit: <strong>{maxPts}</strong> / {MAX_DAY_POINTS}{' '}
+            Punkte
+          </p>
+
+          <label className="cap-step">
+            <span>Alltagsanker max.</span>
+            <div className="stepper">
+              <button
+                type="button"
+                className="ghost"
+                aria-label="Weniger Alltagsanker"
+                disabled={day.lifeMax <= Math.max(1, life.length)}
+                onClick={() => changeLifeMax(day.lifeMax - 1)}
+              >
+                −
+              </button>
+              <strong>{day.lifeMax}</strong>
+              <button
+                type="button"
+                className="ghost"
+                aria-label="Mehr Alltagsanker"
+                disabled={day.lifeMax >= LIFE_MAX_HARD}
+                onClick={() => changeLifeMax(day.lifeMax + 1)}
+              >
+                +
+              </button>
+            </div>
+          </label>
+          <p className="block-hint" style={{ marginTop: '0.35rem' }}>
+            Höchstens {LIFE_MAX_HARD}. Weniger ist oft besser.
           </p>
 
           <div className="tone-row">

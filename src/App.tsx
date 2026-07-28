@@ -4,10 +4,12 @@ import { emptyDay, loadDay, saveDay } from './storage'
 import { PlanScreen } from './screens/PlanScreen'
 import { FocusScreen } from './screens/FocusScreen'
 import { DoneScreen } from './screens/DoneScreen'
+import { Intro, hasSeenIntro } from './components/Intro'
 import './App.css'
 
 function App() {
   const [day, setDay] = useState<DayState>(() => loadDay() ?? emptyDay())
+  const [showIntro, setShowIntro] = useState(() => !hasSeenIntro())
 
   useEffect(() => {
     saveDay(day)
@@ -35,9 +37,15 @@ function App() {
       </header>
 
       <main className="main">
-        {screen === 'plan' && <PlanScreen day={day} setDay={setDay} />}
-        {screen === 'focus' && <FocusScreen day={day} setDay={setDay} />}
-        {screen === 'done' && <DoneScreen day={day} setDay={setDay} />}
+        {showIntro ? (
+          <Intro onDone={() => setShowIntro(false)} />
+        ) : (
+          <>
+            {screen === 'plan' && <PlanScreen day={day} setDay={setDay} />}
+            {screen === 'focus' && <FocusScreen day={day} setDay={setDay} />}
+            {screen === 'done' && <DoneScreen day={day} setDay={setDay} />}
+          </>
+        )}
       </main>
     </div>
   )

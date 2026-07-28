@@ -21,6 +21,7 @@ export function capacityHint(
   usedPts: number,
   maxPts: number,
   life: number,
+  lifeMax: number,
   tone: Tone,
 ): string | null {
   if (maxPts > 0 && usedPts >= maxPts) {
@@ -39,7 +40,7 @@ export function capacityHint(
       'Kapazität eng. Nicht erweitern.',
     )
   }
-  if (life >= 3) {
+  if (lifeMax > 0 && life >= lifeMax) {
     return pick(
       tone,
       'Alltag ist voll belegt. Das reicht als Anker.',
