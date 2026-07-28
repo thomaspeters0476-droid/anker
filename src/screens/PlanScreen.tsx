@@ -22,13 +22,14 @@ import {
 type Props = {
   day: DayState
   setDay: React.Dispatch<React.SetStateAction<DayState>>
+  onShowIntro?: () => void
 }
 
 function uid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-export function PlanScreen({ day, setDay }: Props) {
+export function PlanScreen({ day, setDay, onShowIntro }: Props) {
   const [workDraft, setWorkDraft] = useState('')
   const [lifeDraft, setLifeDraft] = useState('')
   const [workSize, setWorkSize] = useState<TaskSize>('medium')
@@ -408,6 +409,16 @@ export function PlanScreen({ day, setDay }: Props) {
               }
             />
           </div>
+
+          {onShowIntro && (
+            <button
+              type="button"
+              className="secondary lg intro-again"
+              onClick={onShowIntro}
+            >
+              Einführung nochmal anzeigen
+            </button>
+          )}
         </details>
       </div>
     </section>

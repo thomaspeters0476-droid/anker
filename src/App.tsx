@@ -10,6 +10,7 @@ import './App.css'
 function App() {
   const [day, setDay] = useState<DayState>(() => loadDay() ?? emptyDay())
   const [showIntro, setShowIntro] = useState(() => !hasSeenIntro())
+  const [introKey, setIntroKey] = useState(0)
 
   useEffect(() => {
     saveDay(day)
@@ -26,6 +27,11 @@ function App() {
   else if (day.started && active) screen = 'focus'
   else if (day.started) screen = 'focus'
 
+  function openIntro() {
+    setIntroKey((k) => k + 1)
+    setShowIntro(true)
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -38,10 +44,16 @@ function App() {
 
       <main className="main">
         {showIntro ? (
-          <Intro onDone={() => setShowIntro(false)} />
+          <Intro key={introKey} onDone={() => setShowIntro(false)} />
         ) : (
           <>
-            {screen === 'plan' && <PlanScreen day={day} setDay={setDay} />}
+            {screen === 'plan' && (
+              <PlanScreen
+                day={day}
+                setDay={setDay}
+                onShowIntro={openIntro}
+              />
+            )}
             {screen === 'focus' && <FocusScreen day={day} setDay={setDay} />}
             {screen === 'done' && <DoneScreen day={day} setDay={setDay} />}
           </>
