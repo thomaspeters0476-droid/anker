@@ -257,6 +257,15 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
         </div>
       )}
 
+      <button
+        type="button"
+        className="primary lg start-btn"
+        disabled={day.tasks.length === 0}
+        onClick={startDay}
+      >
+        Tag starten
+      </button>
+
       {onShowIntro && day.introButtonOnSurface && (
         <div className="intro-surface">
           <button
@@ -280,15 +289,6 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
           </label>
         </div>
       )}
-
-      <button
-        type="button"
-        className="primary lg start-btn"
-        disabled={day.tasks.length === 0}
-        onClick={startDay}
-      >
-        Tag starten
-      </button>
 
       <div className="plan-footer">
         <div className="cap-summary muted">
