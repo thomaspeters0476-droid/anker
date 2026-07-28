@@ -1,0 +1,18 @@
+{
+  "name": "Anker",
+  "short_name": "Anker",
+  "description": "Eine Sache. Realistisch. Zurückfinden.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#e8f0ec",
+  "theme_color": "#2f6f5e",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
