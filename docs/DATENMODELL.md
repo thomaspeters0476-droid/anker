@@ -1,6 +1,6 @@
 # Anker — Datenmodell
 
-Persistenz: **Browser `localStorage`**. Kein Server in der Testphase.
+Persistenz: **Browser `localStorage`**. Ablauf-Mails über Vercel/Resend (optional).
 
 ---
 
@@ -11,10 +11,25 @@ Persistenz: **Browser `localStorage`**. Kein Server in der Testphase.
 | `fokus-buddy-day` | Aktueller Tageszustand (`DayState`) |
 | `anker-prefs` | Dauerhafte Einstellungen (Baseline-Kapazität, Buddy, lifeMax, Freeze, Life-Anker, …) |
 | `anker-carry` | Offene Aufgaben zum Mitnehmen (`CarryItem[]`) |
-| `anker-sparks` | Geistesblitz-Vault (nach Purge ≤ 7 Tage) |
+| `anker-sparks` | Geistesblitz-Vault (Ablauf über `reconcileExpiredSparks`) |
 | `anker-intro-seen` | `'1'` nach Intro |
 
-Hinweis: Der Day-Key heißt historisch `fokus-buddy-day` (früherer Projektname).
+Prefs u. a.: `sparksMailEmail` — optional, Zieladresse für Ablauf-Mail.
+
+---
+
+## Geistesblitze — Retention & Mail
+
+Konstante: `SPARK_RETENTION_DAYS = 7` ([`storage.ts`](../src/storage.ts)).
+
+Beim App-Start ([`sparkExpiry.ts`](../src/sparkExpiry.ts)):
+
+1. Abgelaufene Einträge finden  
+2. Wenn gültige E-Mail: `POST /api/send-expired-sparks` → bei Erfolg löschen  
+3. Bei Mail-Fehler: behalten (kein stilles Löschen)  
+4. Ohne E-Mail: still löschen  
+
+API: [`api/send-expired-sparks.ts`](../api/send-expired-sparks.ts) (Resend). Env: siehe [DEPLOY.md](./DEPLOY.md).
 
 ---
 
@@ -36,6 +51,7 @@ Siehe [`src/types.ts`](../src/types.ts). Wesentliche Felder:
 | Soft-Freeze-Felder | `softFreezeEnabled`, `awayNudgeMode`, … |
 | `hiddenLifeTemplates` | ausgeblendete Standard-Vorschläge |
 | `customLifeAnchors` | eigene persistente Anker |
+| `sparksMailEmail` | optional: Ablauf-Mail-Adresse |
 | `introButtonOnSurface` | Intro-Button sichtbar? |
 | `notificationsEnabled` | Erinnerungen |
 
@@ -54,7 +70,7 @@ Siehe [`src/types.ts`](../src/types.ts). Wesentliche Felder:
 
 ## Prefs
 
-Beim `saveDay` werden relevante Felder nach `anker-prefs` geschrieben (Baseline-Kapazität, lifeMax, Buddy, Freeze, Life-Anker-Listen, …).  
+Beim `saveDay` werden relevante Felder nach `anker-prefs` geschrieben (inkl. `sparksMailEmail`).  
 **Mood wird nicht in Prefs gespeichert.**
 
 ---
@@ -64,7 +80,7 @@ Beim `saveDay` werden relevante Felder nach `anker-prefs` geschrieben (Baseline-
 `rollDayForward(day)`:
 
 1. Unfinished (`planned` / `active` / `skipped`) → `anker-carry`
-2. Sparks in Vault mergen + 7-Tage-Purge
+2. Sparks in Vault mergen
 3. Day-Key löschen
 
 Auslöser:
@@ -73,13 +89,6 @@ Auslöser:
 - „Neuen Tag planen“ in `DoneScreen`
 
 UI: PlanScreen „Noch offen“ → Übernehmen / Verwerfen (`clearCarryOver`).
-
----
-
-## Geistesblitze — Retention
-
-Konstante: `SPARK_RETENTION_DAYS = 7` in [`storage.ts`](../src/storage.ts).  
-Ältere Einträge werden beim Laden/Speichern des Vaults entfernt.
 
 ---
 

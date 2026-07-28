@@ -81,6 +81,12 @@ export function DoneScreen({ day, setDay }: Props) {
           sparks={day.sparks}
           unlocked={unlocked}
           onClose={() => setVaultVisible(false)}
+          onDelete={(id) =>
+            setDay((d) => ({
+              ...d,
+              sparks: d.sparks.filter((s) => s.id !== id),
+            }))
+          }
         />
       )}
     </section>

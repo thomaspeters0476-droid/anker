@@ -29,6 +29,7 @@ export type Prefs = {
   awayNudgeMax: number
   hiddenLifeTemplates: string[]
   customLifeAnchors: string[]
+  sparksMailEmail: string
 }
 
 export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
@@ -44,6 +45,7 @@ function defaultPrefs(): Prefs {
     ...SOFT_FREEZE_DEFAULTS,
     hiddenLifeTemplates: [],
     customLifeAnchors: [],
+    sparksMailEmail: '',
   }
 }
 
@@ -58,6 +60,11 @@ function clampAwayMax(n: number): number {
 function parseAwayMode(v: unknown): AwayNudgeMode {
   if (v === 'off' || v === 'once' || v === 'repeat') return v
   return SOFT_FREEZE_DEFAULTS.awayNudgeMode
+}
+
+function normalizeSparksMailEmail(value: unknown): string {
+  if (typeof value !== 'string') return ''
+  return value.trim().toLowerCase().slice(0, 120)
 }
 
 export function todayKey(): string {
@@ -87,6 +94,7 @@ export function loadPrefs(): Prefs {
       ),
       hiddenLifeTemplates: normalizeTitleList(data.hiddenLifeTemplates),
       customLifeAnchors: normalizeTitleList(data.customLifeAnchors),
+      sparksMailEmail: normalizeSparksMailEmail(data.sparksMailEmail),
     }
   } catch {
     return defaultPrefs()
@@ -97,12 +105,11 @@ export function savePrefs(prefs: Prefs): void {
   localStorage.setItem(PREFS_KEY, JSON.stringify(prefs))
 }
 
-function purgeSparks(sparks: Spark[]): Spark[] {
-  const cutoff = Date.now() - SPARK_RETENTION_DAYS * 24 * 60 * 60 * 1000
-  return sparks.filter((s) => {
+/** Nur ungültige Einträge entfernen — Alters-Löschung über reconcileExpiredSparks */
+function sanitizeSparks(sparks: Spark[]): Spark[] {
+  return sparks.map(normalizeSpark).filter((s) => {
     const t = Date.parse(s.createdAt)
-    if (Number.isNaN(t)) return false
-    return t >= cutoff
+    return !Number.isNaN(t)
   })
 }
 
@@ -115,19 +122,14 @@ export function loadSparksVault(): Spark[] {
   try {
     const raw = localStorage.getItem(SPARKS_KEY)
     if (!raw) return []
-    const list = (JSON.parse(raw) as Spark[]).map(normalizeSpark)
-    const kept = purgeSparks(list)
-    if (kept.length !== list.length) {
-      localStorage.setItem(SPARKS_KEY, JSON.stringify(kept))
-    }
-    return kept
+    return sanitizeSparks(JSON.parse(raw) as Spark[])
   } catch {
     return []
   }
 }
 
 export function saveSparksVault(sparks: Spark[]): void {
-  const kept = purgeSparks(sparks.map(normalizeSpark))
+  const kept = sanitizeSparks(sparks)
   if (kept.length === 0) {
     localStorage.removeItem(SPARKS_KEY)
     return
@@ -138,7 +140,7 @@ export function saveSparksVault(sparks: Spark[]): void {
 function mergeSparks(a: Spark[], b: Spark[]): Spark[] {
   const map = new Map<string, Spark>()
   for (const s of [...a, ...b]) map.set(s.id, normalizeSpark(s))
-  return purgeSparks([...map.values()]).sort(
+  return sanitizeSparks([...map.values()]).sort(
     (x, y) => Date.parse(x.createdAt) - Date.parse(y.createdAt),
   )
 }
@@ -167,6 +169,9 @@ function normalizeDay(data: DayState, prefs: Prefs, sparks: Spark[]): DayState {
     ),
     customLifeAnchors: normalizeTitleList(
       data.customLifeAnchors ?? prefs.customLifeAnchors,
+    ),
+    sparksMailEmail: normalizeSparksMailEmail(
+      data.sparksMailEmail ?? prefs.sparksMailEmail,
     ),
     tasks: (data.tasks ?? []).map((t) => ({
       ...t,
@@ -263,6 +268,7 @@ export function saveDay(state: DayState): void {
     awayNudgeMax: state.awayNudgeMax,
     hiddenLifeTemplates: normalizeTitleList(state.hiddenLifeTemplates),
     customLifeAnchors: normalizeTitleList(state.customLifeAnchors),
+    sparksMailEmail: normalizeSparksMailEmail(state.sparksMailEmail),
   })
 }
 
@@ -291,6 +297,7 @@ export function emptyDay(): DayState {
     awayNudgeMax: prefs.awayNudgeMax,
     hiddenLifeTemplates: [...prefs.hiddenLifeTemplates],
     customLifeAnchors: [...prefs.customLifeAnchors],
+    sparksMailEmail: prefs.sparksMailEmail,
     mood: null,
   }
 }

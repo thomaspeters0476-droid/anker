@@ -61,6 +61,11 @@ export interface DayState {
   hiddenLifeTemplates: string[]
   /** Eigene Alltagsanker — bleiben über Tage erhalten */
   customLifeAnchors: string[]
+  /**
+   * Optional: nach Ablauf (7 Tage) Geistesblitze hierher mailen, dann löschen.
+   * Leer = nach 7 Tagen still löschen (wenn App geöffnet wird).
+   */
+  sparksMailEmail: string
 }
 
 /** Geistesblitzspeicher: erst wenn keine Arbeitsaufgabe mehr offen ist */

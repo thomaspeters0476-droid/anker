@@ -496,6 +496,12 @@ export function FocusScreen({ day, setDay }: Props) {
             sparks={day.sparks}
             unlocked={vaultOpen}
             onClose={() => setVaultVisible(false)}
+            onDelete={(id) =>
+              setDay((d) => ({
+                ...d,
+                sparks: d.sparks.filter((s) => s.id !== id),
+              }))
+            }
           />
         )}
       </section>
@@ -655,6 +661,12 @@ export function FocusScreen({ day, setDay }: Props) {
               setBuddyMsg(lifeContinue(active, ctxFromDay(day)))
             }
           }}
+          onDelete={(id) =>
+            setDay((d) => ({
+              ...d,
+              sparks: d.sparks.filter((s) => s.id !== id),
+            }))
+          }
         />
       )}
     </section>

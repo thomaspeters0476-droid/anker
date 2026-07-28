@@ -974,6 +974,24 @@
   background: rgba(232, 240, 236, 0.7);
 }
 
+.vault-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.vault-delete {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  padding: 0.25rem 0.55rem;
+  color: var(--ink-soft);
+}
+
+.vault-delete:hover {
+  color: #8a3a32;
+}
+
 .vault-item p {
   margin: 0.35rem 0 0;
   font-size: 1.02rem;
@@ -1359,6 +1377,37 @@
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
+}
+
+.sparks-mail-settings {
+  margin: 0.85rem 0 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sparks-mail-settings label {
+  font-size: 0.95rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.sparks-mail-settings input {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  background: #fff;
+  color: var(--ink);
+}
+
+.spark-mail-notice {
+  margin: 0.65rem 0;
+}
+
+.spark-mail-notice .ghost {
+  margin-top: 0.35rem;
+  align-self: flex-start;
 }
 
 .handbook-panel {

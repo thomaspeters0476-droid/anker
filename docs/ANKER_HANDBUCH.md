@@ -138,8 +138,15 @@ Am unteren Rand des Plans (aufklappbar):
 |--------|----------------|
 | Parken | Notiz, Zeichnung oder kurze Sprachnotiz |
 | Speicher | Ansehen erst nach erledigter/übersprungener **Arbeit** |
-| Haltbarkeit | max. 7 Tage, dann automatisch weg |
+| Haltbarkeit | max. **7 Tage** |
+| E-Mail (optional) | unter Einstellungen — nach 7 Tagen Zusendung, **dann** Löschen |
+| Ohne E-Mail | nach 7 Tagen still löschen (beim nächsten Öffnen der App) |
+| Löschen | im offenen Speicher pro Eintrag |
 | Export | Kopieren, Textdatei, PDF, Audio |
+
+Große Skizzen können die Mail-Grenze sprengen — dann Hinweis in der Mail, vorher in der App exportieren. Audio ist auf **60 Sekunden** begrenzt und wird in der Regel mitgeschickt.
+
+Technik/Betrieb: [DEPLOY.md](./DEPLOY.md) (`RESEND_*` auf Vercel).
 
 ---
 

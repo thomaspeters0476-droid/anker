@@ -24,6 +24,7 @@ import {
 import {
   clearCarryOver,
   loadCarryOver,
+  SPARK_RETENTION_DAYS,
   type CarryItem,
 } from '../storage'
 import {
@@ -40,19 +41,30 @@ import {
   minutesForSize,
   type DayMood,
 } from '../mood'
-import { SPARK_RETENTION_DAYS } from '../storage'
+import {
+  isValidSparksEmail,
+  normalizeSparksEmail,
+} from '../sparkExpiry'
 
 type Props = {
   day: DayState
   setDay: React.Dispatch<React.SetStateAction<DayState>>
   onShowIntro?: () => void
+  sparkMailNotice?: string | null
+  onDismissSparkMailNotice?: () => void
 }
 
 function uid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-export function PlanScreen({ day, setDay, onShowIntro }: Props) {
+export function PlanScreen({
+  day,
+  setDay,
+  onShowIntro,
+  sparkMailNotice,
+  onDismissSparkMailNotice,
+}: Props) {
   const [workDraft, setWorkDraft] = useState('')
   const [lifeDraft, setLifeDraft] = useState('')
   const [workSize, setWorkSize] = useState<TaskSize>('medium')
@@ -342,6 +354,22 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
         </p>
       </div>
 
+      {sparkMailNotice && (
+        <div className="buddy-card warn spark-mail-notice" role="status">
+          <span className="buddy-label">Geistesblitze</span>
+          <p>{sparkMailNotice}</p>
+          {onDismissSparkMailNotice && (
+            <button
+              type="button"
+              className="ghost sm"
+              onClick={onDismissSparkMailNotice}
+            >
+              OK
+            </button>
+          )}
+        </div>
+      )}
+
       {!day.started && (
         <div className="block block--mood">
           <div className="block-head">
@@ -625,9 +653,38 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
 
           <p className="block-hint settings-intro">
             Grundeinstellung (ohne Stimmung). Die Tagesfrage skaliert davon ab —
-            Stimmung wird nicht historisch gespeichert. Geistesblitze bleiben max.{' '}
-            {SPARK_RETENTION_DAYS} Tage.
+            Stimmung wird nicht historisch gespeichert. Geistesblitze: nach{' '}
+            {SPARK_RETENTION_DAYS} Tagen per E-Mail (wenn angegeben), sonst
+            still löschen — sobald die App wieder geöffnet wird.
           </p>
+
+          <div className="sparks-mail-settings">
+            <label htmlFor="sparks-mail">
+              Geistesblitze nach {SPARK_RETENTION_DAYS} Tagen an E-Mail
+            </label>
+            <input
+              id="sparks-mail"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              placeholder="z. B. name@beispiel.de"
+              value={day.sparksMailEmail ?? ''}
+              onChange={(e) =>
+                setDay((d) => ({
+                  ...d,
+                  sparksMailEmail: normalizeSparksEmail(e.target.value),
+                }))
+              }
+              maxLength={120}
+            />
+            <p className="block-hint">
+              {day.sparksMailEmail && !isValidSparksEmail(day.sparksMailEmail)
+                ? 'Bitte eine gültige Adresse eingeben — sonst werden abgelaufene Ideen nur gelöscht.'
+                : day.sparksMailEmail
+                  ? 'Gesetzt: Beim Öffnen der App werden Ideen älter als 7 Tage hierher geschickt und erst dann gelöscht.'
+                  : 'Optional. Leer = nach 7 Tagen ohne Mail löschen (beim nächsten Öffnen).'}
+            </p>
+          </div>
 
           <div className="cap-controls">
             {sizes.map((size) => (

@@ -12,6 +12,7 @@ type Props = {
   sparks: Spark[]
   unlocked: boolean
   onClose: () => void
+  onDelete?: (id: string) => void
 }
 
 function modeLabel(mode: Spark['mode']): string {
@@ -20,7 +21,7 @@ function modeLabel(mode: Spark['mode']): string {
   return 'Audio'
 }
 
-export function SparkVault({ sparks, unlocked, onClose }: Props) {
+export function SparkVault({ sparks, unlocked, onClose, onDelete }: Props) {
   const [copyMsg, setCopyMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const canExport = unlocked && sparks.length > 0
@@ -46,6 +47,10 @@ export function SparkVault({ sparks, unlocked, onClose }: Props) {
     }
   }
 
+  function removeSpark(id: string) {
+    onDelete?.(id)
+  }
+
   return (
     <div className="spark-overlay" role="dialog" aria-modal="true" aria-label="Geistesblitzspeicher">
       <div className="spark-panel vault">
@@ -57,8 +62,9 @@ export function SparkVault({ sparks, unlocked, onClose }: Props) {
               : 'Noch verschlossen. Erst die Arbeitsaufgaben.'}
           </p>
           <p className="vault-retain">
-            Ideen bleiben höchstens 7 Tage — dann weg. Bitte exportieren, wenn
-            wichtig. Kein Archiv, keine Bewertung.
+            Ideen bleiben höchstens 7 Tage. Mit E-Mail in den Einstellungen
+            werden sie vorher zugeschickt, dann gelöscht. Sonst still entfernt,
+            sobald du die App wieder öffnest.
           </p>
         </div>
 
@@ -74,14 +80,26 @@ export function SparkVault({ sparks, unlocked, onClose }: Props) {
           <ul className="vault-list">
             {sparks.map((s) => (
               <li key={s.id} className="vault-item">
-                <span className="vault-meta">
-                  {modeLabel(s.mode)}
-                  {' · '}
-                  {new Date(s.createdAt).toLocaleTimeString('de-DE', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </span>
+                <div className="vault-item-head">
+                  <span className="vault-meta">
+                    {modeLabel(s.mode)}
+                    {' · '}
+                    {new Date(s.createdAt).toLocaleTimeString('de-DE', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                  {onDelete && (
+                    <button
+                      type="button"
+                      className="ghost sm vault-delete"
+                      onClick={() => removeSpark(s.id)}
+                      aria-label="Geistesblitz löschen"
+                    >
+                      Löschen
+                    </button>
+                  )}
+                </div>
                 {s.text && <p>{s.text}</p>}
                 {s.drawingDataUrl && (
                   <img src={s.drawingDataUrl} alt="Skizze" className="vault-sketch" />

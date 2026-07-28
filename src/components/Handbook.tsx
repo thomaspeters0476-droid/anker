@@ -162,7 +162,15 @@ export const HANDBOOK_SECTIONS: Section[] = [
             label: 'Speicher',
             text: 'Ansehen erst nach erledigter/übersprungener Arbeit',
           },
-          { label: 'Haltbarkeit', text: 'max. 7 Tage, dann weg' },
+          {
+            label: 'Haltbarkeit',
+            text: 'max. 7 Tage — mit E-Mail vorher zuschicken, dann löschen',
+          },
+          {
+            label: 'E-Mail',
+            text: 'Einstellungen: Adresse für Ablauf-Versand (optional)',
+          },
+          { label: 'Löschen', text: 'Im offenen Speicher pro Eintrag' },
           { label: 'Export', text: 'Kopieren, Text, PDF, Audio' },
         ],
       },

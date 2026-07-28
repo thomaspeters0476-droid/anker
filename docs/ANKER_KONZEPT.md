@@ -144,7 +144,7 @@ Siehe [BUDDY.md](./BUDDY.md).
 
 - Modi: Notiz / Skizze / Audio (kurz parken, dann zurück)
 - Speicher erst öffnen, wenn **Arbeitsaufgaben** settled sind (Alltag sperrt nicht)
-- Retention: max. **7 Tage**, dann weg — entlasten, nicht archivieren
+- Retention: max. **7 Tage** — optional E-Mail in den Einstellungen: erst zusenden, dann löschen; ohne E-Mail still löschen beim nächsten Öffnen
 - Export: Kopieren, Text, PDF, Audio
 
 ---

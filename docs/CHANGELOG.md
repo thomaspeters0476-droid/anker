@@ -6,9 +6,11 @@ Format: neueste zuerst. Bei Releases kurz ergänzen.
 
 ## Unreleased
 
+- Optionale E-Mail für Geistesblitze: nach 7 Tagen zusenden, dann löschen (`/api/send-expired-sparks`, Resend)
+- Geistesblitze im offenen Speicher einzeln löschbar
 - Handbuch in der App unter Einstellungen (`Handbook.tsx`)
-- Dokuhub unter `docs/` (Konzept, Handbuch, Roadmap, Architektur, Datenmodell, Buddy, Deploy)
-- Kontextreicher Buddy (`BuddyCtx`) — Stimmung, Carry, nächste Aufgabe, Feierabend u. a.
+- Dokuhub unter `docs/`
+- Kontextreicher Buddy (`BuddyCtx`)
 
 ---
 
