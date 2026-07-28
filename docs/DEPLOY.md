@@ -41,15 +41,13 @@ Ausgabe: `docs/anker-onepager.pdf`
 
 Nach Push auf `main` typischerweise automatisches Deployment.
 
-### Domains anbinden
+### Domains & Routen
 
-1. Vercel → Project → Settings → Domains → `tagesanker.de` und `tagesanker.app` (**erledigt** Jul 2026)  
-2. Beim Registrar DNS setzen (aktuell ui-dns / IONOS):
-   - empfohlen: **A-Record** Apex → `76.76.21.21` für beide Domains  
-   - oder Nameserver auf `ns1.vercel-dns.com` / `ns2.vercel-dns.com` umstellen  
-3. HTTPS abwarten (Vercel verifiziert nach DNS)  
-4. `anker-dun.vercel.app` / `anker-schwundbuch.vercel.app` als Fallback behalten  
-5. Resend: Versanddomain verifizieren (empfohlen `tagesanker.de`)
+1. Domains `tagesanker.de` / `tagesanker.app` an Vercel (**erledigt**)
+2. **Marketing:** `/` Landing, `/blog`, `/preise` (Platzhalter), Legal (`/impressum`, `/datenschutz`, `/agb`, `/widerruf`)
+3. **App (PWA):** `/app` — Manifest `start_url` / `scope` = `/app`
+4. Resend-Versanddomain: `tagesanker.de` (`RESEND_FROM=Tagesanker <noreply@tagesanker.de>`)
+5. Fallback-URLs: `anker-*.vercel.app` behalten
 
 ### Env-Vars (Geistesblitz-Mail)
 

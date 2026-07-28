@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="780" viewBox="0 0 390 780" role="img" aria-label="Tagesanker Feierabend-Ansicht">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#e8f0ec"/>
+      <stop offset="50%" stop-color="#f7f3eb"/>
+      <stop offset="100%" stop-color="#d4e4dc"/>
+    </linearGradient>
+    <filter id="s" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#1c2b24" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  <rect width="390" height="780" fill="url(#bg)"/>
+  <circle cx="70" cy="180" r="130" fill="#c5ddd2" opacity="0.42"/>
+  <circle cx="330" cy="560" r="120" fill="#f0e2c8" opacity="0.38"/>
+
+  <g font-family="Georgia, serif">
+    <circle cx="36" cy="48" r="6" fill="#2f6f5e"/>
+    <text x="52" y="55" font-size="26" font-weight="700" fill="#1f4d41">Tagesanker</text>
+  </g>
+
+  <text x="28" y="120" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#1f4d41">Feierabend.</text>
+  <text x="28" y="158" font-family="system-ui, sans-serif" font-size="16" fill="#4a5c52">Genug für heute. Der Rest darf liegen.</text>
+
+  <g filter="url(#s)">
+    <rect x="22" y="190" width="346" height="100" rx="18" fill="rgba(255,252,247,0.92)" stroke="rgba(28,43,36,0.12)"/>
+    <text x="40" y="222" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2" fill="#1f4d41">BUDDY</text>
+    <text x="40" y="250" font-family="system-ui, sans-serif" font-size="16" fill="#1c2b24">Zwei Dinge geschafft.</text>
+    <text x="40" y="274" font-family="system-ui, sans-serif" font-size="15" fill="#4a5c52">Das zählt. Wirklich.</text>
+  </g>
+
+  <text x="28" y="340" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#1c2b24">Erledigt</text>
+  <g font-family="system-ui, sans-serif">
+    <rect x="22" y="356" width="346" height="50" rx="14" fill="rgba(47,111,94,0.1)"/>
+    <text x="40" y="387" font-size="15" fill="#1c2b24">  Angebot fertigstellen</text>
+    <rect x="22" y="416" width="346" height="50" rx="14" fill="rgba(47,111,94,0.1)"/>
+    <text x="40" y="447" font-size="15" fill="#1c2b24">  Mail an Team</text>
+  </g>
+
+  <text x="28" y="510" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#1c2b24">Geistesblitze</text>
+  <g filter="url(#s)" font-family="system-ui, sans-serif">
+    <rect x="22" y="526" width="346" height="70" rx="16" fill="rgba(255,252,247,0.92)" stroke="rgba(28,43,36,0.1)"/>
+    <text x="40" y="556" font-size="15" fill="#1c2b24">Idee fürs Wochenende</text>
+    <text x="40" y="578" font-size="13" fill="#4a5c52">Notiz · noch 6 Tage</text>
+  </g>
+
+  <rect x="22" y="630" width="346" height="52" rx="26" fill="#2f6f5e"/>
+  <text x="108" y="663" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#f7fbf9">Neuen Tag planen</text>
+</svg>

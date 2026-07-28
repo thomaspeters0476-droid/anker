@@ -57,6 +57,13 @@ button {
 }
 
 #root {
+  width: 100%;
+  min-height: 100%;
+}
+
+.app-route {
   display: flex;
   justify-content: center;
+  width: 100%;
+  min-height: 100%;
 }

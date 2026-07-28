@@ -6,8 +6,10 @@ Format: neueste zuerst. Bei Releases kurz ergänzen.
 
 ## Unreleased
 
+- Marketing-Site unter `/` (Landing, Blog, Preise-Platzhalter); App unter `/app`
+- B2C-Rechtstexte: Impressum, Datenschutz, AGB, Widerruf (Anbieterin Karina Peters)
 - Öffentlicher Name **Tagesanker** (UI, PWA, Mails, Doku); Kurzform „Anker“ ok in Metaphern/Buddy
-- Domains **tagesanker.de** / **tagesanker.app** an Vercel; DNS beim Registrar folgt
+- Domains **tagesanker.de** / **tagesanker.app** + Resend (`noreply@tagesanker.de`)
 - Runterregeln-Modus (Button „Ruhe“); Geistesblitz-Mail nach 7 Tagen; Sparks löschbar
 - Dokuhub unter `docs/`; kontextreicher Buddy
 

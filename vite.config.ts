@@ -7,6 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: false,
       includeAssets: [
         'favicon.svg',
         'apple-touch-icon.png',
@@ -21,7 +22,8 @@ export default defineConfig({
         background_color: '#e8f0ec',
         display: 'standalone',
         lang: 'de',
-        start_url: '/',
+        start_url: '/app',
+        scope: '/app',
         orientation: 'portrait-primary',
         icons: [
           {
@@ -50,6 +52,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,ico,png,woff2}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//],
       },
     }),
   ],

@@ -6,10 +6,11 @@ Bei neuen Features: passende Spec hier pflegen und [`CHANGELOG.md`](./CHANGELOG.
 | | |
 |---|---|
 | **Marke** | **Tagesanker** (UI, PWA, Mails) |
-| **Domains** | [tagesanker.de](https://tagesanker.de) · [tagesanker.app](https://tagesanker.app) *(gesichert, DNS→Vercel folgt)* |
+| **Domains** | [tagesanker.de](https://tagesanker.de) · [tagesanker.app](https://tagesanker.app) |
+| **App** | https://tagesanker.de/app |
 | **Live (interim)** | https://anker-dun.vercel.app |
 | **Repo** | https://github.com/thomaspeters0476-droid/anker |
-| **Status** | MVP / Testphase — kostenlos, kein Abo in der App |
+| **Status** | MVP / Testphase — kostenlos, kein Abo in der App; Marketing-Site live |
 | **Stand** | Juli 2026 |
 
 Dateinamen mit Präfix `ANKER_` bleiben vorerst (Repo-Historie); Inhalt spricht von **Tagesanker**.

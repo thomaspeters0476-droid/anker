@@ -1,8 +1,9 @@
 {
-  "name": "Anker",
-  "short_name": "Anker",
+  "name": "Tagesanker",
+  "short_name": "Tagesanker",
   "description": "Eine Sache. Realistisch. Zurückfinden.",
-  "start_url": "/",
+  "start_url": "/app",
+  "scope": "/app",
   "display": "standalone",
   "background_color": "#e8f0ec",
   "theme_color": "#2f6f5e",
