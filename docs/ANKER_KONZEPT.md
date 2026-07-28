@@ -1,7 +1,8 @@
 # Anker — Gesamtkonzept
 
 **Produkt:** Fokus-Web-App · Tagline **„Eine Sache. Realistisch. Zurückfinden.“**  
-**Live:** [anker-dun.vercel.app](https://anker-dun.vercel.app)  
+**Domains:** [tagesanker.de](https://tagesanker.de) · [tagesanker.app](https://tagesanker.app) *(gesichert)*  
+**Live (interim):** [anker-dun.vercel.app](https://anker-dun.vercel.app)  
 **Stand:** Juli 2026 · **MVP / Testphase** (kostenlos, kein Login)
 
 Dieses Dokument fasst Produkt, Haltung und Funktionen zusammen. Technik: [ARCHITEKTUR.md](./ARCHITEKTUR.md), [DATENMODELL.md](./DATENMODELL.md). Roadmap: [ANKER_ROADMAP.md](./ANKER_ROADMAP.md).
@@ -11,21 +12,23 @@ Dieses Dokument fasst Produkt, Haltung und Funktionen zusammen. Technik: [ARCHIT
 ## Inhaltsverzeichnis
 
 1. [Was ist Anker?](#1-was-ist-anker)
-2. [Zielgruppe](#2-zielgruppe)
-3. [Haltung & Leitprinzipien](#3-haltung--leitprinzipien)
-4. [Tagesablauf](#4-tagesablauf)
-5. [Arbeitsaufgaben & Kapazität](#5-arbeitsaufgaben--kapazität)
-6. [Tagesgefühl](#6-tagesgefühl)
-7. [Alltagsanker](#7-alltagsanker)
-8. [Offenes mitnehmen](#8-offenes-mitnehmen)
-9. [Fokus, Buddy, Check-ins](#9-fokus-buddy-check-ins)
-10. [Geistesblitze & Feierabend](#10-geistesblitze--feierabend)
-11. [Weicher Freeze](#11-weicher-freeze)
-12. [PWA & Erinnerungen](#12-pwa--erinnerungen)
-13. [Einführung](#13-einführung)
-14. [Daten & Privatsphäre (kurz)](#14-daten--privatsphäre-kurz)
-15. [Bewusst nicht in Scope (Testphase)](#15-bewusst-nicht-in-scope-testphase)
-16. [Verwandte Docs](#16-verwandte-docs)
+2. [Marke & Domain](#2-marke--domain)
+3. [Zielgruppe](#3-zielgruppe)
+4. [Haltung & Leitprinzipien](#4-haltung--leitprinzipien)
+5. [Tagesablauf](#5-tagesablauf)
+6. [Arbeitsaufgaben & Kapazität](#6-arbeitsaufgaben--kapazität)
+7. [Tagesgefühl](#7-tagesgefühl)
+8. [Alltagsanker](#8-alltagsanker)
+9. [Offenes mitnehmen](#9-offenes-mitnehmen)
+10. [Fokus, Buddy, Check-ins](#10-fokus-buddy-check-ins)
+11. [Geistesblitze & Feierabend](#11-geistesblitze--feierabend)
+12. [Runterregeln (Notfall)](#12-runterregeln-notfall)
+13. [Weicher Freeze](#13-weicher-freeze)
+14. [PWA & Erinnerungen](#14-pwa--erinnerungen)
+15. [Einführung](#15-einführung)
+16. [Daten & Privatsphäre (kurz)](#16-daten--privatsphäre-kurz)
+17. [Bewusst nicht in Scope (Testphase)](#17-bewusst-nicht-in-scope-testphase)
+18. [Verwandte Docs](#18-verwandte-docs)
 
 ---
 
@@ -41,7 +44,21 @@ Anker ist eine **Web-App für fokussiertes Tagesarbeiten** — ADHS-freundlich:
 
 ---
 
-## 2. Zielgruppe
+## 2. Marke & Domain
+
+| | |
+|---|---|
+| **App-Name in der UI** | Anker |
+| **Öffentliche Domains** | **tagesanker.de**, **tagesanker.app** (beide gesichert) |
+| **Deploy heute** | Vercel-URL `anker-dun.vercel.app` bis DNS umgestellt ist |
+
+„Tagesanker“ trägt den Alltags-Gedanken in der Domain; in der App bleibt der kurze Name **Anker**. Beide Domains sollen auf dasselbe Deployment zeigen (`.app` oft für die PWA/App-Story, `.de` für den deutschsprachigen Einstieg).
+
+Details DNS/Vercel: [DEPLOY.md](./DEPLOY.md).
+
+---
+
+## 3. Zielgruppe
 
 Menschen, die:
 
@@ -54,7 +71,7 @@ Primär Erwachsene mit ADHS oder ähnlichen Mustern; nutzbar auch ohne Diagnose.
 
 ---
 
-## 3. Haltung & Leitprinzipien
+## 4. Haltung & Leitprinzipien
 
 | Prinzip | Bedeutung |
 |---------|-----------|
@@ -66,7 +83,7 @@ Primär Erwachsene mit ADHS oder ähnlichen Mustern; nutzbar auch ohne Diagnose.
 
 ---
 
-## 4. Tagesablauf
+## 5. Tagesablauf
 
 1. **Plan** — Tagesgefühl, Arbeitsaufgaben (S/M/L), Alltagsanker, Einstellungen  
 2. **Fokus** — Timer, Check-ins, Geistesblitze, optional Freeze  
@@ -77,7 +94,7 @@ Wenn alle Arbeitsaufgaben erledigt oder übersprungen sind → **Feierabend-Modu
 
 ---
 
-## 5. Arbeitsaufgaben & Kapazität
+## 6. Arbeitsaufgaben & Kapazität
 
 | Größe | Punkte | Minuten (Baseline) |
 |-------|--------|--------------------|
@@ -95,7 +112,7 @@ Details: Code in `src/capacity.ts`.
 
 ---
 
-## 6. Tagesgefühl
+## 7. Tagesgefühl
 
 Optionen: **Ziemlich gut** / **Geht so** / **Heute eher schwer**.
 
@@ -107,7 +124,7 @@ Details: `src/mood.ts`, [BUDDY.md](./BUDDY.md).
 
 ---
 
-## 7. Alltagsanker
+## 8. Alltagsanker
 
 - zählen **nicht** in die Arbeitspunkte
 - Default-Vorschläge (Hund, Essen, Schlafen, Medikamente, Bewegen, Post …)
@@ -117,7 +134,7 @@ Details: `src/mood.ts`, [BUDDY.md](./BUDDY.md).
 
 ---
 
-## 8. Offenes mitnehmen
+## 9. Offenes mitnehmen
 
 Unfertige, aktive oder übersprungene Aufgaben werden gemerkt:
 
@@ -128,7 +145,7 @@ Auf dem Plan erscheinen sie unter **„Noch offen“** — Übernehmen (soweit K
 
 ---
 
-## 9. Fokus, Buddy, Check-ins
+## 10. Fokus, Buddy, Check-ins
 
 - nur die aktuelle Aufgabe prominent
 - Timer je Größe (und Stimmung)
@@ -140,7 +157,7 @@ Siehe [BUDDY.md](./BUDDY.md).
 
 ---
 
-## 10. Geistesblitze & Feierabend
+## 11. Geistesblitze & Feierabend
 
 - Modi: Notiz / Skizze / Audio (kurz parken, dann zurück)
 - Speicher erst öffnen, wenn **Arbeitsaufgaben** settled sind (Alltag sperrt nicht)
@@ -149,13 +166,13 @@ Siehe [BUDDY.md](./BUDDY.md).
 
 ---
 
-## 10a. Runterregeln (Notfall)
+## 12. Runterregeln (Notfall)
 
 Stets erreichbarer Button oben rechts. Ein Klick → ruhiger Vollbild-Modus (Atmen 4/6, Sinne 5-4-3-2-1, Körper-Impulse). Timer pausiert; **Ich bin wieder da** kehrt zurück ohne Bewertung.
 
 ---
 
-## 11. Weicher Freeze
+## 13. Weicher Freeze
 
 Beim Verlassen der App (Tab/Hintergrund):
 
@@ -165,7 +182,7 @@ Beim Verlassen der App (Tab/Hintergrund):
 
 ---
 
-## 12. PWA & Erinnerungen
+## 14. PWA & Erinnerungen
 
 - installierbar (Anleitung in der App: iPhone Safari / Android Chrome)
 - Browser-Notifications: Check-in, Away, Feierabend, Schlaf-Anker
@@ -173,14 +190,14 @@ Beim Verlassen der App (Tab/Hintergrund):
 
 ---
 
-## 13. Einführung
+## 15. Einführung
 
 Vier Schritte beim ersten Start (Wenig planen / Eine Sache / Zurückfinden / Weicher Freeze).  
 Erneut über „Einführung anzeigen“ auf dem Plan; Button in Einstellungen versteckbar.
 
 ---
 
-## 14. Daten & Privatsphäre (kurz)
+## 16. Daten & Privatsphäre (kurz)
 
 - Speicherung im **Browser** (`localStorage`) — kein Account in der Testphase
 - kein serverseitiges Nutzerprofil
@@ -190,7 +207,7 @@ Details: [DATENMODELL.md](./DATENMODELL.md).
 
 ---
 
-## 15. Bewusst nicht in Scope (Testphase)
+## 17. Bewusst nicht in Scope (Testphase)
 
 - kein Login / Cloud-Sync (noch)
 - kein App-Store-Build (Capacitor o. Ä. später möglich)
@@ -200,7 +217,7 @@ Details: [DATENMODELL.md](./DATENMODELL.md).
 
 ---
 
-## 16. Verwandte Docs
+## 18. Verwandte Docs
 
 - Nutzer: [ANKER_ERSTE_SCHRITTE.md](./ANKER_ERSTE_SCHRITTE.md), [ANKER_HANDBUCH.md](./ANKER_HANDBUCH.md)
 - Planung: [ANKER_ROADMAP.md](./ANKER_ROADMAP.md)

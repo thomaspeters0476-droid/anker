@@ -6,7 +6,8 @@ Web-App für fokussiertes Tagesarbeiten — ADHS-freundlich: wenig planen, eine 
 
 | | |
 |---|---|
-| **Live** | https://anker-dun.vercel.app |
+| **Domains** | [tagesanker.de](https://tagesanker.de) · [tagesanker.app](https://tagesanker.app) *(gesichert)* |
+| **Live (interim)** | https://anker-dun.vercel.app |
 | **Repo** | https://github.com/thomaspeters0476-droid/anker |
 | **Dokumentation** | [`docs/README.md`](docs/README.md) ← **Dokuhub** |
 | **One-Pager** | [`docs/anker-onepager.pdf`](docs/anker-onepager.pdf) |

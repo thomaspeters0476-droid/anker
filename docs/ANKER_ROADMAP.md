@@ -25,6 +25,7 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 | Thema | Ziel |
 |-------|------|
 | **Sync** | Einstellungen und Tagesstand zwischen Geräten (Account/Backend TBD) |
+| **Domains live** | `tagesanker.de` / `tagesanker.app` an Vercel + Resend anbinden |
 | Buddy-Feinschliff | mehr Situationen abdecken, Ton beibehalten (entlasten) |
 | Stabilität PWA | Notifications auf iOS/Android zuverlässiger nach Install |
 | Doku/Prozess | CHANGELOG bei Releases pflegen |
@@ -55,6 +56,7 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 
 | Datum | Entscheidung |
 |-------|----------------|
+| Jul 2026 | Domains **tagesanker.de** + **tagesanker.app** gesichert; UI-Name bleibt Anker |
 | Jul 2026 | Test gratis; Abo-Kommunikation erst Verkaufsversion |
 | Jul 2026 | Sync vor Preiserhöhung / 3,99er-Story |
 | Jul 2026 | Buddy zuerst kontextreich lokal, KI optional später |

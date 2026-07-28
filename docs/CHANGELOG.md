@@ -6,9 +6,9 @@ Format: neueste zuerst. Bei Releases kurz ergänzen.
 
 ## Unreleased
 
-- Runterregeln-Modus (Atem / Sinne / Körper) — Notfall-Button oben rechts
-- Optionale E-Mail für Geistesblitze: nach 7 Tagen zusenden, dann löschen
-- Geistesblitze einzeln löschbar; Handbuch in den Einstellungen
+- Domains **tagesanker.de** und **tagesanker.app** gesichert (DNS→Vercel folgt)
+- Runterregeln-Modus (Atem / Sinne / Körper) — Button „Ruhe“
+- Optionale E-Mail für Geistesblitze nach 7 Tagen; Sparks löschbar; Handbuch in Settings
 - Dokuhub unter `docs/`; kontextreicher Buddy
 
 ---

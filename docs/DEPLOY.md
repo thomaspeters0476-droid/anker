@@ -36,22 +36,29 @@ Ausgabe: `docs/anker-onepager.pdf`
 - Build: Vite → `dist/`
 - Serverless: [`api/send-expired-sparks.ts`](../api/send-expired-sparks.ts)
 - [`vercel.json`](../vercel.json): Cache-Header für `sw.js`, Content-Type für Manifest
-- Live: https://anker-dun.vercel.app
+- **Live (interim):** https://anker-dun.vercel.app
+- **Domains (gesichert):** `tagesanker.de`, `tagesanker.app`
 
 Nach Push auf `main` typischerweise automatisches Deployment.
 
-### Env-Vars (Geistesblitz-Mail)
+### Domains anbinden
 
-In Vercel → Project → Settings → Environment Variables:
+1. Vercel → Project → Settings → Domains → `tagesanker.de` und `tagesanker.app` (optional `www.` → Apex-Redirect)
+2. Beim Registrar die von Vercel genannten DNS-Records setzen
+3. HTTPS abwarten
+4. `anker-dun.vercel.app` als Fallback behalten
+5. Resend: Versanddomain verifizieren (empfohlen `tagesanker.de`)
+
+### Env-Vars (Geistesblitz-Mail)
 
 | Variable | Beispiel | Pflicht |
 |----------|----------|---------|
 | `RESEND_API_KEY` | `re_...` | ja für Mail |
-| `RESEND_FROM` | `Anker <onboarding@deine-domain.de>` | ja — Domain in Resend verifiziert |
+| `RESEND_FROM` | `Anker <noreply@tagesanker.de>` | ja — Domain in Resend verifiziert |
 
 Ohne diese Vars: API liefert 503; abgelaufene Geistesblitze mit gesetzter E-Mail bleiben in der App (kein stilles Löschen).
 
-Wie bei Schwundbuch: Resend-Account, Domain verifizieren, From-Adresse passend setzen. Siehe auch `.env.example`.
+Siehe auch `.env.example`.
 
 ---
 
@@ -60,6 +67,7 @@ Wie bei Schwundbuch: Resend-Account, Domain verifizieren, From-Adresse passend s
 - Service Worker: `autoUpdate` (vite-plugin-pwa)
 - Nach Deploy ggf. hart neu laden / SW aktualisieren lassen
 - iOS: Install nur über Safari „Zum Home-Bildschirm“; Push eingeschränkt vs. Desktop/Android
+- Nach Domain-Umzug: PWA ggf. neu zum Home-Bildschirm legen (andere Origin)
 
 Siehe auch Install-UI in der App (`PwaGuide`).
 

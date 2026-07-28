@@ -5,7 +5,8 @@ Bei neuen Features: passende Spec hier pflegen und [`CHANGELOG.md`](./CHANGELOG.
 
 | | |
 |---|---|
-| **Live** | https://anker-dun.vercel.app |
+| **Domains** | [tagesanker.de](https://tagesanker.de) · [tagesanker.app](https://tagesanker.app) *(gesichert, DNS→Vercel folgt)* |
+| **Live (interim)** | https://anker-dun.vercel.app |
 | **Repo** | https://github.com/thomaspeters0476-droid/anker |
 | **Status** | MVP / Testphase — kostenlos, kein Abo in der App |
 | **Stand** | Juli 2026 |

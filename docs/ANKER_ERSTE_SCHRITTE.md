@@ -2,7 +2,8 @@
 
 Vom Öffnen bis zum ersten fokussierten Block.
 
-**Live:** [anker-dun.vercel.app](https://anker-dun.vercel.app)  
+**Domains:** [tagesanker.de](https://tagesanker.de) · [tagesanker.app](https://tagesanker.app)  
+**Live (interim):** [anker-dun.vercel.app](https://anker-dun.vercel.app)  
 **Ausführlich:** [ANKER_HANDBUCH.md](./ANKER_HANDBUCH.md) · **Konzept:** [ANKER_KONZEPT.md](./ANKER_KONZEPT.md)
 
 ---

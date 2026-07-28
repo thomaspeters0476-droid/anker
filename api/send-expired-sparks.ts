@@ -133,7 +133,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   })
 
   lines.push('—')
-  lines.push('Gesendet von Anker (anker-dun.vercel.app)')
+  lines.push('Gesendet von Anker · tagesanker.de')
 
   const resend = new Resend(apiKey)
   const { error } = await resend.emails.send({
