@@ -57,6 +57,10 @@ export interface DayState {
   awayNudgeMode: 'off' | 'once' | 'repeat'
   awayNudgeEveryMin: number
   awayNudgeMax: number
+  /** Standard-Alltagsvorschläge, die nicht mehr angeboten werden */
+  hiddenLifeTemplates: string[]
+  /** Eigene Alltagsanker — bleiben über Tage erhalten */
+  customLifeAnchors: string[]
 }
 
 /** Geistesblitzspeicher: erst wenn keine Arbeitsaufgabe mehr offen ist */
@@ -82,3 +86,44 @@ export const LIFE_TEMPLATES = [
   'Kurz bewegen / spazieren',
   'Post / Besorgungen',
 ] as const
+
+const DEFAULT_LIFE_SET = new Set<string>(LIFE_TEMPLATES)
+
+export function normalizeTitleList(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const item of value) {
+    if (typeof item !== 'string') continue
+    const t = item.trim()
+    if (!t || seen.has(t)) continue
+    seen.add(t)
+    out.push(t)
+  }
+  return out
+}
+
+/** Sichtbare Alltags-Vorschläge: Defaults minus ausgeblendete + eigene */
+export function visibleLifeAnchors(
+  hiddenDefaults: string[],
+  custom: string[],
+): string[] {
+  const hidden = new Set(normalizeTitleList(hiddenDefaults))
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const t of LIFE_TEMPLATES) {
+    if (hidden.has(t) || seen.has(t)) continue
+    seen.add(t)
+    out.push(t)
+  }
+  for (const t of normalizeTitleList(custom)) {
+    if (seen.has(t)) continue
+    seen.add(t)
+    out.push(t)
+  }
+  return out
+}
+
+export function isDefaultLifeTemplate(title: string): boolean {
+  return DEFAULT_LIFE_SET.has(title.trim())
+}

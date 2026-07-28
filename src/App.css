@@ -497,9 +497,51 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.chip:hover {
+.chip:hover:not(:disabled) {
   background: var(--bg0);
   color: var(--ink);
+}
+
+.chip:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.chip--on {
+  background: rgba(47, 111, 94, 0.1);
+  border-color: rgba(47, 111, 94, 0.28);
+  color: var(--ink);
+}
+
+.chip-group {
+  display: inline-flex;
+  align-items: stretch;
+  max-width: 100%;
+}
+
+.chip-group .chip {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+.chip-forget {
+  border: 1px solid var(--line);
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  background: #fff;
+  color: var(--ink-soft);
+  padding: 0.45rem 0.55rem;
+  font-size: 0.95rem;
+  line-height: 1;
+  min-width: 1.7rem;
+}
+
+.chip-forget:hover {
+  background: rgba(160, 60, 50, 0.08);
+  color: #8a3a32;
 }
 
 .primary,

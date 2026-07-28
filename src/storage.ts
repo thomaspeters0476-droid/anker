@@ -1,5 +1,10 @@
 import type { CapacitySettings, DayState, Spark, Task } from './types'
-import { CHECK_IN_DEFAULT, LIFE_DEFAULT, clampLifeMax } from './types'
+import {
+  CHECK_IN_DEFAULT,
+  LIFE_DEFAULT,
+  clampLifeMax,
+  normalizeTitleList,
+} from './types'
 import { DEFAULT_CAPACITY } from './capacity'
 import { SOFT_FREEZE_DEFAULTS, type AwayNudgeMode } from './softFreeze'
 
@@ -22,6 +27,8 @@ export type Prefs = {
   awayNudgeMode: AwayNudgeMode
   awayNudgeEveryMin: number
   awayNudgeMax: number
+  hiddenLifeTemplates: string[]
+  customLifeAnchors: string[]
 }
 
 export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
@@ -35,6 +42,8 @@ function defaultPrefs(): Prefs {
     introButtonOnSurface: true,
     notificationsEnabled: false,
     ...SOFT_FREEZE_DEFAULTS,
+    hiddenLifeTemplates: [],
+    customLifeAnchors: [],
   }
 }
 
@@ -76,6 +85,8 @@ export function loadPrefs(): Prefs {
       awayNudgeMax: clampAwayMax(
         data.awayNudgeMax ?? SOFT_FREEZE_DEFAULTS.awayNudgeMax,
       ),
+      hiddenLifeTemplates: normalizeTitleList(data.hiddenLifeTemplates),
+      customLifeAnchors: normalizeTitleList(data.customLifeAnchors),
     }
   } catch {
     return defaultPrefs()
@@ -151,6 +162,12 @@ function normalizeDay(data: DayState, prefs: Prefs, sparks: Spark[]): DayState {
     awayNudgeMode: data.awayNudgeMode ?? prefs.awayNudgeMode,
     awayNudgeEveryMin: data.awayNudgeEveryMin ?? prefs.awayNudgeEveryMin,
     awayNudgeMax: data.awayNudgeMax ?? prefs.awayNudgeMax,
+    hiddenLifeTemplates: normalizeTitleList(
+      data.hiddenLifeTemplates ?? prefs.hiddenLifeTemplates,
+    ),
+    customLifeAnchors: normalizeTitleList(
+      data.customLifeAnchors ?? prefs.customLifeAnchors,
+    ),
     tasks: (data.tasks ?? []).map((t) => ({
       ...t,
       size: t.size ?? 'medium',
@@ -244,6 +261,8 @@ export function saveDay(state: DayState): void {
     awayNudgeMode: state.awayNudgeMode,
     awayNudgeEveryMin: state.awayNudgeEveryMin,
     awayNudgeMax: state.awayNudgeMax,
+    hiddenLifeTemplates: normalizeTitleList(state.hiddenLifeTemplates),
+    customLifeAnchors: normalizeTitleList(state.customLifeAnchors),
   })
 }
 
@@ -270,6 +289,8 @@ export function emptyDay(): DayState {
     awayNudgeMode: prefs.awayNudgeMode,
     awayNudgeEveryMin: prefs.awayNudgeEveryMin,
     awayNudgeMax: prefs.awayNudgeMax,
+    hiddenLifeTemplates: [...prefs.hiddenLifeTemplates],
+    customLifeAnchors: [...prefs.customLifeAnchors],
     mood: null,
   }
 }

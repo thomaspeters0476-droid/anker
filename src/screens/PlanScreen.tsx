@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import type { DayState, Task, TaskKind, TaskSize } from '../types'
 import {
   LIFE_MAX_HARD,
-  LIFE_TEMPLATES,
   clampLifeMax,
+  isDefaultLifeTemplate,
+  normalizeTitleList,
+  visibleLifeAnchors,
 } from '../types'
 import { capacityHint, greeting } from '../buddy'
 import {
@@ -80,6 +82,15 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
     [usedPts, maxPts, life.length, day.lifeMax, day.buddyTone],
   )
 
+  const lifeAnchors = useMemo(
+    () =>
+      visibleLifeAnchors(
+        day.hiddenLifeTemplates ?? [],
+        day.customLifeAnchors ?? [],
+      ),
+    [day.hiddenLifeTemplates, day.customLifeAnchors],
+  )
+
   function addTask(kind: TaskKind, title: string, size: TaskSize = 'small') {
     const trimmed = title.trim()
     if (!trimmed) return
@@ -94,7 +105,25 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
         size: 'small',
         minutes: SIZE_MINUTES.small,
       }
-      setDay((d) => ({ ...d, tasks: [...d.tasks, task] }))
+      setDay((d) => {
+        const hidden = [...(d.hiddenLifeTemplates ?? [])]
+        let custom = [...(d.customLifeAnchors ?? [])]
+        if (isDefaultLifeTemplate(trimmed)) {
+          const nextHidden = hidden.filter((h) => h !== trimmed)
+          return {
+            ...d,
+            tasks: [...d.tasks, task],
+            hiddenLifeTemplates: nextHidden,
+          }
+        }
+        if (!custom.includes(trimmed)) custom = [...custom, trimmed]
+        return {
+          ...d,
+          tasks: [...d.tasks, task],
+          customLifeAnchors: custom,
+          hiddenLifeTemplates: hidden,
+        }
+      })
       setLifeDraft('')
       return
     }
@@ -115,6 +144,29 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
 
   function removeTask(id: string) {
     setDay((d) => ({ ...d, tasks: d.tasks.filter((t) => t.id !== id) }))
+  }
+
+  /** Vorschlag dauerhaft ausblenden (eigene löschen, Standards verstecken) */
+  function forgetLifeAnchor(title: string) {
+    const trimmed = title.trim()
+    if (!trimmed) return
+    setDay((d) => {
+      if (isDefaultLifeTemplate(trimmed)) {
+        return {
+          ...d,
+          hiddenLifeTemplates: normalizeTitleList([
+            ...(d.hiddenLifeTemplates ?? []),
+            trimmed,
+          ]),
+        }
+      }
+      return {
+        ...d,
+        customLifeAnchors: (d.customLifeAnchors ?? []).filter(
+          (t) => t !== trimmed,
+        ),
+      }
+    })
   }
 
   function changeCapacity(size: TaskSize, value: number) {
@@ -432,7 +484,10 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
             {life.length}/{day.lifeMax}
           </span>
         </div>
-        <p className="block-hint">Zählt nicht in die Arbeitspunkte — nur Erinnern.</p>
+        <p className="block-hint">
+          Zählt nicht in die Arbeitspunkte. × am Vorschlag blendet ihn aus —
+          eigene bleiben gespeichert.
+        </p>
         <ul className="task-list">
           {life.map((t) => (
             <li key={t.id}>
@@ -448,40 +503,53 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
             </li>
           ))}
         </ul>
+        {lifeAnchors.length > 0 && (
+          <div className="chips">
+            {lifeAnchors.map((tpl) => {
+              const onPlan = life.some((t) => t.title === tpl)
+              const canAdd = !onPlan && life.length < day.lifeMax
+              return (
+                <span key={tpl} className="chip-group">
+                  <button
+                    type="button"
+                    className={`chip${onPlan ? ' chip--on' : ''}`}
+                    disabled={!canAdd}
+                    onClick={() => addTask('life', tpl)}
+                  >
+                    {tpl}
+                  </button>
+                  <button
+                    type="button"
+                    className="chip-forget"
+                    onClick={() => forgetLifeAnchor(tpl)}
+                    aria-label={`${tpl} nicht mehr vorschlagen`}
+                    title="Nicht mehr vorschlagen"
+                  >
+                    ×
+                  </button>
+                </span>
+              )
+            })}
+          </div>
+        )}
         {life.length < day.lifeMax && (
-          <>
-            <div className="chips">
-              {LIFE_TEMPLATES.filter(
-                (tpl) => !life.some((t) => t.title === tpl),
-              ).map((tpl) => (
-                <button
-                  key={tpl}
-                  type="button"
-                  className="chip"
-                  onClick={() => addTask('life', tpl)}
-                >
-                  {tpl}
-                </button>
-              ))}
-            </div>
-            <form
-              className="add-row"
-              onSubmit={(e) => {
-                e.preventDefault()
-                addTask('life', lifeDraft)
-              }}
-            >
-              <input
-                value={lifeDraft}
-                onChange={(e) => setLifeDraft(e.target.value)}
-                placeholder="Eigener Alltagsanker…"
-                maxLength={80}
-              />
-              <button type="submit" className="primary sm">
-                Hinzufügen
-              </button>
-            </form>
-          </>
+          <form
+            className="add-row"
+            onSubmit={(e) => {
+              e.preventDefault()
+              addTask('life', lifeDraft)
+            }}
+          >
+            <input
+              value={lifeDraft}
+              onChange={(e) => setLifeDraft(e.target.value)}
+              placeholder="Eigener Alltagsanker…"
+              maxLength={80}
+            />
+            <button type="submit" className="primary sm">
+              Hinzufügen
+            </button>
+          </form>
         )}
       </div>
 
