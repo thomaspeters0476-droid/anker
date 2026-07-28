@@ -5,7 +5,7 @@ const INTRO_KEY = 'anker-intro-seen'
 const STEPS = [
   {
     title: 'Wenig planen',
-    text: 'Morgens nur ein paar Arbeitsaufgaben und Alltagsanker. Nicht den ganzen Berg.',
+    text: 'Morgens nur ein paar Arbeitsaufgaben und Alltagsanker. Wie viele — und wie groß — stellst du unten in den Einstellungen ein.',
   },
   {
     title: 'Eine Sache',
