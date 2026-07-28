@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { DayState } from '../types'
 import { workTasksSettled } from '../types'
 import { dayDone } from '../buddy'
-import { clearDay, emptyDay } from '../storage'
+import { emptyDay, rollDayForward } from '../storage'
 import { SparkVault } from '../components/SparkVault'
 
 type Props = {
@@ -18,7 +18,7 @@ export function DoneScreen({ day, setDay }: Props) {
   const [vaultVisible, setVaultVisible] = useState(false)
 
   function reset() {
-    clearDay()
+    rollDayForward(day)
     setDay(emptyDay())
   }
 

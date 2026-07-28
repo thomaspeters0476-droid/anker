@@ -176,6 +176,15 @@ function unfinishedToCarry(tasks: Task[]): CarryItem[] {
     }))
 }
 
+/** Tag abschließen: Offenes merken, Geistesblitze sichern, Tag löschen */
+export function rollDayForward(day: DayState): void {
+  const carry = unfinishedToCarry(day.tasks ?? [])
+  if (carry.length > 0) saveCarryOver(carry)
+  const vault = mergeSparks(loadSparksVault(), day.sparks ?? [])
+  saveSparksVault(vault)
+  localStorage.removeItem(DAY_KEY)
+}
+
 export function loadCarryOver(): CarryItem[] {
   try {
     const raw = localStorage.getItem(CARRY_KEY)
@@ -209,11 +218,7 @@ export function loadDay(): DayState | null {
     const data = JSON.parse(raw) as DayState
 
     if (data.date !== todayKey()) {
-      const carry = unfinishedToCarry(data.tasks ?? [])
-      if (carry.length > 0) saveCarryOver(carry)
-      vault = mergeSparks(vault, data.sparks ?? [])
-      saveSparksVault(vault)
-      localStorage.removeItem(DAY_KEY)
+      rollDayForward(data)
       return null
     }
 

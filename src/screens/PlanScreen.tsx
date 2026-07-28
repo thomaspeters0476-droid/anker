@@ -312,11 +312,11 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
       {carry.length > 0 && !day.started && (
         <div className="block block--carry">
           <div className="block-head">
-            <h2>Von gestern</h2>
+            <h2>Noch offen</h2>
             <span className="count">{carry.length}</span>
           </div>
           <p className="block-hint">
-            Offen geblieben — auswählen und mitnehmen (soweit Kapazität reicht).
+            Vom letzten Tag — auswählen und mitnehmen (soweit Kapazität reicht).
           </p>
           <ul className="carry-list">
             {carry.map((item, i) => (
