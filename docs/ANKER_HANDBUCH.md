@@ -2,7 +2,10 @@
 
 Alle Funktionen aus Nutzersicht. Schnellstart: [ANKER_ERSTE_SCHRITTE.md](./ANKER_ERSTE_SCHRITTE.md).
 
+**In der App:** Plan → Einstellungen → **Handbuch öffnen**  
 **Stand:** Juli 2026
+
+> Die In-App-Version (`src/components/Handbook.tsx`) und dieses Dokument sollen inhaltlich übereinstimmen. Bei Änderungen beides anpassen.
 
 ---
 
@@ -125,6 +128,7 @@ Am unteren Rand des Plans (aufklappbar):
 | Weicher Freeze | an/aus; Away-Nudges aus/einmal/wiederholen |
 | Einführung-Button | auf der Oberfläche zeigen oder nur über Einstellungen |
 | PWA-Anleitung | Install-Hinweise |
+| **Handbuch** | dieses Handbuch in der App öffnen |
 
 ---
 

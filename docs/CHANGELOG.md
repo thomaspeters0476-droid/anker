@@ -6,8 +6,9 @@ Format: neueste zuerst. Bei Releases kurz ergänzen.
 
 ## Unreleased
 
+- Handbuch in der App unter Einstellungen (`Handbook.tsx`)
 - Dokuhub unter `docs/` (Konzept, Handbuch, Roadmap, Architektur, Datenmodell, Buddy, Deploy)
-- Kontextreicher Buddy (`BuddyCtx`) — Stimmung, Carry, nächste Aufgabe, Feierabend u. a. (Code ggf. noch nicht auf `main`)
+- Kontextreicher Buddy (`BuddyCtx`) — Stimmung, Carry, nächste Aufgabe, Feierabend u. a.
 
 ---
 

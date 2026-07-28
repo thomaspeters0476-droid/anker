@@ -47,7 +47,7 @@ src/
   exportSparks.ts      Text / PDF / Audio
   pwa.ts               Standalone / Install-Helpers
   screens/             Plan, Fokus, Done
-  components/          Intro, PwaGuide, SparkCapture, SparkVault
+  components/          Intro, PwaGuide, SparkCapture, SparkVault, Handbook
 ```
 
 ---

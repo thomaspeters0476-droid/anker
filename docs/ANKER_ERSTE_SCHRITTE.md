@@ -32,7 +32,8 @@ Vom Öffnen bis zum ersten fokussierten Block.
 ## 2. Einführung
 
 Vier kurze Schritte erklären die Haltung.  
-Später erneut: auf dem Plan „Einführung anzeigen“ (falls sichtbar; sonst in den Einstellungen wieder einschaltbar).
+Später erneut: auf dem Plan „Einführung anzeigen“ (falls sichtbar; sonst in den Einstellungen wieder einschaltbar).  
+Ausführlicher: **Einstellungen → Handbuch öffnen**.
 
 ---
 

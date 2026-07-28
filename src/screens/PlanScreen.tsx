@@ -31,6 +31,7 @@ import {
   requestNotificationPermission,
 } from '../notifications'
 import { PwaGuide } from '../components/PwaGuide'
+import { Handbook } from '../components/Handbook'
 import { isStandaloneApp } from '../pwa'
 import {
   MOOD_OPTIONS,
@@ -56,6 +57,7 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
   const [lifeDraft, setLifeDraft] = useState('')
   const [workSize, setWorkSize] = useState<TaskSize>('medium')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [handbookOpen, setHandbookOpen] = useState(false)
   const [carry, setCarry] = useState<CarryItem[]>(() => loadCarryOver())
   const [selectedCarry, setSelectedCarry] = useState<Set<number>>(
     () => new Set(loadCarryOver().map((_, i) => i)),
@@ -896,8 +898,21 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
               Einführung nochmal anzeigen
             </button>
           )}
+
+          <div className="handbook-settings">
+            <p className="export-label">Hilfe</p>
+            <button
+              type="button"
+              className="secondary lg"
+              onClick={() => setHandbookOpen(true)}
+            >
+              Handbuch öffnen
+            </button>
+          </div>
         </details>
       </div>
+
+      {handbookOpen && <Handbook onClose={() => setHandbookOpen(false)} />}
     </section>
   )
 }

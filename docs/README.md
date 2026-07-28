@@ -25,7 +25,7 @@ Bei neuen Features: passende Spec hier pflegen und [`CHANGELOG.md`](./CHANGELOG.
 | Dokument | Inhalt |
 |----------|--------|
 | [ANKER_ERSTE_SCHRITTE.md](./ANKER_ERSTE_SCHRITTE.md) | Schnelleinstieg (PWA, Plan, Fokus) |
-| [ANKER_HANDBUCH.md](./ANKER_HANDBUCH.md) | Alle Funktionen im Detail |
+| [ANKER_HANDBUCH.md](./ANKER_HANDBUCH.md) | Alle Funktionen im Detail (auch in der App unter Einstellungen) |
 
 ## Technik
 
