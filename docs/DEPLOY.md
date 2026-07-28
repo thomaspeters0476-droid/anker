@@ -43,10 +43,12 @@ Nach Push auf `main` typischerweise automatisches Deployment.
 
 ### Domains anbinden
 
-1. Vercel → Project → Settings → Domains → `tagesanker.de` und `tagesanker.app` (optional `www.` → Apex-Redirect)
-2. Beim Registrar die von Vercel genannten DNS-Records setzen
-3. HTTPS abwarten
-4. `anker-dun.vercel.app` als Fallback behalten
+1. Vercel → Project → Settings → Domains → `tagesanker.de` und `tagesanker.app` (**erledigt** Jul 2026)  
+2. Beim Registrar DNS setzen (aktuell ui-dns / IONOS):
+   - empfohlen: **A-Record** Apex → `76.76.21.21` für beide Domains  
+   - oder Nameserver auf `ns1.vercel-dns.com` / `ns2.vercel-dns.com` umstellen  
+3. HTTPS abwarten (Vercel verifiziert nach DNS)  
+4. `anker-dun.vercel.app` / `anker-schwundbuch.vercel.app` als Fallback behalten  
 5. Resend: Versanddomain verifizieren (empfohlen `tagesanker.de`)
 
 ### Env-Vars (Geistesblitz-Mail)
