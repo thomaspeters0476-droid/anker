@@ -5,7 +5,9 @@ import {
   afterDone,
   afterDrift,
   checkInPrompt,
+  feierabend,
   lifeContinue,
+  sleepReminder,
   sparkParked,
   sparkVaultLocked,
   startFocus,
@@ -13,6 +15,7 @@ import {
 import { SIZE_LABEL } from '../capacity'
 import { SparkCapture } from '../components/SparkCapture'
 import { SparkVault } from '../components/SparkVault'
+import { notifyIfHidden } from '../notifications'
 
 type Props = {
   day: DayState
@@ -48,6 +51,20 @@ export function FocusScreen({ day, setDay }: Props) {
   const doneCount = day.tasks.filter((t) => t.status === 'done').length
   const vaultOpen = workTasksSettled(day.tasks)
   const sparkCount = day.sparks.length
+  const lifeLeft = day.tasks.filter(
+    (t) =>
+      t.kind === 'life' && (t.status === 'planned' || t.status === 'active'),
+  ).length
+  const inFeierabend =
+    day.started &&
+    vaultOpen &&
+    day.tasks.some((t) => t.kind === 'work')
+  const sleepPending = day.tasks.some(
+    (t) =>
+      t.kind === 'life' &&
+      (t.status === 'planned' || t.status === 'active') &&
+      /schlaf/i.test(t.title),
+  )
 
   const [secondsLeft, setSecondsLeft] = useState(
     () => (active?.minutes ?? 25) * 60,
@@ -62,6 +79,8 @@ export function FocusScreen({ day, setDay }: Props) {
   const elapsedRef = useRef(0)
   const activeIdRef = useRef(active?.id)
   const wasRunningRef = useRef(true)
+  const sleepNotifiedRef = useRef(false)
+  const feierabendShownRef = useRef(false)
 
   useEffect(() => {
     if (!active) return
@@ -71,13 +90,53 @@ export function FocusScreen({ day, setDay }: Props) {
       setRunning(true)
       setShowCheckIn(false)
       elapsedRef.current = 0
-      if (active.kind === 'life') {
+      if (inFeierabend && active.kind === 'life') {
+        setBuddyMsg(feierabend(day.buddyTone, lifeLeft))
+      } else if (active.kind === 'life') {
         setBuddyMsg(lifeContinue(active, day.buddyTone))
       } else {
         setBuddyMsg(startFocus(active, day.buddyTone))
       }
     }
-  }, [active, day.buddyTone])
+  }, [active, day.buddyTone, inFeierabend, lifeLeft])
+
+  // Feierabend-Hinweis einmal, wenn Arbeit fertig wird
+  useEffect(() => {
+    if (!inFeierabend || feierabendShownRef.current) return
+    feierabendShownRef.current = true
+    setBuddyMsg(feierabend(day.buddyTone, lifeLeft))
+    if (day.notificationsEnabled) {
+      notifyIfHidden(
+        'Anker · Feierabend',
+        lifeLeft > 0
+          ? 'Arbeit erledigt. Geistesblitze frei — noch Alltag.'
+          : 'Arbeit erledigt. Geistesblitze frei.',
+        'anker-feierabend',
+      )
+    }
+  }, [inFeierabend, day.buddyTone, day.notificationsEnabled, lifeLeft])
+
+  // Schlaf-Erinnerung ab 21 Uhr
+  useEffect(() => {
+    if (!day.notificationsEnabled || !sleepPending || sleepNotifiedRef.current) {
+      return
+    }
+    const tick = () => {
+      const hour = new Date().getHours()
+      if (hour >= 21 && !sleepNotifiedRef.current) {
+        sleepNotifiedRef.current = true
+        setBuddyMsg(sleepReminder(day.buddyTone))
+        notifyIfHidden(
+          'Anker · Schlaf-Anker',
+          'Rechtzeitig schlafen steht noch offen.',
+          'anker-sleep',
+        )
+      }
+    }
+    tick()
+    const id = window.setInterval(tick, 60_000)
+    return () => window.clearInterval(id)
+  }, [day.notificationsEnabled, sleepPending, day.buddyTone])
 
   useEffect(() => {
     if (!running || showCheckIn || captureOpen || !active) return
@@ -100,6 +159,13 @@ export function FocusScreen({ day, setDay }: Props) {
         setShowCheckIn(true)
         setRunning(false)
         setBuddyMsg(checkInPrompt(active, day.buddyTone))
+        if (day.notificationsEnabled) {
+          notifyIfHidden(
+            'Anker · Check-in',
+            `Noch bei „${active.title}“?`,
+            'anker-checkin',
+          )
+        }
       }
     }, 1000)
     return () => window.clearInterval(id)
@@ -110,6 +176,7 @@ export function FocusScreen({ day, setDay }: Props) {
     active,
     day.checkInEveryMin,
     day.buddyTone,
+    day.notificationsEnabled,
   ])
 
   function endDay() {
@@ -129,12 +196,23 @@ export function FocusScreen({ day, setDay }: Props) {
 
   function completeActive() {
     if (!active) return
-    setBuddyMsg(afterDone(active, day.buddyTone))
     setDay((d) => {
       const updated = d.tasks.map((t) =>
         t.id === active.id ? { ...t, status: 'done' as const } : t,
       )
-      return { ...d, tasks: activateNext(updated) }
+      const next = activateNext(updated)
+      const workDone = workTasksSettled(updated)
+      const lifeRemaining = updated.filter(
+        (t) =>
+          t.kind === 'life' &&
+          (t.status === 'planned' || t.status === 'active'),
+      ).length
+      if (workDone && active.kind === 'work') {
+        setBuddyMsg(feierabend(d.buddyTone, lifeRemaining))
+      } else {
+        setBuddyMsg(afterDone(active, d.buddyTone))
+      }
+      return { ...d, tasks: next }
     })
   }
 
@@ -254,11 +332,35 @@ export function FocusScreen({ day, setDay }: Props) {
   if (!active) {
     return (
       <section className="screen focus-screen">
+        {inFeierabend && (
+          <div className="feierabend-banner" role="status">
+            <strong>Feierabend-Modus</strong>
+            <span>
+              Arbeit durch · Geistesblitze frei
+              {lifeLeft > 0 ? ` · noch ${lifeLeft} Alltag` : ''}
+            </span>
+            <div className="feierabend-actions">
+              {sparkCount > 0 && (
+                <button
+                  type="button"
+                  className="secondary sm"
+                  onClick={() => setVaultVisible(true)}
+                >
+                  Speicher öffnen
+                </button>
+              )}
+              <button type="button" className="ghost sm" onClick={endDay}>
+                Tag schließen
+              </button>
+            </div>
+          </div>
+        )}
         <div className="buddy-card" role="status">
           <span className="buddy-label">Buddy</span>
           <p>
-            Keine aktive Aufgabe mehr. Du kannst den Tag beenden oder etwas
-            Offenes anwählen.
+            {inFeierabend
+              ? feierabend(day.buddyTone, lifeLeft)
+              : 'Keine aktive Aufgabe mehr. Du kannst den Tag beenden oder etwas Offenes anwählen.'}
           </p>
         </div>
         {sparkControls}
@@ -301,6 +403,30 @@ export function FocusScreen({ day, setDay }: Props) {
 
   return (
     <section className="screen focus-screen">
+      {inFeierabend && (
+        <div className="feierabend-banner" role="status">
+          <strong>Feierabend-Modus</strong>
+          <span>
+            Arbeit durch · Geistesblitze frei
+            {lifeLeft > 0 ? ` · noch ${lifeLeft} Alltag` : ''}
+          </span>
+          <div className="feierabend-actions">
+            {sparkCount > 0 && (
+              <button
+                type="button"
+                className="secondary sm"
+                onClick={() => setVaultVisible(true)}
+              >
+                Speicher öffnen
+              </button>
+            )}
+            <button type="button" className="ghost sm" onClick={endDay}>
+              Tag schließen
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="progress-meta">
         <span>
           {doneCount} erledigt · {waiting.length} wartend

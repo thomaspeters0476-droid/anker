@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { DayState, Task, TaskKind, TaskSize } from '../types'
 import {
   LIFE_MAX_HARD,
@@ -9,6 +9,7 @@ import { capacityHint, greeting } from '../buddy'
 import {
   SIZE_LABEL,
   SIZE_MINUTES,
+  SIZE_POINTS,
   canAddSize,
   capacityPoints,
   remainingCapacity,
@@ -18,6 +19,17 @@ import {
   HARD_CAPS,
   MAX_DAY_POINTS,
 } from '../capacity'
+import {
+  clearCarryOver,
+  loadCarryOver,
+  type CarryItem,
+} from '../storage'
+import {
+  notificationPermission,
+  requestNotificationPermission,
+} from '../notifications'
+import { PwaGuide } from '../components/PwaGuide'
+import { isStandaloneApp } from '../pwa'
 
 type Props = {
   day: DayState
@@ -34,6 +46,11 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
   const [lifeDraft, setLifeDraft] = useState('')
   const [workSize, setWorkSize] = useState<TaskSize>('medium')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [carry, setCarry] = useState<CarryItem[]>(() => loadCarryOver())
+  const [selectedCarry, setSelectedCarry] = useState<Set<number>>(
+    () => new Set(loadCarryOver().map((_, i) => i)),
+  )
+  const [notifMsg, setNotifMsg] = useState<string | null>(null)
 
   const work = day.tasks.filter((t) => t.kind === 'work')
   const life = day.tasks.filter((t) => t.kind === 'life')
@@ -41,6 +58,12 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
   const remain = remainingCapacity(day.capacity, day.tasks)
   const usedPts = usedPoints(day.tasks)
   const maxPts = capacityPoints(day.capacity)
+
+  useEffect(() => {
+    const items = loadCarryOver()
+    setCarry(items)
+    setSelectedCarry(new Set(items.map((_, i) => i)))
+  }, [])
 
   const hint = useMemo(
     () =>
@@ -99,6 +122,80 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
     }))
   }
 
+  function toggleCarry(index: number) {
+    setSelectedCarry((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
+      return next
+    })
+  }
+
+  function adoptCarry() {
+    setDay((d) => {
+      const tasks = [...d.tasks]
+      let lifeCount = tasks.filter((t) => t.kind === 'life').length
+      let points = capacityPoints(usedCapacity(tasks))
+
+      for (const i of [...selectedCarry].sort((a, b) => a - b)) {
+        const item = carry[i]
+        if (!item) continue
+        if (item.kind === 'life') {
+          if (lifeCount >= d.lifeMax) continue
+          tasks.push({
+            id: uid(),
+            title: item.title,
+            kind: 'life',
+            status: 'planned',
+            size: 'small',
+            minutes: SIZE_MINUTES.small,
+          })
+          lifeCount += 1
+        } else {
+          const need = SIZE_POINTS[item.size]
+          const cap = capacityPoints(d.capacity)
+          const fakeUsed = usedCapacity(tasks)
+          if (points + need > cap) continue
+          if (fakeUsed[item.size] >= d.capacity[item.size]) continue
+          tasks.push({
+            id: uid(),
+            title: item.title,
+            kind: 'work',
+            status: 'planned',
+            size: item.size,
+            minutes: item.minutes || SIZE_MINUTES[item.size],
+          })
+          points += need
+        }
+      }
+      return { ...d, tasks }
+    })
+    clearCarryOver()
+    setCarry([])
+    setSelectedCarry(new Set())
+  }
+
+  function dismissCarry() {
+    clearCarryOver()
+    setCarry([])
+    setSelectedCarry(new Set())
+  }
+
+  async function enableNotifications() {
+    const result = await requestNotificationPermission()
+    if (result === 'granted') {
+      setDay((d) => ({ ...d, notificationsEnabled: true }))
+      setNotifMsg(
+        'Erinnerungen an. Check-ins melden sich, wenn der Tab im Hintergrund ist.',
+      )
+    } else if (result === 'denied') {
+      setDay((d) => ({ ...d, notificationsEnabled: false }))
+      setNotifMsg('Blockiert — in den Browser-Einstellungen erlauben.')
+    } else {
+      setNotifMsg('In diesem Browser nicht verfügbar.')
+    }
+  }
+
   function startDay() {
     if (day.tasks.length === 0) return
     const firstWork = day.tasks.findIndex((t) => t.kind === 'work')
@@ -107,12 +204,15 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
       ...d,
       started: true,
       tasks: d.tasks.map((t, i) =>
-        i === startIdx ? { ...t, status: 'active' } : { ...t, status: 'planned' },
+        i === startIdx
+          ? { ...t, status: 'active' }
+          : { ...t, status: 'planned' },
       ),
     }))
   }
 
   const sizes: TaskSize[] = ['small', 'medium', 'large']
+  const perm = notificationPermission()
 
   return (
     <section className="screen plan-screen">
@@ -120,6 +220,53 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
         <span className="buddy-label">Buddy</span>
         <p>{greeting(day.buddyTone)}</p>
       </div>
+
+      {carry.length > 0 && !day.started && (
+        <div className="block block--carry">
+          <div className="block-head">
+            <h2>Von gestern</h2>
+            <span className="count">{carry.length}</span>
+          </div>
+          <p className="block-hint">
+            Offen geblieben — auswählen und mitnehmen (soweit Kapazität reicht).
+          </p>
+          <ul className="carry-list">
+            {carry.map((item, i) => (
+              <li key={`${item.title}-${i}`}>
+                <label className="carry-item">
+                  <input
+                    type="checkbox"
+                    checked={selectedCarry.has(i)}
+                    onChange={() => toggleCarry(i)}
+                  />
+                  <span className={`kind tiny ${item.kind}`}>
+                    {item.kind === 'work' ? 'A' : 'T'}
+                  </span>
+                  <span className="carry-title">{item.title}</span>
+                  {item.kind === 'work' && (
+                    <span className={`size-badge tiny ${item.size}`}>
+                      {SIZE_LABEL[item.size].slice(0, 1)}
+                    </span>
+                  )}
+                </label>
+              </li>
+            ))}
+          </ul>
+          <div className="carry-actions">
+            <button
+              type="button"
+              className="primary"
+              disabled={selectedCarry.size === 0}
+              onClick={adoptCarry}
+            >
+              Übernehmen
+            </button>
+            <button type="button" className="ghost" onClick={dismissCarry}>
+              Verwerfen
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="block block--work">
         <div className="block-head">
@@ -432,6 +579,35 @@ export function PlanScreen({ day, setDay, onShowIntro }: Props) {
                 }))
               }
             />
+          </div>
+
+          <div className="notif-settings">
+            <PwaGuide />
+
+            <label className="intro-hide-check settings-check">
+              <input
+                type="checkbox"
+                checked={day.notificationsEnabled && perm === 'granted'}
+                onChange={(e) => {
+                  if (e.target.checked) void enableNotifications()
+                  else setDay((d) => ({ ...d, notificationsEnabled: false }))
+                }}
+              />
+              Erinnerungen einschalten (Check-in / Schlaf)
+            </label>
+            {!isStandaloneApp() && (
+              <p className="block-hint">
+                Am Handy zuerst oben speichern — sonst kommen Mitteilungen oft
+                nicht zuverlässig an.
+              </p>
+            )}
+            {perm === 'denied' && (
+              <p className="block-hint">
+                Mitteilungen sind blockiert. In den Handy-Einstellungen bei
+                Anker erlauben.
+              </p>
+            )}
+            {notifMsg && <p className="export-msg">{notifMsg}</p>}
           </div>
 
           <label className="intro-hide-check settings-check">

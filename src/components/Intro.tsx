@@ -13,7 +13,7 @@ const STEPS = [
   },
   {
     title: 'Zurückfinden',
-    text: 'Der Buddy fragt zwischendurch nach. Geistesblitze kannst du kurz parken und später anschauen.',
+    text: 'Der Buddy fragt zwischendurch nach. Geistesblitze kannst du kurz parken. Am Handy: App auf den Startbildschirm legen — dann kommen Erinnerungen besser an.',
   },
 ] as const
 

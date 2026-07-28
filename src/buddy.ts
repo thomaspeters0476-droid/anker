@@ -155,3 +155,20 @@ export function lifeContinue(task: Task, tone: Tone): string {
     `Alltagsanker: „${task.title}“. Nicht abschweifen.`,
   )
 }
+
+export function feierabend(tone: Tone, lifeLeft: number): string {
+  if (lifeLeft <= 0) {
+    return pick(
+      tone,
+      'Arbeit erledigt. Geistesblitze sind frei — und der Tag darf zu Ende gehen.',
+      'Arbeit fertig. Speicher offen.',
+      'Feierabend Arbeit. Speicher freigegeben.',
+    )
+  }
+  return pick(
+    tone,
+    `Feierabend-Modus: Arbeit ist durch. Geistesblitze frei. Noch ${lifeLeft} Alltagsanker — ohne Druck.`,
+    `Feierabend. Noch ${lifeLeft}× Alltag.`,
+    `Arbeit abgeschlossen. Alltag: ${lifeLeft}. Speicher offen.`,
+  )
+}

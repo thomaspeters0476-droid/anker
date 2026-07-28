@@ -44,6 +44,8 @@ export interface DayState {
   lifeMax: number
   /** Einführung-Button auf der Plan-Oberfläche */
   introButtonOnSurface: boolean
+  /** Browser-Erinnerungen (Check-in / Alltag) */
+  notificationsEnabled: boolean
 }
 
 /** Geistesblitzspeicher: erst wenn keine Arbeitsaufgabe mehr offen ist */
