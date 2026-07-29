@@ -7,12 +7,14 @@ import {
 } from './locales'
 import deCommon from './locales/de/common.json'
 import deBuddy from './locales/de/buddy.json'
+import deHandbook from './locales/de/handbook.json'
 import enCommon from './locales/en/common.json'
 import enBuddy from './locales/en/buddy.json'
+import enHandbook from './locales/en/handbook.json'
 
 const resources = {
-  de: { common: deCommon, buddy: deBuddy },
-  en: { common: enCommon, buddy: enBuddy },
+  de: { common: deCommon, buddy: deBuddy, handbook: deHandbook },
+  en: { common: enCommon, buddy: enBuddy, handbook: enHandbook },
 } as const
 
 let started = false
@@ -25,7 +27,7 @@ export function ensureI18n(locale?: AppLocale) {
       lng,
       fallbackLng: 'de',
       defaultNS: 'common',
-      ns: ['common', 'buddy'],
+      ns: ['common', 'buddy', 'handbook'],
       interpolation: { escapeValue: false },
       returnNull: false,
     })

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 type Section = {
   id: string
   title: string
@@ -9,241 +11,165 @@ type Section = {
   >
 }
 
-export const HANDBOOK_SECTIONS: Section[] = [
-  {
-    id: 'screens',
-    title: '1. Bildschirme',
-    blocks: [
-      {
-        type: 'rows',
-        rows: [
-          { label: 'Einführung', text: 'Erster Start oder manuell erneut' },
-          { label: 'Plan', text: 'Tag noch nicht gestartet / nach Reset' },
-          { label: 'Fokus', text: 'Tag gestartet, Aufgaben laufen' },
-          { label: 'Done', text: 'Alles erledigt oder übersprungen' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'plan',
-    title: '2. Plan',
-    blocks: [
-      {
-        type: 'h',
-        text: 'Buddy-Karte',
-      },
-      {
-        type: 'p',
-        text: 'Kurzer Text oben: Gruß, Stimmungshinweis, Hinweis auf offene Aufgaben vom letzten Durchgang.',
-      },
-      { type: 'h', text: 'Tagesgefühl' },
-      {
-        type: 'ul',
-        items: [
-          'Ziemlich gut — normale Menge und Zeiten',
-          'Geht so — weniger Punkte, etwas längere Boxen',
-          'Heute eher schwer — deutlich weniger, mehr Zeit',
-        ],
-      },
-      {
-        type: 'p',
-        text: 'Nur für heute. Keine Bewertung über Tage.',
-      },
-      { type: 'h', text: 'Arbeit' },
-      {
-        type: 'ul',
-        items: [
-          'Titel + Größe (Klein / Mittel / Groß)',
-          'Entfernen mit ✕ an der Zeile',
-          'Wenn Kapazität voll: Buddy warnt, Hinzufügen blockiert',
-        ],
-      },
-      { type: 'h', text: 'Alltag' },
-      {
-        type: 'ul',
-        items: [
-          '✕ an der Zeile: nur vom heutigen Plan nehmen',
-          '× am Chip: Vorschlag dauerhaft ausblenden',
-          'Eigene Anker bleiben als Vorschlag gespeichert',
-          'Limit einstellbar (max. 5)',
-        ],
-      },
-      { type: 'h', text: 'Noch offen' },
-      {
-        type: 'p',
-        text: 'Offene Aufgaben vom letzten Tag oder „Neuen Tag planen“. Übernehmen (Kapazität beachten) oder Verwerfen.',
-      },
-      { type: 'h', text: 'Tag starten' },
-      {
-        type: 'p',
-        text: 'Nur mit mindestens einer Aufgabe. Danach Fokus-Screen.',
-      },
-    ],
-  },
-  {
-    id: 'fokus',
-    title: '3. Fokus',
-    blocks: [
-      { type: 'h', text: 'Aktive Aufgabe' },
-      {
-        type: 'ul',
-        items: [
-          'Timer, Pause / Weiter, Fertig, Später / überspringen',
-          'Warteschlange sichtbar, aber „nicht jetzt“',
-          'Zuerst Arbeit, dann Alltag',
-        ],
-      },
-      { type: 'h', text: 'Check-in' },
-      {
-        type: 'p',
-        text: 'In einstellbaren Abständen: noch dabei, abgeschweift, oder Pause.',
-      },
-      { type: 'h', text: 'Feierabend' },
-      {
-        type: 'p',
-        text: 'Wenn die Arbeit durch ist: Geistesblitze frei. Alltag kann noch folgen.',
-      },
-      { type: 'h', text: 'Weicher Freeze' },
-      {
-        type: 'p',
-        text: 'App verlassen → Timer pausiert. Optional sanfte Mitteilungen. Einstellbar unten.',
-      },
-      { type: 'h', text: 'Tag beenden' },
-      {
-        type: 'p',
-        text: 'Offenes wird als übersprungen markiert → Abschluss.',
-      },
-    ],
-  },
-  {
-    id: 'done',
-    title: '4. Abschluss',
-    blocks: [
-      {
-        type: 'ul',
-        items: [
-          'Buddy-Zusammenfassung — ohne Schuld bei 0 fertig',
-          'Geschafft / Offen gelassen',
-          'Geistesblitze ansehen (wenn freigeschaltet)',
-          '„Neuen Tag planen“ merkt Offenes für „Noch offen“',
-        ],
-      },
-    ],
-  },
-  {
-    id: 'settings',
-    title: '5. Einstellungen',
-    blocks: [
-      {
-        type: 'rows',
-        rows: [
-          { label: 'Kapazität', text: 'Wie viele Arbeitsaufgaben welcher Größe' },
-          { label: 'Alltagsanker max.', text: '1–5' },
-          { label: 'Buddy-Ton', text: 'warm / kurz / klar' },
-          { label: 'Check-in', text: 'Intervall 10–40 Min.' },
-          { label: 'Erinnerungen', text: 'Browser-Mitteilungen' },
-          { label: 'Freeze', text: 'Pause beim Verlassen; Away-Nudges' },
-          { label: 'Einführung', text: 'Button auf der Startseite' },
-          { label: 'PWA', text: 'Install-Hinweise' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'sparks',
-    title: '6. Geistesblitze',
-    blocks: [
-      {
-        type: 'rows',
-        rows: [
-          { label: 'Parken', text: 'Notiz, Skizze oder kurze Sprachnotiz' },
-          {
-            label: 'Speicher',
-            text: 'Ansehen erst nach erledigter/übersprungener Arbeit',
-          },
-          {
-            label: 'Haltbarkeit',
-            text: 'max. 7 Tage — mit E-Mail vorher zuschicken, dann löschen',
-          },
-          {
-            label: 'E-Mail',
-            text: 'Einstellungen: Adresse für Ablauf-Versand (optional)',
-          },
-          { label: 'Löschen', text: 'Im offenen Speicher pro Eintrag' },
-          { label: 'Export', text: 'Kopieren, Text, PDF, Audio' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'regulate',
-    title: '7. Runterregeln',
-    blocks: [
-      {
-        type: 'p',
-        text: 'Oben rechts der Button „Ruhe“ — tippen, wenn es zu viel wird. Ruhiger Vollbild-Modus; Timer pausiert.',
-      },
-      {
-        type: 'rows',
-        rows: [
-          { label: 'Atmen', text: 'Kreis: 4 Sek. ein, 6 Sek. aus' },
-          { label: 'Sinne', text: '5-4-3-2-1 Impulse vom Buddy' },
-          {
-            label: 'Körper',
-            text: 'Kühle / Wasser / Hand auf die Brust',
-          },
-          {
-            label: 'Zurück',
-            text: '„Ich bin wieder da“ — Timer bleibt pausiert',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'data',
-    title: '8. Daten auf dem Gerät',
-    blocks: [
-      {
-        type: 'ul',
-        items: [
-          'Alles lokal in diesem Browser',
-          'Anderer Browser oder Cache leeren = Daten weg (bis Sync existiert)',
-          'Kein Account in der Testphase',
-        ],
-      },
-    ],
-  },
-]
+function useHandbookSections(): Section[] {
+  const { t } = useTranslation('handbook')
+
+  const row = (path: string) => ({
+    label: t(`${path}.label`),
+    text: t(`${path}.text`),
+  })
+
+  const list = (key: string) =>
+    t(key, { returnObjects: true }) as string[]
+
+  return [
+    {
+      id: 'screens',
+      title: t('sections.screens.title'),
+      blocks: [
+        {
+          type: 'rows',
+          rows: [
+            row('sections.screens.rows.intro'),
+            row('sections.screens.rows.plan'),
+            row('sections.screens.rows.focus'),
+            row('sections.screens.rows.done'),
+          ],
+        },
+      ],
+    },
+    {
+      id: 'plan',
+      title: t('sections.plan.title'),
+      blocks: [
+        { type: 'h', text: t('sections.plan.buddyH') },
+        { type: 'p', text: t('sections.plan.buddyP') },
+        { type: 'h', text: t('sections.plan.moodH') },
+        { type: 'ul', items: list('sections.plan.moodItems') },
+        { type: 'p', text: t('sections.plan.moodNote') },
+        { type: 'h', text: t('sections.plan.workH') },
+        { type: 'ul', items: list('sections.plan.workItems') },
+        { type: 'h', text: t('sections.plan.lifeH') },
+        { type: 'ul', items: list('sections.plan.lifeItems') },
+        { type: 'h', text: t('sections.plan.carryH') },
+        { type: 'p', text: t('sections.plan.carryP') },
+        { type: 'h', text: t('sections.plan.startH') },
+        { type: 'p', text: t('sections.plan.startP') },
+      ],
+    },
+    {
+      id: 'fokus',
+      title: t('sections.fokus.title'),
+      blocks: [
+        { type: 'h', text: t('sections.fokus.activeH') },
+        { type: 'ul', items: list('sections.fokus.activeItems') },
+        { type: 'h', text: t('sections.fokus.checkinH') },
+        { type: 'p', text: t('sections.fokus.checkinP') },
+        { type: 'h', text: t('sections.fokus.feierabendH') },
+        { type: 'p', text: t('sections.fokus.feierabendP') },
+        { type: 'h', text: t('sections.fokus.freezeH') },
+        { type: 'p', text: t('sections.fokus.freezeP') },
+        { type: 'h', text: t('sections.fokus.endH') },
+        { type: 'p', text: t('sections.fokus.endP') },
+      ],
+    },
+    {
+      id: 'done',
+      title: t('sections.done.title'),
+      blocks: [{ type: 'ul', items: list('sections.done.items') }],
+    },
+    {
+      id: 'settings',
+      title: t('sections.settings.title'),
+      blocks: [
+        {
+          type: 'rows',
+          rows: [
+            row('sections.settings.rows.capacity'),
+            row('sections.settings.rows.lifeMax'),
+            row('sections.settings.rows.tone'),
+            row('sections.settings.rows.checkin'),
+            row('sections.settings.rows.reminders'),
+            row('sections.settings.rows.freeze'),
+            row('sections.settings.rows.language'),
+            row('sections.settings.rows.intro'),
+            row('sections.settings.rows.pwa'),
+            row('sections.settings.rows.sync'),
+          ],
+        },
+      ],
+    },
+    {
+      id: 'sparks',
+      title: t('sections.sparks.title'),
+      blocks: [
+        {
+          type: 'rows',
+          rows: [
+            row('sections.sparks.rows.park'),
+            row('sections.sparks.rows.vault'),
+            row('sections.sparks.rows.ttl'),
+            row('sections.sparks.rows.mail'),
+            row('sections.sparks.rows.delete'),
+            row('sections.sparks.rows.export'),
+          ],
+        },
+      ],
+    },
+    {
+      id: 'regulate',
+      title: t('sections.regulate.title'),
+      blocks: [
+        { type: 'p', text: t('sections.regulate.lead') },
+        {
+          type: 'rows',
+          rows: [
+            row('sections.regulate.rows.breathe'),
+            row('sections.regulate.rows.senses'),
+            row('sections.regulate.rows.body'),
+            row('sections.regulate.rows.back'),
+          ],
+        },
+      ],
+    },
+    {
+      id: 'data',
+      title: t('sections.data.title'),
+      blocks: [{ type: 'ul', items: list('sections.data.items') }],
+    },
+  ]
+}
 
 type Props = {
   onClose: () => void
 }
 
 export function Handbook({ onClose }: Props) {
+  const { t } = useTranslation('handbook')
+  const sections = useHandbookSections()
+
   return (
     <div
       className="spark-overlay handbook-overlay"
       role="dialog"
       aria-modal="true"
-      aria-label="Handbuch"
+      aria-label={t('ariaLabel')}
     >
       <div className="spark-panel handbook-panel">
         <div className="vault-head">
           <div>
-            <h2>Handbuch</h2>
+            <h2>{t('title')}</h2>
             <p className="block-hint" style={{ margin: '0.25rem 0 0' }}>
-              Kurzer Überblick — ohne Druck, zum Nachschlagen.
+              {t('lead')}
             </p>
           </div>
           <button type="button" className="ghost sm" onClick={onClose}>
-            Schließen
+            {t('close')}
           </button>
         </div>
 
         <div className="handbook-body">
-          {HANDBOOK_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <details key={section.id} className="handbook-section">
               <summary>{section.title}</summary>
               <div className="handbook-section-body">
@@ -269,10 +195,10 @@ export function Handbook({ onClose }: Props) {
                   }
                   return (
                     <dl key={i} className="handbook-dl">
-                      {block.rows.map((row) => (
-                        <div key={row.label} className="handbook-dl-row">
-                          <dt>{row.label}</dt>
-                          <dd>{row.text}</dd>
+                      {block.rows.map((r) => (
+                        <div key={r.label} className="handbook-dl-row">
+                          <dt>{r.label}</dt>
+                          <dd>{r.text}</dd>
                         </div>
                       ))}
                     </dl>

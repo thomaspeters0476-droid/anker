@@ -1,0 +1,129 @@
+{
+  "ariaLabel": "Handbuch",
+  "title": "Handbuch",
+  "lead": "Kurzer Überblick — ohne Druck, zum Nachschlagen.",
+  "close": "Schließen",
+  "sections": {
+    "screens": {
+      "title": "1. Bildschirme",
+      "rows": {
+        "intro": { "label": "Einführung", "text": "Erster Start oder manuell erneut" },
+        "plan": { "label": "Plan", "text": "Tag noch nicht gestartet / nach Reset" },
+        "focus": { "label": "Fokus", "text": "Tag gestartet, Aufgaben laufen" },
+        "done": { "label": "Done", "text": "Alles erledigt oder übersprungen" }
+      }
+    },
+    "plan": {
+      "title": "2. Plan",
+      "buddyH": "Buddy-Karte",
+      "buddyP": "Kurzer Text oben: Gruß, Stimmungshinweis, Hinweis auf offene Aufgaben vom letzten Durchgang.",
+      "moodH": "Tagesgefühl",
+      "moodItems": [
+        "Ziemlich gut — normale Menge und Zeiten",
+        "Geht so — weniger Punkte, etwas längere Boxen",
+        "Heute eher schwer — deutlich weniger, mehr Zeit"
+      ],
+      "moodNote": "Nur für heute. Keine Bewertung über Tage.",
+      "workH": "Arbeit",
+      "workItems": [
+        "Titel + Größe (Klein / Mittel / Groß)",
+        "Entfernen mit ✕ an der Zeile",
+        "Wenn Kapazität voll: Buddy warnt, Hinzufügen blockiert"
+      ],
+      "lifeH": "Alltag",
+      "lifeItems": [
+        "✕ an der Zeile: nur vom heutigen Plan nehmen",
+        "× am Chip: Vorschlag dauerhaft ausblenden",
+        "Eigene Anker bleiben als Vorschlag gespeichert",
+        "Limit einstellbar (max. 5)"
+      ],
+      "carryH": "Noch offen",
+      "carryP": "Offene Aufgaben vom letzten Tag oder „Neuen Tag planen“. Übernehmen (Kapazität beachten) oder Verwerfen.",
+      "startH": "Tag starten",
+      "startP": "Nur mit mindestens einer Aufgabe. Danach Fokus-Screen."
+    },
+    "fokus": {
+      "title": "3. Fokus",
+      "activeH": "Aktive Aufgabe",
+      "activeItems": [
+        "Timer, Pause / Weiter, Fertig, Später / überspringen",
+        "Warteschlange sichtbar, aber „nicht jetzt“",
+        "Zuerst Arbeit, dann Alltag"
+      ],
+      "checkinH": "Check-in",
+      "checkinP": "In einstellbaren Abständen: noch dabei, abgeschweift, oder Pause.",
+      "feierabendH": "Feierabend",
+      "feierabendP": "Wenn die Arbeit durch ist: Geistesblitze frei. Alltag kann noch folgen.",
+      "freezeH": "Weicher Freeze",
+      "freezeP": "App verlassen → Timer pausiert. Optional sanfte Mitteilungen. Einstellbar unten.",
+      "endH": "Tag beenden",
+      "endP": "Offenes wird als übersprungen markiert → Abschluss."
+    },
+    "done": {
+      "title": "4. Abschluss",
+      "items": [
+        "Buddy-Zusammenfassung — ohne Schuld bei 0 fertig",
+        "Geschafft / Offen gelassen",
+        "Geistesblitze ansehen (wenn freigeschaltet)",
+        "„Neuen Tag planen“ merkt Offenes für „Noch offen“"
+      ]
+    },
+    "settings": {
+      "title": "5. Einstellungen",
+      "rows": {
+        "capacity": { "label": "Kapazität", "text": "Wie viele Arbeitsaufgaben welcher Größe" },
+        "lifeMax": { "label": "Alltagsanker max.", "text": "1–5" },
+        "tone": { "label": "Buddy-Ton", "text": "warm / kurz / klar" },
+        "checkin": { "label": "Check-in", "text": "Intervall 10–40 Min." },
+        "reminders": { "label": "Erinnerungen", "text": "Browser-Mitteilungen" },
+        "freeze": { "label": "Freeze", "text": "Pause beim Verlassen; Away-Nudges" },
+        "language": { "label": "Sprache", "text": "App-Oberfläche (DE / EN)" },
+        "intro": { "label": "Einführung", "text": "Button auf der Startseite" },
+        "pwa": { "label": "PWA", "text": "Install-Hinweise" },
+        "sync": { "label": "Geräte-Sync", "text": "Optional per E-Mail-Code" }
+      }
+    },
+    "sparks": {
+      "title": "6. Geistesblitze",
+      "rows": {
+        "park": { "label": "Parken", "text": "Notiz, Skizze oder kurze Sprachnotiz" },
+        "vault": {
+          "label": "Speicher",
+          "text": "Ansehen erst nach erledigter/übersprungener Arbeit"
+        },
+        "ttl": {
+          "label": "Haltbarkeit",
+          "text": "max. 7 Tage — mit E-Mail vorher zuschicken, dann löschen"
+        },
+        "mail": {
+          "label": "E-Mail",
+          "text": "Einstellungen: Adresse für Ablauf-Versand (optional)"
+        },
+        "delete": { "label": "Löschen", "text": "Im offenen Speicher pro Eintrag" },
+        "export": { "label": "Export", "text": "Kopieren, Text, PDF, Audio" }
+      }
+    },
+    "regulate": {
+      "title": "7. Runterregeln",
+      "lead": "Oben rechts der Button „Ruhe“ — tippen, wenn es zu viel wird. Ruhiger Vollbild-Modus; Timer pausiert.",
+      "rows": {
+        "breathe": { "label": "Atmen", "text": "Kreis: 4 Sek. ein, 6 Sek. aus" },
+        "senses": { "label": "Sinne", "text": "5-4-3-2-1 Impulse vom Buddy" },
+        "body": { "label": "Körper", "text": "Kühle / Wasser / Hand auf die Brust" },
+        "back": {
+          "label": "Zurück",
+          "text": "„Ich bin wieder da“ — Timer bleibt pausiert"
+        }
+      }
+    },
+    "data": {
+      "title": "8. Daten",
+      "items": [
+        "Standard: alles lokal in diesem Browser",
+        "Optional Geräte-Sync: gleicher Stand auf mehreren Geräten (E-Mail-Code)",
+        "Ohne Sync: anderer Browser oder Cache leeren = Daten weg",
+        "Kein Zwangs-Account — Sync nur wenn du ihn einschaltest"
+      ]
+    }
+  }
+}

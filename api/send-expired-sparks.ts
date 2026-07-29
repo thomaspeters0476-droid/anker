@@ -15,16 +15,11 @@ type MailSpark = {
 type Body = {
   email?: string
   retentionDays?: number
+  locale?: string
   sparks?: MailSpark[]
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-function modeLabel(mode: MailSpark['mode']): string {
-  if (mode === 'note') return 'Notiz'
-  if (mode === 'draw') return 'Skizze'
-  return 'Audio'
-}
 
 function parseDataUrl(dataUrl: string): { mime: string; base64: string } | null {
   const m = /^data:([^;]+);base64,(.+)$/i.exec(dataUrl)
@@ -41,6 +36,39 @@ function extForMime(mime: string, fallback: string): string {
   if (mime.includes('ogg')) return 'ogg'
   if (mime.includes('wav')) return 'wav'
   return fallback
+}
+
+function copyFor(locale: 'de' | 'en', retentionDays: number, count: number) {
+  if (locale === 'en') {
+    return {
+      dateLocale: 'en-GB',
+      mode: { note: 'Note', draw: 'Sketch', audio: 'Audio' } as const,
+      subject: `Tagesanker: ${count} spark${count === 1 ? '' : 's'} (after ${retentionDays} days)`,
+      header: 'Tagesanker — expired sparks',
+      intro1: `These ideas sat in the app longer than ${retentionDays} days and will be deleted after this.`,
+      intro2: 'No archive pressure — just a copy for you.',
+      omittedDraw: '(Sketch was too large for email — please export in the app first.)',
+      omittedAudio: '(Audio was too large for email — please export in the app first.)',
+      attach: '→ Attachment:',
+      fileSketch: 'sketch',
+      fileAudio: 'audio',
+      footer: 'Sent by Tagesanker · tagesanker.de',
+    }
+  }
+  return {
+    dateLocale: 'de-DE',
+    mode: { note: 'Notiz', draw: 'Skizze', audio: 'Audio' } as const,
+    subject: `Tagesanker: ${count} Geistesblitz${count === 1 ? '' : 'e'} (nach ${retentionDays} Tagen)`,
+    header: 'Tagesanker — abgelaufene Geistesblitze',
+    intro1: `Diese Ideen waren länger als ${retentionDays} Tage in der App und werden danach gelöscht.`,
+    intro2: 'Kein Archiv-Druck — nur eine Kopie für dich.',
+    omittedDraw: '(Skizze war zu groß für die Mail — bitte vorher in der App exportieren.)',
+    omittedAudio: '(Audio war zu groß für die Mail — bitte vorher in der App exportieren.)',
+    attach: '→ Anhang:',
+    fileSketch: 'skizze',
+    fileAudio: 'audio',
+    footer: 'Gesendet von Tagesanker · tagesanker.de',
+  }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -65,6 +93,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .toLowerCase()
   const sparks = Array.isArray(body.sparks) ? body.sparks : []
   const retentionDays = Number(body.retentionDays) || 7
+  const locale = String(body.locale ?? 'de').toLowerCase() === 'en' ? 'en' : 'de'
+  const copy = copyFor(locale, retentionDays, sparks.length)
 
   if (!EMAIL_RE.test(email) || email.length > 120) {
     return res.status(400).json({ ok: false, error: 'invalid_email' })
@@ -82,38 +112,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     contentType?: string
   }> = []
 
-  const lines: string[] = [
-    'Tagesanker — abgelaufene Geistesblitze',
-    '',
-    `Diese Ideen waren länger als ${retentionDays} Tage in der App und werden danach gelöscht.`,
-    'Kein Archiv-Druck — nur eine Kopie für dich.',
-    '',
-  ]
+  const lines: string[] = [copy.header, '', copy.intro1, copy.intro2, '']
 
   sparks.forEach((s, i) => {
     const when = new Date(s.createdAt)
     const whenLabel = Number.isNaN(when.getTime())
       ? s.createdAt
-      : when.toLocaleString('de-DE')
-    lines.push(`— ${i + 1}. ${modeLabel(s.mode)} · ${whenLabel}`)
+      : when.toLocaleString(copy.dateLocale)
+    lines.push(`— ${i + 1}. ${copy.mode[s.mode]} · ${whenLabel}`)
     if (s.text?.trim()) lines.push(s.text.trim())
     if (s.omitted?.includes('drawing')) {
-      lines.push('(Skizze war zu groß für die Mail — bitte vorher in der App exportieren.)')
+      lines.push(copy.omittedDraw)
     }
     if (s.omitted?.includes('audio')) {
-      lines.push('(Audio war zu groß für die Mail — bitte vorher in der App exportieren.)')
+      lines.push(copy.omittedAudio)
     }
 
     if (s.drawingDataUrl) {
       const parsed = parseDataUrl(s.drawingDataUrl)
       if (parsed) {
         const ext = extForMime(parsed.mime, 'png')
+        const filename = `${copy.fileSketch}-${i + 1}.${ext}`
         attachments.push({
-          filename: `skizze-${i + 1}.${ext}`,
+          filename,
           content: Buffer.from(parsed.base64, 'base64'),
           contentType: parsed.mime,
         })
-        lines.push(`→ Anhang: skizze-${i + 1}.${ext}`)
+        lines.push(`${copy.attach} ${filename}`)
       }
     }
     if (s.audioDataUrl) {
@@ -121,25 +146,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (parsed) {
         const mime = s.audioMimeType || parsed.mime
         const ext = extForMime(mime, 'webm')
+        const filename = `${copy.fileAudio}-${i + 1}.${ext}`
         attachments.push({
-          filename: `audio-${i + 1}.${ext}`,
+          filename,
           content: Buffer.from(parsed.base64, 'base64'),
           contentType: mime,
         })
-        lines.push(`→ Anhang: audio-${i + 1}.${ext}`)
+        lines.push(`${copy.attach} ${filename}`)
       }
     }
     lines.push('')
   })
 
   lines.push('—')
-  lines.push('Gesendet von Tagesanker · tagesanker.de')
+  lines.push(copy.footer)
 
   const resend = new Resend(apiKey)
   const { error } = await resend.emails.send({
     from,
     to: email,
-    subject: `Tagesanker: ${sparks.length} Geistesblitz${sparks.length === 1 ? '' : 'e'} (nach ${retentionDays} Tagen)`,
+    subject: copy.subject,
     text: lines.join('\n'),
     attachments: attachments.map((a) => ({
       filename: a.filename,

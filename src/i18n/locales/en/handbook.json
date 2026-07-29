@@ -1,0 +1,129 @@
+{
+  "ariaLabel": "Handbook",
+  "title": "Handbook",
+  "lead": "A short overview — no pressure, just for looking things up.",
+  "close": "Close",
+  "sections": {
+    "screens": {
+      "title": "1. Screens",
+      "rows": {
+        "intro": { "label": "Introduction", "text": "First launch or open again manually" },
+        "plan": { "label": "Plan", "text": "Day not started yet / after reset" },
+        "focus": { "label": "Focus", "text": "Day started, tasks running" },
+        "done": { "label": "Done", "text": "Everything finished or skipped" }
+      }
+    },
+    "plan": {
+      "title": "2. Plan",
+      "buddyH": "Buddy card",
+      "buddyP": "Short text at the top: greeting, mood tip, note about open tasks from the last run.",
+      "moodH": "Day feel",
+      "moodItems": [
+        "Pretty good — normal amount and times",
+        "So-so — fewer points, slightly longer boxes",
+        "Hard today — clearly less, more time"
+      ],
+      "moodNote": "For today only. No judgement across days.",
+      "workH": "Work",
+      "workItems": [
+        "Title + size (Small / Medium / Large)",
+        "Remove with ✕ on the row",
+        "When capacity is full: Buddy warns, add is blocked"
+      ],
+      "lifeH": "Life",
+      "lifeItems": [
+        "✕ on the row: remove from today’s plan only",
+        "× on the chip: hide suggestion permanently",
+        "Your own anchors stay saved as suggestions",
+        "Limit adjustable (max. 5)"
+      ],
+      "carryH": "Still open",
+      "carryP": "Open tasks from the last day or “Plan a new day”. Take over (watch capacity) or discard.",
+      "startH": "Start day",
+      "startP": "Needs at least one task. Then Focus screen."
+    },
+    "fokus": {
+      "title": "3. Focus",
+      "activeH": "Active task",
+      "activeItems": [
+        "Timer, Pause / Resume, Done, Later / skip",
+        "Queue visible, but “not now”",
+        "Work first, then life"
+      ],
+      "checkinH": "Check-in",
+      "checkinP": "At set intervals: still on it, drifted, or pause.",
+      "feierabendH": "Knocking off",
+      "feierabendP": "When work is done: sparks unlock. Life tasks may still follow.",
+      "freezeH": "Soft freeze",
+      "freezeP": "Leave the app → timer pauses. Optional gentle notifications. Adjustable below.",
+      "endH": "End day",
+      "endP": "Open items marked skipped → wrap-up."
+    },
+    "done": {
+      "title": "4. Wrap-up",
+      "items": [
+        "Buddy summary — no guilt at 0 done",
+        "Done / Left open",
+        "View sparks (when unlocked)",
+        "“Plan a new day” keeps open items for “Still open”"
+      ]
+    },
+    "settings": {
+      "title": "5. Settings",
+      "rows": {
+        "capacity": { "label": "Capacity", "text": "How many work tasks of which size" },
+        "lifeMax": { "label": "Life anchors max.", "text": "1–5" },
+        "tone": { "label": "Buddy tone", "text": "warm / short / clear" },
+        "checkin": { "label": "Check-in", "text": "Interval 10–40 min." },
+        "reminders": { "label": "Reminders", "text": "Browser notifications" },
+        "freeze": { "label": "Freeze", "text": "Pause on leave; away nudges" },
+        "language": { "label": "Language", "text": "App UI (DE / EN)" },
+        "intro": { "label": "Introduction", "text": "Button on the start screen" },
+        "pwa": { "label": "PWA", "text": "Install hints" },
+        "sync": { "label": "Device sync", "text": "Optional via email code" }
+      }
+    },
+    "sparks": {
+      "title": "6. Sparks",
+      "rows": {
+        "park": { "label": "Park", "text": "Note, sketch, or short voice note" },
+        "vault": {
+          "label": "Vault",
+          "text": "Open only after work is done or skipped"
+        },
+        "ttl": {
+          "label": "Shelf life",
+          "text": "max. 7 days — email first if set, then delete"
+        },
+        "mail": {
+          "label": "Email",
+          "text": "Settings: address for expiry mail (optional)"
+        },
+        "delete": { "label": "Delete", "text": "Per entry in the open vault" },
+        "export": { "label": "Export", "text": "Copy, text, PDF, audio" }
+      }
+    },
+    "regulate": {
+      "title": "7. Regulate",
+      "lead": "Top right “Calm” — tap when it’s too much. Quiet full-screen mode; timer pauses.",
+      "rows": {
+        "breathe": { "label": "Breathe", "text": "Circle: 4 s in, 6 s out" },
+        "senses": { "label": "Senses", "text": "5-4-3-2-1 prompts from Buddy" },
+        "body": { "label": "Body", "text": "Cool / water / hand on chest" },
+        "back": {
+          "label": "Back",
+          "text": "“I’m back” — timer stays paused"
+        }
+      }
+    },
+    "data": {
+      "title": "8. Data",
+      "items": [
+        "Default: everything local in this browser",
+        "Optional device sync: same state on several devices (email code)",
+        "Without sync: another browser or clearing cache = data gone",
+        "No forced account — sync only if you turn it on"
+      ]
+    }
+  }
+}

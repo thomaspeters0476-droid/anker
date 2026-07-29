@@ -1,6 +1,7 @@
 import type { Spark } from './types'
 import { SPARK_RETENTION_DAYS } from './storage'
 import i18n, { ensureI18n } from './i18n'
+import { normalizeLocale } from './i18n/locales'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -92,6 +93,7 @@ async function postExpiredSparks(
   const payload = {
     email: normalizeSparksEmail(email),
     retentionDays: SPARK_RETENTION_DAYS,
+    locale: normalizeLocale(i18n.language),
     sparks: expired.map(toMailPayload),
   }
   try {
