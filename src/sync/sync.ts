@@ -22,6 +22,11 @@ import {
   getUnlockedDek,
   isVaultUnlocked,
 } from './vault'
+import {
+  enqueueSnapshotPush,
+  flushSyncOutbox,
+  isProbablyOffline,
+} from './outbox'
 
 function syncMsg(key: string): string {
   ensureI18n()
@@ -420,9 +425,16 @@ export function schedulePush(delayMs = 400): void {
       const session = await getSession()
       if (!session) return
       if (!isVaultUnlocked(session.user.id)) return
+      if (isProbablyOffline()) {
+        enqueueSnapshotPush()
+        return
+      }
+      const pending = await flushSyncOutbox()
+      if (pending > 0) return
       const local = getSyncSnapshot()
       if (!getLocalUpdatedAt()) return
-      await pushSnapshot(local)
+      const pushed = await pushSnapshot(local)
+      if (!pushed.ok) enqueueSnapshotPush()
     })()
   }, delayMs)
 }

@@ -10,7 +10,8 @@
     "syncNotice": {
       "appliedRemote": "Cloud state applied.",
       "keptLocal": "This device wins — cloud updated.",
-      "usedCloud": "Cloud state applied."
+      "usedCloud": "Cloud state applied.",
+      "pending": "{{count}} sync job waiting for a connection."
     }
   },
   "common": {

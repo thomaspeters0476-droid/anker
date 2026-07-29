@@ -16,6 +16,9 @@ import {
   resolveUseCloud,
   schedulePush,
   syncNow,
+  flushSyncOutbox,
+  outboxPendingCount,
+  subscribeUserState,
   type SyncConflict,
 } from './sync'
 import './App.css'
@@ -64,6 +67,7 @@ function App() {
     if (!isSyncConfigured() || syncingRef.current) return
     syncingRef.current = true
     try {
+      const pendingBefore = await flushSyncOutbox()
       const result = await syncNow()
       if (result.status === 'applied_remote') {
         applySyncedDay(result.day)
@@ -79,6 +83,10 @@ function App() {
         setSyncNotice(t('sync.errors.vaultSetupRequired'))
       } else if (result.status === 'error') {
         setSyncNotice(result.message)
+      }
+      const pending = outboxPendingCount()
+      if (pending > 0 && pendingBefore > 0) {
+        setSyncNotice(t('app.syncNotice.pending', { count: pending }))
       }
     } finally {
       syncingRef.current = false
@@ -112,9 +120,13 @@ function App() {
     const onOnline = () => void runSync()
     document.addEventListener('visibilitychange', onVis)
     window.addEventListener('online', onOnline)
+    const unsub = subscribeUserState(() => {
+      void runSync()
+    })
     return () => {
       document.removeEventListener('visibilitychange', onVis)
       window.removeEventListener('online', onOnline)
+      unsub()
     }
   }, [syncEmail, runSync])
 

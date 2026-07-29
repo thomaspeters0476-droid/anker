@@ -16,5 +16,11 @@ export {
   type SyncResult,
   type SyncConflict,
 } from './sync'
-export { pushSparkNow, deleteSparkRemote } from './sparkSync'
+export { pushSparkNow, deleteSparkRemote, retryPendingSync } from './sparkSync'
 export { isVaultUnlocked, clearCachedDek, loadCachedDek } from './vault'
+export { subscribeUserState } from './realtime'
+export {
+  flushSyncOutbox,
+  outboxPendingCount,
+  enqueueSnapshotPush,
+} from './outbox'

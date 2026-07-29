@@ -10,7 +10,8 @@
     "syncNotice": {
       "appliedRemote": "Stand von der Cloud übernommen.",
       "keptLocal": "Dieses Gerät gilt — Cloud aktualisiert.",
-      "usedCloud": "Cloud-Stand übernommen."
+      "usedCloud": "Cloud-Stand übernommen.",
+      "pending": "{{count}} Sync-Auftrag wartet auf Verbindung."
     }
   },
   "common": {
