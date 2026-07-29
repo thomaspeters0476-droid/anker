@@ -7,6 +7,25 @@ import {
   type SyncConflict,
 } from '../sync'
 
+const PENDING_EMAIL_KEY = 'anker-sync-pending-email'
+
+function readPendingEmail(): string {
+  try {
+    return localStorage.getItem(PENDING_EMAIL_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function writePendingEmail(email: string) {
+  try {
+    if (email) localStorage.setItem(PENDING_EMAIL_KEY, email)
+    else localStorage.removeItem(PENDING_EMAIL_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
 type Props = {
   email: string | null
   busy?: boolean
@@ -29,9 +48,8 @@ export function SyncSettings({
   onNotice,
 }: Props) {
   const configured = isSyncConfigured()
-  const [draft, setDraft] = useState('')
+  const [draft, setDraft] = useState(() => readPendingEmail())
   const [otp, setOtp] = useState('')
-  const [awaitingOtp, setAwaitingOtp] = useState(false)
   const [localBusy, setLocalBusy] = useState(false)
   const waiting = busy || localBusy
 
@@ -52,10 +70,10 @@ export function SyncSettings({
     const res = await signInWithMagicLink(draft)
     setLocalBusy(false)
     if (res.ok) {
-      setAwaitingOtp(true)
+      writePendingEmail(draft.trim().toLowerCase())
       setOtp('')
       onNotice?.(
-        'Mail von Tagesanker unterwegs (Betreff mit „Tagesanker“ und Code). Code hier eintippen — Link-Klick ist optional.',
+        'Mail von Tagesanker unterwegs (Betreff mit „Tagesanker“ und Code). Code unten eintippen.',
       )
     } else {
       onNotice?.(res.message)
@@ -68,7 +86,7 @@ export function SyncSettings({
     const res = await verifySyncOtp(draft, otp)
     setLocalBusy(false)
     if (res.ok) {
-      setAwaitingOtp(false)
+      writePendingEmail('')
       setOtp('')
       onNotice?.('Angemeldet — Geräte werden abgeglichen.')
     } else {
@@ -80,7 +98,7 @@ export function SyncSettings({
     setLocalBusy(true)
     await signOut()
     setLocalBusy(false)
-    setAwaitingOtp(false)
+    writePendingEmail('')
     setOtp('')
     onSignedOut?.()
     onNotice?.('Abgemeldet. Daten bleiben auf diesem Gerät; Sync pausiert.')
@@ -118,10 +136,7 @@ export function SyncSettings({
             inputMode="email"
             placeholder="z. B. name@beispiel.de"
             value={draft}
-            onChange={(e) => {
-              setDraft(e.target.value)
-              setAwaitingOtp(false)
-            }}
+            onChange={(e) => setDraft(e.target.value)}
             maxLength={120}
             disabled={waiting}
           />
@@ -134,33 +149,35 @@ export function SyncSettings({
             Code senden
           </button>
 
-          {awaitingOtp && (
-            <div className="sync-otp">
-              <label htmlFor="sync-otp">6-stelliger Code aus der Mail</label>
-              <input
-                id="sync-otp"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="[0-9]*"
-                placeholder="123456"
-                value={otp}
-                onChange={(e) =>
-                  setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
-                }
-                maxLength={6}
-                disabled={waiting}
-              />
-              <button
-                type="button"
-                className="primary"
-                disabled={waiting || otp.length !== 6}
-                onClick={() => void confirmOtp()}
-              >
-                Anmelden
-              </button>
-            </div>
-          )}
+          <div className="sync-otp">
+            <label htmlFor="sync-otp">6-stelliger Code aus der Mail</label>
+            <input
+              id="sync-otp"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]*"
+              placeholder="123456"
+              value={otp}
+              onChange={(e) =>
+                setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
+              }
+              maxLength={6}
+              disabled={waiting}
+            />
+            <button
+              type="button"
+              className="primary"
+              disabled={waiting || !draft.trim() || otp.length !== 6}
+              onClick={() => void confirmOtp()}
+            >
+              Mit Code anmelden
+            </button>
+            <p className="block-hint">
+              Zuerst Code senden, dann den Code aus der Tagesanker-Mail hier
+              eintragen.
+            </p>
+          </div>
         </div>
       )}
 
