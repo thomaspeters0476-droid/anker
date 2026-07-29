@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { DayState, Spark, Task } from '../types'
+import { useTranslation } from 'react-i18next'
+import type { DayState, Spark, Task, TaskSize } from '../types'
 import { workTasksSettled } from '../types'
 import {
   anotherRound,
@@ -19,10 +20,10 @@ import {
   timeboxOver,
   welcomeBack,
 } from '../buddy'
-import { SIZE_LABEL } from '../capacity'
 import { SparkCapture } from '../components/SparkCapture'
 import { SparkVault } from '../components/SparkVault'
 import { notify, notifyIfHidden } from '../notifications'
+import { lifeTemplateLabel } from '../i18n/lifeLabels'
 
 type Props = {
   day: DayState
@@ -54,24 +55,27 @@ function activateNext(fromTasks: Task[]): Task[] {
 }
 
 export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
-  const active = day.tasks.find((t) => t.status === 'active')
-  const waiting = day.tasks.filter((t) => t.status === 'planned')
-  const doneCount = day.tasks.filter((t) => t.status === 'done').length
+  const { t } = useTranslation()
+  const sizeLabel = (size: TaskSize) => t(`common.size.${size}`)
+  const active = day.tasks.find((task) => task.status === 'active')
+  const waiting = day.tasks.filter((task) => task.status === 'planned')
+  const doneCount = day.tasks.filter((task) => task.status === 'done').length
   const vaultOpen = workTasksSettled(day.tasks)
   const sparkCount = day.sparks.length
   const lifeLeft = day.tasks.filter(
-    (t) =>
-      t.kind === 'life' && (t.status === 'planned' || t.status === 'active'),
+    (task) =>
+      task.kind === 'life' &&
+      (task.status === 'planned' || task.status === 'active'),
   ).length
   const inFeierabend =
     day.started &&
     vaultOpen &&
-    day.tasks.some((t) => t.kind === 'work')
+    day.tasks.some((task) => task.kind === 'work')
   const sleepPending = day.tasks.some(
-    (t) =>
-      t.kind === 'life' &&
-      (t.status === 'planned' || t.status === 'active') &&
-      /schlaf/i.test(t.title),
+    (task) =>
+      task.kind === 'life' &&
+      (task.status === 'planned' || task.status === 'active') &&
+      /schlaf/i.test(task.title),
   )
 
   const [secondsLeft, setSecondsLeft] = useState(
@@ -108,15 +112,9 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     }
     if (regulateWasOpenRef.current) {
       regulateWasOpenRef.current = false
-      setBuddyMsg(
-        day.buddyTone === 'kurz'
-          ? 'Wieder da. Weiter, wenn du magst.'
-          : day.buddyTone === 'klar'
-            ? 'Zurück. Timer pausiert — Fortsetzen möglich.'
-            : 'Willkommen zurück. Der Timer war pausiert. Kein Druck — einfach weiter, wenn du soweit bist.',
-      )
+      setBuddyMsg(t(`focus.afterRegulate.${day.buddyTone}`))
     }
-  }, [regulateOpen, day.buddyTone])
+  }, [regulateOpen, day.buddyTone, t])
 
   function clearAwayNudges() {
     if (awayNudgeTimerRef.current != null) {
@@ -132,7 +130,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
 
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') {
-        const current = day.tasks.find((t) => t.status === 'active')
+        const current = day.tasks.find((task) => task.status === 'active')
         if (!current) return
 
         frozenByAwayRef.current = runningRef.current
@@ -149,8 +147,8 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
           const title = current.title
           const send = () =>
             notify(
-              'Tagesanker · Fokus wartet',
-              `Sanfte Erinnerung: „${title}“ liegt noch bereit.`,
+              t('focus.notify.awayTitle'),
+              t('focus.notify.awayBody', { title }),
               'anker-away',
             )
 
@@ -179,7 +177,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
 
       clearAwayNudges()
       if (frozenByAwayRef.current) {
-        const current = day.tasks.find((t) => t.status === 'active')
+        const current = day.tasks.find((task) => task.status === 'active')
         setBuddyMsg(welcomeBack(current, ctxFromDay(day)))
         frozenByAwayRef.current = false
       }
@@ -201,6 +199,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     day.mood,
     day.tasks,
     day.sparks.length,
+    t,
   ])
 
   useEffect(() => {
@@ -228,14 +227,14 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     setBuddyMsg(feierabend(ctxFromDay(day, { lifeLeft })))
     if (day.notificationsEnabled) {
       notifyIfHidden(
-        'Tagesanker · Feierabend',
+        t('focus.notify.feierabendTitle'),
         lifeLeft > 0
-          ? 'Arbeit erledigt. Geistesblitze frei — noch Alltag.'
-          : 'Arbeit erledigt. Geistesblitze frei.',
+          ? t('focus.notify.feierabendBodyLife')
+          : t('focus.notify.feierabendBody'),
         'anker-feierabend',
       )
     }
-  }, [inFeierabend, day, day.notificationsEnabled, lifeLeft])
+  }, [inFeierabend, day, day.notificationsEnabled, lifeLeft, t])
 
   // Schlaf-Erinnerung ab 21 Uhr
   useEffect(() => {
@@ -248,8 +247,8 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
         sleepNotifiedRef.current = true
         setBuddyMsg(sleepReminder(ctxFromDay(day)))
         notifyIfHidden(
-          'Tagesanker · Schlaf-Anker',
-          'Rechtzeitig schlafen steht noch offen.',
+          t('focus.notify.sleepTitle'),
+          t('focus.notify.sleepBody'),
           'anker-sleep',
         )
       }
@@ -257,7 +256,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     tick()
     const id = window.setInterval(tick, 60_000)
     return () => window.clearInterval(id)
-  }, [day.notificationsEnabled, sleepPending, day])
+  }, [day.notificationsEnabled, sleepPending, day, t])
 
   useEffect(() => {
     if (!running || showCheckIn || captureOpen || regulateOpen || !active)
@@ -289,8 +288,8 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
         )
         if (day.notificationsEnabled) {
           notifyIfHidden(
-            'Tagesanker · Check-in',
-            `Noch bei „${active.title}“?`,
+            t('focus.notify.checkInTitle'),
+            t('focus.notify.checkInBody', { title: active.title }),
             'anker-checkin',
           )
         }
@@ -306,13 +305,14 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     day,
     day.checkInEveryMin,
     day.notificationsEnabled,
+    t,
   ])
 
   function endDay() {
     setDay((d) => ({
       ...d,
-      tasks: d.tasks.map((t) =>
-        t.status === 'done' ? t : { ...t, status: 'skipped' as const },
+      tasks: d.tasks.map((task) =>
+        task.status === 'done' ? task : { ...task, status: 'skipped' as const },
       ),
     }))
   }
@@ -326,16 +326,16 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
   function completeActive() {
     if (!active) return
     setDay((d) => {
-      const updated = d.tasks.map((t) =>
-        t.id === active.id ? { ...t, status: 'done' as const } : t,
+      const updated = d.tasks.map((task) =>
+        task.id === active.id ? { ...task, status: 'done' as const } : task,
       )
       const next = activateNext(updated)
       const workDone = workTasksSettled(updated)
-      const nextActive = next.find((t) => t.status === 'active')
+      const nextActive = next.find((task) => task.status === 'active')
       const lifeRemaining = updated.filter(
-        (t) =>
-          t.kind === 'life' &&
-          (t.status === 'planned' || t.status === 'active'),
+        (task) =>
+          task.kind === 'life' &&
+          (task.status === 'planned' || task.status === 'active'),
       ).length
       const ctx = ctxFromDay(
         { ...d, tasks: next },
@@ -359,8 +359,8 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
   function skipActive() {
     if (!active) return
     setDay((d) => {
-      const updated = d.tasks.map((t) =>
-        t.id === active.id ? { ...t, status: 'skipped' as const } : t,
+      const updated = d.tasks.map((task) =>
+        task.id === active.id ? { ...task, status: 'skipped' as const } : task,
       )
       return { ...d, tasks: activateNext(updated) }
     })
@@ -369,10 +369,10 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
   function chooseNext(id: string) {
     setDay((d) => ({
       ...d,
-      tasks: d.tasks.map((t) => {
-        if (t.id === id) return { ...t, status: 'active' }
-        if (t.status === 'active') return { ...t, status: 'planned' }
-        return t
+      tasks: d.tasks.map((task) => {
+        if (task.id === id) return { ...task, status: 'active' }
+        if (task.status === 'active') return { ...task, status: 'planned' }
+        return task
       }),
     }))
   }
@@ -433,10 +433,15 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     setVaultVisible(true)
   }
 
+  const feierabendLine =
+    lifeLeft > 0
+      ? t('focus.feierabend.lineWithLife', { count: lifeLeft })
+      : t('focus.feierabend.line')
+
   const sparkControls = (
     <div className="spark-bar">
       <button type="button" className="spark-btn" onClick={openCapture}>
-        ✦ Geistesblitz
+        {t('focus.sparkBar.capture')}
       </button>
       <button
         type="button"
@@ -444,11 +449,13 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
         onClick={tryOpenVault}
         aria-label={
           vaultOpen
-            ? 'Geistesblitzspeicher öffnen'
-            : 'Geistesblitzspeicher noch verschlossen'
+            ? t('focus.sparkBar.vaultOpenAria')
+            : t('focus.sparkBar.vaultLockedAria')
         }
       >
-        {vaultOpen ? 'Speicher' : 'Speicher 🔒'}
+        {vaultOpen
+          ? t('focus.sparkBar.vaultOpen')
+          : t('focus.sparkBar.vaultLocked')}
         {sparkCount > 0 && <span className="spark-count">{sparkCount}</span>}
       </button>
     </div>
@@ -459,11 +466,8 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
       <section className="screen focus-screen">
         {inFeierabend && (
           <div className="feierabend-banner" role="status">
-            <strong>Feierabend-Modus</strong>
-            <span>
-              Arbeit durch · Geistesblitze frei
-              {lifeLeft > 0 ? ` · noch ${lifeLeft} Alltag` : ''}
-            </span>
+            <strong>{t('focus.feierabend.title')}</strong>
+            <span>{feierabendLine}</span>
             <div className="feierabend-actions">
               {sparkCount > 0 && (
                 <button
@@ -471,44 +475,44 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
                   className="secondary sm"
                   onClick={() => setVaultVisible(true)}
                 >
-                  Speicher öffnen
+                  {t('focus.feierabend.openVault')}
                 </button>
               )}
               <button type="button" className="ghost sm" onClick={endDay}>
-                Tag schließen
+                {t('focus.feierabend.closeDay')}
               </button>
             </div>
           </div>
         )}
         <div className="buddy-card" role="status">
-          <span className="buddy-label">Buddy</span>
+          <span className="buddy-label">{t('common.buddy')}</span>
           <p>
             {inFeierabend
               ? feierabend(ctxFromDay(day, { lifeLeft }))
-              : 'Keine aktive Aufgabe mehr. Du kannst den Tag beenden oder etwas Offenes anwählen.'}
+              : t('focus.noActive')}
           </p>
         </div>
         {sparkControls}
         {waiting.length > 0 && (
           <ul className="queue">
-            {waiting.map((t) => (
-              <li key={t.id}>
+            {waiting.map((task) => (
+              <li key={task.id}>
                 <button
                   type="button"
                   className="queue-btn"
-                  onClick={() => chooseNext(t.id)}
+                  onClick={() => chooseNext(task.id)}
                 >
-                  <span className={`kind ${t.kind}`}>
-                    {t.kind === 'work' ? 'Arbeit' : 'Alltag'}
+                  <span className={`kind ${task.kind}`}>
+                    {task.kind === 'work' ? t('common.work') : t('common.life')}
                   </span>
-                  {t.title}
+                  {lifeTemplateLabel(task.title, t)}
                 </button>
               </li>
             ))}
           </ul>
         )}
         <button type="button" className="ghost lg end-day" onClick={endDay}>
-          Tag beenden
+          {t('focus.endDay')}
         </button>
         <SparkCapture
           open={captureOpen}
@@ -536,11 +540,8 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     <section className="screen focus-screen">
       {inFeierabend && (
         <div className="feierabend-banner" role="status">
-          <strong>Feierabend-Modus</strong>
-          <span>
-            Arbeit durch · Geistesblitze frei
-            {lifeLeft > 0 ? ` · noch ${lifeLeft} Alltag` : ''}
-          </span>
+          <strong>{t('focus.feierabend.title')}</strong>
+          <span>{feierabendLine}</span>
           <div className="feierabend-actions">
             {sparkCount > 0 && (
               <button
@@ -548,11 +549,11 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
                 className="secondary sm"
                 onClick={() => setVaultVisible(true)}
               >
-                Speicher öffnen
+                {t('focus.feierabend.openVault')}
               </button>
             )}
             <button type="button" className="ghost sm" onClick={endDay}>
-              Tag schließen
+              {t('focus.feierabend.closeDay')}
             </button>
           </div>
         </div>
@@ -560,37 +561,39 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
 
       <div className="progress-meta">
         <span>
-          {doneCount} erledigt · {waiting.length} wartend
+          {t('focus.progress', { done: doneCount, waiting: waiting.length })}
         </span>
         <span className="meta-right">
           {active.kind === 'work' && (
-            <span className={`size-badge ${active.size}`}>{SIZE_LABEL[active.size]}</span>
+            <span className={`size-badge ${active.size}`}>
+              {sizeLabel(active.size)}
+            </span>
           )}
           <span className={`kind ${active.kind}`}>
-            {active.kind === 'work' ? 'Arbeit' : 'Alltag'}
+            {active.kind === 'work' ? t('common.work') : t('common.life')}
           </span>
         </span>
       </div>
 
-      <h2 className="focus-title">{active.title}</h2>
+      <h2 className="focus-title">{lifeTemplateLabel(active.title, t)}</h2>
 
       <div className="timer-ring" style={{ ['--p' as string]: `${progress}%` }}>
         <div className="timer-inner">
           <span className="timer-digits">{formatTime(secondsLeft)}</span>
           <span className="timer-label">
             {captureOpen
-              ? 'geparkt'
+              ? t('focus.timer.parked')
               : running
-                ? 'läuft'
+                ? t('focus.timer.running')
                 : showCheckIn
-                  ? 'Check-in'
-                  : 'pausiert'}
+                  ? t('focus.timer.checkIn')
+                  : t('focus.timer.paused')}
           </span>
         </div>
       </div>
 
       <div className="buddy-card" role="status">
-        <span className="buddy-label">Buddy</span>
+        <span className="buddy-label">{t('common.buddy')}</span>
         <p>{buddyMsg}</p>
       </div>
 
@@ -603,21 +606,21 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
             className="primary lg"
             onClick={() => onCheckIn('still')}
           >
-            Ja, noch dabei
+            {t('focus.checkIn.still')}
           </button>
           <button
             type="button"
             className="secondary lg"
             onClick={() => onCheckIn('drift')}
           >
-            Abgeschweift — zurück
+            {t('focus.checkIn.drift')}
           </button>
           <button
             type="button"
             className="ghost lg"
             onClick={() => onCheckIn('pause')}
           >
-            Pause
+            {t('focus.checkIn.pause')}
           </button>
         </div>
       ) : (
@@ -634,32 +637,38 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
               setRunning((r) => !r)
             }}
           >
-            {running ? 'Pause' : secondsLeft === 0 ? 'Noch eine Runde' : 'Weiter'}
+            {running
+              ? t('focus.actions.pause')
+              : secondsLeft === 0
+                ? t('focus.actions.anotherRound')
+                : t('focus.actions.resume')}
           </button>
           <button type="button" className="primary" onClick={completeActive}>
-            Fertig
+            {t('focus.actions.done')}
           </button>
           <button type="button" className="ghost" onClick={skipActive}>
-            Später / überspringen
+            {t('focus.actions.skip')}
           </button>
         </div>
       )}
 
       {waiting.length > 0 && (
         <div className="waiting-block">
-          <h3>Wartet (nicht jetzt)</h3>
+          <h3>{t('focus.waiting.title')}</h3>
           <ul className="waiting-list">
-            {waiting.map((t) => (
-              <li key={t.id}>
-                <span className={`kind tiny ${t.kind}`}>
-                  {t.kind === 'work' ? 'A' : 'T'}
+            {waiting.map((task) => (
+              <li key={task.id}>
+                <span className={`kind tiny ${task.kind}`}>
+                  {task.kind === 'work'
+                    ? t('common.workAbbrev')
+                    : t('common.lifeAbbrev')}
                 </span>
-                {t.kind === 'work' && (
-                  <span className={`size-badge tiny ${t.size}`}>
-                    {SIZE_LABEL[t.size].slice(0, 1)}
+                {task.kind === 'work' && (
+                  <span className={`size-badge tiny ${task.size}`}>
+                    {sizeLabel(task.size).slice(0, 1)}
                   </span>
                 )}
-                {t.title}
+                {lifeTemplateLabel(task.title, t)}
               </li>
             ))}
           </ul>
@@ -667,7 +676,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
       )}
 
       <button type="button" className="ghost lg end-day" onClick={endDay}>
-        Tag beenden
+        {t('focus.endDay')}
       </button>
 
       <SparkCapture

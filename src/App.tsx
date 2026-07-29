@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { DayState } from './types'
 import { emptyDay, loadDay, saveDay } from './storage'
 import { reconcileExpiredSparks } from './sparkExpiry'
@@ -38,6 +39,7 @@ function markRegulateTipSeen() {
 }
 
 function App() {
+  const { t } = useTranslation()
   const [day, setDay] = useState<DayState>(() => loadDay() ?? emptyDay())
   const [showIntro, setShowIntro] = useState(() => !hasSeenIntro())
   const [introKey, setIntroKey] = useState(0)
@@ -66,7 +68,7 @@ function App() {
       if (result.status === 'applied_remote') {
         applySyncedDay(result.day)
         setSyncConflict(null)
-        setSyncNotice('Stand von der Cloud übernommen.')
+        setSyncNotice(t('app.syncNotice.appliedRemote'))
       } else if (result.status === 'pushed_local') {
         setSyncConflict(null)
       } else if (result.status === 'conflict') {
@@ -77,7 +79,7 @@ function App() {
     } finally {
       syncingRef.current = false
     }
-  }, [applySyncedDay])
+  }, [applySyncedDay, t])
 
   useEffect(() => {
     if (skipPersistRef.current) {
@@ -168,7 +170,7 @@ function App() {
     const result = await resolveKeepLocal(syncConflict)
     setSyncConflict(null)
     if (result.status === 'error') setSyncNotice(result.message)
-    else setSyncNotice('Dieses Gerät gilt — Cloud aktualisiert.')
+    else setSyncNotice(t('app.syncNotice.keptLocal'))
   }
 
   async function useCloudConflict() {
@@ -177,11 +179,14 @@ function App() {
     setSyncConflict(null)
     if (result.status === 'applied_remote') {
       applySyncedDay(result.day)
-      setSyncNotice('Cloud-Stand übernommen.')
+      setSyncNotice(t('app.syncNotice.usedCloud'))
     } else if (result.status === 'error') {
       setSyncNotice(result.message)
     }
   }
+
+  const tipStrong = t('app.regulateTip.bodyStrong')
+  const tipBody = t('app.regulateTip.body')
 
   return (
     <div className="app-shell">
@@ -189,25 +194,27 @@ function App() {
         <div className="topbar-row">
           <div className="brand">
             <span className="brand-mark" aria-hidden />
-            <span className="brand-name">Tagesanker</span>
+            <span className="brand-name">{t('app.brandName')}</span>
           </div>
           {!showIntro && !regulateOpen && (
             <RegulateButton onClick={openRegulate} />
           )}
         </div>
-        <p className="brand-tag">Eine Sache. Realistisch. Zurückfinden.</p>
+        <p className="brand-tag">{t('app.brandTag')}</p>
         {!showIntro && !regulateOpen && showRegulateTip && (
           <div className="regulate-tip" role="status">
             <p>
-              <strong>Ruhe</strong> oben rechts — tippen, wenn es zu viel wird.
-              Atmen, Sinne, Körper. Kein Timer.
+              <strong>{tipStrong}</strong>
+              {tipBody.startsWith(tipStrong)
+                ? tipBody.slice(tipStrong.length)
+                : ` ${tipBody}`}
             </p>
             <button
               type="button"
               className="ghost sm"
               onClick={dismissRegulateTip}
             >
-              Verstanden
+              {t('app.regulateTip.dismiss')}
             </button>
           </div>
         )}

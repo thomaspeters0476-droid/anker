@@ -1,5 +1,6 @@
 import type { Spark } from './types'
 import { SPARK_RETENTION_DAYS } from './storage'
+import i18n, { ensureI18n } from './i18n'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -126,6 +127,7 @@ export async function reconcileExpiredSparks(
     }
   }
 
+  ensureI18n()
   const mail = normalizeSparksEmail(email)
   if (isValidSparksEmail(mail)) {
     const ok = await postExpiredSparks(mail, expired)
@@ -135,7 +137,10 @@ export async function reconcileExpiredSparks(
         mailed: expired.length,
         purgedWithoutMail: 0,
         mailFailed: false,
-        notice: `${expired.length} abgelaufene Geistesblitz${expired.length === 1 ? '' : 'e'} an ${mail} gesendet und gelöscht.`,
+        notice: i18n.t('sparkExpiry.mailed', {
+          count: expired.length,
+          email: mail,
+        }),
       }
     }
     return {
@@ -143,8 +148,7 @@ export async function reconcileExpiredSparks(
       mailed: 0,
       purgedWithoutMail: 0,
       mailFailed: true,
-      notice:
-        'Geistesblitze sind älter als 7 Tage — Versand fehlgeschlagen. Sie bleiben, bis der Versand klappt (oder du sie löschst).',
+      notice: i18n.t('sparkExpiry.mailFailed'),
     }
   }
 
@@ -155,7 +159,10 @@ export async function reconcileExpiredSparks(
     mailFailed: false,
     notice:
       expired.length > 0
-        ? `${expired.length} Geistesblitz${expired.length === 1 ? '' : 'e'} älter als ${SPARK_RETENTION_DAYS} Tage entfernt. Mit E-Mail in den Einstellungen werden sie vorher zugeschickt.`
+        ? i18n.t('sparkExpiry.purged', {
+            count: expired.length,
+            days: SPARK_RETENTION_DAYS,
+          })
         : null,
   }
 }

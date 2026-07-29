@@ -6,7 +6,8 @@ Format: neueste zuerst. Bei Releases kurz ergänzen.
 
 ## Unreleased
 
-- Optionaler Geräte-Sync (Magic Link / Supabase), lokal-first
+- App-Mehrsprachigkeit **DE/EN** (i18next): UI inkl. Geistesblitze, Buddy, Einstellungen-Sprachwahl; weitere EU-Sprachen vorbereitet
+- Optionaler Geräte-Sync (Resend-OTP + Supabase Session), lokal-first
 - robots.txt + sitemap.xml für Search Console
 - Fünf evidenznahe Blogartikel (Primär-DOI zuerst, Medien optional, Tagesanker am Rand)
 - Marketing-Site unter `/` (Landing, Blog, Preise-Platzhalter); App unter `/app`

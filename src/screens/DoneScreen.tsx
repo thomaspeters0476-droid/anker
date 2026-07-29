@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { DayState } from '../types'
 import { workTasksSettled } from '../types'
 import { ctxFromDay, dayDone } from '../buddy'
 import { emptyDay, rollDayForward } from '../storage'
 import { SparkVault } from '../components/SparkVault'
+import { lifeTemplateLabel } from '../i18n/lifeLabels'
 
 type Props = {
   day: DayState
@@ -11,8 +13,9 @@ type Props = {
 }
 
 export function DoneScreen({ day, setDay }: Props) {
-  const done = day.tasks.filter((t) => t.status === 'done')
-  const skipped = day.tasks.filter((t) => t.status === 'skipped')
+  const { t } = useTranslation()
+  const done = day.tasks.filter((task) => task.status === 'done')
+  const skipped = day.tasks.filter((task) => task.status === 'skipped')
   const msg = dayDone(done.length, day.tasks.length, ctxFromDay(day))
   const unlocked = workTasksSettled(day.tasks)
   const [vaultVisible, setVaultVisible] = useState(false)
@@ -25,22 +28,24 @@ export function DoneScreen({ day, setDay }: Props) {
   return (
     <section className="screen done-screen">
       <div className="buddy-card" role="status">
-        <span className="buddy-label">Buddy</span>
+        <span className="buddy-label">{t('common.buddy')}</span>
         <p>{msg}</p>
       </div>
 
       <div className="block">
-        <h2>Geschafft</h2>
+        <h2>{t('done.doneTitle')}</h2>
         {done.length === 0 ? (
-          <p className="empty">Noch nichts abgehakt — okay für heute.</p>
+          <p className="empty">{t('done.empty')}</p>
         ) : (
           <ul className="task-list done">
-            {done.map((t) => (
-              <li key={t.id}>
-                <span className={`kind tiny ${t.kind}`}>
-                  {t.kind === 'work' ? 'A' : 'T'}
+            {done.map((task) => (
+              <li key={task.id}>
+                <span className={`kind tiny ${task.kind}`}>
+                  {task.kind === 'work'
+                    ? t('common.workAbbrev')
+                    : t('common.lifeAbbrev')}
                 </span>
-                {t.title}
+                {lifeTemplateLabel(task.title, t)}
               </li>
             ))}
           </ul>
@@ -49,11 +54,11 @@ export function DoneScreen({ day, setDay }: Props) {
 
       {skipped.length > 0 && (
         <div className="block muted">
-          <h2>Offen gelassen</h2>
+          <h2>{t('done.skippedTitle')}</h2>
           <ul className="task-list">
-            {skipped.map((t) => (
-              <li key={t.id}>
-                <span>{t.title}</span>
+            {skipped.map((task) => (
+              <li key={task.id}>
+                <span>{lifeTemplateLabel(task.title, t)}</span>
               </li>
             ))}
           </ul>
@@ -67,13 +72,13 @@ export function DoneScreen({ day, setDay }: Props) {
           onClick={() => setVaultVisible(true)}
         >
           {unlocked
-            ? `Geistesblitze ansehen (${day.sparks.length})`
-            : `Geistesblitze noch verschlossen (${day.sparks.length})`}
+            ? t('done.viewSparks', { count: day.sparks.length })
+            : t('done.sparksLocked', { count: day.sparks.length })}
         </button>
       )}
 
       <button type="button" className="primary lg" onClick={reset}>
-        Neuen Tag planen
+        {t('done.newDay')}
       </button>
 
       {vaultVisible && (

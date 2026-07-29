@@ -1,0 +1,450 @@
+{
+  "app": {
+    "brandName": "Tagesanker",
+    "brandTag": "Eine Sache. Realistisch. Zurückfinden.",
+    "regulateTip": {
+      "body": "Ruhe oben rechts — tippen, wenn es zu viel wird. Atmen, Sinne, Körper. Kein Timer.",
+      "bodyStrong": "Ruhe",
+      "dismiss": "Verstanden"
+    },
+    "syncNotice": {
+      "appliedRemote": "Stand von der Cloud übernommen.",
+      "keptLocal": "Dieses Gerät gilt — Cloud aktualisiert.",
+      "usedCloud": "Cloud-Stand übernommen."
+    }
+  },
+  "common": {
+    "buddy": "Buddy",
+    "ok": "OK",
+    "add": "Hinzufügen",
+    "remove": "Entfernen",
+    "work": "Arbeit",
+    "life": "Alltag",
+    "workAbbrev": "A",
+    "lifeAbbrev": "T",
+    "min": "Min",
+    "points": "Punkte",
+    "pkt": "Pkt",
+    "size": {
+      "small": "Klein",
+      "medium": "Mittel",
+      "large": "Groß"
+    },
+    "sizeLess": "{{size}} weniger",
+    "sizeMore": "{{size}} mehr"
+  },
+  "intro": {
+    "ariaLabel": "Einführung",
+    "progress": "{{current}} / {{total}}",
+    "skip": "Überspringen",
+    "next": "Weiter",
+    "start": "Loslegen",
+    "steps": {
+      "planLess": {
+        "title": "Wenig planen",
+        "text": "Morgens nur ein paar Arbeitsaufgaben und Alltagsanker. Wie viele — und wie groß — stellst du unten in den Einstellungen ein."
+      },
+      "oneThing": {
+        "title": "Eine Sache",
+        "text": "Im Fokus siehst du nur die aktuelle Aufgabe. Der Rest wartet — absichtlich."
+      },
+      "findBack": {
+        "title": "Zurückfinden",
+        "text": "Der Buddy fragt zwischendurch nach. Geistesblitze kannst du kurz parken. Am Handy: App auf den Startbildschirm legen — dann kommen Erinnerungen besser an."
+      },
+      "softFreeze": {
+        "title": "Weicher Freeze",
+        "text": "Verlässt du die App, pausiert der Timer sanft. Optional erinnern dich Mitteilungen, zurückzukommen — ohne dich einzusperren. Anpassen oder ausstellen: unten unter Einstellungen."
+      },
+      "regulate": {
+        "title": "Ruhe-Button",
+        "text": "Oben rechts steht „Ruhe“. Wenn es zu viel wird: tippen. Dann nur Atmen, Sinne, Körper — kein Timer, kein Plan. Zurück mit „Ich bin wieder da“."
+      }
+    }
+  },
+  "plan": {
+    "mood": {
+      "title": "Wie fühlst du dich heute?",
+      "hint": "Nur für heute — wird nicht gespeichert oder bewertet. Steuert Menge und Zeit.",
+      "ariaLabel": "Tagesgefühl",
+      "good": {
+        "label": "Ziemlich gut",
+        "hint": "Normale Menge, normale Zeiten"
+      },
+      "ok": {
+        "label": "Geht so",
+        "hint": "Etwas weniger, etwas mehr Zeit"
+      },
+      "hard": {
+        "label": "Heute eher schwer",
+        "hint": "Deutlich weniger, mehr Zeit pro Sache"
+      }
+    },
+    "carry": {
+      "title": "Noch offen",
+      "hint": "Vom letzten Tag — auswählen und mitnehmen (soweit Kapazität reicht).",
+      "adopt": "Übernehmen",
+      "dismiss": "Verwerfen"
+    },
+    "work": {
+      "title": "Arbeit",
+      "count": "{{used}}/{{max}} Pkt",
+      "hint": "Größe wählen — Timer richtet sich danach.",
+      "sizeAria": "Umfang",
+      "minutes": "{{n}} Min",
+      "placeholder": "z. B. Bericht fertigstellen"
+    },
+    "life": {
+      "title": "Alltag",
+      "count": "{{used}}/{{max}}",
+      "hint": "Zählt nicht in die Arbeitspunkte. × am Vorschlag blendet ihn aus — eigene bleiben gespeichert.",
+      "placeholder": "Eigener Alltagsanker…",
+      "forgetAria": "{{title}} nicht mehr vorschlagen",
+      "forgetTitle": "Nicht mehr vorschlagen",
+      "templates": {
+        "walkDog": "Mit dem Hund gehen",
+        "cook": "Essen kochen / essen",
+        "sleep": "Rechtzeitig schlafen gehen",
+        "meds": "Medikamente nehmen",
+        "move": "Kurz bewegen / spazieren",
+        "errands": "Post / Besorgungen"
+      }
+    },
+    "startDay": "Tag starten",
+    "introSurface": {
+      "show": "Einführung anzeigen",
+      "hideButton": "Button ausblenden"
+    },
+    "capSummary": {
+      "label": "Arbeit heute",
+      "points": "{{used}}/{{max}} Punkte",
+      "large": "G {{used}}/{{max}}",
+      "medium": "M {{used}}/{{max}}",
+      "small": "K {{used}}/{{max}}"
+    },
+    "sparkMailNoticeLabel": "Geistesblitze"
+  },
+  "settings": {
+    "summary": "Einstellungen",
+    "capacity": {
+      "summary": "Tagesmenge",
+      "meta": "Arbeit & Alltag",
+      "intro": "Grundeinstellung ohne Stimmung. Die Tagesfrage skaliert davon ab.",
+      "dayBudget": "Tagesbudget Arbeit: {{used}} / {{max}} Punkte",
+      "lifeMaxLabel": "Alltagsanker max.",
+      "lifeMaxLess": "Weniger Alltagsanker",
+      "lifeMaxMore": "Mehr Alltagsanker",
+      "lifeMaxHint": "Höchstens {{max}}. Weniger ist oft besser."
+    },
+    "reminders": {
+      "summary": "Erinnerungen",
+      "meta": "Check-in & Freeze",
+      "buddyTone": "Buddy-Ton",
+      "toneWarm": "Warm",
+      "toneKurz": "Kurz",
+      "toneKlar": "Klar",
+      "checkInEvery": "Check-in alle {{n}} Min.",
+      "enableNotifications": "Erinnerungen einschalten",
+      "saveFirstHint": "Am Handy zuerst speichern — sonst kommen Mitteilungen oft nicht zuverlässig an.",
+      "blockedHint": "Mitteilungen sind blockiert. In den Handy-Einstellungen bei Tagesanker erlauben.",
+      "notifGranted": "Erinnerungen an. Check-ins melden sich, wenn der Tab im Hintergrund ist.",
+      "notifDenied": "Blockiert — in den Browser-Einstellungen erlauben.",
+      "notifUnsupported": "In diesem Browser nicht verfügbar.",
+      "softFreeze": {
+        "label": "Weicher Freeze",
+        "pauseOnLeave": "Beim Verlassen Timer pausieren",
+        "hint": "Standard: an, höchstens eine sanfte Erinnerung. Nicht einsperren — nur zurückrufen.",
+        "awayNudges": "Erinnerungen wenn weg",
+        "nudgeOff": "Keine",
+        "nudgeOnce": "Einmal (empfohlen)",
+        "nudgeRepeat": "Wiederholen",
+        "everyMin": "Alle {{n}} Min.",
+        "maxNudges": "Max. {{n}} Hinweise"
+      }
+    },
+    "sparks": {
+      "summary": "Geistesblitze",
+      "meta": "nach {{days}} Tagen",
+      "mailLabel": "Ablauf-Mail (optional)",
+      "mailPlaceholder": "z. B. name@beispiel.de",
+      "mailInvalid": "Bitte eine gültige Adresse — sonst werden abgelaufene Ideen nur gelöscht.",
+      "mailSet": "Beim Öffnen der App: Ideen älter als 7 Tage hierher, dann löschen.",
+      "mailEmpty": "Leer = nach 7 Tagen ohne Mail löschen."
+    },
+    "help": {
+      "summary": "Hilfe & Oberfläche",
+      "meta": "Intro, Handbuch",
+      "introButton": "Einführungs-Button auf der Startseite",
+      "showIntroAgain": "Einführung nochmal anzeigen",
+      "openHandbook": "Handbuch öffnen"
+    },
+    "sync": {
+      "summary": "Geräte-Sync",
+      "metaConnected": "verbunden",
+      "metaLocalOnly": "nur dieses Gerät"
+    },
+    "syncStatusBar": "Sync an · {{email}}"
+  },
+  "sync": {
+    "title": "Geräte-Sync",
+    "notConfigured": "Sync ist auf diesem Build noch nicht konfiguriert (Supabase-Env fehlt).",
+    "hint": "Optional. Ohne Anmeldung bleibt alles nur auf diesem Gerät.",
+    "connectedAs": "Verbunden als {{email}}",
+    "signOut": "Abmelden",
+    "emailLabel": "1. Deine E-Mail (nicht der Code)",
+    "emailPlaceholder": "z. B. name@beispiel.de",
+    "otpLabel": "2. Sechs Ziffern aus der Mail",
+    "otpPlaceholder": "123456",
+    "signInWithCode": "Mit Code anmelden",
+    "sendNewCode": "Neuen Code per Mail senden",
+    "bothNeeded": "Beides nötig: E-Mail-Adresse + Code. Kein neues Senden, wenn die Mail schon da ist.",
+    "gateNeedEmail": "Noch die E-Mail oben eintragen — dann wird „Mit Code anmelden“ aktiv.",
+    "gateNeedOtp": "Code: noch 6 Ziffern aus der Mail eintragen.",
+    "noticeNeedEmailFirst": "Bitte zuerst deine E-Mail-Adresse eintragen (nicht den Code).",
+    "noticeNeedEmailForOtp": "Oben noch die E-Mail eintragen (dieselbe Adresse wie in der Mail) — der Code allein reicht nicht.",
+    "noticeOtpLength": "Der Code braucht genau 6 Ziffern.",
+    "noticeCodeSent": "Mail von Tagesanker (Resend) unterwegs — Betreff mit Sync-Code. Nur die 6 Ziffern hier eintippen.",
+    "noticeSignedIn": "Angemeldet — Geräte werden abgeglichen.",
+    "noticeSignedOut": "Abgemeldet. Daten bleiben auf diesem Gerät; Sync pausiert.",
+    "conflict": {
+      "ariaLabel": "Sync-Konflikt",
+      "body": "Cloud und dieses Gerät haben unterschiedliche Stände mit gleichem Zeitstempel. Was behalten?",
+      "keepLocal": "Dieses Gerät",
+      "useCloud": "Cloud"
+    },
+    "errors": {
+      "notConfigured": "Sync ist noch nicht konfiguriert.",
+      "invalidEmail": "Bitte eine gültige E-Mail eingeben.",
+      "sendFailed": "Code konnte nicht gesendet werden.",
+      "networkSend": "Netzwerkfehler beim Senden.",
+      "needSixDigit": "Bitte den 6-stelligen Code aus der Mail eingeben.",
+      "invalidCode": "Code ungültig.",
+      "networkSignIn": "Netzwerkfehler beim Anmelden.",
+      "invalidCloudData": "Cloud-Daten ungültig.",
+      "notSignedIn": "Nicht angemeldet.",
+      "payloadTooLarge": "Sync fehlgeschlagen — Daten zu groß (z. B. Audio/Skizzen)."
+    }
+  },
+  "pwa": {
+    "installed": "Gut: Tagesanker ist als App auf dem Gerät. Erinnerungen funktionieren am besten so.",
+    "installedStrong": "Gut:",
+    "title": "Erinnerungen am Handy",
+    "lead": "Kurz gesagt: Tagesanker einmal auf den Startbildschirm legen. Dann wie eine normale App öffnen — und Mitteilungen erlauben.",
+    "ios": {
+      "title": "iPhone",
+      "step1": "Unten auf Teilen tippen (Quadrat mit Pfeil).",
+      "step1Strong": "Teilen",
+      "step2": "Nach unten scrollen → Zum Home-Bildschirm.",
+      "step2Strong": "Zum Home-Bildschirm",
+      "step3": "Hinzufügen tippen.",
+      "step3Strong": "Hinzufügen",
+      "step4": "Tagesanker vom Home-Bildschirm öffnen (nicht über Safari).",
+      "step5": "Wenn gefragt: Mitteilungen erlauben.",
+      "step5Strong": "Mitteilungen erlauben",
+      "note": "Tipp: Am iPhone geht das nur über Safari — nicht über Chrome."
+    },
+    "android": {
+      "title": "Android",
+      "step1": "Oben rechts auf die drei Punkte tippen.",
+      "step1Strong": "drei Punkte",
+      "step2": "App installieren oder Zum Startbildschirm wählen.",
+      "step2a": "App installieren",
+      "step2b": "Zum Startbildschirm",
+      "step3": "Installieren / Hinzufügen.",
+      "step3a": "Installieren",
+      "step3b": "Hinzufügen",
+      "step4": "Tagesanker vom Startbildschirm öffnen.",
+      "step5": "Wenn gefragt: Benachrichtigungen erlauben.",
+      "step5Strong": "Benachrichtigungen erlauben",
+      "note": "Am besten mit Chrome."
+    },
+    "foot": "Fertig. Du brauchst keinen App-Store — nur diese Website einmal speichern."
+  },
+  "focus": {
+    "feierabend": {
+      "title": "Feierabend-Modus",
+      "line": "Arbeit durch · Geistesblitze frei",
+      "lineWithLife": "Arbeit durch · Geistesblitze frei · noch {{count}} Alltag",
+      "openVault": "Speicher öffnen",
+      "closeDay": "Tag schließen"
+    },
+    "noActive": "Keine aktive Aufgabe mehr. Du kannst den Tag beenden oder etwas Offenes anwählen.",
+    "progress": "{{done}} erledigt · {{waiting}} wartend",
+    "timer": {
+      "parked": "geparkt",
+      "running": "läuft",
+      "checkIn": "Check-in",
+      "paused": "pausiert"
+    },
+    "sparkBar": {
+      "capture": "✦ Geistesblitz",
+      "vaultOpen": "Speicher",
+      "vaultLocked": "Speicher 🔒",
+      "vaultOpenAria": "Geistesblitzspeicher öffnen",
+      "vaultLockedAria": "Geistesblitzspeicher noch verschlossen"
+    },
+    "checkIn": {
+      "still": "Ja, noch dabei",
+      "drift": "Abgeschweift — zurück",
+      "pause": "Pause"
+    },
+    "actions": {
+      "pause": "Pause",
+      "resume": "Weiter",
+      "anotherRound": "Noch eine Runde",
+      "done": "Fertig",
+      "skip": "Später / überspringen"
+    },
+    "waiting": {
+      "title": "Wartet (nicht jetzt)"
+    },
+    "endDay": "Tag beenden",
+    "afterRegulate": {
+      "warm": "Willkommen zurück. Der Timer war pausiert. Kein Druck — einfach weiter, wenn du soweit bist.",
+      "kurz": "Wieder da. Weiter, wenn du magst.",
+      "klar": "Zurück. Timer pausiert — Fortsetzen möglich."
+    },
+    "notify": {
+      "awayTitle": "Tagesanker · Fokus wartet",
+      "awayBody": "Sanfte Erinnerung: „{{title}}“ liegt noch bereit.",
+      "feierabendTitle": "Tagesanker · Feierabend",
+      "feierabendBodyLife": "Arbeit erledigt. Geistesblitze frei — noch Alltag.",
+      "feierabendBody": "Arbeit erledigt. Geistesblitze frei.",
+      "sleepTitle": "Tagesanker · Schlaf-Anker",
+      "sleepBody": "Rechtzeitig schlafen steht noch offen.",
+      "checkInTitle": "Tagesanker · Check-in",
+      "checkInBody": "Noch bei „{{title}}“?"
+    }
+  },
+  "done": {
+    "doneTitle": "Geschafft",
+    "empty": "Noch nichts abgehakt — okay für heute.",
+    "skippedTitle": "Offen gelassen",
+    "viewSparks": "Geistesblitze ansehen ({{count}})",
+    "sparksLocked": "Geistesblitze noch verschlossen ({{count}})",
+    "newDay": "Neuen Tag planen"
+  },
+  "regulate": {
+    "button": "Ruhe",
+    "buttonAria": "Ruhe: Runterregeln, wenn es zu viel wird",
+    "buttonTitle": "Wenn es zu viel wird — hier tippen",
+    "ariaLabel": "Runterregeln",
+    "kicker": "Sicherheitsventil",
+    "title": "Nur atmen. Nichts leisten.",
+    "lead": "Timer und Aufgaben sind ausgeblendet. Du kannst jederzeit zurück — ohne Bewertung.",
+    "tabsAria": "Impulse",
+    "tabs": {
+      "breathe": "Atmen",
+      "senses": "Sinne",
+      "body": "Körper"
+    },
+    "breathe": {
+      "in": "Einatmen … (4 Sek.)",
+      "out": "Ausatmen … (6 Sek.)",
+      "hint": "Dem Kreis folgen — so gut es gerade geht. Unperfekt reicht."
+    },
+    "senses": {
+      "buddyLabel": "Buddy",
+      "hint": "Laut oder nur im Kopf. Kein Aufschreiben nötig.",
+      "next": "Nächster Impuls",
+      "restart": "Von vorn",
+      "prompts": {
+        "see5": "Nenne 5 Dinge um dich herum, die du sehen kannst.",
+        "touch4": "Nenne 4 Dinge, die du anfassen kannst.",
+        "hear3": "Nenne 3 Geräusche, die du hören kannst.",
+        "smell2": "Nenne 2 Dinge, die du riechen kannst — oder dir vorstellst.",
+        "taste1": "Nenne 1 Ding, das du schmecken kannst — oder ein Schluck Wasser."
+      }
+    },
+    "body": {
+      "hint": "Das Allerwerteste — tippe, was du tust oder schon getan hast.",
+      "done": "Okay — gut so.",
+      "actions": {
+        "ice": {
+          "title": "Kühle ins Gesicht",
+          "text": "Kaltes Wasser, kühler Lappen oder kurz ans geöffnete Fenster."
+        },
+        "water": {
+          "title": "Glas Wasser trinken",
+          "text": "Langsam. Nicht leisten — nur trinken."
+        },
+        "chest": {
+          "title": "Hand auf die Brust",
+          "text": "Leicht drücken. Spüren, dass du hier bist."
+        }
+      }
+    },
+    "return": "Ich bin wieder da"
+  },
+  "sparkCapture": {
+    "ariaLabel": "Geistesblitz",
+    "title": "Geistesblitz",
+    "lead": "Kurz parken — dann sofort zurück.",
+    "tabs": {
+      "note": "Notieren",
+      "draw": "Malen",
+      "audio": "Audio"
+    },
+    "notePlaceholder": "Idee in einem Satz…",
+    "clearCanvas": "Leeren",
+    "audio": {
+      "recording": "Aufnahme läuft… {{sec}}s / {{max}}s",
+      "ready": "Aufnahme bereit ({{sec}}s)",
+      "idle": "Max. {{max}} Sekunden — dann zurück zur Aufgabe.",
+      "keywordPlaceholder": "Optional: Stichwort zur Aufnahme…",
+      "start": "Aufnahme starten",
+      "stop": "Stopp",
+      "rerecord": "Neu aufnehmen",
+      "unsupported": "Audio-Aufnahme geht in diesem Browser nicht.",
+      "micDenied": "Mikrofon-Zugriff verweigert oder nicht verfügbar.",
+      "noRecording": "Keine Aufnahme — kurz aufnehmen, dann parken."
+    },
+    "discard": "Verwerfen",
+    "park": "Parken & zurück"
+  },
+  "sparkVault": {
+    "ariaLabel": "Geistesblitzspeicher",
+    "title": "Geistesblitzspeicher",
+    "unlocked": "Arbeitsaufgaben erledigt — jetzt darfst du stöbern.",
+    "locked": "Noch verschlossen. Erst die Arbeitsaufgaben.",
+    "retain": "Ideen bleiben höchstens 7 Tage. Mit E-Mail in den Einstellungen werden sie vorher zugeschickt, dann gelöscht. Sonst still entfernt, sobald du die App wieder öffnest.",
+    "nothingParked": "Noch nichts geparkt.",
+    "waitingOne": "{{count}} Idee wartet hier. Alltag schaltet das nicht frei.",
+    "waitingMany": "{{count}} Ideen warten hier. Alltag schaltet das nicht frei.",
+    "emptyToday": "Heute noch keine Geistesblitze.",
+    "mode": {
+      "note": "Notiz",
+      "draw": "Skizze",
+      "audio": "Audio"
+    },
+    "delete": "Löschen",
+    "deleteAria": "Geistesblitz löschen",
+    "sketchAlt": "Skizze",
+    "export": {
+      "label": "Exportieren",
+      "copy": "Kopieren",
+      "text": "Text",
+      "audio": "Audio",
+      "pdf": "PDF",
+      "pdfBusy": "PDF…",
+      "copied": "In Zwischenablage kopiert.",
+      "copyFailed": "Kopieren nicht möglich.",
+      "pdfSavedWithAudio": "PDF gespeichert. Audios zusätzlich heruntergeladen.",
+      "hint": "PDF: Text & Skizzen. Audio-Dateien separat (passen nicht ins PDF)."
+    },
+    "close": "Schließen"
+  },
+  "sparkExpiry": {
+    "mailed": "{{count}} abgelaufene Geistesblitz an {{email}} gesendet und gelöscht.",
+    "mailed_plural": "{{count}} abgelaufene Geistesblitze an {{email}} gesendet und gelöscht.",
+    "mailFailed": "Geistesblitze sind älter als 7 Tage — Versand fehlgeschlagen. Sie bleiben, bis der Versand klappt (oder du sie löschst).",
+    "purged": "{{count}} Geistesblitz älter als {{days}} Tage entfernt. Mit E-Mail in den Einstellungen werden sie vorher zugeschickt.",
+    "purged_plural": "{{count}} Geistesblitze älter als {{days}} Tage entfernt. Mit E-Mail in den Einstellungen werden sie vorher zugeschickt."
+  },
+  "language": {
+    "summary": "Sprache",
+    "meta": "App-Texte",
+    "label": "App-Sprache",
+    "hint": "Buddy, Einstellungen und Hinweise folgen dieser Sprache. Marketing-Seiten bleiben vorerst Deutsch."
+  }
+}

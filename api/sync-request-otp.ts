@@ -61,19 +61,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ ok: false, error: upsertError.message })
   }
 
+  const locale = String(req.body?.locale ?? 'de').toLowerCase() === 'en' ? 'en' : 'de'
+  const copy =
+    locale === 'en'
+      ? {
+          subject: `Tagesanker: sync code ${code}`,
+          kicker: 'Tagesanker · device sync',
+          title: 'Your sync code',
+          body: 'Enter this code in the app under Settings → Device sync. No link needed.',
+          foot: 'Valid for about 10 minutes. If this wasn’t you: ignore.',
+          text: `Tagesanker sync code: ${code}\n\nEnter it in the app under Settings → Device sync. Valid ~10 minutes.`,
+        }
+      : {
+          subject: `Tagesanker: Sync-Code ${code}`,
+          kicker: 'Tagesanker · Geräte-Sync',
+          title: 'Dein Sync-Code',
+          body: 'Tippe diesen Code in der App unter Einstellungen → Geräte-Sync ein. Kein Link nötig.',
+          foot: 'Gültig etwa 10 Minuten. Falls du das nicht warst: ignorieren.',
+          text: `Tagesanker Sync-Code: ${code}\n\nIn der App unter Einstellungen → Geräte-Sync eintippen. Gültig ca. 10 Minuten.`,
+        }
+
   const resend = new Resend(resendKey)
   const { error: mailError } = await resend.emails.send({
     from,
     to: email,
-    subject: `Tagesanker: Sync-Code ${code}`,
+    subject: copy.subject,
     html: `<div style="font-family:system-ui,sans-serif;max-width:32rem;color:#1c2b24;line-height:1.5">
-      <p style="color:#4a5c52;margin:0 0 1rem">Tagesanker · Geräte-Sync</p>
-      <h1 style="font-size:1.35rem;margin:0 0 0.75rem">Dein Sync-Code</h1>
-      <p style="margin:0 0 1rem">Tippe diesen Code in der App unter Einstellungen → Geräte-Sync ein. Kein Link nötig.</p>
+      <p style="color:#4a5c52;margin:0 0 1rem">${copy.kicker}</p>
+      <h1 style="font-size:1.35rem;margin:0 0 0.75rem">${copy.title}</h1>
+      <p style="margin:0 0 1rem">${copy.body}</p>
       <p style="font-size:2rem;letter-spacing:0.2em;font-weight:700;margin:0 0 1rem">${code}</p>
-      <p style="color:#4a5c52;font-size:0.85rem;margin:0">Gültig etwa 10 Minuten. Falls du das nicht warst: ignorieren.</p>
+      <p style="color:#4a5c52;font-size:0.85rem;margin:0">${copy.foot}</p>
     </div>`,
-    text: `Tagesanker Sync-Code: ${code}\n\nIn der App unter Einstellungen → Geräte-Sync eintippen. Gültig ca. 10 Minuten.`,
+    text: copy.text,
   })
 
   if (mailError) {

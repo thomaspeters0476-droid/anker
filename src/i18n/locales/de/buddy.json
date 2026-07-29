@@ -1,0 +1,269 @@
+{
+  "plan": {
+    "moodGood": {
+      "warm": "Okay — normale Tagesmenge. Feinjustieren kannst du unten in den Einstellungen.",
+      "kurz": "Normale Menge. Einstellungen unten.",
+      "klar": "Baseline: normale Kapazität. Anpassen in den Einstellungen."
+    },
+    "moodOk": {
+      "warm": "Geht so: etwas weniger auf dem Zettel, mehr Zeit pro Sache. Kein Versagen — Anpassung.",
+      "kurz": "Weniger + mehr Zeit. Passt.",
+      "klar": "Kapazität reduziert, Zeiten verlängert. So geplant."
+    },
+    "moodHard": {
+      "warm": "Heute eher schwer: bewusst wenig. Mehr Zeit pro Sache. Entlasten zählt — nicht die Liste.",
+      "kurz": "Schwer-Tag: wenig planen.",
+      "klar": "Schwere Kapazität aktiv. Wenig einplanen."
+    },
+    "moodWithCarry": {
+      "warm": "{{base}} Unten warten {{count}} offene Sache(n) — nur mitnehmen, was heute geht.",
+      "kurz": "{{base}} {{count}} offen — wählerisch mitnehmen.",
+      "klar": "{{base}} Carry: {{count}}. Nur übernehmen, was in die Kapazität passt."
+    },
+    "carryMorning": {
+      "warm": "Guten Morgen. {{count}} Sache(n) noch offen — mitnehmen oder lassen. Was ist heute realistisch?",
+      "kurz": "Morgen. {{count}} offen. Mitnehmen?",
+      "klar": "Plan: {{count}} Carry prüfen. Dann wenig und klar."
+    },
+    "morning": {
+      "warm": "Guten Morgen. Was ist heute realistisch — nicht ideal? Weniger aufschreiben ist oft mutiger.",
+      "kurz": "Morgen. Was kommt heute rein?",
+      "klar": "Plan für heute: wenig, klar, machbar."
+    },
+    "morningSoft": {
+      "warm": "Schön, dass du da bist. Kein Perfekt-Tag nötig — ein ehrlicher reicht.",
+      "kurz": "Da. Realistisch planen.",
+      "klar": "Einstieg: realistische Menge wählen."
+    }
+  },
+  "capacity": {
+    "workFullHard": {
+      "warm": "Arbeits-Kapazität voll — und das ist heute genau richtig so. Alltag zählt extra.",
+      "kurz": "Arbeit voll. Stop.",
+      "klar": "Punkte aufgebraucht. Keine weitere Arbeitsaufgabe."
+    },
+    "workFull": {
+      "warm": "Arbeits-Kapazität voll. Mehr geht heute nicht — Alltag zählt extra.",
+      "kurz": "Arbeit voll. Stop.",
+      "klar": "Punkte aufgebraucht. Keine weitere Arbeitsaufgabe."
+    },
+    "workTightHard": {
+      "warm": "Schon eng — bei einem schweren Tag lieber hier stoppen.",
+      "kurz": "Fast voll. Vorsicht.",
+      "klar": "Kapazität eng. Nicht erweitern."
+    },
+    "workTight": {
+      "warm": "Fast voll. Eine große Sache ersetzt oft zwei mittlere — nicht beides.",
+      "kurz": "Fast voll. Vorsicht.",
+      "klar": "Kapazität eng. Nicht erweitern."
+    },
+    "lifeFull": {
+      "warm": "Alltag ist voll belegt. Das reicht als Anker.",
+      "kurz": "Alltag voll.",
+      "klar": "Alltagsanker am Limit."
+    }
+  },
+  "after": {
+    "workQueue": {
+      "warm": " Danach noch {{count}} Arbeit — die wartet, ohne dich zu jagen.",
+      "kurz": " +{{count}} Arbeit.",
+      "klar": " Warteschlange Arbeit: {{count}}."
+    },
+    "lifeQueue": {
+      "warm": " Danach noch {{count}} Alltag.",
+      "kurz": " +{{count}} Alltag.",
+      "klar": " Warteschlange Alltag: {{count}}."
+    }
+  },
+  "focus": {
+    "startSoft": {
+      "warm": "Ganz ruhig. Nur das jetzt: „{{title}}“.{{tail}}",
+      "kurz": "Los: {{title}}{{short}}",
+      "klar": "Fokus: {{title}}. Eine Sache.{{tail}}"
+    },
+    "start": {
+      "warm": "Okay. Nur das jetzt: „{{title}}“. Der Rest wartet absichtlich.{{tail}}",
+      "kurz": "Los: {{title}}{{short}}",
+      "klar": "Fokus: {{title}}. Eine Sache.{{tail}}"
+    },
+    "checkInEnding": {
+      "warm": "Gleich vorbei die Box — noch bei „{{title}}“?",
+      "kurz": "Box ende · „{{title}}“?",
+      "klar": "Zeitbox fast leer: „{{title}}“ — noch dran?"
+    },
+    "checkInHard": {
+      "warm": "Kurzer Check, ohne Druck: bist du noch bei „{{title}}“?",
+      "kurz": "Noch bei „{{title}}“?",
+      "klar": "Status „{{title}}“ — noch dran? (Schwer-Tag: Pause ist okay.)"
+    },
+    "checkIn": {
+      "warm": "Kurzer Check: bist du noch bei „{{title}}“? Abschweifen ist menschlich.",
+      "kurz": "Noch bei „{{title}}“?",
+      "klar": "Status: „{{title}}“ — noch dran?"
+    }
+  },
+  "drift": {
+    "hard": {
+      "warm": "Abschweifen passiert — besonders an schweren Tagen. Zurück zur einen Sache, oder bewusst Pause. Beides zählt.",
+      "kurz": "Passiert. Zurück oder Pause.",
+      "klar": "Neu ausrichten: Aufgabe oder Pause. Kein Vorwurf."
+    },
+    "normal": {
+      "warm": "Passiert. Zurück zur einen Sache — oder bewusst Pause. Kein Drama.",
+      "kurz": "Zurücklenken oder Pause.",
+      "klar": "Neu ausrichten: Aufgabe oder Pause."
+    }
+  },
+  "still": {
+    "soft": {
+      "warm": "Gut. Weiter — in deinem Tempo.",
+      "kurz": "Weiter.",
+      "klar": "Bestätigt. Fokus fortsetzen."
+    },
+    "normal": {
+      "warm": "Gut. Weiter bei der einen Sache.",
+      "kurz": "Weiter.",
+      "klar": "Bestätigt. Fokus fortsetzen."
+    }
+  },
+  "pause": {
+    "hard": {
+      "warm": "Pause ist heute besonders okay. Wenn du bereit bist: Timer wieder starten.",
+      "kurz": "Pause.",
+      "klar": "Pause. Timer gestoppt."
+    },
+    "normal": {
+      "warm": "Pause ist okay — kein Scheitern. Wenn du bereit bist: Timer wieder starten.",
+      "kurz": "Pause.",
+      "klar": "Pause. Timer gestoppt."
+    }
+  },
+  "done": {
+    "withNext": {
+      "warm": "Geschafft: „{{title}}“. Als Nächstes wartet „{{next}}“ — erst kurz Luft holen.",
+      "kurz": "Fertig: {{title}} → {{next}}",
+      "klar": "Abgeschlossen: {{title}}. Danach: {{next}}."
+    },
+    "alone": {
+      "warm": "Geschafft: „{{title}}“. Kurz durchatmen — dann das Nächste, wenn du magst.",
+      "kurz": "Fertig: {{title}}",
+      "klar": "Abgeschlossen: {{title}}. Weiter nur wenn du willst."
+    }
+  },
+  "timebox": {
+    "overHard": {
+      "warm": "Zeitbox vorbei. Fertig markieren ist genug — oder noch eine sanfte Runde.",
+      "kurz": "Zeitbox vorbei. Fertig oder weiter?",
+      "klar": "Zeitbox abgelaufen. Abschließen oder verlängern."
+    },
+    "over": {
+      "warm": "Zeitbox vorbei. Als fertig markieren — oder Timer nochmal starten.",
+      "kurz": "Zeitbox vorbei. Fertig oder weiter?",
+      "klar": "Zeitbox abgelaufen. Abschließen oder verlängern."
+    },
+    "another": {
+      "warm": "Noch eine Zeitbox — nur diese eine Sache. Nicht die ganze Liste.",
+      "kurz": "Noch eine Runde.",
+      "klar": "Weitere Zeitbox. Fokus unverändert."
+    }
+  },
+  "back": {
+    "work": {
+      "warm": "Zurück zu „{{title}}“.",
+      "kurz": "Zurück zur Aufgabe.",
+      "klar": "Fokus fortsetzen: „{{title}}“."
+    }
+  },
+  "day": {
+    "zeroHard": {
+      "warm": "Heute nichts Abgehaktes — an einem schweren Tag ist das keine Niederlage. Morgen kleiner.",
+      "kurz": "0 fertig. Morgen kleiner planen.",
+      "klar": "Nichts abgeschlossen. Morgen: weniger einplanen."
+    },
+    "zero": {
+      "warm": "Heute nichts Abgehaktes — und das ist okay. Morgen neu, kleiner.",
+      "kurz": "0 fertig. Morgen kleiner planen.",
+      "klar": "Nichts abgeschlossen. Morgen: weniger einplanen."
+    },
+    "all": {
+      "warm": "Alles erledigt ({{done}}). Das war ein guter, realistischer Tag.",
+      "kurz": "Alles fertig ({{done}}).",
+      "klar": "Tag abgeschlossen: {{done}}/{{total}}."
+    },
+    "partial": {
+      "warm": "{{done}} von {{total}} geschafft. Der Rest darf liegen bleiben — er taucht unter „Noch offen“ wieder auf.",
+      "kurz": "{{done}}/{{total}} fertig. Rest offenlassen.",
+      "klar": "Erledigt: {{done}}/{{total}}. Nicht nachziehen. Carry möglich."
+    }
+  },
+  "sleep": {
+    "hint": {
+      "warm": "Wenn „rechtzeitig schlafen“ auf der Liste steht: jetzt ist ein guter Moment, den Tag zu schließen.",
+      "kurz": "Schlaf-Anker? Tag schließen.",
+      "klar": "Schlaf-Zeit prüfen. Tag beenden."
+    }
+  },
+  "spark": {
+    "parked": {
+      "warm": "Geparkt ({{count}}). Zurück zur Aufgabe — Ideen kommen später, ohne dich zu stehlen.",
+      "kurz": "Geparkt ({{count}}). Zurück.",
+      "klar": "Gespeichert ({{count}}). Fokus fortsetzen."
+    },
+    "lockedEmpty": {
+      "warm": "Ideen parken geht immer. Anschauen erst nach den Arbeitsaufgaben.",
+      "kurz": "Speicher zu — erst Arbeit fertig.",
+      "klar": "Geistesblitze: Ablegen ja, Öffnen nach Arbeit."
+    },
+    "locked": {
+      "warm": "{{count}} Geistesblitz(e) warten. Freigabe nach den Arbeitsaufgaben — Alltag zählt nicht dafür.",
+      "kurz": "{{count}} geparkt. Öffnen nach Arbeit.",
+      "klar": "{{count}} gespeichert. Freischaltung: Arbeitsaufgaben erledigt."
+    }
+  },
+  "life": {
+    "withSparks": {
+      "warm": "Alltag: „{{title}}“. {{count}} Idee(n) warten geduldig im Speicher.",
+      "kurz": "Alltag: {{title}}",
+      "klar": "Alltagsanker „{{title}}“. Speicher hat {{count}} — später."
+    },
+    "plain": {
+      "warm": "Alltag zuerst: weiter bei „{{title}}“.",
+      "kurz": "Weiter: {{title}}",
+      "klar": "Alltagsanker: „{{title}}“. Nicht abschweifen."
+    }
+  },
+  "welcome": {
+    "none": {
+      "warm": "Willkommen zurück. Kein Drama — einfach weitermachen, wenn du magst.",
+      "kurz": "Wieder da. Weiter?",
+      "klar": "Zurück. Fortsetzen möglich."
+    },
+    "hard": {
+      "warm": "Wieder da. „{{title}}“ wartet ohne Vorwurf. Timer war pausiert.",
+      "kurz": "Zurück: {{title}}?",
+      "klar": "Fokus wieder: „{{title}}“. Timer pausiert."
+    },
+    "normal": {
+      "warm": "Willkommen zurück. Weiter bei „{{title}}“? Der Timer war pausiert.",
+      "kurz": "Zurück. Weiter: {{title}}?",
+      "klar": "Wieder im Fokus: „{{title}}“. Timer pausiert."
+    }
+  },
+  "feierabend": {
+    "noLifeSparks": {
+      "warm": "Arbeit erledigt. {{count}} Geistesblitz(e) sind frei — und der Tag darf zu Ende gehen.",
+      "kurz": "Arbeit fertig. Speicher offen.",
+      "klar": "Feierabend Arbeit. Speicher freigegeben."
+    },
+    "noLife": {
+      "warm": "Arbeit erledigt. Geistesblitze sind frei — und der Tag darf zu Ende gehen.",
+      "kurz": "Arbeit fertig. Speicher offen.",
+      "klar": "Feierabend Arbeit. Speicher freigegeben."
+    },
+    "withLife": {
+      "warm": "Feierabend-Modus: Arbeit ist durch. Geistesblitze frei. Noch {{count}} Alltagsanker — ohne Druck.",
+      "kurz": "Feierabend. Noch {{count}}× Alltag.",
+      "klar": "Arbeit abgeschlossen. Alltag: {{count}}. Speicher offen."
+    }
+  }
+}

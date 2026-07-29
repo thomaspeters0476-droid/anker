@@ -1,0 +1,450 @@
+{
+  "app": {
+    "brandName": "Tagesanker",
+    "brandTag": "One thing. Realistic. Find your way back.",
+    "regulateTip": {
+      "body": "Calm up top right — tap when it gets too much. Breath, senses, body. No timer.",
+      "bodyStrong": "Calm",
+      "dismiss": "Got it"
+    },
+    "syncNotice": {
+      "appliedRemote": "Cloud state applied.",
+      "keptLocal": "This device wins — cloud updated.",
+      "usedCloud": "Cloud state applied."
+    }
+  },
+  "common": {
+    "buddy": "Buddy",
+    "ok": "OK",
+    "add": "Add",
+    "remove": "Remove",
+    "work": "Work",
+    "life": "Life",
+    "workAbbrev": "W",
+    "lifeAbbrev": "L",
+    "min": "min",
+    "points": "points",
+    "pkt": "pts",
+    "size": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "sizeLess": "Less {{size}}",
+    "sizeMore": "More {{size}}"
+  },
+  "intro": {
+    "ariaLabel": "Introduction",
+    "progress": "{{current}} / {{total}}",
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Get started",
+    "steps": {
+      "planLess": {
+        "title": "Plan less",
+        "text": "In the morning, only a few work tasks and life anchors. How many — and how big — you set below in Settings."
+      },
+      "oneThing": {
+        "title": "One thing",
+        "text": "In focus you only see the current task. The rest waits — on purpose."
+      },
+      "findBack": {
+        "title": "Find your way back",
+        "text": "Buddy checks in along the way. Sparks you can park briefly. On your phone: add the app to the home screen — then reminders work better."
+      },
+      "softFreeze": {
+        "title": "Soft freeze",
+        "text": "When you leave the app, the timer pauses gently. Optionally, notifications nudge you back — without locking you in. Adjust or turn off: below under Settings."
+      },
+      "regulate": {
+        "title": "Calm button",
+        "text": "Top right says “Calm”. When it gets too much: tap. Then only breath, senses, body — no timer, no plan. Return with “I’m back”."
+      }
+    }
+  },
+  "plan": {
+    "mood": {
+      "title": "How do you feel today?",
+      "hint": "Only for today — not saved or judged. Controls amount and time.",
+      "ariaLabel": "Day mood",
+      "good": {
+        "label": "Pretty good",
+        "hint": "Normal amount, normal times"
+      },
+      "ok": {
+        "label": "So-so",
+        "hint": "A bit less, a bit more time"
+      },
+      "hard": {
+        "label": "Hard day",
+        "hint": "Clearly less, more time per thing"
+      }
+    },
+    "carry": {
+      "title": "Still open",
+      "hint": "From yesterday — pick and bring along (as capacity allows).",
+      "adopt": "Bring along",
+      "dismiss": "Discard"
+    },
+    "work": {
+      "title": "Work",
+      "count": "{{used}}/{{max}} pts",
+      "hint": "Pick a size — the timer follows.",
+      "sizeAria": "Size",
+      "minutes": "{{n}} min",
+      "placeholder": "e.g. finish report"
+    },
+    "life": {
+      "title": "Life",
+      "count": "{{used}}/{{max}}",
+      "hint": "Doesn’t count toward work points. × on a suggestion hides it — your own stay saved.",
+      "placeholder": "Your own life anchor…",
+      "forgetAria": "Don’t suggest {{title}} again",
+      "forgetTitle": "Don’t suggest again",
+      "templates": {
+        "walkDog": "Walk the dog",
+        "cook": "Cook / eat",
+        "sleep": "Go to bed on time",
+        "meds": "Take medication",
+        "move": "Move a bit / walk",
+        "errands": "Mail / errands"
+      }
+    },
+    "startDay": "Start day",
+    "introSurface": {
+      "show": "Show introduction",
+      "hideButton": "Hide button"
+    },
+    "capSummary": {
+      "label": "Work today",
+      "points": "{{used}}/{{max}} points",
+      "large": "L {{used}}/{{max}}",
+      "medium": "M {{used}}/{{max}}",
+      "small": "S {{used}}/{{max}}"
+    },
+    "sparkMailNoticeLabel": "Sparks"
+  },
+  "settings": {
+    "summary": "Settings",
+    "capacity": {
+      "summary": "Day capacity",
+      "meta": "Work & life",
+      "intro": "Baseline without mood. The day question scales from this.",
+      "dayBudget": "Work day budget: {{used}} / {{max}} points",
+      "lifeMaxLabel": "Life anchors max.",
+      "lifeMaxLess": "Fewer life anchors",
+      "lifeMaxMore": "More life anchors",
+      "lifeMaxHint": "At most {{max}}. Less is often better."
+    },
+    "reminders": {
+      "summary": "Reminders",
+      "meta": "Check-in & freeze",
+      "buddyTone": "Buddy tone",
+      "toneWarm": "Warm",
+      "toneKurz": "Short",
+      "toneKlar": "Clear",
+      "checkInEvery": "Check-in every {{n}} min.",
+      "enableNotifications": "Turn on reminders",
+      "saveFirstHint": "On your phone, save to home screen first — otherwise notifications often don’t arrive reliably.",
+      "blockedHint": "Notifications are blocked. Allow them for Tagesanker in your phone settings.",
+      "notifGranted": "Reminders on. Check-ins appear when the tab is in the background.",
+      "notifDenied": "Blocked — allow in browser settings.",
+      "notifUnsupported": "Not available in this browser.",
+      "softFreeze": {
+        "label": "Soft freeze",
+        "pauseOnLeave": "Pause timer when leaving",
+        "hint": "Default: on, at most one gentle nudge. Not locking you in — just calling you back.",
+        "awayNudges": "Reminders when away",
+        "nudgeOff": "None",
+        "nudgeOnce": "Once (recommended)",
+        "nudgeRepeat": "Repeat",
+        "everyMin": "Every {{n}} min.",
+        "maxNudges": "Max. {{n}} nudges"
+      }
+    },
+    "sparks": {
+      "summary": "Sparks",
+      "meta": "after {{days}} days",
+      "mailLabel": "Expiry email (optional)",
+      "mailPlaceholder": "e.g. name@example.com",
+      "mailInvalid": "Please enter a valid address — otherwise expired ideas are only deleted.",
+      "mailSet": "When you open the app: ideas older than 7 days go here, then delete.",
+      "mailEmpty": "Empty = delete after 7 days with no email."
+    },
+    "help": {
+      "summary": "Help & UI",
+      "meta": "Intro, handbook",
+      "introButton": "Intro button on the start screen",
+      "showIntroAgain": "Show introduction again",
+      "openHandbook": "Open handbook"
+    },
+    "sync": {
+      "summary": "Device sync",
+      "metaConnected": "connected",
+      "metaLocalOnly": "this device only"
+    },
+    "syncStatusBar": "Sync on · {{email}}"
+  },
+  "sync": {
+    "title": "Device sync",
+    "notConfigured": "Sync isn’t configured in this build yet (Supabase env missing).",
+    "hint": "Optional. Without sign-in, everything stays on this device only.",
+    "connectedAs": "Connected as {{email}}",
+    "signOut": "Sign out",
+    "emailLabel": "1. Your email (not the code)",
+    "emailPlaceholder": "e.g. name@example.com",
+    "otpLabel": "2. Six digits from the email",
+    "otpPlaceholder": "123456",
+    "signInWithCode": "Sign in with code",
+    "sendNewCode": "Send a new code by email",
+    "bothNeeded": "Both needed: email address + code. No new send if the email is already there.",
+    "gateNeedEmail": "Enter your email above first — then “Sign in with code” becomes active.",
+    "gateNeedOtp": "Code: enter the 6 digits from the email.",
+    "noticeNeedEmailFirst": "Please enter your email address first (not the code).",
+    "noticeNeedEmailForOtp": "Still enter the email above (same address as in the mail) — the code alone isn’t enough.",
+    "noticeOtpLength": "The code needs exactly 6 digits.",
+    "noticeCodeSent": "Email from Tagesanker (Resend) on the way — subject with sync code. Type only the 6 digits here.",
+    "noticeSignedIn": "Signed in — devices will sync.",
+    "noticeSignedOut": "Signed out. Data stays on this device; sync paused.",
+    "conflict": {
+      "ariaLabel": "Sync conflict",
+      "body": "Cloud and this device have different states with the same timestamp. Keep which?",
+      "keepLocal": "This device",
+      "useCloud": "Cloud"
+    },
+    "errors": {
+      "notConfigured": "Sync isn’t configured yet.",
+      "invalidEmail": "Please enter a valid email.",
+      "sendFailed": "Couldn’t send the code.",
+      "networkSend": "Network error while sending.",
+      "needSixDigit": "Please enter the 6-digit code from the email.",
+      "invalidCode": "Invalid code.",
+      "networkSignIn": "Network error while signing in.",
+      "invalidCloudData": "Invalid cloud data.",
+      "notSignedIn": "Not signed in.",
+      "payloadTooLarge": "Sync failed — data too large (e.g. audio/sketches)."
+    }
+  },
+  "pwa": {
+    "installed": "Good: Tagesanker is installed as an app on this device. Reminders work best this way.",
+    "installedStrong": "Good:",
+    "title": "Reminders on your phone",
+    "lead": "In short: add Tagesanker to the home screen once. Then open it like a normal app — and allow notifications.",
+    "ios": {
+      "title": "iPhone",
+      "step1": "Tap Share at the bottom (square with arrow).",
+      "step1Strong": "Share",
+      "step2": "Scroll down → Add to Home Screen.",
+      "step2Strong": "Add to Home Screen",
+      "step3": "Tap Add.",
+      "step3Strong": "Add",
+      "step4": "Open Tagesanker from the home screen (not via Safari).",
+      "step5": "When asked: Allow Notifications.",
+      "step5Strong": "Allow Notifications",
+      "note": "Tip: On iPhone this only works in Safari — not Chrome."
+    },
+    "android": {
+      "title": "Android",
+      "step1": "Tap the three dots at the top right.",
+      "step1Strong": "three dots",
+      "step2": "Choose Install app or Add to Home screen.",
+      "step2a": "Install app",
+      "step2b": "Add to Home screen",
+      "step3": "Install / Add.",
+      "step3a": "Install",
+      "step3b": "Add",
+      "step4": "Open Tagesanker from the home screen.",
+      "step5": "When asked: Allow notifications.",
+      "step5Strong": "Allow notifications",
+      "note": "Best with Chrome."
+    },
+    "foot": "Done. You don’t need an app store — just save this site once."
+  },
+  "focus": {
+    "feierabend": {
+      "title": "Feierabend mode",
+      "line": "Work done · sparks unlocked",
+      "lineWithLife": "Work done · sparks unlocked · {{count}} life left",
+      "openVault": "Open vault",
+      "closeDay": "Close day"
+    },
+    "noActive": "No active task left. You can end the day or pick something still open.",
+    "progress": "{{done}} done · {{waiting}} waiting",
+    "timer": {
+      "parked": "parked",
+      "running": "running",
+      "checkIn": "Check-in",
+      "paused": "paused"
+    },
+    "sparkBar": {
+      "capture": "✦ Spark",
+      "vaultOpen": "Vault",
+      "vaultLocked": "Vault 🔒",
+      "vaultOpenAria": "Open spark vault",
+      "vaultLockedAria": "Spark vault still locked"
+    },
+    "checkIn": {
+      "still": "Yes, still on it",
+      "drift": "Drifted — back",
+      "pause": "Pause"
+    },
+    "actions": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "anotherRound": "Another round",
+      "done": "Done",
+      "skip": "Later / skip"
+    },
+    "waiting": {
+      "title": "Waiting (not now)"
+    },
+    "endDay": "End day",
+    "afterRegulate": {
+      "warm": "Welcome back. The timer was paused. No pressure — continue when you’re ready.",
+      "kurz": "Back. Continue when you like.",
+      "klar": "Returned. Timer paused — resume when ready."
+    },
+    "notify": {
+      "awayTitle": "Tagesanker · Focus waiting",
+      "awayBody": "Gentle reminder: “{{title}}” is still ready.",
+      "feierabendTitle": "Tagesanker · Feierabend",
+      "feierabendBodyLife": "Work done. Sparks unlocked — life left.",
+      "feierabendBody": "Work done. Sparks unlocked.",
+      "sleepTitle": "Tagesanker · Sleep anchor",
+      "sleepBody": "Going to bed on time is still open.",
+      "checkInTitle": "Tagesanker · Check-in",
+      "checkInBody": "Still on “{{title}}”?"
+    }
+  },
+  "done": {
+    "doneTitle": "Done",
+    "empty": "Nothing checked off yet — okay for today.",
+    "skippedTitle": "Left open",
+    "viewSparks": "View sparks ({{count}})",
+    "sparksLocked": "Sparks still locked ({{count}})",
+    "newDay": "Plan a new day"
+  },
+  "regulate": {
+    "button": "Calm",
+    "buttonAria": "Calm: regulate down when it gets too much",
+    "buttonTitle": "When it gets too much — tap here",
+    "ariaLabel": "Regulate down",
+    "kicker": "Safety valve",
+    "title": "Just breathe. Nothing to perform.",
+    "lead": "Timer and tasks are hidden. You can return anytime — no judgment.",
+    "tabsAria": "Prompts",
+    "tabs": {
+      "breathe": "Breath",
+      "senses": "Senses",
+      "body": "Body"
+    },
+    "breathe": {
+      "in": "Breathe in … (4 sec.)",
+      "out": "Breathe out … (6 sec.)",
+      "hint": "Follow the circle — as well as you can right now. Imperfect is enough."
+    },
+    "senses": {
+      "buddyLabel": "Buddy",
+      "hint": "Out loud or just in your head. No need to write.",
+      "next": "Next prompt",
+      "restart": "From the start",
+      "prompts": {
+        "see5": "Name 5 things around you that you can see.",
+        "touch4": "Name 4 things you can touch.",
+        "hear3": "Name 3 sounds you can hear.",
+        "smell2": "Name 2 things you can smell — or imagine.",
+        "taste1": "Name 1 thing you can taste — or take a sip of water."
+      }
+    },
+    "body": {
+      "hint": "The bare minimum — tap what you’re doing or already did.",
+      "done": "Okay — good.",
+      "actions": {
+        "ice": {
+          "title": "Cool on the face",
+          "text": "Cold water, a cool cloth, or briefly at an open window."
+        },
+        "water": {
+          "title": "Drink a glass of water",
+          "text": "Slowly. Not performing — just drinking."
+        },
+        "chest": {
+          "title": "Hand on chest",
+          "text": "Press lightly. Feel that you’re here."
+        }
+      }
+    },
+    "return": "I’m back"
+  },
+  "sparkCapture": {
+    "ariaLabel": "Spark",
+    "title": "Spark",
+    "lead": "Park briefly — then straight back.",
+    "tabs": {
+      "note": "Note",
+      "draw": "Draw",
+      "audio": "Audio"
+    },
+    "notePlaceholder": "Idea in one sentence…",
+    "clearCanvas": "Clear",
+    "audio": {
+      "recording": "Recording… {{sec}}s / {{max}}s",
+      "ready": "Recording ready ({{sec}}s)",
+      "idle": "Max. {{max}} seconds — then back to the task.",
+      "keywordPlaceholder": "Optional: keyword for the recording…",
+      "start": "Start recording",
+      "stop": "Stop",
+      "rerecord": "Record again",
+      "unsupported": "Audio recording isn’t available in this browser.",
+      "micDenied": "Microphone access denied or unavailable.",
+      "noRecording": "No recording — record briefly, then park."
+    },
+    "discard": "Discard",
+    "park": "Park & return"
+  },
+  "sparkVault": {
+    "ariaLabel": "Spark vault",
+    "title": "Spark vault",
+    "unlocked": "Work tasks done — now you may browse.",
+    "locked": "Still locked. Work tasks first.",
+    "retain": "Ideas stay at most 7 days. With an email in Settings they’re sent first, then deleted. Otherwise quietly removed when you open the app again.",
+    "nothingParked": "Nothing parked yet.",
+    "waitingOne": "{{count}} idea waiting here. Life doesn’t unlock this.",
+    "waitingMany": "{{count}} ideas waiting here. Life doesn’t unlock this.",
+    "emptyToday": "No sparks today yet.",
+    "mode": {
+      "note": "Note",
+      "draw": "Sketch",
+      "audio": "Audio"
+    },
+    "delete": "Delete",
+    "deleteAria": "Delete spark",
+    "sketchAlt": "Sketch",
+    "export": {
+      "label": "Export",
+      "copy": "Copy",
+      "text": "Text",
+      "audio": "Audio",
+      "pdf": "PDF",
+      "pdfBusy": "PDF…",
+      "copied": "Copied to clipboard.",
+      "copyFailed": "Couldn’t copy.",
+      "pdfSavedWithAudio": "PDF saved. Audio files downloaded separately.",
+      "hint": "PDF: text & sketches. Audio files separately (don’t fit in the PDF)."
+    },
+    "close": "Close"
+  },
+  "sparkExpiry": {
+    "mailed": "{{count}} expired spark sent to {{email}} and deleted.",
+    "mailed_plural": "{{count}} expired sparks sent to {{email}} and deleted.",
+    "mailFailed": "Sparks are older than 7 days — send failed. They stay until sending works (or you delete them).",
+    "purged": "{{count}} spark older than {{days}} days removed. With an email in Settings they’re sent first.",
+    "purged_plural": "{{count}} sparks older than {{days}} days removed. With an email in Settings they’re sent first."
+  },
+  "language": {
+    "summary": "Language",
+    "meta": "App text",
+    "label": "App language",
+    "hint": "Buddy, settings and prompts follow this language. Marketing pages stay German for now."
+  }
+}

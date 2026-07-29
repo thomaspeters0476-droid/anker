@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { DayState, Task, TaskKind, TaskSize } from '../types'
 import {
   LIFE_MAX_HARD,
@@ -9,7 +10,6 @@ import {
 } from '../types'
 import { capacityHint, ctxFromDay, planBuddy } from '../buddy'
 import {
-  SIZE_LABEL,
   SIZE_MINUTES,
   SIZE_POINTS,
   canAddSize,
@@ -24,6 +24,8 @@ import {
 import {
   clearCarryOver,
   loadCarryOver,
+  loadPrefs,
+  savePrefs,
   SPARK_RETENTION_DAYS,
   type CarryItem,
 } from '../storage'
@@ -47,6 +49,13 @@ import {
   normalizeSparksEmail,
 } from '../sparkExpiry'
 import type { SyncConflict } from '../sync'
+import { setAppLocale } from '../i18n'
+import {
+  APP_LOCALES,
+  LOCALE_LABELS,
+  normalizeLocale,
+} from '../i18n/locales'
+import { lifeTemplateLabel } from '../i18n/lifeLabels'
 
 type Props = {
   day: DayState
@@ -81,6 +90,9 @@ export function PlanScreen({
   onSyncUseCloud,
   onSyncSignedOut,
 }: Props) {
+  const { t, i18n } = useTranslation()
+  const locale = normalizeLocale(i18n.language)
+  const sizeLabel = (size: TaskSize) => t(`common.size.${size}`)
   const [workDraft, setWorkDraft] = useState('')
   const [lifeDraft, setLifeDraft] = useState('')
   const [workSize, setWorkSize] = useState<TaskSize>('medium')
@@ -332,14 +344,12 @@ export function PlanScreen({
     const result = await requestNotificationPermission()
     if (result === 'granted') {
       setDay((d) => ({ ...d, notificationsEnabled: true }))
-      setNotifMsg(
-        'Erinnerungen an. Check-ins melden sich, wenn der Tab im Hintergrund ist.',
-      )
+      setNotifMsg(t('settings.reminders.notifGranted'))
     } else if (result === 'denied') {
       setDay((d) => ({ ...d, notificationsEnabled: false }))
-      setNotifMsg('Blockiert — in den Browser-Einstellungen erlauben.')
+      setNotifMsg(t('settings.reminders.notifDenied'))
     } else {
-      setNotifMsg('In diesem Browser nicht verfügbar.')
+      setNotifMsg(t('settings.reminders.notifUnsupported'))
     }
   }
 
@@ -364,7 +374,7 @@ export function PlanScreen({
   return (
     <section className="screen plan-screen">
       <div className="buddy-card" role="status">
-        <span className="buddy-label">Buddy</span>
+        <span className="buddy-label">{t('common.buddy')}</span>
         <p>
           {planBuddy(ctxFromDay(day, { carryCount: carry.length }))}
         </p>
@@ -372,7 +382,7 @@ export function PlanScreen({
 
       {sparkMailNotice && (
         <div className="buddy-card warn spark-mail-notice" role="status">
-          <span className="buddy-label">Geistesblitze</span>
+          <span className="buddy-label">{t('plan.sparkMailNoticeLabel')}</span>
           <p>{sparkMailNotice}</p>
           {onDismissSparkMailNotice && (
             <button
@@ -380,7 +390,7 @@ export function PlanScreen({
               className="ghost sm"
               onClick={onDismissSparkMailNotice}
             >
-              OK
+              {t('common.ok')}
             </button>
           )}
         </div>
@@ -389,13 +399,14 @@ export function PlanScreen({
       {!day.started && (
         <div className="block block--mood">
           <div className="block-head">
-            <h2>Wie fühlst du dich heute?</h2>
+            <h2>{t('plan.mood.title')}</h2>
           </div>
-          <p className="block-hint">
-            Nur für heute — wird nicht gespeichert oder bewertet. Steuert Menge
-            und Zeit.
-          </p>
-          <div className="mood-picker" role="group" aria-label="Tagesgefühl">
+          <p className="block-hint">{t('plan.mood.hint')}</p>
+          <div
+            className="mood-picker"
+            role="group"
+            aria-label={t('plan.mood.ariaLabel')}
+          >
             {MOOD_OPTIONS.map((opt) => (
               <button
                 key={opt.id}
@@ -403,8 +414,10 @@ export function PlanScreen({
                 className={`mood-opt ${day.mood === opt.id ? 'active' : ''}`}
                 onClick={() => applyMood(opt.id)}
               >
-                <span className="mood-label">{opt.label}</span>
-                <small>{opt.hint}</small>
+                <span className="mood-label">
+                  {t(`plan.mood.${opt.id}.label`)}
+                </span>
+                <small>{t(`plan.mood.${opt.id}.hint`)}</small>
               </button>
             ))}
           </div>
@@ -414,12 +427,10 @@ export function PlanScreen({
       {carry.length > 0 && !day.started && (
         <div className="block block--carry">
           <div className="block-head">
-            <h2>Noch offen</h2>
+            <h2>{t('plan.carry.title')}</h2>
             <span className="count">{carry.length}</span>
           </div>
-          <p className="block-hint">
-            Vom letzten Tag — auswählen und mitnehmen (soweit Kapazität reicht).
-          </p>
+          <p className="block-hint">{t('plan.carry.hint')}</p>
           <ul className="carry-list">
             {carry.map((item, i) => (
               <li key={`${item.title}-${i}`}>
@@ -430,12 +441,16 @@ export function PlanScreen({
                     onChange={() => toggleCarry(i)}
                   />
                   <span className={`kind tiny ${item.kind}`}>
-                    {item.kind === 'work' ? 'A' : 'T'}
+                    {item.kind === 'work'
+                      ? t('common.workAbbrev')
+                      : t('common.lifeAbbrev')}
                   </span>
-                  <span className="carry-title">{item.title}</span>
+                  <span className="carry-title">
+                    {lifeTemplateLabel(item.title, t)}
+                  </span>
                   {item.kind === 'work' && (
                     <span className={`size-badge tiny ${item.size}`}>
-                      {SIZE_LABEL[item.size].slice(0, 1)}
+                      {sizeLabel(item.size).slice(0, 1)}
                     </span>
                   )}
                 </label>
@@ -449,10 +464,10 @@ export function PlanScreen({
               disabled={selectedCarry.size === 0}
               onClick={adoptCarry}
             >
-              Übernehmen
+              {t('plan.carry.adopt')}
             </button>
             <button type="button" className="ghost" onClick={dismissCarry}>
-              Verwerfen
+              {t('plan.carry.dismiss')}
             </button>
           </div>
         </div>
@@ -460,24 +475,26 @@ export function PlanScreen({
 
       <div className="block block--work">
         <div className="block-head">
-          <h2>Arbeit</h2>
+          <h2>{t('plan.work.title')}</h2>
           <span className="count">
-            {usedPts}/{maxPts} Pkt
+            {t('plan.work.count', { used: usedPts, max: maxPts })}
           </span>
         </div>
-        <p className="block-hint">Größe wählen — Timer richtet sich danach.</p>
+        <p className="block-hint">{t('plan.work.hint')}</p>
         <ul className="task-list">
-          {work.map((t) => (
-            <li key={t.id}>
+          {work.map((task) => (
+            <li key={task.id}>
               <span className="task-main">
-                <span className={`size-badge ${t.size}`}>{SIZE_LABEL[t.size]}</span>
-                {t.title}
+                <span className={`size-badge ${task.size}`}>
+                  {sizeLabel(task.size)}
+                </span>
+                {task.title}
               </span>
               <button
                 type="button"
                 className="ghost"
-                onClick={() => removeTask(t.id)}
-                aria-label="Entfernen"
+                onClick={() => removeTask(task.id)}
+                aria-label={t('common.remove')}
               >
                 ✕
               </button>
@@ -492,7 +509,11 @@ export function PlanScreen({
               addTask('work', workDraft, workSize)
             }}
           >
-            <div className="size-picker" role="group" aria-label="Umfang">
+            <div
+              className="size-picker"
+              role="group"
+              aria-label={t('plan.work.sizeAria')}
+            >
               {sizes.map((size) => (
                 <button
                   key={size}
@@ -503,8 +524,12 @@ export function PlanScreen({
                   disabled={remain[size] <= 0}
                   onClick={() => setWorkSize(size)}
                 >
-                  {SIZE_LABEL[size]}
-                  <small>{minutesForSize(size, day.mood)} Min</small>
+                  {sizeLabel(size)}
+                  <small>
+                    {t('plan.work.minutes', {
+                      n: minutesForSize(size, day.mood),
+                    })}
+                  </small>
                 </button>
               ))}
             </div>
@@ -512,7 +537,7 @@ export function PlanScreen({
               <input
                 value={workDraft}
                 onChange={(e) => setWorkDraft(e.target.value)}
-                placeholder="z. B. Bericht fertigstellen"
+                placeholder={t('plan.work.placeholder')}
                 maxLength={80}
               />
               <button
@@ -520,7 +545,7 @@ export function PlanScreen({
                 className="primary sm"
                 disabled={remain[workSize] <= 0}
               >
-                Hinzufügen
+                {t('common.add')}
               </button>
             </div>
           </form>
@@ -529,24 +554,21 @@ export function PlanScreen({
 
       <div className="block block--life">
         <div className="block-head">
-          <h2>Alltag</h2>
+          <h2>{t('plan.life.title')}</h2>
           <span className="count">
-            {life.length}/{day.lifeMax}
+            {t('plan.life.count', { used: life.length, max: day.lifeMax })}
           </span>
         </div>
-        <p className="block-hint">
-          Zählt nicht in die Arbeitspunkte. × am Vorschlag blendet ihn aus —
-          eigene bleiben gespeichert.
-        </p>
+        <p className="block-hint">{t('plan.life.hint')}</p>
         <ul className="task-list">
-          {life.map((t) => (
-            <li key={t.id}>
-              <span>{t.title}</span>
+          {life.map((task) => (
+            <li key={task.id}>
+              <span>{lifeTemplateLabel(task.title, t)}</span>
               <button
                 type="button"
                 className="ghost"
-                onClick={() => removeTask(t.id)}
-                aria-label="Entfernen"
+                onClick={() => removeTask(task.id)}
+                aria-label={t('common.remove')}
               >
                 ✕
               </button>
@@ -556,8 +578,9 @@ export function PlanScreen({
         {lifeAnchors.length > 0 && (
           <div className="chips">
             {lifeAnchors.map((tpl) => {
-              const onPlan = life.some((t) => t.title === tpl)
+              const onPlan = life.some((task) => task.title === tpl)
               const canAdd = !onPlan && life.length < day.lifeMax
+              const label = lifeTemplateLabel(tpl, t)
               return (
                 <span key={tpl} className="chip-group">
                   <button
@@ -566,14 +589,14 @@ export function PlanScreen({
                     disabled={!canAdd}
                     onClick={() => addTask('life', tpl)}
                   >
-                    {tpl}
+                    {label}
                   </button>
                   <button
                     type="button"
                     className="chip-forget"
                     onClick={() => forgetLifeAnchor(tpl)}
-                    aria-label={`${tpl} nicht mehr vorschlagen`}
-                    title="Nicht mehr vorschlagen"
+                    aria-label={t('plan.life.forgetAria', { title: label })}
+                    title={t('plan.life.forgetTitle')}
                   >
                     ×
                   </button>
@@ -593,11 +616,11 @@ export function PlanScreen({
             <input
               value={lifeDraft}
               onChange={(e) => setLifeDraft(e.target.value)}
-              placeholder="Eigener Alltagsanker…"
+              placeholder={t('plan.life.placeholder')}
               maxLength={80}
             />
             <button type="submit" className="primary sm">
-              Hinzufügen
+              {t('common.add')}
             </button>
           </form>
         )}
@@ -605,7 +628,7 @@ export function PlanScreen({
 
       {hint && (
         <div className="buddy-card warn" role="status">
-          <span className="buddy-label">Buddy</span>
+          <span className="buddy-label">{t('common.buddy')}</span>
           <p>{hint}</p>
         </div>
       )}
@@ -616,7 +639,7 @@ export function PlanScreen({
         disabled={day.tasks.length === 0}
         onClick={startDay}
       >
-        Tag starten
+        {t('plan.startDay')}
       </button>
 
       {onShowIntro && day.introButtonOnSurface && (
@@ -626,7 +649,7 @@ export function PlanScreen({
             className="secondary lg"
             onClick={onShowIntro}
           >
-            Einführung anzeigen
+            {t('plan.introSurface.show')}
           </button>
           <label className="intro-hide-check">
             <input
@@ -638,7 +661,7 @@ export function PlanScreen({
                 }
               }}
             />
-            Button ausblenden
+            {t('plan.introSurface.hideButton')}
           </label>
         </div>
       )}
@@ -646,15 +669,30 @@ export function PlanScreen({
       <div className="plan-footer">
         <div className="cap-summary muted">
           <div>
-            <span className="cap-label">Arbeit heute</span>
+            <span className="cap-label">{t('plan.capSummary.label')}</span>
             <strong>
-              {usedPts}/{maxPts} Punkte
+              {t('plan.capSummary.points', { used: usedPts, max: maxPts })}
             </strong>
           </div>
           <div className="cap-pills">
-            <span>G {used.large}/{day.capacity.large}</span>
-            <span>M {used.medium}/{day.capacity.medium}</span>
-            <span>K {used.small}/{day.capacity.small}</span>
+            <span>
+              {t('plan.capSummary.large', {
+                used: used.large,
+                max: day.capacity.large,
+              })}
+            </span>
+            <span>
+              {t('plan.capSummary.medium', {
+                used: used.medium,
+                max: day.capacity.medium,
+              })}
+            </span>
+            <span>
+              {t('plan.capSummary.small', {
+                used: used.small,
+                max: day.capacity.small,
+              })}
+            </span>
           </div>
         </div>
 
@@ -665,25 +703,29 @@ export function PlanScreen({
             setSettingsOpen((e.target as HTMLDetailsElement).open)
           }
         >
-          <summary>Einstellungen</summary>
+          <summary>{t('settings.summary')}</summary>
 
           <details className="settings-section">
             <summary>
-              Tagesmenge
-              <span className="settings-section-meta">Arbeit &amp; Alltag</span>
+              {t('settings.capacity.summary')}
+              <span className="settings-section-meta">
+                {t('settings.capacity.meta')}
+              </span>
             </summary>
             <p className="block-hint settings-intro">
-              Grundeinstellung ohne Stimmung. Die Tagesfrage skaliert davon ab.
+              {t('settings.capacity.intro')}
             </p>
             <div className="cap-controls">
               {sizes.map((size) => (
                 <label key={size} className="cap-step">
-                  <span>{SIZE_LABEL[size]}</span>
+                  <span>{sizeLabel(size)}</span>
                   <div className="stepper">
                     <button
                       type="button"
                       className="ghost"
-                      aria-label={`${SIZE_LABEL[size]} weniger`}
+                      aria-label={t('common.sizeLess', {
+                        size: sizeLabel(size),
+                      })}
                       disabled={
                         (day.baselineCapacity ?? day.capacity)[size] <=
                         used[size]
@@ -703,7 +745,9 @@ export function PlanScreen({
                     <button
                       type="button"
                       className="ghost"
-                      aria-label={`${SIZE_LABEL[size]} mehr`}
+                      aria-label={t('common.sizeMore', {
+                        size: sizeLabel(size),
+                      })}
                       disabled={
                         (day.baselineCapacity ?? day.capacity)[size] >=
                           HARD_CAPS[size] ||
@@ -730,17 +774,19 @@ export function PlanScreen({
             </div>
 
             <p className="cap-points">
-              Tagesbudget Arbeit: <strong>{maxPts}</strong> / {MAX_DAY_POINTS}{' '}
-              Punkte
+              {t('settings.capacity.dayBudget', {
+                used: maxPts,
+                max: MAX_DAY_POINTS,
+              })}
             </p>
 
             <label className="cap-step">
-              <span>Alltagsanker max.</span>
+              <span>{t('settings.capacity.lifeMaxLabel')}</span>
               <div className="stepper">
                 <button
                   type="button"
                   className="ghost"
-                  aria-label="Weniger Alltagsanker"
+                  aria-label={t('settings.capacity.lifeMaxLess')}
                   disabled={
                     (day.baselineLifeMax ?? day.lifeMax) <=
                     Math.max(1, life.length)
@@ -755,7 +801,7 @@ export function PlanScreen({
                 <button
                   type="button"
                   className="ghost"
-                  aria-label="Mehr Alltagsanker"
+                  aria-label={t('settings.capacity.lifeMaxMore')}
                   disabled={
                     (day.baselineLifeMax ?? day.lifeMax) >= LIFE_MAX_HARD
                   }
@@ -768,17 +814,19 @@ export function PlanScreen({
               </div>
             </label>
             <p className="block-hint" style={{ marginTop: '0.35rem' }}>
-              Höchstens {LIFE_MAX_HARD}. Weniger ist oft besser.
+              {t('settings.capacity.lifeMaxHint', { max: LIFE_MAX_HARD })}
             </p>
           </details>
 
           <details className="settings-section">
             <summary>
-              Erinnerungen
-              <span className="settings-section-meta">Check-in &amp; Freeze</span>
+              {t('settings.reminders.summary')}
+              <span className="settings-section-meta">
+                {t('settings.reminders.meta')}
+              </span>
             </summary>
             <div className="tone-row">
-              <label htmlFor="tone">Buddy-Ton</label>
+              <label htmlFor="tone">{t('settings.reminders.buddyTone')}</label>
               <select
                 id="tone"
                 value={day.buddyTone}
@@ -789,15 +837,17 @@ export function PlanScreen({
                   }))
                 }
               >
-                <option value="warm">Warm</option>
-                <option value="kurz">Kurz</option>
-                <option value="klar">Klar</option>
+                <option value="warm">{t('settings.reminders.toneWarm')}</option>
+                <option value="kurz">{t('settings.reminders.toneKurz')}</option>
+                <option value="klar">{t('settings.reminders.toneKlar')}</option>
               </select>
             </div>
 
             <div className="settings-row">
               <label htmlFor="checkin">
-                Check-in alle <strong>{day.checkInEveryMin}</strong> Min.
+                {t('settings.reminders.checkInEvery', {
+                  n: day.checkInEveryMin,
+                })}
               </label>
               <input
                 id="checkin"
@@ -828,24 +878,24 @@ export function PlanScreen({
                       setDay((d) => ({ ...d, notificationsEnabled: false }))
                   }}
                 />
-                Erinnerungen einschalten
+                {t('settings.reminders.enableNotifications')}
               </label>
               {!isStandaloneApp() && (
                 <p className="block-hint">
-                  Am Handy zuerst speichern — sonst kommen Mitteilungen oft nicht
-                  zuverlässig an.
+                  {t('settings.reminders.saveFirstHint')}
                 </p>
               )}
               {perm === 'denied' && (
                 <p className="block-hint">
-                  Mitteilungen sind blockiert. In den Handy-Einstellungen bei
-                  Tagesanker erlauben.
+                  {t('settings.reminders.blockedHint')}
                 </p>
               )}
               {notifMsg && <p className="export-msg">{notifMsg}</p>}
 
               <div className="freeze-settings">
-                <p className="export-label">Weicher Freeze</p>
+                <p className="export-label">
+                  {t('settings.reminders.softFreeze.label')}
+                </p>
                 <label className="intro-hide-check">
                   <input
                     type="checkbox"
@@ -857,18 +907,17 @@ export function PlanScreen({
                       }))
                     }
                   />
-                  Beim Verlassen Timer pausieren
+                  {t('settings.reminders.softFreeze.pauseOnLeave')}
                 </label>
                 <p className="block-hint">
-                  Standard: an, höchstens eine sanfte Erinnerung. Nicht
-                  einsperren — nur zurückrufen.
+                  {t('settings.reminders.softFreeze.hint')}
                 </p>
 
                 <label
                   className="tone-row freeze-nudge-row"
                   htmlFor="away-nudge"
                 >
-                  Erinnerungen wenn weg
+                  {t('settings.reminders.softFreeze.awayNudges')}
                   <select
                     id="away-nudge"
                     value={day.awayNudgeMode}
@@ -883,9 +932,15 @@ export function PlanScreen({
                       }))
                     }
                   >
-                    <option value="off">Keine</option>
-                    <option value="once">Einmal (empfohlen)</option>
-                    <option value="repeat">Wiederholen</option>
+                    <option value="off">
+                      {t('settings.reminders.softFreeze.nudgeOff')}
+                    </option>
+                    <option value="once">
+                      {t('settings.reminders.softFreeze.nudgeOnce')}
+                    </option>
+                    <option value="repeat">
+                      {t('settings.reminders.softFreeze.nudgeRepeat')}
+                    </option>
                   </select>
                 </label>
 
@@ -893,7 +948,9 @@ export function PlanScreen({
                   <>
                     <div className="settings-row">
                       <label htmlFor="away-every">
-                        Alle <strong>{day.awayNudgeEveryMin}</strong> Min.
+                        {t('settings.reminders.softFreeze.everyMin', {
+                          n: day.awayNudgeEveryMin,
+                        })}
                       </label>
                       <input
                         id="away-every"
@@ -912,7 +969,9 @@ export function PlanScreen({
                     </div>
                     <div className="settings-row">
                       <label htmlFor="away-max">
-                        Max. <strong>{day.awayNudgeMax}</strong> Hinweise
+                        {t('settings.reminders.softFreeze.maxNudges', {
+                          n: day.awayNudgeMax,
+                        })}
                       </label>
                       <input
                         id="away-max"
@@ -937,19 +996,21 @@ export function PlanScreen({
 
           <details className="settings-section">
             <summary>
-              Geistesblitze
+              {t('settings.sparks.summary')}
               <span className="settings-section-meta">
-                nach {SPARK_RETENTION_DAYS} Tagen
+                {t('settings.sparks.meta', { days: SPARK_RETENTION_DAYS })}
               </span>
             </summary>
             <div className="sparks-mail-settings">
-              <label htmlFor="sparks-mail">Ablauf-Mail (optional)</label>
+              <label htmlFor="sparks-mail">
+                {t('settings.sparks.mailLabel')}
+              </label>
               <input
                 id="sparks-mail"
                 type="email"
                 autoComplete="email"
                 inputMode="email"
-                placeholder="z. B. name@beispiel.de"
+                placeholder={t('settings.sparks.mailPlaceholder')}
                 value={day.sparksMailEmail ?? ''}
                 onChange={(e) =>
                   setDay((d) => ({
@@ -961,18 +1022,20 @@ export function PlanScreen({
               />
               <p className="block-hint">
                 {day.sparksMailEmail && !isValidSparksEmail(day.sparksMailEmail)
-                  ? 'Bitte eine gültige Adresse — sonst werden abgelaufene Ideen nur gelöscht.'
+                  ? t('settings.sparks.mailInvalid')
                   : day.sparksMailEmail
-                    ? 'Beim Öffnen der App: Ideen älter als 7 Tage hierher, dann löschen.'
-                    : 'Leer = nach 7 Tagen ohne Mail löschen.'}
+                    ? t('settings.sparks.mailSet')
+                    : t('settings.sparks.mailEmpty')}
               </p>
             </div>
           </details>
 
           <details className="settings-section">
             <summary>
-              Hilfe &amp; Oberfläche
-              <span className="settings-section-meta">Intro, Handbuch</span>
+              {t('settings.help.summary')}
+              <span className="settings-section-meta">
+                {t('settings.help.meta')}
+              </span>
             </summary>
             <label className="intro-hide-check settings-check">
               <input
@@ -985,7 +1048,7 @@ export function PlanScreen({
                   }))
                 }
               />
-              Einführungs-Button auf der Startseite
+              {t('settings.help.introButton')}
             </label>
 
             {onShowIntro && !day.introButtonOnSurface && (
@@ -994,7 +1057,7 @@ export function PlanScreen({
                 className="secondary lg intro-again"
                 onClick={onShowIntro}
               >
-                Einführung nochmal anzeigen
+                {t('settings.help.showIntroAgain')}
               </button>
             )}
 
@@ -1004,16 +1067,44 @@ export function PlanScreen({
                 className="secondary lg"
                 onClick={() => setHandbookOpen(true)}
               >
-                Handbuch öffnen
+                {t('settings.help.openHandbook')}
               </button>
             </div>
           </details>
 
+          <details className="settings-section">
+            <summary>
+              {t('language.summary')}
+              <span className="settings-section-meta">{t('language.meta')}</span>
+            </summary>
+            <label className="tone-row" htmlFor="app-locale">
+              {t('language.label')}
+              <select
+                id="app-locale"
+                value={locale}
+                onChange={async (e) => {
+                  const loc = normalizeLocale(e.target.value)
+                  await setAppLocale(loc)
+                  savePrefs({ ...loadPrefs(), locale: loc })
+                }}
+              >
+                {APP_LOCALES.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {LOCALE_LABELS[loc]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="block-hint">{t('language.hint')}</p>
+          </details>
+
           <details className="settings-section" open={Boolean(syncEmail)}>
             <summary>
-              Geräte-Sync
+              {t('settings.sync.summary')}
               <span className="settings-section-meta">
-                {syncEmail ? 'verbunden' : 'nur dieses Gerät'}
+                {syncEmail
+                  ? t('settings.sync.metaConnected')
+                  : t('settings.sync.metaLocalOnly')}
               </span>
             </summary>
             <SyncSettings
@@ -1031,7 +1122,7 @@ export function PlanScreen({
 
         {syncEmail ? (
           <p className="sync-status-bar" role="status">
-            Sync an · {syncEmail}
+            {t('settings.syncStatusBar', { email: syncEmail })}
           </p>
         ) : null}
       </div>

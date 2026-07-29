@@ -1,30 +1,15 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-const SENSE_PROMPTS = [
-  'Nenne 5 Dinge um dich herum, die du sehen kannst.',
-  'Nenne 4 Dinge, die du anfassen kannst.',
-  'Nenne 3 Geräusche, die du hören kannst.',
-  'Nenne 2 Dinge, die du riechen kannst — oder dir vorstellst.',
-  'Nenne 1 Ding, das du schmecken kannst — oder ein Schluck Wasser.',
+const SENSE_KEYS = [
+  'see5',
+  'touch4',
+  'hear3',
+  'smell2',
+  'taste1',
 ] as const
 
-const BODY_ACTIONS = [
-  {
-    id: 'ice',
-    title: 'Kühle ins Gesicht',
-    text: 'Kaltes Wasser, kühler Lappen oder kurz ans geöffnete Fenster.',
-  },
-  {
-    id: 'water',
-    title: 'Glas Wasser trinken',
-    text: 'Langsam. Nicht leisten — nur trinken.',
-  },
-  {
-    id: 'chest',
-    title: 'Hand auf die Brust',
-    text: 'Leicht drücken. Spüren, dass du hier bist.',
-  },
-] as const
+const BODY_IDS = ['ice', 'water', 'chest'] as const
 
 type Tab = 'breathe' | 'senses' | 'body'
 
@@ -33,6 +18,7 @@ type Props = {
 }
 
 export function RegulateDown({ onClose }: Props) {
+  const { t } = useTranslation()
   const [tab, setTab] = useState<Tab>('breathe')
   const [senseIdx, setSenseIdx] = useState(0)
   const [bodyDone, setBodyDone] = useState<Record<string, boolean>>({})
@@ -64,17 +50,18 @@ export function RegulateDown({ onClose }: Props) {
       className="regulate-overlay"
       role="dialog"
       aria-modal="true"
-      aria-label="Runterregeln"
+      aria-label={t('regulate.ariaLabel')}
     >
       <div className="regulate-panel">
-        <p className="regulate-kicker">Sicherheitsventil</p>
-        <h2 className="regulate-title">Nur atmen. Nichts leisten.</h2>
-        <p className="regulate-lead">
-          Timer und Aufgaben sind ausgeblendet. Du kannst jederzeit zurück —
-          ohne Bewertung.
-        </p>
+        <p className="regulate-kicker">{t('regulate.kicker')}</p>
+        <h2 className="regulate-title">{t('regulate.title')}</h2>
+        <p className="regulate-lead">{t('regulate.lead')}</p>
 
-        <div className="regulate-tabs" role="tablist" aria-label="Impulse">
+        <div
+          className="regulate-tabs"
+          role="tablist"
+          aria-label={t('regulate.tabsAria')}
+        >
           <button
             type="button"
             role="tab"
@@ -82,7 +69,7 @@ export function RegulateDown({ onClose }: Props) {
             className={tab === 'breathe' ? 'on' : ''}
             onClick={() => setTab('breathe')}
           >
-            Atmen
+            {t('regulate.tabs.breathe')}
           </button>
           <button
             type="button"
@@ -91,7 +78,7 @@ export function RegulateDown({ onClose }: Props) {
             className={tab === 'senses' ? 'on' : ''}
             onClick={() => setTab('senses')}
           >
-            Sinne
+            {t('regulate.tabs.senses')}
           </button>
           <button
             type="button"
@@ -100,7 +87,7 @@ export function RegulateDown({ onClose }: Props) {
             className={tab === 'body' ? 'on' : ''}
             onClick={() => setTab('body')}
           >
-            Körper
+            {t('regulate.tabs.body')}
           </button>
         </div>
 
@@ -111,54 +98,57 @@ export function RegulateDown({ onClose }: Props) {
               aria-hidden
             />
             <p className="regulate-phase">
-              {phase === 'in' ? 'Einatmen … (4 Sek.)' : 'Ausatmen … (6 Sek.)'}
+              {phase === 'in' ? t('regulate.breathe.in') : t('regulate.breathe.out')}
             </p>
-            <p className="regulate-hint">
-              Dem Kreis folgen — so gut es gerade geht. Unperfekt reicht.
-            </p>
+            <p className="regulate-hint">{t('regulate.breathe.hint')}</p>
           </div>
         )}
 
         {tab === 'senses' && (
           <div className="regulate-senses" aria-live="polite">
-            <p className="regulate-buddy-label">Buddy</p>
-            <p className="regulate-prompt">{SENSE_PROMPTS[senseIdx]}</p>
+            <p className="regulate-buddy-label">{t('regulate.senses.buddyLabel')}</p>
+            <p className="regulate-prompt">
+              {t(`regulate.senses.prompts.${SENSE_KEYS[senseIdx]}`)}
+            </p>
             <p className="regulate-hint regulate-hint--left">
-              Laut oder nur im Kopf. Kein Aufschreiben nötig.
+              {t('regulate.senses.hint')}
             </p>
             <button
               type="button"
               className="regulate-soft-btn"
               onClick={() =>
-                setSenseIdx((i) => (i + 1) % SENSE_PROMPTS.length)
+                setSenseIdx((i) => (i + 1) % SENSE_KEYS.length)
               }
             >
-              {senseIdx < SENSE_PROMPTS.length - 1
-                ? 'Nächster Impuls'
-                : 'Von vorn'}
+              {senseIdx < SENSE_KEYS.length - 1
+                ? t('regulate.senses.next')
+                : t('regulate.senses.restart')}
             </button>
           </div>
         )}
 
         {tab === 'body' && (
           <div className="regulate-body">
-            <p className="regulate-hint regulate-hint--left" style={{ marginBottom: '0.75rem' }}>
-              Das Allerwerteste — tippe, was du tust oder schon getan hast.
+            <p
+              className="regulate-hint regulate-hint--left"
+              style={{ marginBottom: '0.75rem' }}
+            >
+              {t('regulate.body.hint')}
             </p>
             <div className="regulate-body-actions">
-              {BODY_ACTIONS.map((a) => (
+              {BODY_IDS.map((id) => (
                 <button
-                  key={a.id}
+                  key={id}
                   type="button"
-                  className={`regulate-body-btn${bodyDone[a.id] ? ' done' : ''}`}
+                  className={`regulate-body-btn${bodyDone[id] ? ' done' : ''}`}
                   onClick={() =>
-                    setBodyDone((d) => ({ ...d, [a.id]: true }))
+                    setBodyDone((d) => ({ ...d, [id]: true }))
                   }
                 >
-                  <strong>{a.title}</strong>
-                  <span>{a.text}</span>
-                  {bodyDone[a.id] && (
-                    <em className="regulate-body-ok">Okay — gut so.</em>
+                  <strong>{t(`regulate.body.actions.${id}.title`)}</strong>
+                  <span>{t(`regulate.body.actions.${id}.text`)}</span>
+                  {bodyDone[id] && (
+                    <em className="regulate-body-ok">{t('regulate.body.done')}</em>
                   )}
                 </button>
               ))}
@@ -167,7 +157,7 @@ export function RegulateDown({ onClose }: Props) {
         )}
 
         <button type="button" className="regulate-return" onClick={onClose}>
-          Ich bin wieder da
+          {t('regulate.return')}
         </button>
       </div>
     </div>
@@ -176,16 +166,17 @@ export function RegulateDown({ onClose }: Props) {
 
 /** Klar benannt — im Stress muss man den Einstieg finden */
 export function RegulateButton({ onClick }: { onClick: () => void }) {
+  const { t } = useTranslation()
   return (
     <button
       type="button"
       className="regulate-fab"
       onClick={onClick}
-      aria-label="Ruhe: Runterregeln, wenn es zu viel wird"
-      title="Wenn es zu viel wird — hier tippen"
+      aria-label={t('regulate.buttonAria')}
+      title={t('regulate.buttonTitle')}
     >
       <span className="regulate-fab-icon" aria-hidden />
-      <span className="regulate-fab-label">Ruhe</span>
+      <span className="regulate-fab-label">{t('regulate.button')}</span>
     </button>
   )
 }

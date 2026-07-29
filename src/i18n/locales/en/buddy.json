@@ -1,0 +1,269 @@
+{
+  "plan": {
+    "moodGood": {
+      "warm": "Okay — a normal day load. You can fine-tune below in Settings.",
+      "kurz": "Normal load. Settings below.",
+      "klar": "Baseline: normal capacity. Adjust in Settings."
+    },
+    "moodOk": {
+      "warm": "So-so: a bit less on the list, more time per thing. Not failure — adjustment.",
+      "kurz": "Less + more time. Fine.",
+      "klar": "Capacity reduced, times stretched. Planned that way."
+    },
+    "moodHard": {
+      "warm": "A heavy day: deliberately little. More time per thing. Relief counts — not the list.",
+      "kurz": "Hard day: plan little.",
+      "klar": "Heavy capacity on. Plan little."
+    },
+    "moodWithCarry": {
+      "warm": "{{base}} Below, {{count}} open item(s) wait — only take what fits today.",
+      "kurz": "{{base}} {{count}} open — pick carefully.",
+      "klar": "{{base}} Carry: {{count}}. Only take what fits capacity."
+    },
+    "carryMorning": {
+      "warm": "Good morning. {{count}} item(s) still open — take or leave. What is realistic today?",
+      "kurz": "Morning. {{count}} open. Take some?",
+      "klar": "Plan: review {{count}} carry. Then little and clear."
+    },
+    "morning": {
+      "warm": "Good morning. What is realistic today — not ideal? Writing less is often braver.",
+      "kurz": "Morning. What goes on today?",
+      "klar": "Today’s plan: little, clear, doable."
+    },
+    "morningSoft": {
+      "warm": "Good you’re here. No perfect day needed — an honest one is enough.",
+      "kurz": "Here. Plan realistically.",
+      "klar": "Start: choose a realistic amount."
+    }
+  },
+  "capacity": {
+    "workFullHard": {
+      "warm": "Work capacity full — and that is exactly right today. Life tasks count separately.",
+      "kurz": "Work full. Stop.",
+      "klar": "Points used up. No more work tasks."
+    },
+    "workFull": {
+      "warm": "Work capacity full. No more today — life tasks count separately.",
+      "kurz": "Work full. Stop.",
+      "klar": "Points used up. No more work tasks."
+    },
+    "workTightHard": {
+      "warm": "Already tight — on a hard day, better stop here.",
+      "kurz": "Almost full. Careful.",
+      "klar": "Capacity tight. Do not expand."
+    },
+    "workTight": {
+      "warm": "Almost full. One large often replaces two mediums — not both.",
+      "kurz": "Almost full. Careful.",
+      "klar": "Capacity tight. Do not expand."
+    },
+    "lifeFull": {
+      "warm": "Life anchors are full. That is enough.",
+      "kurz": "Life full.",
+      "klar": "Life anchors at limit."
+    }
+  },
+  "after": {
+    "workQueue": {
+      "warm": " Then {{count}} work still waiting — patiently.",
+      "kurz": " +{{count}} work.",
+      "klar": " Work queue: {{count}}."
+    },
+    "lifeQueue": {
+      "warm": " Then {{count}} life still waiting.",
+      "kurz": " +{{count}} life.",
+      "klar": " Life queue: {{count}}."
+    }
+  },
+  "focus": {
+    "startSoft": {
+      "warm": "Easy. Only this now: “{{title}}”.{{tail}}",
+      "kurz": "Go: {{title}}{{short}}",
+      "klar": "Focus: {{title}}. One thing.{{tail}}"
+    },
+    "start": {
+      "warm": "Okay. Only this now: “{{title}}”. The rest waits on purpose.{{tail}}",
+      "kurz": "Go: {{title}}{{short}}",
+      "klar": "Focus: {{title}}. One thing.{{tail}}"
+    },
+    "checkInEnding": {
+      "warm": "Box almost over — still on “{{title}}”?",
+      "kurz": "Box ending · “{{title}}”?",
+      "klar": "Timebox almost empty: “{{title}}” — still on it?"
+    },
+    "checkInHard": {
+      "warm": "Quick check, no pressure: still on “{{title}}”?",
+      "kurz": "Still on “{{title}}”?",
+      "klar": "Status “{{title}}” — still on it? (Hard day: pause is fine.)"
+    },
+    "checkIn": {
+      "warm": "Quick check: still on “{{title}}”? Drifting is human.",
+      "kurz": "Still on “{{title}}”?",
+      "klar": "Status: “{{title}}” — still on it?"
+    }
+  },
+  "drift": {
+    "hard": {
+      "warm": "Drifting happens — especially on hard days. Back to the one thing, or a deliberate pause. Both count.",
+      "kurz": "Happens. Back or pause.",
+      "klar": "Reorient: task or pause. No blame."
+    },
+    "normal": {
+      "warm": "Happens. Back to the one thing — or a deliberate pause. No drama.",
+      "kurz": "Steer back or pause.",
+      "klar": "Reorient: task or pause."
+    }
+  },
+  "still": {
+    "soft": {
+      "warm": "Good. Keep going — at your pace.",
+      "kurz": "Continue.",
+      "klar": "Confirmed. Continue focus."
+    },
+    "normal": {
+      "warm": "Good. Stay with the one thing.",
+      "kurz": "Continue.",
+      "klar": "Confirmed. Continue focus."
+    }
+  },
+  "pause": {
+    "hard": {
+      "warm": "Pause is especially okay today. When ready: start the timer again.",
+      "kurz": "Pause.",
+      "klar": "Pause. Timer stopped."
+    },
+    "normal": {
+      "warm": "Pause is okay — not failure. When ready: start the timer again.",
+      "kurz": "Pause.",
+      "klar": "Pause. Timer stopped."
+    }
+  },
+  "done": {
+    "withNext": {
+      "warm": "Done: “{{title}}”. Next is “{{next}}” — breathe first.",
+      "kurz": "Done: {{title}} → {{next}}",
+      "klar": "Finished: {{title}}. Next: {{next}}."
+    },
+    "alone": {
+      "warm": "Done: “{{title}}”. Breathe — then the next if you want.",
+      "kurz": "Done: {{title}}",
+      "klar": "Finished: {{title}}. Continue only if you want."
+    }
+  },
+  "timebox": {
+    "overHard": {
+      "warm": "Timebox over. Marking done is enough — or one gentle extra round.",
+      "kurz": "Timebox over. Done or continue?",
+      "klar": "Timebox ended. Close or extend."
+    },
+    "over": {
+      "warm": "Timebox over. Mark done — or start the timer again.",
+      "kurz": "Timebox over. Done or continue?",
+      "klar": "Timebox ended. Close or extend."
+    },
+    "another": {
+      "warm": "One more timebox — only this one thing. Not the whole list.",
+      "kurz": "One more round.",
+      "klar": "Another timebox. Focus unchanged."
+    }
+  },
+  "back": {
+    "work": {
+      "warm": "Back to “{{title}}”.",
+      "kurz": "Back to the task.",
+      "klar": "Resume focus: “{{title}}”."
+    }
+  },
+  "day": {
+    "zeroHard": {
+      "warm": "Nothing checked off — on a hard day that is not defeat. Smaller tomorrow.",
+      "kurz": "0 done. Plan smaller tomorrow.",
+      "klar": "Nothing finished. Tomorrow: plan less."
+    },
+    "zero": {
+      "warm": "Nothing checked off — and that is okay. Fresh and smaller tomorrow.",
+      "kurz": "0 done. Plan smaller tomorrow.",
+      "klar": "Nothing finished. Tomorrow: plan less."
+    },
+    "all": {
+      "warm": "All done ({{done}}). A good, realistic day.",
+      "kurz": "All done ({{done}}).",
+      "klar": "Day closed: {{done}}/{{total}}."
+    },
+    "partial": {
+      "warm": "{{done}} of {{total}} done. The rest may wait — it returns under “Still open”.",
+      "kurz": "{{done}}/{{total}} done. Leave the rest.",
+      "klar": "Done: {{done}}/{{total}}. Do not chase. Carry possible."
+    }
+  },
+  "sleep": {
+    "hint": {
+      "warm": "If “sleep on time” is on the list: now is a good moment to close the day.",
+      "kurz": "Sleep anchor? Close the day.",
+      "klar": "Check sleep time. End the day."
+    }
+  },
+  "spark": {
+    "parked": {
+      "warm": "Parked ({{count}}). Back to the task — ideas can wait without stealing you.",
+      "kurz": "Parked ({{count}}). Back.",
+      "klar": "Saved ({{count}}). Resume focus."
+    },
+    "lockedEmpty": {
+      "warm": "You can always park ideas. Browse only after work tasks.",
+      "kurz": "Vault closed — finish work first.",
+      "klar": "Sparks: park yes, open after work."
+    },
+    "locked": {
+      "warm": "{{count}} spark(s) waiting. Unlock after work tasks — life tasks do not unlock.",
+      "kurz": "{{count}} parked. Open after work.",
+      "klar": "{{count}} saved. Unlock: work tasks done."
+    }
+  },
+  "life": {
+    "withSparks": {
+      "warm": "Life: “{{title}}”. {{count}} idea(s) wait patiently in the vault.",
+      "kurz": "Life: {{title}}",
+      "klar": "Life anchor “{{title}}”. Vault has {{count}} — later."
+    },
+    "plain": {
+      "warm": "Life first: stay with “{{title}}”.",
+      "kurz": "Continue: {{title}}",
+      "klar": "Life anchor: “{{title}}”. Do not drift."
+    }
+  },
+  "welcome": {
+    "none": {
+      "warm": "Welcome back. No drama — continue when you like.",
+      "kurz": "Back. Continue?",
+      "klar": "Returned. Resume possible."
+    },
+    "hard": {
+      "warm": "You’re back. “{{title}}” waits without blame. Timer was paused.",
+      "kurz": "Back: {{title}}?",
+      "klar": "Focus again: “{{title}}”. Timer paused."
+    },
+    "normal": {
+      "warm": "Welcome back. Continue with “{{title}}”? Timer was paused.",
+      "kurz": "Back. Continue: {{title}}?",
+      "klar": "Back in focus: “{{title}}”. Timer paused."
+    }
+  },
+  "feierabend": {
+    "noLifeSparks": {
+      "warm": "Work done. {{count}} spark(s) are free — and the day may end.",
+      "kurz": "Work done. Vault open.",
+      "klar": "Work clocked out. Vault unlocked."
+    },
+    "noLife": {
+      "warm": "Work done. Sparks are free — and the day may end.",
+      "kurz": "Work done. Vault open.",
+      "klar": "Work clocked out. Vault unlocked."
+    },
+    "withLife": {
+      "warm": "Clock-out mode: work is done. Sparks free. {{count}} life anchor(s) left — no pressure.",
+      "kurz": "Clock-out. {{count}}× life left.",
+      "klar": "Work finished. Life: {{count}}. Vault open."
+    }
+  }
+}

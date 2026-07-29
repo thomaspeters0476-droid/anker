@@ -1,20 +1,39 @@
+import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { isLikelyAndroid, isLikelyIos, isStandaloneApp } from '../pwa'
 
 type Props = {
   compact?: boolean
 }
 
+function emphasizeParts(text: string, parts: string[]): ReactNode {
+  if (parts.length === 0) return text
+  const [first, ...rest] = parts
+  const i = text.indexOf(first)
+  if (i < 0) return emphasizeParts(text, rest)
+  return (
+    <>
+      {text.slice(0, i)}
+      <strong>{first}</strong>
+      {emphasizeParts(text.slice(i + first.length), rest)}
+    </>
+  )
+}
+
 export function PwaGuide({ compact = false }: Props) {
+  const { t } = useTranslation()
   const installed = isStandaloneApp()
   const ios = isLikelyIos()
   const android = isLikelyAndroid()
 
   if (installed) {
+    const strong = t('pwa.installedStrong')
+    const full = t('pwa.installed')
     return (
       <div className="pwa-guide installed">
         <p>
-          <strong>Gut:</strong> Tagesanker ist als App auf dem Gerät. Erinnerungen
-          funktionieren am besten so.
+          <strong>{strong}</strong>
+          {full.startsWith(strong) ? full.slice(strong.length) : ` ${full}`}
         </p>
       </div>
     )
@@ -22,60 +41,62 @@ export function PwaGuide({ compact = false }: Props) {
 
   return (
     <div className={`pwa-guide ${compact ? 'compact' : ''}`}>
-      <h3>Erinnerungen am Handy</h3>
-      <p className="pwa-lead">
-        Kurz gesagt: Tagesanker einmal auf den Startbildschirm legen. Dann wie eine
-        normale App öffnen — und Mitteilungen erlauben.
-      </p>
+      <h3>{t('pwa.title')}</h3>
+      <p className="pwa-lead">{t('pwa.lead')}</p>
 
       <div className={`pwa-cols ${ios ? 'prefer-ios' : ''} ${android ? 'prefer-android' : ''}`}>
         <article className="pwa-card">
-          <h4>iPhone</h4>
+          <h4>{t('pwa.ios.title')}</h4>
           <ol>
-            <li>Unten auf <strong>Teilen</strong> tippen (Quadrat mit Pfeil).</li>
             <li>
-              Nach unten scrollen → <strong>Zum Home-Bildschirm</strong>.
+              {emphasizeParts(t('pwa.ios.step1'), [t('pwa.ios.step1Strong')])}
             </li>
             <li>
-              <strong>Hinzufügen</strong> tippen.
+              {emphasizeParts(t('pwa.ios.step2'), [t('pwa.ios.step2Strong')])}
             </li>
             <li>
-              Tagesanker vom Home-Bildschirm öffnen (nicht über Safari).
+              {emphasizeParts(t('pwa.ios.step3'), [t('pwa.ios.step3Strong')])}
             </li>
+            <li>{t('pwa.ios.step4')}</li>
             <li>
-              Wenn gefragt: <strong>Mitteilungen erlauben</strong>.
+              {emphasizeParts(t('pwa.ios.step5'), [t('pwa.ios.step5Strong')])}
             </li>
           </ol>
-          <p className="pwa-note">
-            Tipp: Am iPhone geht das nur über Safari — nicht über Chrome.
-          </p>
+          <p className="pwa-note">{t('pwa.ios.note')}</p>
         </article>
 
         <article className="pwa-card">
-          <h4>Android</h4>
+          <h4>{t('pwa.android.title')}</h4>
           <ol>
             <li>
-              Oben rechts auf die <strong>drei Punkte</strong> tippen.
+              {emphasizeParts(t('pwa.android.step1'), [
+                t('pwa.android.step1Strong'),
+              ])}
             </li>
             <li>
-              <strong>App installieren</strong> oder{' '}
-              <strong>Zum Startbildschirm</strong> wählen.
+              {emphasizeParts(t('pwa.android.step2'), [
+                t('pwa.android.step2a'),
+                t('pwa.android.step2b'),
+              ])}
             </li>
             <li>
-              <strong>Installieren</strong> / <strong>Hinzufügen</strong>.
+              {emphasizeParts(t('pwa.android.step3'), [
+                t('pwa.android.step3a'),
+                t('pwa.android.step3b'),
+              ])}
             </li>
-            <li>Tagesanker vom Startbildschirm öffnen.</li>
+            <li>{t('pwa.android.step4')}</li>
             <li>
-              Wenn gefragt: <strong>Benachrichtigungen erlauben</strong>.
+              {emphasizeParts(t('pwa.android.step5'), [
+                t('pwa.android.step5Strong'),
+              ])}
             </li>
           </ol>
-          <p className="pwa-note">Am besten mit Chrome.</p>
+          <p className="pwa-note">{t('pwa.android.note')}</p>
         </article>
       </div>
 
-      <p className="pwa-foot">
-        Fertig. Du brauchst keinen App-Store — nur diese Website einmal speichern.
-      </p>
+      <p className="pwa-foot">{t('pwa.foot')}</p>
     </div>
   )
 }

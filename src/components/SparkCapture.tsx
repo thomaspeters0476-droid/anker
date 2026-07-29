@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Spark, SparkMode } from '../types'
 
 type Props = {
@@ -29,6 +30,7 @@ function blobToDataUrl(blob: Blob): Promise<string> {
 }
 
 export function SparkCapture({ open, onClose, onSave }: Props) {
+  const { t } = useTranslation()
   const [mode, setMode] = useState<SparkMode>('note')
   const [text, setText] = useState('')
   const [recording, setRecording] = useState(false)
@@ -175,7 +177,7 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
   async function startRecording() {
     setAudioError(null)
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
-      setAudioError('Audio-Aufnahme geht in diesem Browser nicht.')
+      setAudioError(t('sparkCapture.audio.unsupported'))
       return
     }
 
@@ -210,7 +212,7 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
       }, 1000)
     } catch {
       stopTracks()
-      setAudioError('Mikrofon-Zugriff verweigert oder nicht verfügbar.')
+      setAudioError(t('sparkCapture.audio.micDenied'))
     }
   }
 
@@ -242,7 +244,7 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
 
     if (mode === 'audio') {
       if (!audioUrl) {
-        setAudioError('Keine Aufnahme — kurz aufnehmen, dann parken.')
+        setAudioError(t('sparkCapture.audio.noRecording'))
         return
       }
       onSave({
@@ -270,21 +272,26 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
   }
 
   return (
-    <div className="spark-overlay" role="dialog" aria-modal="true" aria-label="Geistesblitz">
+    <div
+      className="spark-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('sparkCapture.ariaLabel')}
+    >
       <div className="spark-panel">
         <div className="spark-head">
-          <h2>Geistesblitz</h2>
-          <p>Kurz parken — dann sofort zurück.</p>
+          <h2>{t('sparkCapture.title')}</h2>
+          <p>{t('sparkCapture.lead')}</p>
         </div>
 
         <div className="spark-tabs" role="tablist">
           {(
             [
-              ['note', 'Notieren'],
-              ['draw', 'Malen'],
-              ['audio', 'Audio'],
+              ['note', 'sparkCapture.tabs.note'],
+              ['draw', 'sparkCapture.tabs.draw'],
+              ['audio', 'sparkCapture.tabs.audio'],
             ] as const
-          ).map(([id, label]) => (
+          ).map(([id, labelKey]) => (
             <button
               key={id}
               type="button"
@@ -293,7 +300,7 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
               className={mode === id ? 'active' : ''}
               onClick={() => void switchMode(id)}
             >
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </div>
@@ -303,7 +310,7 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
             className="spark-text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Idee in einem Satz…"
+            placeholder={t('sparkCapture.notePlaceholder')}
             rows={4}
             autoFocus
           />
@@ -321,7 +328,7 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
               onPointerLeave={onPointerUp}
             />
             <button type="button" className="ghost sm" onClick={clearCanvas}>
-              Leeren
+              {t('sparkCapture.clearCanvas')}
             </button>
           </div>
         )}
@@ -330,10 +337,13 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
           <div className="spark-dictate">
             <p className="audio-status">
               {recording
-                ? `Aufnahme läuft… ${audioSec}s / ${MAX_AUDIO_SEC}s`
+                ? t('sparkCapture.audio.recording', {
+                    sec: audioSec,
+                    max: MAX_AUDIO_SEC,
+                  })
                 : audioDataUrl
-                  ? `Aufnahme bereit (${audioSec}s)`
-                  : `Max. ${MAX_AUDIO_SEC} Sekunden — dann zurück zur Aufgabe.`}
+                  ? t('sparkCapture.audio.ready', { sec: audioSec })
+                  : t('sparkCapture.audio.idle', { max: MAX_AUDIO_SEC })}
             </p>
             {audioDataUrl && !recording && (
               <audio controls src={audioDataUrl} className="spark-audio" />
@@ -342,7 +352,7 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
               className="spark-text"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Optional: Stichwort zur Aufnahme…"
+              placeholder={t('sparkCapture.audio.keywordPlaceholder')}
               rows={2}
             />
             {audioError && <p className="spark-error">{audioError}</p>}
@@ -353,17 +363,21 @@ export function SparkCapture({ open, onClose, onSave }: Props) {
                 void (recording ? stopRecording() : startRecording())
               }
             >
-              {recording ? 'Stopp' : audioDataUrl ? 'Neu aufnehmen' : 'Aufnahme starten'}
+              {recording
+                ? t('sparkCapture.audio.stop')
+                : audioDataUrl
+                  ? t('sparkCapture.audio.rerecord')
+                  : t('sparkCapture.audio.start')}
             </button>
           </div>
         )}
 
         <div className="spark-actions">
           <button type="button" className="ghost" onClick={() => void discardAndClose()}>
-            Verwerfen
+            {t('sparkCapture.discard')}
           </button>
           <button type="button" className="primary" onClick={() => void saveAndClose()}>
-            Parken & zurück
+            {t('sparkCapture.park')}
           </button>
         </div>
       </div>

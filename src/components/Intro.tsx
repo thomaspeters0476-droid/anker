@@ -1,28 +1,14 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const INTRO_KEY = 'anker-intro-seen'
 
-const STEPS = [
-  {
-    title: 'Wenig planen',
-    text: 'Morgens nur ein paar Arbeitsaufgaben und Alltagsanker. Wie viele — und wie groß — stellst du unten in den Einstellungen ein.',
-  },
-  {
-    title: 'Eine Sache',
-    text: 'Im Fokus siehst du nur die aktuelle Aufgabe. Der Rest wartet — absichtlich.',
-  },
-  {
-    title: 'Zurückfinden',
-    text: 'Der Buddy fragt zwischendurch nach. Geistesblitze kannst du kurz parken. Am Handy: App auf den Startbildschirm legen — dann kommen Erinnerungen besser an.',
-  },
-  {
-    title: 'Weicher Freeze',
-    text: 'Verlässt du die App, pausiert der Timer sanft. Optional erinnern dich Mitteilungen, zurückzukommen — ohne dich einzusperren. Anpassen oder ausstellen: unten unter Einstellungen.',
-  },
-  {
-    title: 'Ruhe-Button',
-    text: 'Oben rechts steht „Ruhe“. Wenn es zu viel wird: tippen. Dann nur Atmen, Sinne, Körper — kein Timer, kein Plan. Zurück mit „Ich bin wieder da“.',
-  },
+const STEP_KEYS = [
+  'planLess',
+  'oneThing',
+  'findBack',
+  'softFreeze',
+  'regulate',
 ] as const
 
 type Props = {
@@ -30,9 +16,10 @@ type Props = {
 }
 
 export function Intro({ onDone }: Props) {
+  const { t } = useTranslation()
   const [step, setStep] = useState(0)
-  const current = STEPS[step]
-  const last = step === STEPS.length - 1
+  const stepKey = STEP_KEYS[step]
+  const last = step === STEP_KEYS.length - 1
 
   function finish() {
     localStorage.setItem(INTRO_KEY, '1')
@@ -45,15 +32,18 @@ export function Intro({ onDone }: Props) {
   }
 
   return (
-    <section className="screen intro-screen" aria-label="Einführung">
+    <section className="screen intro-screen" aria-label={t('intro.ariaLabel')}>
       <p className="intro-progress">
-        {step + 1} / {STEPS.length}
+        {t('intro.progress', {
+          current: step + 1,
+          total: STEP_KEYS.length,
+        })}
       </p>
-      <h2 className="intro-title">{current.title}</h2>
-      <p className="intro-text">{current.text}</p>
+      <h2 className="intro-title">{t(`intro.steps.${stepKey}.title`)}</h2>
+      <p className="intro-text">{t(`intro.steps.${stepKey}.text`)}</p>
 
       <div className="intro-dots" aria-hidden>
-        {STEPS.map((_, i) => (
+        {STEP_KEYS.map((_, i) => (
           <span key={i} className={i === step ? 'on' : ''} />
         ))}
       </div>
@@ -61,11 +51,11 @@ export function Intro({ onDone }: Props) {
       <div className="intro-actions">
         {!last && (
           <button type="button" className="ghost lg" onClick={finish}>
-            Überspringen
+            {t('intro.skip')}
           </button>
         )}
         <button type="button" className="primary lg" onClick={next}>
-          {last ? 'Loslegen' : 'Weiter'}
+          {last ? t('intro.start') : t('intro.next')}
         </button>
       </div>
     </section>

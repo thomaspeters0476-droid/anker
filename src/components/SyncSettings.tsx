@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   isSyncConfigured,
   signInWithMagicLink,
@@ -53,6 +54,7 @@ export function SyncSettings({
   onNotice,
   embedded = false,
 }: Props) {
+  const { t } = useTranslation()
   const configured = isSyncConfigured()
   const [draft, setDraft] = useState(() => readPendingEmail())
   const [otp, setOtp] = useState('')
@@ -65,17 +67,15 @@ export function SyncSettings({
   if (!configured) {
     return (
       <div className="sync-settings">
-        <h3 className="sync-title">Geräte-Sync</h3>
-        <p className="block-hint">
-          Sync ist auf diesem Build noch nicht konfiguriert (Supabase-Env fehlt).
-        </p>
+        <h3 className="sync-title">{t('sync.title')}</h3>
+        <p className="block-hint">{t('sync.notConfigured')}</p>
       </div>
     )
   }
 
   async function sendLink() {
     if (!emailOk) {
-      onNotice?.('Bitte zuerst deine E-Mail-Adresse eintragen (nicht den Code).')
+      onNotice?.(t('sync.noticeNeedEmailFirst'))
       return
     }
     setLocalBusy(true)
@@ -85,9 +85,7 @@ export function SyncSettings({
     if (res.ok) {
       writePendingEmail(draft.trim().toLowerCase())
       setOtp('')
-      onNotice?.(
-        'Mail von Tagesanker (Resend) unterwegs — Betreff mit Sync-Code. Nur die 6 Ziffern hier eintippen.',
-      )
+      onNotice?.(t('sync.noticeCodeSent'))
     } else {
       onNotice?.(res.message)
     }
@@ -95,13 +93,11 @@ export function SyncSettings({
 
   async function confirmOtp() {
     if (!emailOk) {
-      onNotice?.(
-        'Oben noch die E-Mail eintragen (dieselbe Adresse wie in der Mail) — der Code allein reicht nicht.',
-      )
+      onNotice?.(t('sync.noticeNeedEmailForOtp'))
       return
     }
     if (!otpOk) {
-      onNotice?.('Der Code braucht genau 6 Ziffern.')
+      onNotice?.(t('sync.noticeOtpLength'))
       return
     }
     setLocalBusy(true)
@@ -111,7 +107,7 @@ export function SyncSettings({
     if (res.ok) {
       writePendingEmail('')
       setOtp('')
-      onNotice?.('Angemeldet — Geräte werden abgeglichen.')
+      onNotice?.(t('sync.noticeSignedIn'))
     } else {
       onNotice?.(res.message)
     }
@@ -124,28 +120,25 @@ export function SyncSettings({
     writePendingEmail('')
     setOtp('')
     onSignedOut?.()
-    onNotice?.('Abgemeldet. Daten bleiben auf diesem Gerät; Sync pausiert.')
+    onNotice?.(t('sync.noticeSignedOut'))
   }
 
   let gateHint: string | null = null
   if (!emailOk && otpOk) {
-    gateHint =
-      'Noch die E-Mail oben eintragen — dann wird „Mit Code anmelden“ aktiv.'
+    gateHint = t('sync.gateNeedEmail')
   } else if (emailOk && !otpOk) {
-    gateHint = 'Code: noch 6 Ziffern aus der Mail eintragen.'
+    gateHint = t('sync.gateNeedOtp')
   }
 
   return (
     <div className={`sync-settings${embedded ? ' sync-settings-embedded' : ''}`}>
-      {!embedded && <h3 className="sync-title">Geräte-Sync</h3>}
-      <p className="block-hint">
-        Optional. Ohne Anmeldung bleibt alles nur auf diesem Gerät.
-      </p>
+      {!embedded && <h3 className="sync-title">{t('sync.title')}</h3>}
+      <p className="block-hint">{t('sync.hint')}</p>
 
       {email ? (
         <>
           <p className="sync-status">
-            Verbunden als <strong>{email}</strong>
+            {t('sync.connectedAs', { email })}
           </p>
           <button
             type="button"
@@ -153,18 +146,18 @@ export function SyncSettings({
             disabled={localBusy}
             onClick={() => void logout()}
           >
-            Abmelden
+            {t('sync.signOut')}
           </button>
         </>
       ) : (
         <div className="sync-login">
-          <label htmlFor="sync-email">1. Deine E-Mail (nicht der Code)</label>
+          <label htmlFor="sync-email">{t('sync.emailLabel')}</label>
           <input
             id="sync-email"
             type="email"
             autoComplete="email"
             inputMode="email"
-            placeholder="z. B. name@beispiel.de"
+            placeholder={t('sync.emailPlaceholder')}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             maxLength={120}
@@ -172,14 +165,14 @@ export function SyncSettings({
           />
 
           <div className="sync-otp">
-            <label htmlFor="sync-otp">2. Sechs Ziffern aus der Mail</label>
+            <label htmlFor="sync-otp">{t('sync.otpLabel')}</label>
             <input
               id="sync-otp"
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
               pattern="[0-9]*"
-              placeholder="123456"
+              placeholder={t('sync.otpPlaceholder')}
               value={otp}
               onChange={(e) =>
                 setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
@@ -193,17 +186,14 @@ export function SyncSettings({
               disabled={!canSignIn}
               onClick={() => void confirmOtp()}
             >
-              Mit Code anmelden
+              {t('sync.signInWithCode')}
             </button>
             {gateHint && (
               <p className="block-hint sync-gate-hint" role="status">
                 {gateHint}
               </p>
             )}
-            <p className="block-hint">
-              Beides nötig: E-Mail-Adresse + Code. Kein neues Senden, wenn die
-              Mail schon da ist.
-            </p>
+            <p className="block-hint">{t('sync.bothNeeded')}</p>
           </div>
 
           <button
@@ -212,17 +202,18 @@ export function SyncSettings({
             disabled={localBusy || !emailOk}
             onClick={() => void sendLink()}
           >
-            Neuen Code per Mail senden
+            {t('sync.sendNewCode')}
           </button>
         </div>
       )}
 
       {conflict && (
-        <div className="sync-conflict" role="dialog" aria-label="Sync-Konflikt">
-          <p>
-            Cloud und dieses Gerät haben unterschiedliche Stände mit gleichem
-            Zeitstempel. Was behalten?
-          </p>
+        <div
+          className="sync-conflict"
+          role="dialog"
+          aria-label={t('sync.conflict.ariaLabel')}
+        >
+          <p>{t('sync.conflict.body')}</p>
           <div className="sync-conflict-actions">
             <button
               type="button"
@@ -230,7 +221,7 @@ export function SyncSettings({
               disabled={localBusy}
               onClick={() => onKeepLocal?.()}
             >
-              Dieses Gerät
+              {t('sync.conflict.keepLocal')}
             </button>
             <button
               type="button"
@@ -238,7 +229,7 @@ export function SyncSettings({
               disabled={localBusy}
               onClick={() => onUseCloud?.()}
             >
-              Cloud
+              {t('sync.conflict.useCloud')}
             </button>
           </div>
         </div>

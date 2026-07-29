@@ -1,4 +1,5 @@
 import type { Session, User } from '@supabase/supabase-js'
+import i18n from '../i18n'
 import { getSupabase, isSyncConfigured } from './client'
 
 export async function getSession(): Promise<Session | null> {
@@ -25,11 +26,13 @@ export async function signInWithMagicLink(
     return { ok: false, message: 'Bitte eine gültige E-Mail eingeben.' }
   }
 
+  const locale = i18n.language === 'en' ? 'en' : 'de'
+
   try {
     const res = await fetch('/api/sync-request-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: normalized }),
+      body: JSON.stringify({ email: normalized, locale }),
     })
     const data = (await res.json()) as {
       ok?: boolean

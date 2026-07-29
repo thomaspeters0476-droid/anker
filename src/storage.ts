@@ -7,6 +7,11 @@ import {
 } from './types'
 import { DEFAULT_CAPACITY } from './capacity'
 import { SOFT_FREEZE_DEFAULTS, type AwayNudgeMode } from './softFreeze'
+import {
+  detectBrowserLocale,
+  normalizeLocale,
+  type AppLocale,
+} from './i18n/locales'
 
 const DAY_KEY = 'fokus-buddy-day'
 const PREFS_KEY = 'anker-prefs'
@@ -121,6 +126,7 @@ export type Prefs = {
   hiddenLifeTemplates: string[]
   customLifeAnchors: string[]
   sparksMailEmail: string
+  locale: AppLocale
 }
 
 export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
@@ -137,6 +143,7 @@ function defaultPrefs(): Prefs {
     hiddenLifeTemplates: [],
     customLifeAnchors: [],
     sparksMailEmail: '',
+    locale: detectBrowserLocale(),
   }
 }
 
@@ -186,6 +193,9 @@ export function loadPrefs(): Prefs {
       hiddenLifeTemplates: normalizeTitleList(data.hiddenLifeTemplates),
       customLifeAnchors: normalizeTitleList(data.customLifeAnchors),
       sparksMailEmail: normalizeSparksMailEmail(data.sparksMailEmail),
+      locale: data.locale
+        ? normalizeLocale(data.locale)
+        : detectBrowserLocale(),
     }
   } catch {
     return defaultPrefs()
@@ -366,6 +376,7 @@ export function saveDay(state: DayState): void {
       hiddenLifeTemplates: normalizeTitleList(state.hiddenLifeTemplates),
       customLifeAnchors: normalizeTitleList(state.customLifeAnchors),
       sparksMailEmail: normalizeSparksMailEmail(state.sparksMailEmail),
+      locale: loadPrefs().locale,
     })
   } finally {
     suppressSyncTouch = false
