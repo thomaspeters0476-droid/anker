@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { DayState } from './types'
 import { emptyDay, loadDay, saveDay } from './storage'
 import { reconcileExpiredSparks } from './sparkExpiry'
@@ -7,6 +7,16 @@ import { FocusScreen } from './screens/FocusScreen'
 import { DoneScreen } from './screens/DoneScreen'
 import { Intro, hasSeenIntro } from './components/Intro'
 import { RegulateButton, RegulateDown } from './components/RegulateDown'
+import {
+  getSession,
+  isSyncConfigured,
+  onAuthChange,
+  resolveKeepLocal,
+  resolveUseCloud,
+  schedulePush,
+  syncNow,
+  type SyncConflict,
+} from './sync'
 import './App.css'
 
 const REGULATE_TIP_KEY = 'anker-regulate-tip-seen'
@@ -36,11 +46,74 @@ function App() {
   const [showRegulateTip, setShowRegulateTip] = useState(
     () => hasSeenIntro() && !hasSeenRegulateTip(),
   )
+  const [syncEmail, setSyncEmail] = useState<string | null>(null)
+  const [syncBusy, setSyncBusy] = useState(false)
+  const [syncNotice, setSyncNotice] = useState<string | null>(null)
+  const [syncConflict, setSyncConflict] = useState<SyncConflict | null>(null)
   const reconciledRef = useRef(false)
+  const skipPersistRef = useRef(false)
+  const syncingRef = useRef(false)
+
+  const applySyncedDay = useCallback((next: DayState) => {
+    skipPersistRef.current = true
+    setDay(next)
+  }, [])
+
+  const runSync = useCallback(async () => {
+    if (!isSyncConfigured() || syncingRef.current) return
+    syncingRef.current = true
+    setSyncBusy(true)
+    try {
+      const result = await syncNow()
+      if (result.status === 'applied_remote') {
+        applySyncedDay(result.day)
+        setSyncConflict(null)
+        setSyncNotice('Stand von der Cloud übernommen.')
+      } else if (result.status === 'pushed_local') {
+        setSyncConflict(null)
+      } else if (result.status === 'conflict') {
+        setSyncConflict(result.conflict)
+      } else if (result.status === 'error') {
+        setSyncNotice(result.message)
+      }
+    } finally {
+      syncingRef.current = false
+      setSyncBusy(false)
+    }
+  }, [applySyncedDay])
 
   useEffect(() => {
+    if (skipPersistRef.current) {
+      skipPersistRef.current = false
+      return
+    }
     saveDay(day)
-  }, [day])
+    if (isSyncConfigured() && syncEmail) schedulePush()
+  }, [day, syncEmail])
+
+  useEffect(() => {
+    if (!isSyncConfigured()) return
+    void getSession().then((s) => setSyncEmail(s?.user?.email ?? null))
+    return onAuthChange((session) => {
+      setSyncEmail(session?.user?.email ?? null)
+      if (session) void runSync()
+      else setSyncConflict(null)
+    })
+  }, [runSync])
+
+  useEffect(() => {
+    if (!isSyncConfigured() || !syncEmail) return
+    const onVis = () => {
+      if (document.visibilityState === 'visible') void runSync()
+    }
+    const onOnline = () => void runSync()
+    document.addEventListener('visibilitychange', onVis)
+    window.addEventListener('online', onOnline)
+    return () => {
+      document.removeEventListener('visibilitychange', onVis)
+      window.removeEventListener('online', onOnline)
+    }
+  }, [syncEmail, runSync])
 
   useEffect(() => {
     if (reconciledRef.current) return
@@ -93,6 +166,30 @@ function App() {
     if (!hasSeenRegulateTip()) setShowRegulateTip(true)
   }
 
+  async function keepLocalConflict() {
+    if (!syncConflict) return
+    setSyncBusy(true)
+    const result = await resolveKeepLocal(syncConflict)
+    setSyncBusy(false)
+    setSyncConflict(null)
+    if (result.status === 'error') setSyncNotice(result.message)
+    else setSyncNotice('Dieses Gerät gilt — Cloud aktualisiert.')
+  }
+
+  async function useCloudConflict() {
+    if (!syncConflict) return
+    setSyncBusy(true)
+    const result = await resolveUseCloud(syncConflict)
+    setSyncBusy(false)
+    setSyncConflict(null)
+    if (result.status === 'applied_remote') {
+      applySyncedDay(result.day)
+      setSyncNotice('Cloud-Stand übernommen.')
+    } else if (result.status === 'error') {
+      setSyncNotice(result.message)
+    }
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -135,6 +232,17 @@ function App() {
                 onShowIntro={openIntro}
                 sparkMailNotice={sparkMailNotice}
                 onDismissSparkMailNotice={() => setSparkMailNotice(null)}
+                syncEmail={syncEmail}
+                syncBusy={syncBusy}
+                syncNotice={syncNotice}
+                syncConflict={syncConflict}
+                onSyncNotice={setSyncNotice}
+                onSyncKeepLocal={() => void keepLocalConflict()}
+                onSyncUseCloud={() => void useCloudConflict()}
+                onSyncSignedOut={() => {
+                  setSyncEmail(null)
+                  setSyncConflict(null)
+                }}
               />
             )}
             {screen === 'focus' && (

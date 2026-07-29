@@ -58,6 +58,15 @@ Nach Push auf `main` typischerweise automatisches Deployment.
 
 Ohne diese Vars: API liefert 503; abgelaufene Geistesblitze mit gesetzter E-Mail bleiben in der App (kein stilles Löschen).
 
+### Env-Vars (Geräte-Sync)
+
+| Variable | Beispiel | Pflicht |
+|----------|----------|---------|
+| `VITE_SUPABASE_URL` | `https://ueioxiffwfsgbmiowtew.supabase.co` | ja für Sync |
+| `VITE_SUPABASE_ANON_KEY` | `eyJ...` | ja für Sync |
+
+Ohne diese Vars: App läuft lokal weiter; Sync-UI zeigt „nicht konfiguriert“. Setup: [`supabase/README.md`](../supabase/README.md).
+
 Siehe auch `.env.example`.
 
 ---

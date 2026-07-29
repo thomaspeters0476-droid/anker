@@ -1408,6 +1408,61 @@
   color: var(--ink);
 }
 
+.sync-settings {
+  margin: 1rem 0 0.5rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.sync-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.sync-login {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sync-login input {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  background: #fff;
+  color: var(--ink);
+}
+
+.sync-status {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.sync-conflict {
+  margin-top: 0.35rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 12%, #fff);
+}
+
+.sync-conflict-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.sync-notice {
+  margin: 0;
+}
+
 .spark-mail-notice {
   margin: 0.65rem 0;
 }

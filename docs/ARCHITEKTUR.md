@@ -1,7 +1,7 @@
 # Tagesanker — Architektur
 
-**Stack:** Vite 8 · React 19 · TypeScript · vite-plugin-pwa · jsPDF  
-**Kein Backend** in der Testphase — Persistenz über `localStorage`.
+**Stack:** Vite 8 · React 19 · TypeScript · vite-plugin-pwa · jsPDF · optional Supabase (Sync)  
+**Persistenz:** `localStorage` lokal; optional Cloud-Snapshot nach Magic-Link-Anmeldung.
 
 Produktkontext: [ANKER_KONZEPT.md](./ANKER_KONZEPT.md) · Daten: [DATENMODELL.md](./DATENMODELL.md)
 
@@ -38,7 +38,8 @@ Jeder `day`-State-Change → `saveDay(day)` (Effect in `App.tsx`).
 src/
   App.tsx              Screen-Wahl, Persistenz-Hook
   types.ts             DayState, Task, Life-Helpers
-  storage.ts           localStorage, Carry, Vault, Prefs, rollDayForward
+  storage.ts           localStorage, Carry, Vault, Prefs, rollDayForward, Sync-Snapshot
+  sync/                optional Supabase Magic Link + pull/push (Last-Write-Wins)
   capacity.ts          Punkte, Minuten, Caps
   mood.ts              Tagesgefühl-Skalierung
   buddy.ts             Buddy-Texte + BuddyCtx
@@ -64,6 +65,15 @@ src/
 
 ---
 
+## Sync (optional)
+
+- Eigenes Supabase-Projekt nur für Tagesanker — siehe [`supabase/README.md`](../supabase/README.md)
+- App ohne Login unverändert nutzbar
+- Nach Magic Link: Snapshot (`day`, `prefs`, `carry`, `sparks`) in `user_state`, RLS pro User
+- Konflikt: Last-Write-Wins über `updated_at`; bei Gleichstand und abweichendem Inhalt Dialog in den Einstellungen
+
+---
+
 ## PWA
 
 - Plugin: `vite-plugin-pwa` in [`vite.config.ts`](../vite.config.ts)
@@ -75,4 +85,4 @@ src/
 
 ## Erweiterungen (geplant)
 
-Sync/Account werden voraussichtlich eine API-Schicht + Auth brauchen; UI-Screens bleiben, Persistenz wandert teilweise von rein lokal zu „lokal + remote“. Siehe [ANKER_ROADMAP.md](./ANKER_ROADMAP.md).
+Verkauf/Checkout und Store-Wrapper: [ANKER_ROADMAP.md](./ANKER_ROADMAP.md).

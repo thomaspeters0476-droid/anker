@@ -33,6 +33,7 @@ import {
 } from '../notifications'
 import { PwaGuide } from '../components/PwaGuide'
 import { Handbook } from '../components/Handbook'
+import { SyncSettings } from '../components/SyncSettings'
 import { isStandaloneApp } from '../pwa'
 import {
   MOOD_OPTIONS,
@@ -45,6 +46,7 @@ import {
   isValidSparksEmail,
   normalizeSparksEmail,
 } from '../sparkExpiry'
+import type { SyncConflict } from '../sync'
 
 type Props = {
   day: DayState
@@ -52,6 +54,14 @@ type Props = {
   onShowIntro?: () => void
   sparkMailNotice?: string | null
   onDismissSparkMailNotice?: () => void
+  syncEmail?: string | null
+  syncBusy?: boolean
+  syncNotice?: string | null
+  syncConflict?: SyncConflict | null
+  onSyncNotice?: (msg: string | null) => void
+  onSyncKeepLocal?: () => void
+  onSyncUseCloud?: () => void
+  onSyncSignedOut?: () => void
 }
 
 function uid() {
@@ -64,6 +74,14 @@ export function PlanScreen({
   onShowIntro,
   sparkMailNotice,
   onDismissSparkMailNotice,
+  syncEmail = null,
+  syncBusy = false,
+  syncNotice = null,
+  syncConflict = null,
+  onSyncNotice,
+  onSyncKeepLocal,
+  onSyncUseCloud,
+  onSyncSignedOut,
 }: Props) {
   const [workDraft, setWorkDraft] = useState('')
   const [lifeDraft, setLifeDraft] = useState('')
@@ -685,6 +703,17 @@ export function PlanScreen({
                   : 'Optional. Leer = nach 7 Tagen ohne Mail löschen (beim nächsten Öffnen).'}
             </p>
           </div>
+
+          <SyncSettings
+            email={syncEmail}
+            busy={syncBusy}
+            notice={syncNotice}
+            conflict={syncConflict}
+            onKeepLocal={onSyncKeepLocal}
+            onUseCloud={onSyncUseCloud}
+            onSignedOut={onSyncSignedOut}
+            onNotice={onSyncNotice}
+          />
 
           <div className="cap-controls">
             {sizes.map((size) => (

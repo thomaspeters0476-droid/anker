@@ -6,6 +6,8 @@ Format: neueste zuerst. Bei Releases kurz ergänzen.
 
 ## Unreleased
 
+- Optionaler Geräte-Sync (Magic Link / Supabase), lokal-first
+- robots.txt + sitemap.xml für Search Console
 - Fünf evidenznahe Blogartikel (Primär-DOI zuerst, Medien optional, Tagesanker am Rand)
 - Marketing-Site unter `/` (Landing, Blog, Preise-Platzhalter); App unter `/app`
 - B2C-Rechtstexte: Impressum, Datenschutz, AGB, Widerruf (Anbieterin Karina Peters)

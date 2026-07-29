@@ -1,6 +1,6 @@
 # Tagesanker — Datenmodell
 
-Persistenz: **Browser `localStorage`**. Ablauf-Mails über Vercel/Resend (optional).
+Persistenz: **Browser `localStorage`**, optional Cloud-Sync (Supabase) nach Magic-Link-Anmeldung. Ablauf-Mails über Vercel/Resend (optional).
 
 ---
 
@@ -13,8 +13,13 @@ Persistenz: **Browser `localStorage`**. Ablauf-Mails über Vercel/Resend (option
 | `anker-carry` | Offene Aufgaben zum Mitnehmen (`CarryItem[]`) |
 | `anker-sparks` | Geistesblitz-Vault (Ablauf über `reconcileExpiredSparks`) |
 | `anker-intro-seen` | `'1'` nach Intro |
+| `anker-sync-meta` | `{ updatedAt }` für Last-Write-Wins Sync |
 
 Prefs u. a.: `sparksMailEmail` — optional, Zieladresse für Ablauf-Mail.
+
+### Cloud (`user_state`)
+
+Eine Zeile pro User: `payload` = `{ day, prefs, carry, sparks }`, `updated_at`. Details: [`supabase/`](../supabase/).
 
 ---
 

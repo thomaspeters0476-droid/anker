@@ -12,6 +12,97 @@ const DAY_KEY = 'fokus-buddy-day'
 const PREFS_KEY = 'anker-prefs'
 const CARRY_KEY = 'anker-carry'
 const SPARKS_KEY = 'anker-sparks'
+const SYNC_META_KEY = 'anker-sync-meta'
+
+let suppressSyncTouch = false
+
+function touchLocalUpdatedAt(): void {
+  if (suppressSyncTouch) return
+  try {
+    localStorage.setItem(
+      SYNC_META_KEY,
+      JSON.stringify({ updatedAt: new Date().toISOString() }),
+    )
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getLocalUpdatedAt(): string {
+  try {
+    const raw = localStorage.getItem(SYNC_META_KEY)
+    if (!raw) return ''
+    const data = JSON.parse(raw) as { updatedAt?: string }
+    return typeof data.updatedAt === 'string' ? data.updatedAt : ''
+  } catch {
+    return ''
+  }
+}
+
+export function setLocalUpdatedAt(iso: string): void {
+  try {
+    localStorage.setItem(SYNC_META_KEY, JSON.stringify({ updatedAt: iso }))
+  } catch {
+    /* ignore */
+  }
+}
+
+export type SyncSnapshot = {
+  updatedAt: string
+  day: DayState | null
+  prefs: Prefs
+  carry: CarryItem[]
+  sparks: Spark[]
+}
+
+function readDayRaw(): DayState | null {
+  try {
+    const raw = localStorage.getItem(DAY_KEY)
+    if (!raw) return null
+    return JSON.parse(raw) as DayState
+  } catch {
+    return null
+  }
+}
+
+export function getSyncSnapshot(): SyncSnapshot {
+  return {
+    updatedAt: getLocalUpdatedAt() || new Date(0).toISOString(),
+    day: readDayRaw(),
+    prefs: loadPrefs(),
+    carry: loadCarryOver(),
+    sparks: loadSparksVault(),
+  }
+}
+
+export function applySyncSnapshot(snap: SyncSnapshot): DayState {
+  suppressSyncTouch = true
+  try {
+    if (snap.day) {
+      localStorage.setItem(DAY_KEY, JSON.stringify(snap.day))
+    } else {
+      localStorage.removeItem(DAY_KEY)
+    }
+    savePrefs(snap.prefs)
+    saveCarryOver(snap.carry)
+    saveSparksVault(snap.sparks)
+    setLocalUpdatedAt(snap.updatedAt)
+  } finally {
+    suppressSyncTouch = false
+  }
+  return loadDay() ?? emptyDay()
+}
+
+export function hasMeaningfulLocalData(): boolean {
+  const day = readDayRaw()
+  if (day && ((day.tasks?.length ?? 0) > 0 || day.started)) return true
+  if (loadCarryOver().length > 0) return true
+  if (loadSparksVault().length > 0) return true
+  const prefs = loadPrefs()
+  if (prefs.sparksMailEmail) return true
+  if (prefs.customLifeAnchors.length > 0) return true
+  return false
+}
 
 /** Geistesblitze: max. so viele Tage, dann weg (entlasten, nicht archivieren) */
 export const SPARK_RETENTION_DAYS = 7
@@ -103,6 +194,7 @@ export function loadPrefs(): Prefs {
 
 export function savePrefs(prefs: Prefs): void {
   localStorage.setItem(PREFS_KEY, JSON.stringify(prefs))
+  touchLocalUpdatedAt()
 }
 
 /** Nur ungültige Einträge entfernen — Alters-Löschung über reconcileExpiredSparks */
@@ -132,9 +224,10 @@ export function saveSparksVault(sparks: Spark[]): void {
   const kept = sanitizeSparks(sparks)
   if (kept.length === 0) {
     localStorage.removeItem(SPARKS_KEY)
-    return
+  } else {
+    localStorage.setItem(SPARKS_KEY, JSON.stringify(kept))
   }
-  localStorage.setItem(SPARKS_KEY, JSON.stringify(kept))
+  touchLocalUpdatedAt()
 }
 
 function mergeSparks(a: Spark[], b: Spark[]): Spark[] {
@@ -220,13 +313,15 @@ export function loadCarryOver(): CarryItem[] {
 export function saveCarryOver(items: CarryItem[]): void {
   if (items.length === 0) {
     localStorage.removeItem(CARRY_KEY)
-    return
+  } else {
+    localStorage.setItem(CARRY_KEY, JSON.stringify(items))
   }
-  localStorage.setItem(CARRY_KEY, JSON.stringify(items))
+  touchLocalUpdatedAt()
 }
 
 export function clearCarryOver(): void {
   localStorage.removeItem(CARRY_KEY)
+  touchLocalUpdatedAt()
 }
 
 export function loadDay(): DayState | null {
@@ -253,27 +348,34 @@ export function loadDay(): DayState | null {
 }
 
 export function saveDay(state: DayState): void {
-  localStorage.setItem(DAY_KEY, JSON.stringify(state))
-  saveSparksVault(state.sparks)
-  savePrefs({
-    capacity: { ...(state.baselineCapacity ?? state.capacity) },
-    checkInEveryMin: state.checkInEveryMin,
-    buddyTone: state.buddyTone,
-    lifeMax: state.baselineLifeMax ?? state.lifeMax,
-    introButtonOnSurface: state.introButtonOnSurface,
-    notificationsEnabled: state.notificationsEnabled,
-    softFreezeEnabled: state.softFreezeEnabled,
-    awayNudgeMode: state.awayNudgeMode,
-    awayNudgeEveryMin: state.awayNudgeEveryMin,
-    awayNudgeMax: state.awayNudgeMax,
-    hiddenLifeTemplates: normalizeTitleList(state.hiddenLifeTemplates),
-    customLifeAnchors: normalizeTitleList(state.customLifeAnchors),
-    sparksMailEmail: normalizeSparksMailEmail(state.sparksMailEmail),
-  })
+  suppressSyncTouch = true
+  try {
+    localStorage.setItem(DAY_KEY, JSON.stringify(state))
+    saveSparksVault(state.sparks)
+    savePrefs({
+      capacity: { ...(state.baselineCapacity ?? state.capacity) },
+      checkInEveryMin: state.checkInEveryMin,
+      buddyTone: state.buddyTone,
+      lifeMax: state.baselineLifeMax ?? state.lifeMax,
+      introButtonOnSurface: state.introButtonOnSurface,
+      notificationsEnabled: state.notificationsEnabled,
+      softFreezeEnabled: state.softFreezeEnabled,
+      awayNudgeMode: state.awayNudgeMode,
+      awayNudgeEveryMin: state.awayNudgeEveryMin,
+      awayNudgeMax: state.awayNudgeMax,
+      hiddenLifeTemplates: normalizeTitleList(state.hiddenLifeTemplates),
+      customLifeAnchors: normalizeTitleList(state.customLifeAnchors),
+      sparksMailEmail: normalizeSparksMailEmail(state.sparksMailEmail),
+    })
+  } finally {
+    suppressSyncTouch = false
+  }
+  touchLocalUpdatedAt()
 }
 
 export function clearDay(): void {
   localStorage.removeItem(DAY_KEY)
+  touchLocalUpdatedAt()
 }
 
 export function emptyDay(): DayState {

@@ -123,11 +123,22 @@ export function DatenschutzPage() {
       <p>
         Tagesanker speichert Tagespläne, Einstellungen, Geistesblitze und ähnliche Inhalte
         vorrangig <strong>lokal</strong> im Speicher Ihres Browsers bzw. Geräts (z.&nbsp;B.
-        localStorage). Diese Daten werden ohne separates Nutzerkonto in der Regel nicht auf unseren
+        localStorage). Ohne Sync-Anmeldung werden diese Daten in der Regel nicht auf unseren
         Servern abgelegt. Wer Zugriff auf Ihr Gerät hat, kann auf diese lokalen Daten zugreifen.
       </p>
 
-      <h3>c) Optionale E-Mail bei ablaufenden Geistesblitzen</h3>
+      <h3>c) Optionaler Geräte-Sync (Konto per Magic Link)</h3>
+      <p>
+        Wenn Sie in der App den Geräte-Sync aktivieren, melden Sie sich per Magic Link (E-Mail)
+        an. Dann werden Ihr Tagesstand, Einstellungen und Geistesblitze verschlüsselt über HTTPS
+        an unseren Sync-Dienst (Supabase) übertragen und mit Ihren anderen Geräten
+        abgeglichen. Rechtsgrundlage: Einwilligung bzw. Vertragserfüllung auf Ihre Anforderung
+        (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a bzw. lit.&nbsp;b DSGVO). Ohne Anmeldung findet kein
+        Sync statt. Abmelden beendet die Cloud-Synchronisation; lokale Daten bleiben auf dem
+        Gerät.
+      </p>
+
+      <h3>d) Optionale E-Mail bei ablaufenden Geistesblitzen</h3>
       <p>
         Wenn Sie in der App eine E-Mail-Adresse hinterlegen und den Versand ablaufender Geistesblitze
         nutzen, übermitteln wir die angegebene Adresse sowie die zu sichernden Inhalte an unseren
@@ -146,6 +157,11 @@ export function DatenschutzPage() {
           <strong>Resend</strong> — Versand optionaler E-Mails (z.&nbsp;B. Geistesblitze), nur wenn
           Sie diese Funktion nutzen.
         </li>
+        <li>
+          <strong>Supabase</strong> — Authentifizierung (Magic Link) und Speicherung Ihres
+          App-Stands in der Cloud, <strong>nur wenn</strong> Sie den optionalen Geräte-Sync
+          aktivieren.
+        </li>
       </ul>
       <p>
         Mit den eingesetzten Dienstleistern bestehen soweit erforderlich Vereinbarungen zur
@@ -155,11 +171,12 @@ export function DatenschutzPage() {
       <h2>5. Speicherdauer</h2>
       <p>
         Lokale App-Daten bleiben, bis Sie sie in der App löschen oder den Browser-/App-Speicher
-        leeren. Server-Logs werden nach den üblichen Fristen des Hosters gelöscht oder anonymisiert.
-        E-Mail-Inhalte beim optionalen Versand werden beim Dienstleister nach dessen
-        Betriebsprozessen und gesetzlichen Pflichten behandelt; die App löscht abgelaufene
-        Geistesblitze nach dem dokumentierten Ablauf (derzeit typischerweise sieben Tage), sofern
-        nicht anders angegeben.
+        leeren. Bei aktivem Geräte-Sync bleiben Cloud-Kopien, bis Sie sie löschen bzw. das Konto
+        entfernen oder den Sync beenden und Daten beim Anbieter löschen lassen. Server-Logs werden
+        nach den üblichen Fristen des Hosters gelöscht oder anonymisiert. E-Mail-Inhalte beim
+        optionalen Versand werden beim Dienstleister nach dessen Betriebsprozessen und gesetzlichen
+        Pflichten behandelt; die App löscht abgelaufene Geistesblitze nach dem dokumentierten Ablauf
+        (derzeit typischerweise sieben Tage), sofern nicht anders angegeben.
       </p>
 
       <h2>6. Ihre Rechte</h2>

@@ -24,7 +24,7 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 
 | Thema | Ziel |
 |-------|------|
-| **Sync** | Einstellungen und Tagesstand zwischen Geräten (Account/Backend TBD) |
+| ~~**Sync**~~ | ~~Einstellungen und Tagesstand zwischen Geräten~~ *(Magic Link + Supabase, optional)* |
 | **Verkauf / Checkout** | Preise öffentlich + Stripe/Abo (Trial); Paywall erst dann in der App |
 | ~~Domains + Marketing~~ | ~~Domains, Landing/Blog, B2C-Rechtstexte~~ *(Juli 2026 erledigt)* |
 | Buddy-Feinschliff | mehr Situationen abdecken, Ton beibehalten (entlasten) |
