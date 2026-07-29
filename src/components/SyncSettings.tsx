@@ -128,7 +128,7 @@ export function SyncSettings({
         </>
       ) : (
         <div className="sync-login">
-          <label htmlFor="sync-email">E-Mail für Sync</label>
+          <label htmlFor="sync-email">Deine E-Mail (wie in der Sync-Mail)</label>
           <input
             id="sync-email"
             type="email"
@@ -140,14 +140,6 @@ export function SyncSettings({
             maxLength={120}
             disabled={waiting}
           />
-          <button
-            type="button"
-            className="primary"
-            disabled={waiting || !draft.trim()}
-            onClick={() => void sendLink()}
-          >
-            Code senden
-          </button>
 
           <div className="sync-otp">
             <label htmlFor="sync-otp">6-stelliger Code aus der Mail</label>
@@ -174,10 +166,19 @@ export function SyncSettings({
               Mit Code anmelden
             </button>
             <p className="block-hint">
-              Zuerst Code senden, dann den Code aus der Tagesanker-Mail hier
-              eintragen.
+              Code schon in der Mail? Nur E-Mail + Code eintragen und anmelden —
+              kein erneutes Senden nötig.
             </p>
           </div>
+
+          <button
+            type="button"
+            className="ghost"
+            disabled={waiting || !draft.trim()}
+            onClick={() => void sendLink()}
+          >
+            Neuen Code per Mail senden
+          </button>
         </div>
       )}
 
