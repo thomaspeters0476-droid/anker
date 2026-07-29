@@ -658,12 +658,6 @@ export function PlanScreen({
           </div>
         </div>
 
-        {syncEmail ? (
-          <p className="sync-status-bar" role="status">
-            Sync an · {syncEmail}
-          </p>
-        ) : null}
-
         <details
           className="settings-panel"
           open={settingsOpen}
@@ -672,25 +666,6 @@ export function PlanScreen({
           }
         >
           <summary>Einstellungen</summary>
-
-          <details className="settings-section" open={Boolean(syncEmail)}>
-            <summary>
-              Geräte-Sync
-              <span className="settings-section-meta">
-                {syncEmail ? 'verbunden' : 'nur dieses Gerät'}
-              </span>
-            </summary>
-            <SyncSettings
-              email={syncEmail}
-              notice={syncNotice}
-              conflict={syncConflict}
-              onKeepLocal={onSyncKeepLocal}
-              onUseCloud={onSyncUseCloud}
-              onSignedOut={onSyncSignedOut}
-              onNotice={onSyncNotice}
-              embedded
-            />
-          </details>
 
           <details className="settings-section">
             <summary>
@@ -1033,7 +1008,32 @@ export function PlanScreen({
               </button>
             </div>
           </details>
+
+          <details className="settings-section" open={Boolean(syncEmail)}>
+            <summary>
+              Geräte-Sync
+              <span className="settings-section-meta">
+                {syncEmail ? 'verbunden' : 'nur dieses Gerät'}
+              </span>
+            </summary>
+            <SyncSettings
+              email={syncEmail}
+              notice={syncNotice}
+              conflict={syncConflict}
+              onKeepLocal={onSyncKeepLocal}
+              onUseCloud={onSyncUseCloud}
+              onSignedOut={onSyncSignedOut}
+              onNotice={onSyncNotice}
+              embedded
+            />
+          </details>
         </details>
+
+        {syncEmail ? (
+          <p className="sync-status-bar" role="status">
+            Sync an · {syncEmail}
+          </p>
+        ) : null}
       </div>
 
       {handbookOpen && <Handbook onClose={() => setHandbookOpen(false)} />}
