@@ -233,7 +233,6 @@ function App() {
                 sparkMailNotice={sparkMailNotice}
                 onDismissSparkMailNotice={() => setSparkMailNotice(null)}
                 syncEmail={syncEmail}
-                syncBusy={syncBusy}
                 syncNotice={syncNotice}
                 syncConflict={syncConflict}
                 onSyncNotice={setSyncNotice}

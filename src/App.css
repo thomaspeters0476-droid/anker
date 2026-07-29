@@ -1474,8 +1474,9 @@
   margin-top: 0.5rem;
 }
 
-.sync-notice {
-  margin: 0;
+.sync-gate-hint {
+  color: var(--warn);
+  font-weight: 600;
 }
 
 .spark-mail-notice {

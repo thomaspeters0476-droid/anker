@@ -55,7 +55,6 @@ type Props = {
   sparkMailNotice?: string | null
   onDismissSparkMailNotice?: () => void
   syncEmail?: string | null
-  syncBusy?: boolean
   syncNotice?: string | null
   syncConflict?: SyncConflict | null
   onSyncNotice?: (msg: string | null) => void
@@ -75,7 +74,6 @@ export function PlanScreen({
   sparkMailNotice,
   onDismissSparkMailNotice,
   syncEmail = null,
-  syncBusy = false,
   syncNotice = null,
   syncConflict = null,
   onSyncNotice,
@@ -706,7 +704,6 @@ export function PlanScreen({
 
           <SyncSettings
             email={syncEmail}
-            busy={syncBusy}
             notice={syncNotice}
             conflict={syncConflict}
             onKeepLocal={onSyncKeepLocal}

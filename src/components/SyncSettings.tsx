@@ -26,9 +26,13 @@ function writePendingEmail(email: string) {
   }
 }
 
+function looksLikeEmail(value: string): boolean {
+  const v = value.trim()
+  return v.includes('@') && v.includes('.') && v.length >= 5
+}
+
 type Props = {
   email: string | null
-  busy?: boolean
   notice?: string | null
   conflict?: SyncConflict | null
   onKeepLocal?: () => void
@@ -39,7 +43,6 @@ type Props = {
 
 export function SyncSettings({
   email,
-  busy = false,
   notice = null,
   conflict = null,
   onKeepLocal,
@@ -51,7 +54,10 @@ export function SyncSettings({
   const [draft, setDraft] = useState(() => readPendingEmail())
   const [otp, setOtp] = useState('')
   const [localBusy, setLocalBusy] = useState(false)
-  const waiting = busy || localBusy
+
+  const emailOk = looksLikeEmail(draft)
+  const otpOk = otp.length === 6
+  const canSignIn = emailOk && otpOk && !localBusy
 
   if (!configured) {
     return (
@@ -65,6 +71,10 @@ export function SyncSettings({
   }
 
   async function sendLink() {
+    if (!emailOk) {
+      onNotice?.('Bitte zuerst deine E-Mail-Adresse eintragen (nicht den Code).')
+      return
+    }
     setLocalBusy(true)
     onNotice?.(null)
     const res = await signInWithMagicLink(draft)
@@ -73,7 +83,7 @@ export function SyncSettings({
       writePendingEmail(draft.trim().toLowerCase())
       setOtp('')
       onNotice?.(
-        'Mail von Tagesanker unterwegs (Betreff mit „Tagesanker“ und Code). Code unten eintippen.',
+        'Mail von Tagesanker unterwegs. Code unten eintippen, dann „Mit Code anmelden“.',
       )
     } else {
       onNotice?.(res.message)
@@ -81,6 +91,16 @@ export function SyncSettings({
   }
 
   async function confirmOtp() {
+    if (!emailOk) {
+      onNotice?.(
+        'Oben noch die E-Mail eintragen (dieselbe Adresse wie in der Mail) — der Code allein reicht nicht.',
+      )
+      return
+    }
+    if (!otpOk) {
+      onNotice?.('Der Code braucht genau 6 Ziffern.')
+      return
+    }
     setLocalBusy(true)
     onNotice?.(null)
     const res = await verifySyncOtp(draft, otp)
@@ -104,6 +124,14 @@ export function SyncSettings({
     onNotice?.('Abgemeldet. Daten bleiben auf diesem Gerät; Sync pausiert.')
   }
 
+  let gateHint: string | null = null
+  if (!emailOk && otpOk) {
+    gateHint =
+      'Noch die E-Mail oben eintragen — dann wird „Mit Code anmelden“ aktiv.'
+  } else if (emailOk && !otpOk) {
+    gateHint = 'Code: noch 6 Ziffern aus der Mail eintragen.'
+  }
+
   return (
     <div className="sync-settings">
       <h3 className="sync-title">Geräte-Sync</h3>
@@ -120,7 +148,7 @@ export function SyncSettings({
           <button
             type="button"
             className="ghost"
-            disabled={waiting}
+            disabled={localBusy}
             onClick={() => void logout()}
           >
             Abmelden
@@ -128,7 +156,7 @@ export function SyncSettings({
         </>
       ) : (
         <div className="sync-login">
-          <label htmlFor="sync-email">Deine E-Mail (wie in der Sync-Mail)</label>
+          <label htmlFor="sync-email">1. Deine E-Mail (nicht der Code)</label>
           <input
             id="sync-email"
             type="email"
@@ -138,11 +166,11 @@ export function SyncSettings({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             maxLength={120}
-            disabled={waiting}
+            disabled={localBusy}
           />
 
           <div className="sync-otp">
-            <label htmlFor="sync-otp">6-stelliger Code aus der Mail</label>
+            <label htmlFor="sync-otp">2. Sechs Ziffern aus der Mail</label>
             <input
               id="sync-otp"
               type="text"
@@ -155,26 +183,31 @@ export function SyncSettings({
                 setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
               }
               maxLength={6}
-              disabled={waiting}
+              disabled={localBusy}
             />
             <button
               type="button"
               className="primary"
-              disabled={waiting || !draft.trim() || otp.length !== 6}
+              disabled={!canSignIn}
               onClick={() => void confirmOtp()}
             >
               Mit Code anmelden
             </button>
+            {gateHint && (
+              <p className="block-hint sync-gate-hint" role="status">
+                {gateHint}
+              </p>
+            )}
             <p className="block-hint">
-              Code schon in der Mail? Nur E-Mail + Code eintragen und anmelden —
-              kein erneutes Senden nötig.
+              Beides nötig: E-Mail-Adresse + Code. Kein neues Senden, wenn die
+              Mail schon da ist.
             </p>
           </div>
 
           <button
             type="button"
             className="ghost"
-            disabled={waiting || !draft.trim()}
+            disabled={localBusy || !emailOk}
             onClick={() => void sendLink()}
           >
             Neuen Code per Mail senden
@@ -192,7 +225,7 @@ export function SyncSettings({
             <button
               type="button"
               className="primary"
-              disabled={waiting}
+              disabled={localBusy}
               onClick={() => onKeepLocal?.()}
             >
               Dieses Gerät
@@ -200,7 +233,7 @@ export function SyncSettings({
             <button
               type="button"
               className="ghost"
-              disabled={waiting}
+              disabled={localBusy}
               onClick={() => onUseCloud?.()}
             >
               Cloud
