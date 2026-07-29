@@ -2,22 +2,25 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { blogPosts, formatPostDate } from './blog'
 import { setPageMeta, SITE } from './site'
+import shotPlan from './shots/shot-plan.svg'
+import shotFocus from './shots/shot-focus.svg'
+import shotDone from './shots/shot-done.svg'
 
 const SHOTS = [
   {
-    src: '/marketing/shot-plan.svg',
+    src: shotPlan,
     label: 'Plan',
-    alt: 'Tagesanker Plan: Kapazität und wenige Aufgaben',
+    alt: 'Tagesanker Plan: Kapazitaet und wenige Aufgaben',
   },
   {
-    src: '/marketing/shot-focus.svg',
+    src: shotFocus,
     label: 'Fokus',
     alt: 'Tagesanker Fokus: eine Sache im Vordergrund',
   },
   {
-    src: '/marketing/shot-done.svg',
+    src: shotDone,
     label: 'Feierabend',
-    alt: 'Tagesanker Feierabend: Tag abschließen',
+    alt: 'Tagesanker Feierabend: Tag abschliessen',
   },
 ] as const
 
@@ -49,11 +52,11 @@ export function LandingPage() {
               </Link>
             </div>
           </div>
-          <div className="mkt-hero-visual" aria-hidden={false}>
+          <div className="mkt-hero-visual">
             <div className="mkt-phone mkt-phone-hero">
               <img src={SHOTS[0].src} alt={SHOTS[0].alt} width={390} height={780} />
             </div>
-            <div className="mkt-phone mkt-phone-stack">
+            <div className="mkt-phone mkt-phone-stack" aria-hidden>
               <img src={SHOTS[1].src} alt="" width={390} height={780} />
             </div>
           </div>

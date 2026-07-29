@@ -6,6 +6,7 @@ Format: neueste zuerst. Bei Releases kurz ergänzen.
 
 ## Unreleased
 
+- Fünf evidenznahe Blogartikel (Primär-DOI zuerst, Medien optional, Tagesanker am Rand)
 - Marketing-Site unter `/` (Landing, Blog, Preise-Platzhalter); App unter `/app`
 - B2C-Rechtstexte: Impressum, Datenschutz, AGB, Widerruf (Anbieterin Karina Peters)
 - Öffentlicher Name **Tagesanker** (UI, PWA, Mails, Doku); Kurzform „Anker“ ok in Metaphern/Buddy
