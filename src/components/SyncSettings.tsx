@@ -86,7 +86,7 @@ export function SyncSettings({
       writePendingEmail(draft.trim().toLowerCase())
       setOtp('')
       onNotice?.(
-        'Mail von Tagesanker unterwegs. Code unten eintippen, dann „Mit Code anmelden“.',
+        'Mail von Tagesanker (Resend) unterwegs — Betreff mit Sync-Code. Nur die 6 Ziffern hier eintippen.',
       )
     } else {
       onNotice?.(res.message)

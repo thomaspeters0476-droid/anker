@@ -1,5 +1,5 @@
 import type { Session, User } from '@supabase/supabase-js'
-import { getSupabase, isSyncConfigured, syncRedirectTo } from './client'
+import { getSupabase, isSyncConfigured } from './client'
 
 export async function getSession(): Promise<Session | null> {
   const sb = getSupabase()
@@ -14,27 +14,44 @@ export async function getUser(): Promise<User | null> {
   return session?.user ?? null
 }
 
-export async function signInWithMagicLink(email: string): Promise<{ ok: true } | { ok: false; message: string }> {
-  const sb = getSupabase()
-  if (!sb || !isSyncConfigured()) {
+export async function signInWithMagicLink(
+  email: string,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (!isSyncConfigured()) {
     return { ok: false, message: 'Sync ist noch nicht konfiguriert.' }
   }
   const normalized = email.trim().toLowerCase()
   if (!normalized || !normalized.includes('@')) {
     return { ok: false, message: 'Bitte eine gültige E-Mail eingeben.' }
   }
-  const { error } = await sb.auth.signInWithOtp({
-    email: normalized,
-    options: {
-      emailRedirectTo: syncRedirectTo(),
-      shouldCreateUser: true,
-    },
-  })
-  if (error) return { ok: false, message: error.message }
-  return { ok: true }
+
+  try {
+    const res = await fetch('/api/sync-request-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: normalized }),
+    })
+    const data = (await res.json()) as {
+      ok?: boolean
+      message?: string
+      error?: string
+    }
+    if (!res.ok || !data.ok) {
+      return {
+        ok: false,
+        message:
+          data.message ||
+          data.error ||
+          'Code konnte nicht gesendet werden.',
+      }
+    }
+    return { ok: true }
+  } catch {
+    return { ok: false, message: 'Netzwerkfehler beim Senden.' }
+  }
 }
 
-/** 6-digit code from the Tagesanker mail — avoids relying on link clicks */
+/** 6-digit code from Tagesanker Resend mail */
 export async function verifySyncOtp(
   email: string,
   token: string,
@@ -46,27 +63,38 @@ export async function verifySyncOtp(
   const normalized = email.trim().toLowerCase()
   const code = token.replace(/\s/g, '')
   if (!normalized || !/^\d{6}$/.test(code)) {
-    return { ok: false, message: 'Bitte den 6-stelligen Code aus der Mail eingeben.' }
+    return {
+      ok: false,
+      message: 'Bitte den 6-stelligen Code aus der Mail eingeben.',
+    }
   }
 
-  // Ein Typ pro Versuch. "magiclink" weglassen — doppelte Versuche
-  // und Mail-Link-Prefetch sind die häufigsten "expired"-Ursachen.
-  const attempts = ['email', 'signup'] as const
-  let lastMessage = 'Code ungültig oder abgelaufen.'
-  for (const type of attempts) {
-    const { error } = await sb.auth.verifyOtp({
-      email: normalized,
-      token: code,
-      type,
+  try {
+    const res = await fetch('/api/sync-verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: normalized, code }),
     })
-    if (!error) return { ok: true }
-    lastMessage = error.message
-  }
-  return {
-    ok: false,
-    message: /expired|invalid|used/i.test(lastMessage)
-      ? 'Code schon verbraucht oder abgelaufen. Oft tippt die Mail-App den Link von selbst an. Bitte neuen Code senden und nur die 6 Ziffern eintippen.'
-      : lastMessage,
+    const data = (await res.json()) as {
+      ok?: boolean
+      message?: string
+      error?: string
+      session?: { access_token: string; refresh_token: string }
+    }
+    if (!res.ok || !data.ok || !data.session) {
+      return {
+        ok: false,
+        message: data.message || data.error || 'Code ungültig.',
+      }
+    }
+    const { error } = await sb.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    })
+    if (error) return { ok: false, message: error.message }
+    return { ok: true }
+  } catch {
+    return { ok: false, message: 'Netzwerkfehler beim Anmelden.' }
   }
 }
 
