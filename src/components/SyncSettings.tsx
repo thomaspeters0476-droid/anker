@@ -39,6 +39,8 @@ type Props = {
   onUseCloud?: () => void
   onSignedOut?: () => void
   onNotice?: (msg: string | null) => void
+  /** Nested under settings section — skip duplicate heading */
+  embedded?: boolean
 }
 
 export function SyncSettings({
@@ -49,6 +51,7 @@ export function SyncSettings({
   onUseCloud,
   onSignedOut,
   onNotice,
+  embedded = false,
 }: Props) {
   const configured = isSyncConfigured()
   const [draft, setDraft] = useState(() => readPendingEmail())
@@ -133,11 +136,10 @@ export function SyncSettings({
   }
 
   return (
-    <div className="sync-settings">
-      <h3 className="sync-title">Geräte-Sync</h3>
+    <div className={`sync-settings${embedded ? ' sync-settings-embedded' : ''}`}>
+      {!embedded && <h3 className="sync-title">Geräte-Sync</h3>}
       <p className="block-hint">
-        Optional. Ohne Anmeldung bleibt alles nur auf diesem Gerät. Mit E-Mail-Code
-        teilst du Tagesstand und Einstellungen zwischen Geräten.
+        Optional. Ohne Anmeldung bleibt alles nur auf diesem Gerät.
       </p>
 
       {email ? (

@@ -658,6 +658,12 @@ export function PlanScreen({
           </div>
         </div>
 
+        {syncEmail ? (
+          <p className="sync-status-bar" role="status">
+            Sync an · {syncEmail}
+          </p>
+        ) : null}
+
         <details
           className="settings-panel"
           open={settingsOpen}
@@ -665,333 +671,368 @@ export function PlanScreen({
             setSettingsOpen((e.target as HTMLDetailsElement).open)
           }
         >
-          <summary>Einstellungen · Kapazität</summary>
+          <summary>Einstellungen</summary>
 
-          <p className="block-hint settings-intro">
-            Grundeinstellung (ohne Stimmung). Die Tagesfrage skaliert davon ab —
-            Stimmung wird nicht historisch gespeichert. Geistesblitze: nach{' '}
-            {SPARK_RETENTION_DAYS} Tagen per E-Mail (wenn angegeben), sonst
-            still löschen — sobald die App wieder geöffnet wird.
-          </p>
-
-          <div className="sparks-mail-settings">
-            <label htmlFor="sparks-mail">
-              Geistesblitze nach {SPARK_RETENTION_DAYS} Tagen an E-Mail
-            </label>
-            <input
-              id="sparks-mail"
-              type="email"
-              autoComplete="email"
-              inputMode="email"
-              placeholder="z. B. name@beispiel.de"
-              value={day.sparksMailEmail ?? ''}
-              onChange={(e) =>
-                setDay((d) => ({
-                  ...d,
-                  sparksMailEmail: normalizeSparksEmail(e.target.value),
-                }))
-              }
-              maxLength={120}
+          <details className="settings-section" open={Boolean(syncEmail)}>
+            <summary>
+              Geräte-Sync
+              <span className="settings-section-meta">
+                {syncEmail ? 'verbunden' : 'nur dieses Gerät'}
+              </span>
+            </summary>
+            <SyncSettings
+              email={syncEmail}
+              notice={syncNotice}
+              conflict={syncConflict}
+              onKeepLocal={onSyncKeepLocal}
+              onUseCloud={onSyncUseCloud}
+              onSignedOut={onSyncSignedOut}
+              onNotice={onSyncNotice}
+              embedded
             />
-            <p className="block-hint">
-              {day.sparksMailEmail && !isValidSparksEmail(day.sparksMailEmail)
-                ? 'Bitte eine gültige Adresse eingeben — sonst werden abgelaufene Ideen nur gelöscht.'
-                : day.sparksMailEmail
-                  ? 'Gesetzt: Beim Öffnen der App werden Ideen älter als 7 Tage hierher geschickt und erst dann gelöscht.'
-                  : 'Optional. Leer = nach 7 Tagen ohne Mail löschen (beim nächsten Öffnen).'}
+          </details>
+
+          <details className="settings-section">
+            <summary>
+              Tagesmenge
+              <span className="settings-section-meta">Arbeit &amp; Alltag</span>
+            </summary>
+            <p className="block-hint settings-intro">
+              Grundeinstellung ohne Stimmung. Die Tagesfrage skaliert davon ab.
             </p>
-          </div>
-
-          <SyncSettings
-            email={syncEmail}
-            notice={syncNotice}
-            conflict={syncConflict}
-            onKeepLocal={onSyncKeepLocal}
-            onUseCloud={onSyncUseCloud}
-            onSignedOut={onSyncSignedOut}
-            onNotice={onSyncNotice}
-          />
-
-          <div className="cap-controls">
-            {sizes.map((size) => (
-              <label key={size} className="cap-step">
-                <span>{SIZE_LABEL[size]}</span>
-                <div className="stepper">
-                  <button
-                    type="button"
-                    className="ghost"
-                    aria-label={`${SIZE_LABEL[size]} weniger`}
-                    disabled={
-                      (day.baselineCapacity ?? day.capacity)[size] <=
-                      used[size]
-                    }
-                    onClick={() =>
-                      changeCapacity(
-                        size,
-                        (day.baselineCapacity ?? day.capacity)[size] - 1,
-                      )
-                    }
-                  >
-                    −
-                  </button>
-                  <strong>{(day.baselineCapacity ?? day.capacity)[size]}</strong>
-                  <button
-                    type="button"
-                    className="ghost"
-                    aria-label={`${SIZE_LABEL[size]} mehr`}
-                    disabled={
-                      (day.baselineCapacity ?? day.capacity)[size] >=
-                        HARD_CAPS[size] ||
-                      setCapacitySize(
-                        day.baselineCapacity ?? day.capacity,
-                        size,
-                        (day.baselineCapacity ?? day.capacity)[size] + 1,
-                        used,
-                      )[size] === (day.baselineCapacity ?? day.capacity)[size]
-                    }
-                    onClick={() =>
-                      changeCapacity(
-                        size,
-                        (day.baselineCapacity ?? day.capacity)[size] + 1,
-                      )
-                    }
-                  >
-                    +
-                  </button>
-                </div>
-              </label>
-            ))}
-          </div>
-
-          <p className="cap-points">
-            Tagesbudget Arbeit: <strong>{maxPts}</strong> / {MAX_DAY_POINTS}{' '}
-            Punkte
-          </p>
-
-          <label className="cap-step">
-            <span>Alltagsanker max.</span>
-            <div className="stepper">
-              <button
-                type="button"
-                className="ghost"
-                aria-label="Weniger Alltagsanker"
-                disabled={
-                  (day.baselineLifeMax ?? day.lifeMax) <=
-                  Math.max(1, life.length)
-                }
-                onClick={() =>
-                  changeLifeMax((day.baselineLifeMax ?? day.lifeMax) - 1)
-                }
-              >
-                −
-              </button>
-              <strong>{day.baselineLifeMax ?? day.lifeMax}</strong>
-              <button
-                type="button"
-                className="ghost"
-                aria-label="Mehr Alltagsanker"
-                disabled={
-                  (day.baselineLifeMax ?? day.lifeMax) >= LIFE_MAX_HARD
-                }
-                onClick={() =>
-                  changeLifeMax((day.baselineLifeMax ?? day.lifeMax) + 1)
-                }
-              >
-                +
-              </button>
+            <div className="cap-controls">
+              {sizes.map((size) => (
+                <label key={size} className="cap-step">
+                  <span>{SIZE_LABEL[size]}</span>
+                  <div className="stepper">
+                    <button
+                      type="button"
+                      className="ghost"
+                      aria-label={`${SIZE_LABEL[size]} weniger`}
+                      disabled={
+                        (day.baselineCapacity ?? day.capacity)[size] <=
+                        used[size]
+                      }
+                      onClick={() =>
+                        changeCapacity(
+                          size,
+                          (day.baselineCapacity ?? day.capacity)[size] - 1,
+                        )
+                      }
+                    >
+                      −
+                    </button>
+                    <strong>
+                      {(day.baselineCapacity ?? day.capacity)[size]}
+                    </strong>
+                    <button
+                      type="button"
+                      className="ghost"
+                      aria-label={`${SIZE_LABEL[size]} mehr`}
+                      disabled={
+                        (day.baselineCapacity ?? day.capacity)[size] >=
+                          HARD_CAPS[size] ||
+                        setCapacitySize(
+                          day.baselineCapacity ?? day.capacity,
+                          size,
+                          (day.baselineCapacity ?? day.capacity)[size] + 1,
+                          used,
+                        )[size] ===
+                          (day.baselineCapacity ?? day.capacity)[size]
+                      }
+                      onClick={() =>
+                        changeCapacity(
+                          size,
+                          (day.baselineCapacity ?? day.capacity)[size] + 1,
+                        )
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
+                </label>
+              ))}
             </div>
-          </label>
-          <p className="block-hint" style={{ marginTop: '0.35rem' }}>
-            Höchstens {LIFE_MAX_HARD}. Weniger ist oft besser.
-          </p>
 
-          <div className="tone-row">
-            <label htmlFor="tone">Buddy-Ton</label>
-            <select
-              id="tone"
-              value={day.buddyTone}
-              onChange={(e) =>
-                setDay((d) => ({
-                  ...d,
-                  buddyTone: e.target.value as DayState['buddyTone'],
-                }))
-              }
-            >
-              <option value="warm">Warm</option>
-              <option value="kurz">Kurz</option>
-              <option value="klar">Klar</option>
-            </select>
-          </div>
+            <p className="cap-points">
+              Tagesbudget Arbeit: <strong>{maxPts}</strong> / {MAX_DAY_POINTS}{' '}
+              Punkte
+            </p>
 
-          <div className="settings-row">
-            <label htmlFor="checkin">
-              Check-in alle <strong>{day.checkInEveryMin}</strong> Min.
+            <label className="cap-step">
+              <span>Alltagsanker max.</span>
+              <div className="stepper">
+                <button
+                  type="button"
+                  className="ghost"
+                  aria-label="Weniger Alltagsanker"
+                  disabled={
+                    (day.baselineLifeMax ?? day.lifeMax) <=
+                    Math.max(1, life.length)
+                  }
+                  onClick={() =>
+                    changeLifeMax((day.baselineLifeMax ?? day.lifeMax) - 1)
+                  }
+                >
+                  −
+                </button>
+                <strong>{day.baselineLifeMax ?? day.lifeMax}</strong>
+                <button
+                  type="button"
+                  className="ghost"
+                  aria-label="Mehr Alltagsanker"
+                  disabled={
+                    (day.baselineLifeMax ?? day.lifeMax) >= LIFE_MAX_HARD
+                  }
+                  onClick={() =>
+                    changeLifeMax((day.baselineLifeMax ?? day.lifeMax) + 1)
+                  }
+                >
+                  +
+                </button>
+              </div>
             </label>
-            <input
-              id="checkin"
-              type="range"
-              min={10}
-              max={40}
-              step={5}
-              value={day.checkInEveryMin}
-              onChange={(e) =>
-                setDay((d) => ({
-                  ...d,
-                  checkInEveryMin: Number(e.target.value),
-                }))
-              }
-            />
-          </div>
+            <p className="block-hint" style={{ marginTop: '0.35rem' }}>
+              Höchstens {LIFE_MAX_HARD}. Weniger ist oft besser.
+            </p>
+          </details>
 
-          <div className="notif-settings">
-            <PwaGuide />
+          <details className="settings-section">
+            <summary>
+              Erinnerungen
+              <span className="settings-section-meta">Check-in &amp; Freeze</span>
+            </summary>
+            <div className="tone-row">
+              <label htmlFor="tone">Buddy-Ton</label>
+              <select
+                id="tone"
+                value={day.buddyTone}
+                onChange={(e) =>
+                  setDay((d) => ({
+                    ...d,
+                    buddyTone: e.target.value as DayState['buddyTone'],
+                  }))
+                }
+              >
+                <option value="warm">Warm</option>
+                <option value="kurz">Kurz</option>
+                <option value="klar">Klar</option>
+              </select>
+            </div>
 
+            <div className="settings-row">
+              <label htmlFor="checkin">
+                Check-in alle <strong>{day.checkInEveryMin}</strong> Min.
+              </label>
+              <input
+                id="checkin"
+                type="range"
+                min={10}
+                max={40}
+                step={5}
+                value={day.checkInEveryMin}
+                onChange={(e) =>
+                  setDay((d) => ({
+                    ...d,
+                    checkInEveryMin: Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+
+            <div className="notif-settings">
+              <PwaGuide />
+
+              <label className="intro-hide-check settings-check">
+                <input
+                  type="checkbox"
+                  checked={day.notificationsEnabled && perm === 'granted'}
+                  onChange={(e) => {
+                    if (e.target.checked) void enableNotifications()
+                    else
+                      setDay((d) => ({ ...d, notificationsEnabled: false }))
+                  }}
+                />
+                Erinnerungen einschalten
+              </label>
+              {!isStandaloneApp() && (
+                <p className="block-hint">
+                  Am Handy zuerst speichern — sonst kommen Mitteilungen oft nicht
+                  zuverlässig an.
+                </p>
+              )}
+              {perm === 'denied' && (
+                <p className="block-hint">
+                  Mitteilungen sind blockiert. In den Handy-Einstellungen bei
+                  Tagesanker erlauben.
+                </p>
+              )}
+              {notifMsg && <p className="export-msg">{notifMsg}</p>}
+
+              <div className="freeze-settings">
+                <p className="export-label">Weicher Freeze</p>
+                <label className="intro-hide-check">
+                  <input
+                    type="checkbox"
+                    checked={day.softFreezeEnabled}
+                    onChange={(e) =>
+                      setDay((d) => ({
+                        ...d,
+                        softFreezeEnabled: e.target.checked,
+                      }))
+                    }
+                  />
+                  Beim Verlassen Timer pausieren
+                </label>
+                <p className="block-hint">
+                  Standard: an, höchstens eine sanfte Erinnerung. Nicht
+                  einsperren — nur zurückrufen.
+                </p>
+
+                <label
+                  className="tone-row freeze-nudge-row"
+                  htmlFor="away-nudge"
+                >
+                  Erinnerungen wenn weg
+                  <select
+                    id="away-nudge"
+                    value={day.awayNudgeMode}
+                    disabled={!day.softFreezeEnabled}
+                    onChange={(e) =>
+                      setDay((d) => ({
+                        ...d,
+                        awayNudgeMode: e.target.value as
+                          | 'off'
+                          | 'once'
+                          | 'repeat',
+                      }))
+                    }
+                  >
+                    <option value="off">Keine</option>
+                    <option value="once">Einmal (empfohlen)</option>
+                    <option value="repeat">Wiederholen</option>
+                  </select>
+                </label>
+
+                {day.softFreezeEnabled && day.awayNudgeMode === 'repeat' && (
+                  <>
+                    <div className="settings-row">
+                      <label htmlFor="away-every">
+                        Alle <strong>{day.awayNudgeEveryMin}</strong> Min.
+                      </label>
+                      <input
+                        id="away-every"
+                        type="range"
+                        min={2}
+                        max={10}
+                        step={1}
+                        value={day.awayNudgeEveryMin}
+                        onChange={(e) =>
+                          setDay((d) => ({
+                            ...d,
+                            awayNudgeEveryMin: Number(e.target.value),
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="settings-row">
+                      <label htmlFor="away-max">
+                        Max. <strong>{day.awayNudgeMax}</strong> Hinweise
+                      </label>
+                      <input
+                        id="away-max"
+                        type="range"
+                        min={1}
+                        max={5}
+                        step={1}
+                        value={day.awayNudgeMax}
+                        onChange={(e) =>
+                          setDay((d) => ({
+                            ...d,
+                            awayNudgeMax: Number(e.target.value),
+                          }))
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </details>
+
+          <details className="settings-section">
+            <summary>
+              Geistesblitze
+              <span className="settings-section-meta">
+                nach {SPARK_RETENTION_DAYS} Tagen
+              </span>
+            </summary>
+            <div className="sparks-mail-settings">
+              <label htmlFor="sparks-mail">Ablauf-Mail (optional)</label>
+              <input
+                id="sparks-mail"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                placeholder="z. B. name@beispiel.de"
+                value={day.sparksMailEmail ?? ''}
+                onChange={(e) =>
+                  setDay((d) => ({
+                    ...d,
+                    sparksMailEmail: normalizeSparksEmail(e.target.value),
+                  }))
+                }
+                maxLength={120}
+              />
+              <p className="block-hint">
+                {day.sparksMailEmail && !isValidSparksEmail(day.sparksMailEmail)
+                  ? 'Bitte eine gültige Adresse — sonst werden abgelaufene Ideen nur gelöscht.'
+                  : day.sparksMailEmail
+                    ? 'Beim Öffnen der App: Ideen älter als 7 Tage hierher, dann löschen.'
+                    : 'Leer = nach 7 Tagen ohne Mail löschen.'}
+              </p>
+            </div>
+          </details>
+
+          <details className="settings-section">
+            <summary>
+              Hilfe &amp; Oberfläche
+              <span className="settings-section-meta">Intro, Handbuch</span>
+            </summary>
             <label className="intro-hide-check settings-check">
               <input
                 type="checkbox"
-                checked={day.notificationsEnabled && perm === 'granted'}
-                onChange={(e) => {
-                  if (e.target.checked) void enableNotifications()
-                  else setDay((d) => ({ ...d, notificationsEnabled: false }))
-                }}
+                checked={day.introButtonOnSurface}
+                onChange={(e) =>
+                  setDay((d) => ({
+                    ...d,
+                    introButtonOnSurface: e.target.checked,
+                  }))
+                }
               />
-              Erinnerungen einschalten (Check-in / Schlaf / Freeze)
+              Einführungs-Button auf der Startseite
             </label>
-            {!isStandaloneApp() && (
-              <p className="block-hint">
-                Am Handy zuerst oben speichern — sonst kommen Mitteilungen oft
-                nicht zuverlässig an.
-              </p>
+
+            {onShowIntro && !day.introButtonOnSurface && (
+              <button
+                type="button"
+                className="secondary lg intro-again"
+                onClick={onShowIntro}
+              >
+                Einführung nochmal anzeigen
+              </button>
             )}
-            {perm === 'denied' && (
-              <p className="block-hint">
-                Mitteilungen sind blockiert. In den Handy-Einstellungen bei
-                Tagesanker erlauben.
-              </p>
-            )}
-            {notifMsg && <p className="export-msg">{notifMsg}</p>}
 
-            <div className="freeze-settings">
-              <p className="export-label">Weicher Freeze</p>
-              <label className="intro-hide-check">
-                <input
-                  type="checkbox"
-                  checked={day.softFreezeEnabled}
-                  onChange={(e) =>
-                    setDay((d) => ({
-                      ...d,
-                      softFreezeEnabled: e.target.checked,
-                    }))
-                  }
-                />
-                Beim Verlassen Timer pausieren
-              </label>
-              <p className="block-hint">
-                Standard für ADHS: an, mit höchstens einer sanften Erinnerung.
-                Nicht einsperren — nur zurückrufen.
-              </p>
-
-              <label className="tone-row freeze-nudge-row" htmlFor="away-nudge">
-                Erinnerungen wenn weg
-                <select
-                  id="away-nudge"
-                  value={day.awayNudgeMode}
-                  disabled={!day.softFreezeEnabled}
-                  onChange={(e) =>
-                    setDay((d) => ({
-                      ...d,
-                      awayNudgeMode: e.target.value as
-                        | 'off'
-                        | 'once'
-                        | 'repeat',
-                    }))
-                  }
-                >
-                  <option value="off">Keine</option>
-                  <option value="once">Einmal (empfohlen)</option>
-                  <option value="repeat">Wiederholen</option>
-                </select>
-              </label>
-
-              {day.softFreezeEnabled && day.awayNudgeMode === 'repeat' && (
-                <>
-                  <div className="settings-row">
-                    <label htmlFor="away-every">
-                      Alle <strong>{day.awayNudgeEveryMin}</strong> Min.
-                    </label>
-                    <input
-                      id="away-every"
-                      type="range"
-                      min={2}
-                      max={10}
-                      step={1}
-                      value={day.awayNudgeEveryMin}
-                      onChange={(e) =>
-                        setDay((d) => ({
-                          ...d,
-                          awayNudgeEveryMin: Number(e.target.value),
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="settings-row">
-                    <label htmlFor="away-max">
-                      Max. <strong>{day.awayNudgeMax}</strong> Hinweise
-                    </label>
-                    <input
-                      id="away-max"
-                      type="range"
-                      min={1}
-                      max={5}
-                      step={1}
-                      value={day.awayNudgeMax}
-                      onChange={(e) =>
-                        setDay((d) => ({
-                          ...d,
-                          awayNudgeMax: Number(e.target.value),
-                        }))
-                      }
-                    />
-                  </div>
-                </>
-              )}
+            <div className="handbook-settings">
+              <button
+                type="button"
+                className="secondary lg"
+                onClick={() => setHandbookOpen(true)}
+              >
+                Handbuch öffnen
+              </button>
             </div>
-          </div>
-
-          <label className="intro-hide-check settings-check">
-            <input
-              type="checkbox"
-              checked={day.introButtonOnSurface}
-              onChange={(e) =>
-                setDay((d) => ({
-                  ...d,
-                  introButtonOnSurface: e.target.checked,
-                }))
-              }
-            />
-            Einführungs-Button auf der Startseite
-          </label>
-
-          {onShowIntro && !day.introButtonOnSurface && (
-            <button
-              type="button"
-              className="secondary lg intro-again"
-              onClick={onShowIntro}
-            >
-              Einführung nochmal anzeigen
-            </button>
-          )}
-
-          <div className="handbook-settings">
-            <p className="export-label">Hilfe</p>
-            <button
-              type="button"
-              className="secondary lg"
-              onClick={() => setHandbookOpen(true)}
-            >
-              Handbuch öffnen
-            </button>
-          </div>
+          </details>
         </details>
       </div>
 

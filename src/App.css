@@ -1147,16 +1147,69 @@
 }
 
 .settings-panel summary::before {
-  content: '? ';
-  color: var(--accent);
+  content: '';
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-right: 0.45rem;
+  border-right: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(-45deg);
+  vertical-align: 0.15rem;
 }
 
-.settings-panel[open] summary::before {
-  content: '? ';
+.settings-panel[open] > summary::before {
+  transform: rotate(45deg);
+  vertical-align: 0.05rem;
 }
 
 .settings-intro {
   margin: 0.35rem 0 0.85rem;
+}
+
+.settings-section {
+  margin: 0.55rem 0 0;
+  padding: 0.35rem 0 0.55rem;
+  border-top: 1px solid var(--line);
+}
+
+.settings-section > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+  font-weight: 650;
+  padding: 0.45rem 0;
+  color: var(--ink);
+}
+
+.settings-section > summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-section-meta {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.sync-status-bar {
+  margin: 0.55rem 0 0;
+  padding: 0.45rem 0.75rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 14%, #fff);
+  color: var(--accent-deep);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.sync-settings-embedded {
+  margin: 0;
+  padding-top: 0;
+  border-top: none;
 }
 
 .cap-controls {
