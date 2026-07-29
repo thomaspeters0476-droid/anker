@@ -129,13 +129,22 @@ export function DatenschutzPage() {
 
       <h3>c) Optionaler Geräte-Sync (Konto per Magic Link)</h3>
       <p>
-        Wenn Sie in der App den Geräte-Sync aktivieren, melden Sie sich per Magic Link (E-Mail)
-        an. Dann werden Ihr Tagesstand, Einstellungen und Geistesblitze verschlüsselt über HTTPS
-        an unseren Sync-Dienst (Supabase) übertragen und mit Ihren anderen Geräten
-        abgeglichen. Rechtsgrundlage: Einwilligung bzw. Vertragserfüllung auf Ihre Anforderung
+        Wenn Sie in der App den Geräte-Sync aktivieren, melden Sie sich per E-Mail-Code
+        an und legen ein Sync-Passwort fest. Tagesstand, Einstellungen und Geistesblitze
+        werden <strong>auf Ihrem Gerät Ende-zu-Ende verschlüsselt</strong> und erst dann
+        an unseren Sync-Dienst (Supabase) übertragen. Wir (Tagesanker) können den Inhalt
+        nicht mitlesen — nur Ciphertext liegt in der Cloud. Geistesblitz-Medien werden
+        einzeln verschlüsselt gespeichert und möglichst sofort synchronisiert.
+        Rechtsgrundlage: Einwilligung bzw. Vertragserfüllung auf Ihre Anforderung
         (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a bzw. lit.&nbsp;b DSGVO). Ohne Anmeldung findet kein
-        Sync statt. Abmelden beendet die Cloud-Synchronisation; lokale Daten bleiben auf dem
-        Gerät.
+        Sync statt; die App startet weiter ohne Anmeldebildschirm. Abmelden beendet die
+        Cloud-Synchronisation; lokale Daten bleiben auf dem Gerät.
+      </p>
+      <p>
+        Wiederherstellung bei vergessenem Sync-Passwort erfolgt nur über Mittel auf Ihrem
+        Gerät (entsperrter Tresor, lokale Kopie oder Recovery-Code). Ein Recovery-Code kann
+        auf Wunsch über die Mail-App Ihres Geräts an Sie geschickt werden — nicht über
+        unsere Server.
       </p>
 
       <h3>d) Optionale E-Mail bei ablaufenden Geistesblitzen</h3>
@@ -193,9 +202,12 @@ export function DatenschutzPage() {
 
       <h2>7. Sicherheit</h2>
       <p>
-        Die Übertragung erfolgt über HTTPS. Dennoch kann keine absolute Sicherheit bei der
-        Übertragung und Speicherung in Browsern gewährleistet werden. Schützen Sie Ihr Gerät und
-        führen Sie Backups wichtiger Inhalte selbst durch, soweit Sie das möchten.
+        Die Übertragung erfolgt über HTTPS. Bei aktivem Geräte-Sync werden Inhalte
+        zusätzlich clientseitig Ende-zu-Ende verschlüsselt, bevor sie den Sync-Dienst
+        erreichen. Dennoch kann keine absolute Sicherheit bei der Übertragung und Speicherung
+        in Browsern gewährleistet werden. Schützen Sie Ihr Gerät und führen Sie Backups
+        wichtiger Inhalte selbst durch, soweit Sie das möchten. Die optionale Ablauf-Mail
+        für Geistesblitze ist kein Ende-zu-Ende-Pfad (Inhalt für den Versand lesbar).
       </p>
 
       <h2>8. Keine medizinische oder therapeutische Leistung</h2>

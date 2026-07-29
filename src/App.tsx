@@ -73,6 +73,10 @@ function App() {
         setSyncConflict(null)
       } else if (result.status === 'conflict') {
         setSyncConflict(result.conflict)
+      } else if (result.status === 'vault_locked') {
+        setSyncNotice(t('sync.errors.vaultLocked'))
+      } else if (result.status === 'vault_setup_required') {
+        setSyncNotice(t('sync.errors.vaultSetupRequired'))
       } else if (result.status === 'error') {
         setSyncNotice(result.message)
       }
@@ -242,6 +246,7 @@ function App() {
                   setSyncEmail(null)
                   setSyncConflict(null)
                 }}
+                onSyncVaultReady={() => void runSync()}
               />
             )}
             {screen === 'focus' && (

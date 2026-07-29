@@ -6,6 +6,7 @@ import { ctxFromDay, dayDone } from '../buddy'
 import { emptyDay, rollDayForward } from '../storage'
 import { SparkVault } from '../components/SparkVault'
 import { lifeTemplateLabel } from '../i18n/lifeLabels'
+import { deleteSparkRemote } from '../sync'
 
 type Props = {
   day: DayState
@@ -86,12 +87,13 @@ export function DoneScreen({ day, setDay }: Props) {
           sparks={day.sparks}
           unlocked={unlocked}
           onClose={() => setVaultVisible(false)}
-          onDelete={(id) =>
+          onDelete={(id) => {
+            void deleteSparkRemote(id)
             setDay((d) => ({
               ...d,
               sparks: d.sparks.filter((s) => s.id !== id),
             }))
-          }
+          }}
         />
       )}
     </section>

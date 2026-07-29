@@ -1492,6 +1492,50 @@
   color: var(--ink);
 }
 
+.sync-vault {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+}
+
+.sync-vault h4 {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+}
+
+.sync-vault input {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  background: #fff;
+  color: var(--ink);
+}
+
+.sync-recovery-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.65rem 0;
+}
+
+.sync-recovery-code {
+  display: block;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: var(--wash, #f3f6f4);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  word-break: break-all;
+}
+
+.sync-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
 .sync-otp {
   display: flex;
   flex-direction: column;

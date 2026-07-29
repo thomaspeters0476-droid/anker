@@ -1,6 +1,6 @@
 # Tagesanker — Datenmodell
 
-Persistenz: **Browser `localStorage`**, optional Cloud-Sync (Supabase) nach Magic-Link-Anmeldung. Ablauf-Mails über Vercel/Resend (optional).
+Persistenz: **Browser `localStorage`**, optional Cloud-Sync (Supabase) nach OTP + Sync-Passwort. Cloud-Inhalt ist **E2E-verschlüsselt** (Envelope in `user_state`, Medien in Storage `sync-blobs`). Ablauf-Mails über Vercel/Resend (optional, nicht E2E).
 
 ---
 

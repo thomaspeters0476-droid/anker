@@ -16,3 +16,5 @@ export {
   type SyncResult,
   type SyncConflict,
 } from './sync'
+export { pushSparkNow, deleteSparkRemote } from './sparkSync'
+export { isVaultUnlocked, clearCachedDek, loadCachedDek } from './vault'

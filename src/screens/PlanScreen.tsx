@@ -70,6 +70,7 @@ type Props = {
   onSyncKeepLocal?: () => void
   onSyncUseCloud?: () => void
   onSyncSignedOut?: () => void
+  onSyncVaultReady?: () => void
 }
 
 function uid() {
@@ -89,6 +90,7 @@ export function PlanScreen({
   onSyncKeepLocal,
   onSyncUseCloud,
   onSyncSignedOut,
+  onSyncVaultReady,
 }: Props) {
   const { t, i18n } = useTranslation()
   const locale = normalizeLocale(i18n.language)
@@ -1115,6 +1117,7 @@ export function PlanScreen({
               onUseCloud={onSyncUseCloud}
               onSignedOut={onSyncSignedOut}
               onNotice={onSyncNotice}
+              onVaultReady={onSyncVaultReady}
               embedded
             />
           </details>

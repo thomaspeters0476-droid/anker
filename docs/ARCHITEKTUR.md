@@ -1,7 +1,7 @@
 # Tagesanker — Architektur
 
 **Stack:** Vite 8 · React 19 · TypeScript · vite-plugin-pwa · jsPDF · optional Supabase (Sync)  
-**Persistenz:** `localStorage` lokal; optional Cloud-Snapshot nach Magic-Link-Anmeldung.
+**Persistenz:** `localStorage` lokal; optional Cloud-Sync nach OTP-Anmeldung, **Ende-zu-Ende verschlüsselt** (Envelope + verschlüsselte Spark-Blobs in Storage). Ohne Sync: unverändert local-first, kein Login-Gate.
 
 Produktkontext: [ANKER_KONZEPT.md](./ANKER_KONZEPT.md) · Daten: [DATENMODELL.md](./DATENMODELL.md)
 

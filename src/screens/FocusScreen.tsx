@@ -24,6 +24,7 @@ import { SparkCapture } from '../components/SparkCapture'
 import { SparkVault } from '../components/SparkVault'
 import { notify, notifyIfHidden } from '../notifications'
 import { lifeTemplateLabel } from '../i18n/lifeLabels'
+import { deleteSparkRemote, pushSparkNow } from '../sync'
 
 type Props = {
   day: DayState
@@ -407,19 +408,18 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
   }
 
   function saveSpark(partial: Omit<Spark, 'id' | 'createdAt'>) {
+    const spark: Spark = {
+      ...partial,
+      id: uid(),
+      createdAt: new Date().toISOString(),
+    }
     const nextCount = day.sparks.length + 1
     setDay((d) => ({
       ...d,
-      sparks: [
-        ...d.sparks,
-        {
-          ...partial,
-          id: uid(),
-          createdAt: new Date().toISOString(),
-        },
-      ],
+      sparks: [...d.sparks, spark],
     }))
     setBuddyMsg(sparkParked(nextCount, ctxFromDay(day)))
+    void pushSparkNow(spark)
   }
 
   function tryOpenVault() {
@@ -524,12 +524,13 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
             sparks={day.sparks}
             unlocked={vaultOpen}
             onClose={() => setVaultVisible(false)}
-            onDelete={(id) =>
+            onDelete={(id) => {
+              void deleteSparkRemote(id)
               setDay((d) => ({
                 ...d,
                 sparks: d.sparks.filter((s) => s.id !== id),
               }))
-            }
+            }}
           />
         )}
       </section>
@@ -694,12 +695,13 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
               setBuddyMsg(lifeContinue(active, ctxFromDay(day)))
             }
           }}
-          onDelete={(id) =>
+          onDelete={(id) => {
+            void deleteSparkRemote(id)
             setDay((d) => ({
               ...d,
               sparks: d.sparks.filter((s) => s.id !== id),
             }))
-          }
+          }}
         />
       )}
     </section>
