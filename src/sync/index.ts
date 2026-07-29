@@ -3,6 +3,7 @@ export {
   getSession,
   getUser,
   signInWithMagicLink,
+  verifySyncOtp,
   signOut,
   onAuthChange,
 } from './auth'

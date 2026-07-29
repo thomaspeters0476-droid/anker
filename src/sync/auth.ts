@@ -34,6 +34,35 @@ export async function signInWithMagicLink(email: string): Promise<{ ok: true } |
   return { ok: true }
 }
 
+/** 6-digit code from the Tagesanker mail — avoids relying on link clicks */
+export async function verifySyncOtp(
+  email: string,
+  token: string,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const sb = getSupabase()
+  if (!sb || !isSyncConfigured()) {
+    return { ok: false, message: 'Sync ist noch nicht konfiguriert.' }
+  }
+  const normalized = email.trim().toLowerCase()
+  const code = token.replace(/\s/g, '')
+  if (!normalized || !/^\d{6}$/.test(code)) {
+    return { ok: false, message: 'Bitte den 6-stelligen Code aus der Mail eingeben.' }
+  }
+
+  const types = ['email', 'magiclink', 'signup'] as const
+  let lastMessage = 'Code ungültig oder abgelaufen.'
+  for (const type of types) {
+    const { error } = await sb.auth.verifyOtp({
+      email: normalized,
+      token: code,
+      type,
+    })
+    if (!error) return { ok: true }
+    lastMessage = error.message
+  }
+  return { ok: false, message: lastMessage }
+}
+
 export async function signOut(): Promise<void> {
   const sb = getSupabase()
   if (!sb) return

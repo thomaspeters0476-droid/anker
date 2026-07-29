@@ -1,0 +1,23 @@
+<!-- Confirm signup — betroffene Nutzer: erste Anmeldung -->
+<!-- Subject: Tagesanker: Sync freischalten — Code {{ .Token }} -->
+
+<div style="font-family: system-ui, sans-serif; max-width: 32rem; color: #1c2b24; line-height: 1.5;">
+  <p style="font-size: 0.85rem; color: #4a5c52; margin: 0 0 1rem;">Tagesanker · Geräte-Sync</p>
+  <h1 style="font-size: 1.35rem; margin: 0 0 0.75rem;">Sync für deine Geräte freischalten</h1>
+  <p style="margin: 0 0 1rem;">
+    Du hast in der Tagesanker-App einen Sync angefordert. Tippe den Code in der App ein
+    — oder öffne den Link. Beides meldet dich an und verbindet deine Geräte.
+  </p>
+  <p style="font-size: 2rem; letter-spacing: 0.2em; font-weight: 700; margin: 0 0 1.25rem;">
+    {{ .Token }}
+  </p>
+  <p style="margin: 0 0 1.5rem;">
+    <a href="{{ .ConfirmationURL }}"
+       style="display: inline-block; background: #2f6f5e; color: #fff; text-decoration: none; padding: 0.75rem 1.1rem; border-radius: 12px; font-weight: 600;">
+      Tagesanker öffnen
+    </a>
+  </p>
+  <p style="font-size: 0.85rem; color: #4a5c52; margin: 0;">
+    Falls du das nicht warst: Mail ignorieren. Kein Passwort nötig.
+  </p>
+</div>

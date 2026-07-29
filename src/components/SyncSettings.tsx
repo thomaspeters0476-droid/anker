@@ -3,6 +3,7 @@ import {
   isSyncConfigured,
   signInWithMagicLink,
   signOut,
+  verifySyncOtp,
   type SyncConflict,
 } from '../sync'
 
@@ -29,6 +30,8 @@ export function SyncSettings({
 }: Props) {
   const configured = isSyncConfigured()
   const [draft, setDraft] = useState('')
+  const [otp, setOtp] = useState('')
+  const [awaitingOtp, setAwaitingOtp] = useState(false)
   const [localBusy, setLocalBusy] = useState(false)
   const waiting = busy || localBusy
 
@@ -49,9 +52,25 @@ export function SyncSettings({
     const res = await signInWithMagicLink(draft)
     setLocalBusy(false)
     if (res.ok) {
+      setAwaitingOtp(true)
+      setOtp('')
       onNotice?.(
-        'Link unterwegs — E-Mail prüfen und öffnen. Dann bist du hier angemeldet.',
+        'Mail von Tagesanker unterwegs (Betreff mit „Tagesanker“ und Code). Code hier eintippen — Link-Klick ist optional.',
       )
+    } else {
+      onNotice?.(res.message)
+    }
+  }
+
+  async function confirmOtp() {
+    setLocalBusy(true)
+    onNotice?.(null)
+    const res = await verifySyncOtp(draft, otp)
+    setLocalBusy(false)
+    if (res.ok) {
+      setAwaitingOtp(false)
+      setOtp('')
+      onNotice?.('Angemeldet — Geräte werden abgeglichen.')
     } else {
       onNotice?.(res.message)
     }
@@ -61,6 +80,8 @@ export function SyncSettings({
     setLocalBusy(true)
     await signOut()
     setLocalBusy(false)
+    setAwaitingOtp(false)
+    setOtp('')
     onSignedOut?.()
     onNotice?.('Abgemeldet. Daten bleiben auf diesem Gerät; Sync pausiert.')
   }
@@ -69,8 +90,8 @@ export function SyncSettings({
     <div className="sync-settings">
       <h3 className="sync-title">Geräte-Sync</h3>
       <p className="block-hint">
-        Optional. Ohne Anmeldung bleibt alles nur auf diesem Gerät. Mit Magic
-        Link teilst du Tagesstand und Einstellungen zwischen Geräten.
+        Optional. Ohne Anmeldung bleibt alles nur auf diesem Gerät. Mit E-Mail-Code
+        teilst du Tagesstand und Einstellungen zwischen Geräten.
       </p>
 
       {email ? (
@@ -89,7 +110,7 @@ export function SyncSettings({
         </>
       ) : (
         <div className="sync-login">
-          <label htmlFor="sync-email">E-Mail für Magic Link</label>
+          <label htmlFor="sync-email">E-Mail für Sync</label>
           <input
             id="sync-email"
             type="email"
@@ -97,7 +118,10 @@ export function SyncSettings({
             inputMode="email"
             placeholder="z. B. name@beispiel.de"
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => {
+              setDraft(e.target.value)
+              setAwaitingOtp(false)
+            }}
             maxLength={120}
             disabled={waiting}
           />
@@ -107,8 +131,36 @@ export function SyncSettings({
             disabled={waiting || !draft.trim()}
             onClick={() => void sendLink()}
           >
-            Link senden
+            Code senden
           </button>
+
+          {awaitingOtp && (
+            <div className="sync-otp">
+              <label htmlFor="sync-otp">6-stelliger Code aus der Mail</label>
+              <input
+                id="sync-otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]*"
+                placeholder="123456"
+                value={otp}
+                onChange={(e) =>
+                  setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
+                }
+                maxLength={6}
+                disabled={waiting}
+              />
+              <button
+                type="button"
+                className="primary"
+                disabled={waiting || otp.length !== 6}
+                onClick={() => void confirmOtp()}
+              >
+                Anmelden
+              </button>
+            </div>
+          )}
         </div>
       )}
 
