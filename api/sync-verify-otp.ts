@@ -35,11 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const sb = adminClient()
   if (!sb) {
-    return res.status(503).json({
-      ok: false,
-      error: 'sync_otp_not_configured',
-      message: 'SUPABASE_SERVICE_ROLE_KEY fehlt.',
-    })
+    return res.status(503).json({ ok: false, error: 'sync_otp_not_configured' })
   }
 
   const { data: row, error: readError } = await sb
@@ -49,41 +45,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .maybeSingle()
 
   if (readError) {
-    return res.status(500).json({ ok: false, error: readError.message })
+    return res.status(500).json({ ok: false, error: 'read_failed' })
   }
   if (!row) {
-    return res.status(400).json({
-      ok: false,
-      error: 'no_code',
-      message: 'Kein Code offen — bitte zuerst „Neuen Code per Mail senden“.',
-    })
+    return res.status(400).json({ ok: false, error: 'no_code' })
   }
   if (row.attempts >= MAX_ATTEMPTS) {
     await sb.from('sync_otp').delete().eq('email', email)
-    return res.status(429).json({
-      ok: false,
-      error: 'too_many_attempts',
-      message: 'Zu viele Versuche. Bitte neuen Code senden.',
-    })
+    return res.status(429).json({ ok: false, error: 'too_many_attempts' })
   }
   if (Date.parse(row.expires_at) < Date.now()) {
     await sb.from('sync_otp').delete().eq('email', email)
-    return res.status(400).json({
-      ok: false,
-      error: 'expired',
-      message: 'Code abgelaufen. Bitte neuen Code senden.',
-    })
+    return res.status(400).json({ ok: false, error: 'expired' })
   }
   if (row.code_hash !== hashCode(email, code)) {
     await sb
       .from('sync_otp')
       .update({ attempts: row.attempts + 1 })
       .eq('email', email)
-    return res.status(400).json({
-      ok: false,
-      error: 'bad_code',
-      message: 'Code stimmt nicht. Nochmal prüfen.',
-    })
+    return res.status(400).json({ ok: false, error: 'bad_code' })
   }
 
   await sb.from('sync_otp').delete().eq('email', email)
@@ -95,7 +75,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (linkError || !linkData?.properties?.hashed_token) {
     return res.status(500).json({
       ok: false,
-      error: linkError?.message || 'session_link_failed',
+      error: linkError ? 'session_link_failed' : 'session_link_failed',
     })
   }
 
@@ -104,11 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     type: 'email',
   })
   if (verifyError || !verified.session) {
-    return res.status(500).json({
-      ok: false,
-      error: verifyError?.message || 'session_failed',
-      message: 'Anmeldung nach Code-Check fehlgeschlagen.',
-    })
+    return res.status(500).json({ ok: false, error: 'session_failed' })
   }
 
   return res.status(200).json({

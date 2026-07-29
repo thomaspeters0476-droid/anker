@@ -8,8 +8,14 @@ import {
 } from '../storage'
 import type { DayState, Spark } from '../types'
 import type { CarryItem, Prefs } from '../storage'
+import i18n, { ensureI18n } from '../i18n'
 import { getSupabase } from './client'
 import { getSession } from './auth'
+
+function syncMsg(key: string): string {
+  ensureI18n()
+  return i18n.t(`sync.errors.${key}`)
+}
 
 type UserStateRow = {
   user_id: string
@@ -85,13 +91,13 @@ export async function fetchRemoteState(): Promise<
     .eq('user_id', session.user.id)
     .maybeSingle()
 
-  if (error) return { ok: false, message: error.message }
+  if (error) return { ok: false, message: syncMsg('generic') }
   if (!data) return { ok: true, remote: null }
 
   const row = data as UserStateRow
   const payload = asPayload(row.payload)
   if (!payload || !payload.prefs) {
-    return { ok: false, message: 'Cloud-Daten ungültig.' }
+    return { ok: false, message: syncMsg('invalidCloudData') }
   }
   return {
     ok: true,
@@ -104,7 +110,7 @@ export async function pushSnapshot(
 ): Promise<{ ok: true } | { ok: false; message: string }> {
   const sb = getSupabase()
   const session = await getSession()
-  if (!sb || !session) return { ok: false, message: 'Nicht angemeldet.' }
+  if (!sb || !session) return { ok: false, message: syncMsg('notSignedIn') }
 
   const updatedAt = snap.updatedAt || new Date().toISOString()
   const { error } = await sb.from('user_state').upsert(
@@ -117,8 +123,8 @@ export async function pushSnapshot(
   )
   if (error) {
     const msg = /payload|size|too large|bytes/i.test(error.message)
-      ? 'Sync fehlgeschlagen — Daten zu groß (z. B. Audio/Skizzen).'
-      : error.message
+      ? syncMsg('payloadTooLarge')
+      : syncMsg('generic')
     return { ok: false, message: msg }
   }
   setLocalUpdatedAt(updatedAt)

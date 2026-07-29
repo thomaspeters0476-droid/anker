@@ -222,7 +222,13 @@
       "networkSignIn": "Network error while signing in.",
       "invalidCloudData": "Invalid cloud data.",
       "notSignedIn": "Not signed in.",
-      "payloadTooLarge": "Sync failed — data too large (e.g. audio/sketches)."
+      "payloadTooLarge": "Sync failed — data too large (e.g. audio/sketches).",
+      "noCode": "No code pending — send a new code by email first.",
+      "codeExpired": "Code expired. Please send a new one.",
+      "tooManyAttempts": "Too many attempts. Please send a new code.",
+      "badCode": "Code doesn’t match. Check again.",
+      "sessionFailed": "Sign-in failed after the code check.",
+      "generic": "Something went wrong. Try again in a moment."
     }
   },
   "pwa": {

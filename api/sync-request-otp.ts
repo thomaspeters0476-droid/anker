@@ -37,11 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const from = process.env.RESEND_FROM || 'Tagesanker <noreply@tagesanker.de>'
   const sb = adminClient()
   if (!resendKey || !sb) {
-    return res.status(503).json({
-      ok: false,
-      error: 'sync_otp_not_configured',
-      message: 'RESEND oder SUPABASE_SERVICE_ROLE_KEY fehlt.',
-    })
+    return res.status(503).json({ ok: false, error: 'sync_otp_not_configured' })
   }
 
   const code = String(randomInt(100000, 999999))

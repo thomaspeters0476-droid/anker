@@ -12,12 +12,6 @@ export const SIZE_MINUTES: Record<TaskSize, number> = {
   large: 40,
 }
 
-export const SIZE_LABEL: Record<TaskSize, string> = {
-  small: 'Klein',
-  medium: 'Mittel',
-  large: 'Groß',
-}
-
 /** Absolute Höchstgrenzen pro Größe */
 export const HARD_CAPS: Record<TaskSize, number> = {
   large: 2,

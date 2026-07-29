@@ -12,26 +12,10 @@ import { LIFE_MAX_HARD, clampLifeMax } from './types'
 /** Nur für heute — nicht historisch speichern / bewerten */
 export type DayMood = 'good' | 'ok' | 'hard'
 
-export const MOOD_OPTIONS: {
-  id: DayMood
-  label: string
-  hint: string
-}[] = [
-  {
-    id: 'good',
-    label: 'Ziemlich gut',
-    hint: 'Normale Menge, normale Zeiten',
-  },
-  {
-    id: 'ok',
-    label: 'Geht so',
-    hint: 'Etwas weniger, etwas mehr Zeit',
-  },
-  {
-    id: 'hard',
-    label: 'Heute eher schwer',
-    hint: 'Deutlich weniger, mehr Zeit pro Sache',
-  },
+export const MOOD_OPTIONS: { id: DayMood }[] = [
+  { id: 'good' },
+  { id: 'ok' },
+  { id: 'hard' },
 ]
 
 type MoodScale = {
@@ -107,16 +91,6 @@ export function capacityForMood(
 export function lifeMaxForMood(baselineLife: number, mood: DayMood): number {
   const scaled = Math.round(baselineLife * SCALES[mood].lifeFactor)
   return clampLifeMax(Math.max(1, scaled))
-}
-
-export function moodBuddyLine(mood: DayMood): string {
-  if (mood === 'good') {
-    return 'Okay — normale Tagesmenge. Du kannst in den Einstellungen noch feinjustieren.'
-  }
-  if (mood === 'ok') {
-    return 'Geht so: etwas weniger auf dem Zettel, dafür mehr Zeit pro Sache. Kein Versagen — Anpassung.'
-  }
-  return 'Heute eher schwer: bewusst wenig. Mehr Zeit pro Sache. Entlasten zählt.'
 }
 
 export { DEFAULT_CAPACITY, LIFE_MAX_HARD }

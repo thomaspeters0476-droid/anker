@@ -222,7 +222,13 @@
       "networkSignIn": "Netzwerkfehler beim Anmelden.",
       "invalidCloudData": "Cloud-Daten ungültig.",
       "notSignedIn": "Nicht angemeldet.",
-      "payloadTooLarge": "Sync fehlgeschlagen — Daten zu groß (z. B. Audio/Skizzen)."
+      "payloadTooLarge": "Sync fehlgeschlagen — Daten zu groß (z. B. Audio/Skizzen).",
+      "noCode": "Kein Code offen — bitte zuerst „Neuen Code per Mail senden“.",
+      "codeExpired": "Code abgelaufen. Bitte neuen Code senden.",
+      "tooManyAttempts": "Zu viele Versuche. Bitte neuen Code senden.",
+      "badCode": "Code stimmt nicht. Nochmal prüfen.",
+      "sessionFailed": "Anmeldung nach Code-Check fehlgeschlagen.",
+      "generic": "Etwas ist schiefgelaufen. Kurz nochmal versuchen."
     }
   },
   "pwa": {
