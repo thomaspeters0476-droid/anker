@@ -47,7 +47,6 @@ function App() {
     () => hasSeenIntro() && !hasSeenRegulateTip(),
   )
   const [syncEmail, setSyncEmail] = useState<string | null>(null)
-  const [syncBusy, setSyncBusy] = useState(false)
   const [syncNotice, setSyncNotice] = useState<string | null>(null)
   const [syncConflict, setSyncConflict] = useState<SyncConflict | null>(null)
   const reconciledRef = useRef(false)
@@ -62,7 +61,6 @@ function App() {
   const runSync = useCallback(async () => {
     if (!isSyncConfigured() || syncingRef.current) return
     syncingRef.current = true
-    setSyncBusy(true)
     try {
       const result = await syncNow()
       if (result.status === 'applied_remote') {
@@ -78,7 +76,6 @@ function App() {
       }
     } finally {
       syncingRef.current = false
-      setSyncBusy(false)
     }
   }, [applySyncedDay])
 
@@ -168,9 +165,7 @@ function App() {
 
   async function keepLocalConflict() {
     if (!syncConflict) return
-    setSyncBusy(true)
     const result = await resolveKeepLocal(syncConflict)
-    setSyncBusy(false)
     setSyncConflict(null)
     if (result.status === 'error') setSyncNotice(result.message)
     else setSyncNotice('Dieses Gerät gilt — Cloud aktualisiert.')
@@ -178,9 +173,7 @@ function App() {
 
   async function useCloudConflict() {
     if (!syncConflict) return
-    setSyncBusy(true)
     const result = await resolveUseCloud(syncConflict)
-    setSyncBusy(false)
     setSyncConflict(null)
     if (result.status === 'applied_remote') {
       applySyncedDay(result.day)
