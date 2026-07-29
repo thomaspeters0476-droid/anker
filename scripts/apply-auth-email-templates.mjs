@@ -27,6 +27,10 @@ const magicLink = readFileSync(
 )
 
 const body = {
+  // Keine separate Confirm-Mail — OTP reicht (weniger Verwechslung)
+  mailer_autoconfirm: true,
+  mailer_secure_email_change_enabled: true,
+  mailer_otp_exp: 3600,
   mailer_subjects_confirmation:
     'Tagesanker: Sync freischalten — Code {{ .Token }}',
   mailer_templates_confirmation_content: confirmation,

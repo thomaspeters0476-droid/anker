@@ -1,23 +1,17 @@
-<!-- Magic Link / OTP — wiederholte Anmeldung -->
+<!-- Magic Link / OTP — nur Code, kein Verify-Link -->
 <!-- Subject: Tagesanker: Anmeldung Geräte-Sync — Code {{ .Token }} -->
 
 <div style="font-family: system-ui, sans-serif; max-width: 32rem; color: #1c2b24; line-height: 1.5;">
   <p style="font-size: 0.85rem; color: #4a5c52; margin: 0 0 1rem;">Tagesanker · Geräte-Sync</p>
   <h1 style="font-size: 1.35rem; margin: 0 0 0.75rem;">Anmeldung für Geräte-Sync</h1>
   <p style="margin: 0 0 1rem;">
-    Tippe den Code in der Tagesanker-App ein — oder tippe den Button. Danach ist dieses
-    Gerät mit deinem Sync verbunden.
+    Tippe diesen Code in der Tagesanker-App unter Einstellungen → Geräte-Sync ein.
+    Kein Link nötig.
   </p>
   <p style="font-size: 2rem; letter-spacing: 0.2em; font-weight: 700; margin: 0 0 1.25rem;">
     {{ .Token }}
   </p>
-  <p style="margin: 0 0 1.5rem;">
-    <a href="{{ .ConfirmationURL }}"
-       style="display: inline-block; background: #2f6f5e; color: #fff; text-decoration: none; padding: 0.75rem 1.1rem; border-radius: 12px; font-weight: 600;">
-      Tagesanker öffnen
-    </a>
-  </p>
   <p style="font-size: 0.85rem; color: #4a5c52; margin: 0;">
-    Link und Code gelten nur kurz und nur einmal. Falls du das nicht warst: ignorieren.
+    Code gilt nur kurz und nur einmal. Falls du das nicht warst: ignorieren.
   </p>
 </div>

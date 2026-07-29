@@ -49,9 +49,11 @@ export async function verifySyncOtp(
     return { ok: false, message: 'Bitte den 6-stelligen Code aus der Mail eingeben.' }
   }
 
-  const types = ['email', 'magiclink', 'signup'] as const
+  // Ein Typ pro Versuch. "magiclink" weglassen — doppelte Versuche
+  // und Mail-Link-Prefetch sind die häufigsten "expired"-Ursachen.
+  const attempts = ['email', 'signup'] as const
   let lastMessage = 'Code ungültig oder abgelaufen.'
-  for (const type of types) {
+  for (const type of attempts) {
     const { error } = await sb.auth.verifyOtp({
       email: normalized,
       token: code,
@@ -60,7 +62,12 @@ export async function verifySyncOtp(
     if (!error) return { ok: true }
     lastMessage = error.message
   }
-  return { ok: false, message: lastMessage }
+  return {
+    ok: false,
+    message: /expired|invalid|used/i.test(lastMessage)
+      ? 'Code schon verbraucht oder abgelaufen. Oft tippt die Mail-App den Link von selbst an. Bitte neuen Code senden und nur die 6 Ziffern eintippen.'
+      : lastMessage,
+  }
 }
 
 export async function signOut(): Promise<void> {
