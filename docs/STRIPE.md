@@ -43,6 +43,7 @@ Testmode zuerst (`sk_test_…` / `whsec_…`).
 | `STRIPE_PRICE_YEARLY` | Price-ID Jahr |
 | `STRIPE_CHECKOUT_ENABLED` | **`false`** lassen, bis Preise öffentlich sollen |
 | `STRIPE_CHECKOUT_PREVIEW_TOKEN` | optional, internes Smoke-Test-Token |
+| `SPEND_POT_REPORT_TOKEN` | Token für internen Bericht `GET /api/spend-pot-report` |
 | `PUBLIC_SITE_URL` | `https://tagesanker.de` (Success/Cancel-URLs) |
 
 Zusätzlich wie bisher: `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` für Ledger/Webhook-Idempotenz.
@@ -71,7 +72,12 @@ Bei `invoice.paid`:
 - wiederkehrende Positionen → **5 %** (`source=pct_5`)
 - Positionen mit Spendentopf / Metadata `tagesanker=spend_topup` → **100 %** (`source=topup`)
 
-Internbericht später aus `spend_pot_ledger` aggregieren. Öffentlicher Schönbericht bleibt manuell ([SPENDENTOPF.md](./SPENDENTOPF.md) §5).
+Internbericht: `GET /api/spend-pot-report` (Token `SPEND_POT_REPORT_TOKEN`) aggregiert `spend_pot_ledger`. Öffentlicher Schönbericht bleibt manuell ([SPENDENTOPF.md](./SPENDENTOPF.md) §5).
+
+```bash
+curl -sS "https://tagesanker.de/api/spend-pot-report?period=month&format=md" \
+  -H "Authorization: Bearer <SPEND_POT_REPORT_TOKEN>"
+```
 
 ---
 

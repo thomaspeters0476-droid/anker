@@ -97,13 +97,16 @@ Feinjustierung der Reservefaktor-Zahlen, sobald erste echte Umsätze und Zugäng
 | **Intern** | Laufender Bericht = **Quelle der Wahrheit** | Zuerst manuell nach Vorlage unten; mit Stripe: Zuflüsse **automatisch** berechnen und eintragen |
 | **Öffentlich** | Schön gestalteter Bericht / Seite | **Immer manuell** aus dem Internbericht abgeleitet — **kein** Auto-Export, kein Zwang zu generiertem PDF |
 
-### Intern — Automatisierung (Zielbild mit Stripe)
+### Intern — Automatisierung
 
-1. Bei jeder erfolgreichen Abo-Zahlung: **5 % vom Brutto** → Ledger-Zufluss `pct_5`.
+1. Bei jeder erfolgreichen Abo-Zahlung: **5 % vom Brutto** → Ledger-Zufluss `pct_5` (Stripe-Webhook).
 2. Bei Mehrzahlung (Checkout-Line-Item): **100 %** → Ledger-Zufluss `topup`.
-3. Internbericht aggregiert Perioden (Monat/Quartal/Jahr) aus dem Ledger.
-4. **Manuelle Inputs bleiben:** Sozialzugänge anlegen/ändern (→ Reserve & Abfluss), Forschungsspende + Quittungsdatei am Jahresende.
-5. Daraus bei Bedarf von Hand den öffentlichen Schönbericht bauen.
+3. **Internbericht (API):** `GET /api/spend-pot-report` aggregiert Perioden aus `spend_pot_ledger`.
+   - Auth: Env `SPEND_POT_REPORT_TOKEN` als `Authorization: Bearer …`, Header `x-tagesanker-report-token` oder `?token=`
+   - Query: `period=month|quarter|year` oder `from=` / `to=` (ISO), optional `format=md`
+   - Antwort: JSON inkl. `markdown` (Kennzahlen); **nicht** öffentlich verlinken
+4. **Manuelle Inputs bleiben:** Sozialzugänge (`source=social_out`), Forschungsspende (`research_out`) + Quittungsdatei, Reserve-Notiz.
+5. Öffentlicher Schönbericht: manuell aus dem Markdown/JSON ableiten.
 
 ### Vorlage Intern (Spalten / Felder)
 

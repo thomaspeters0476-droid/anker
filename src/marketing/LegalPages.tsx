@@ -20,7 +20,7 @@ function LegalShell({
       <article className="mkt-legal">
         <header className="mkt-page-head">
           <h1>{title}</h1>
-          <p className="mkt-legal-stand">Stand: Juli 2026</p>
+          <p className="mkt-legal-stand">Stand: 31. Juli 2026</p>
         </header>
         <div className="mkt-prose mkt-prose-legal">{children}</div>
         <p className="mkt-legal-nav">
@@ -244,48 +244,61 @@ export function AgbPage() {
       <h2>§ 1 Geltungsbereich und Vertragsgegenstand</h2>
       <p>
         (1) Diese AGB gelten für die Nutzung der Website und der browserbasierten Anwendung
-        „{SITE.name}“ (PWA) sowie für künftige entgeltliche Digitale-Dienste- und Abo-Verträge zwischen
-        der Anbieterin und Verbraucherinnen/Verbrauchern.
+        „{SITE.name}“ (PWA) sowie für entgeltliche Digitale-Dienste- und Abo-Verträge zwischen der
+        Anbieterin und Verbraucherinnen/Verbrauchern.
       </p>
       <p>
         (2) Abweichende Bedingungen der Nutzerin/des Nutzers werden nicht Vertragsbestandteil, es sei
         denn, die Anbieterin stimmt ausdrücklich zu.
       </p>
 
-      <h2>§ 2 Unverbindliche Darstellung und Testphase</h2>
+      <h2>§ 2 Unverbindliche Darstellung und kostenlose Nutzung</h2>
       <p>
-        (1) Die Darstellung von Leistungen und künftigen Preisen auf der Website ist unverbindlich,
-        solange kein Bestellvorgang abgeschlossen ist.
+        (1) Die Darstellung von Leistungen und Preisen auf der Website ist unverbindlich, solange kein
+        Bestellvorgang (Checkout) abgeschlossen ist. Solange der Verkauf auf der Preise-Seite nicht
+        freigeschaltet ist, kommt kein entgeltlicher Vertrag über die bloße Darstellung zustande.
       </p>
       <p>
-        (2) In der Testphase kann die Anwendung ohne Entgelt und ohne Kaufvertrag genutzt werden.
+        (2) Die Anwendung kann ohne Entgelt und ohne Kaufvertrag genutzt werden (lokal auf dem Gerät).
         Daraus entsteht kein Anspruch auf unbegrenzte oder unveränderte Weiterführung einzelner
-        Funktionen.
+        Funktionen. Optionale Cloud-Funktionen (z.&nbsp;B. Geräte-Sync) können eine Anmeldung
+        erfordern und bleiben – soweit nicht anders vereinbart – Zusatzleistungen zum Abo bzw. zur
+        kostenlosen Nutzung.
       </p>
 
       <h2>§ 3 Vertragsschluss bei entgeltlichen Angeboten</h2>
       <p>
-        Sobald entgeltliche Abos oder Digitale Inhalte zum Kauf angeboten werden, kommt der Vertrag
+        (1) Entgeltliche Abos werden über den von der Anbieterin bereitgestellten Bestellprozess
+        (Checkout, derzeit über den Zahlungsdienstleister Stripe) geschlossen. Der Vertrag kommt
         zustande, indem die Nutzerin/der Nutzer den Bestellprozess durchläuft, diese AGB sowie die
         Widerrufsbelehrung zur Kenntnis nimmt bzw. akzeptiert und den Kauf durch die vorgesehene
         Schaltfläche verbindlich abschließt. Die Anbieterin nimmt das Angebot durch Freischaltung
-        bzw. Bestätigungsmail an. Zahlungsabwicklung kann über einen Zahlungsdienstleister erfolgen.
+        und/oder Bestätigung (z.&nbsp;B. E-Mail / Zahlungsbestätigung) an.
+      </p>
+      <p>
+        (2) Zahlungsabwicklung und – soweit angeboten – Kundenportal erfolgen über Stripe. Die
+        Anbieterin erhält die zur Vertragserfüllung und Abrechnung erforderlichen Daten vom
+        Zahlungsdienstleister.
       </p>
 
       <h2>§ 4 Leistungen</h2>
       <p>
         (1) Gegenstand ist die Bereitstellung der Anwendung „{SITE.name}“ zur Unterstützung bei
-        Alltagsplanung und Fokus. Die Speicherung erfolgt derzeit vorrangig lokal auf dem Gerät der
-        Nutzerin/des Nutzers.
+        Alltagsplanung und Fokus. Die Speicherung erfolgt vorrangig lokal auf dem Gerät; optional
+        kann ein Ende-zu-Ende verschlüsselter Geräte-Sync genutzt werden.
       </p>
       <p>
         (2) Die Anwendung ersetzt keine medizinische, therapeutische oder sonstige fachliche
         Behandlung oder Beratung. Es wird keine bestimmte therapeutische Wirkung zugesichert.
       </p>
       <p>
-        (3) Die Anbieterin strebt eine angemessene Verfügbarkeit der Website an. Wartung,
-        Störungen Dritter (Netz, Gerät, Browser) und höhere Gewalt können die Nutzung
-        beeinträchtigen.
+        (3) Die Anbieterin finanziert den Betrieb und die Weiterentwicklung der Anwendung über das
+        Abo und verzichtet bewusst auf Werbung sowie auf den Verkauf oder die Weitergabe von
+        Nutzungsdaten an Werbe- oder Datenhändler.
+      </p>
+      <p>
+        (4) Die Anbieterin strebt eine angemessene Verfügbarkeit der Website an. Wartung, Störungen
+        Dritter (Netz, Gerät, Browser) und höhere Gewalt können die Nutzung beeinträchtigen.
       </p>
 
       <h2>§ 5 Nutzungsrechte</h2>
@@ -295,25 +308,45 @@ export function AgbPage() {
         Engineering ist nur erlaubt, soweit gesetzlich zwingend gestattet.
       </p>
 
-      <h2>§ 6 Vergütung</h2>
+      <h2>§ 6 Vergütung, Abo und Trial</h2>
       <p>
-        Entgeltliche Leistungen werden mit den zum Bestellzeitpunkt ausgewiesenen Preisen berechnet.
-        Preise verstehen sich — sofern nicht anders angegeben — inklusive der gesetzlichen
-        Umsatzsteuer. Einzelheiten erscheinen, sobald der Verkauf freigeschaltet ist.
+        (1) Entgeltliche Leistungen werden mit den zum Bestellzeitpunkt im Checkout ausgewiesenen
+        Preisen berechnet. Preise verstehen sich — sofern nicht anders angegeben — inklusive der
+        gesetzlichen Umsatzsteuer.
+      </p>
+      <p>
+        (2) Angeboten werden insbesondere ein Monats- und ein Jahresabo. Soweit im Checkout ausgewiesen,
+        beginnt das Abo mit einer Testphase (Trial) von sieben Tagen; in dieser Zeit kann nach den
+        dort genannten Bedingungen gekündigt werden, ohne dass die erste volle Abo-Periode berechnet
+        wird (maßgeblich ist die Darstellung im Checkout / bei Stripe).
+      </p>
+      <p>
+        (3) Abos verlängern sich automatisch um die gewählte Periode, wenn sie nicht rechtzeitig zum
+        Periodenende gekündigt werden. Die Kündigung ist über den bereitgestellten Kundenweg (z.&nbsp;B.
+        Stripe-Kundenportal, sobald freigeschaltet) oder in Textform an{' '}
+        <a href={`mailto:${PROVIDER.email}`}>{PROVIDER.email}</a> möglich. Das Recht zur
+        außerordentlichen Kündigung bleibt unberührt.
       </p>
 
-      <h2>§ 7 Widerruf</h2>
+      <h2>§ 7 Freiwillige Mehrzahlung (Spendentopf)</h2>
+      <p>
+        (1) Im Checkout kann – soweit angeboten – zusätzlich zum Abo eine freiwillige Mehrzahlung
+        geleistet werden. Diese dient der Unterstützung des internen „Spendentopfs“ der Anbieterin
+        (vorrangig Finanzierung von Sozialzugängen; ein etwaiger Überschuss kann an ADHS-Forschung
+        gehen). Einzelheiten zur Selbstverpflichtung der Anbieterin sind intern dokumentiert und
+        werden bei Verkaufsfreigabe auch auf der Website erläutert.
+      </p>
+      <p>
+        (2) Die Mehrzahlung ist <strong>keine</strong> steuerbegünstigte Spende an die Nutzerin/den
+        Nutzer. Es wird keine Spendenbescheinigung ausgestellt. Die Mehrzahlung ist freiwillig und
+        begründet keinen Anspruch auf Gegenleistung über die vertraglich geschuldete App-Nutzung
+        hinaus und keinen Anspruch auf einen Sozialzugang.
+      </p>
+
+      <h2>§ 8 Widerruf</h2>
       <p>
         Für Verbraucherinnen und Verbraucher gilt das gesetzliche Widerrufsrecht nach Maßgabe der
         Widerrufsbelehrung unter <Link to="/widerruf">/widerruf</Link>.
-      </p>
-
-      <h2>§ 8 Laufzeit und Kündigung künftiger Abos</h2>
-      <p>
-        Entgeltliche Abos laufen — soweit abgeschlossen — für den gewählten Zeitraum und verlängern
-        sich nach den dann ausgewiesenen Bedingungen. Die Kündigung zum Periodenende ist in Textform
-        (z.&nbsp;B. E-Mail an {PROVIDER.email}) oder über den dann bereitgestellten Kündigungs-/
-        Kundenweg möglich. Das Recht zur außerordentlichen Kündigung bleibt unberührt.
       </p>
 
       <h2>§ 9 Haftung</h2>
@@ -384,6 +417,18 @@ export function WiderrufPage() {
         werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.
       </p>
 
+      <h2>Geltung für Abos und Mehrzahlungen</h2>
+      <p>
+        Dieses Widerrufsrecht gilt für entgeltliche Verträge über die Nutzung von „{SITE.name}“
+        (insbesondere Monats- und Jahresabo) sowie für eine im selben Bestellvorgang geleistete
+        freiwillige Mehrzahlung zugunsten des Spendentopfs, soweit ein entgeltlicher Vertrag
+        zustande gekommen ist.
+      </p>
+      <p>
+        Solange kein entgeltlicher Vertrag geschlossen wurde (reine kostenlose Testnutzung ohne
+        Checkout), entsteht kein Widerrufsverhältnis aus einem Kauf.
+      </p>
+
       <h2>Besondere Hinweise zu digitalen Inhalten / Diensten</h2>
       <p>
         Das Widerrufsrecht erlischt bei einem Vertrag zur Erbringung von Dienstleistungen, wenn der
@@ -400,8 +445,9 @@ export function WiderrufPage() {
         Ausführung des Vertrags sein Widerrufsrecht verliert.
       </p>
       <p>
-        Solange kein entgeltlicher Vertrag geschlossen wurde (kostenlose Testnutzung), entsteht kein
-        Widerrufsverhältnis aus einem Kauf.
+        Bei Abos mit Testphase (Trial) richten sich Beginn der Leistung und etwaige Erlöschensvoraussetzungen
+        nach den im Checkout bestätigten Hinweisen und dem gesetzlichen Rahmen; die Kündigung des Abos
+        zum Ende der Testphase ist zusätzlich über den Kundenweg möglich.
       </p>
 
       <h2>Muster-Widerrufsformular</h2>
@@ -414,6 +460,8 @@ export function WiderrufPage() {
         <p>
           Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über den Kauf
           der folgenden Waren (*)/die Erbringung der folgenden Dienstleistung (*)
+          <br />
+          (z.&nbsp;B. {SITE.name}-Abo Monat/Jahr und ggf. freiwillige Mehrzahlung Spendentopf)
         </p>
         <p>Bestellt am (*)/erhalten am (*)</p>
         <p>Name des/der Verbraucher(s)</p>
