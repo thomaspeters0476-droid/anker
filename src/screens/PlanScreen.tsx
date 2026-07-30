@@ -54,6 +54,7 @@ import {
   APP_LOCALES,
   LOCALE_LABELS,
   normalizeLocale,
+  type AppLocale,
 } from '../i18n/locales'
 import { lifeTemplateLabel } from '../i18n/lifeLabels'
 
@@ -93,7 +94,7 @@ export function PlanScreen({
   onSyncVaultReady,
 }: Props) {
   const { t, i18n } = useTranslation()
-  const locale = normalizeLocale(i18n.language)
+  const [locale, setLocale] = useState<AppLocale>(() => loadPrefs().locale)
   const sizeLabel = (size: TaskSize) => t(`common.size.${size}`)
   const [workDraft, setWorkDraft] = useState('')
   const [lifeDraft, setLifeDraft] = useState('')
@@ -112,6 +113,14 @@ export function PlanScreen({
   const remain = remainingCapacity(day.capacity, day.tasks)
   const usedPts = usedPoints(day.tasks)
   const maxPts = capacityPoints(day.capacity)
+
+  useEffect(() => {
+    const pref = loadPrefs().locale
+    setLocale(pref)
+    if (normalizeLocale(i18n.language) !== pref) {
+      void setAppLocale(pref)
+    }
+  }, [i18n.language])
 
   useEffect(() => {
     const items = loadCarryOver()
@@ -1086,8 +1095,9 @@ export function PlanScreen({
                 value={locale}
                 onChange={async (e) => {
                   const loc = normalizeLocale(e.target.value)
-                  await setAppLocale(loc)
+                  setLocale(loc)
                   savePrefs({ ...loadPrefs(), locale: loc })
+                  await setAppLocale(loc)
                 }}
               >
                 {APP_LOCALES.map((loc) => (

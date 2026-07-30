@@ -17,32 +17,46 @@ let started = false
 
 /**
  * Init once. Without `locale`, never override the active language
- * (Buddy/Sync call this often — must not reset to browser EN).
+ * (Buddy/Sync call this often — must not reset language).
  */
 export function ensureI18n(locale?: AppLocale) {
   if (!started) {
     const lng = normalizeLocale(locale ?? 'de')
+    // Resources are bundled → init is sync; do not fire-and-forget.
     void i18n.use(initReactI18next).init({
       resources,
       lng,
       fallbackLng: 'de',
+      supportedLngs: ['de', 'en'],
+      nonExplicitSupportedLngs: true,
+      load: 'languageOnly',
       defaultNS: 'common',
       ns: ['common', 'buddy', 'handbook'],
       interpolation: { escapeValue: false },
       returnNull: false,
+      initImmediate: false,
     })
     started = true
     return i18n
   }
-  if (locale && normalizeLocale(i18n.language) !== locale) {
-    void i18n.changeLanguage(locale)
+  if (locale) {
+    const next = normalizeLocale(locale)
+    if (normalizeLocale(i18n.language) !== next) {
+      void i18n.changeLanguage(next)
+    }
   }
   return i18n
 }
 
 export async function setAppLocale(locale: AppLocale) {
-  ensureI18n(locale)
-  await i18n.changeLanguage(locale)
+  const next = normalizeLocale(locale)
+  ensureI18n(next)
+  if (normalizeLocale(i18n.language) !== next) {
+    await i18n.changeLanguage(next)
+  }
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = next
+  }
 }
 
 export default i18n

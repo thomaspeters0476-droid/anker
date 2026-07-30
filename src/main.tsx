@@ -9,7 +9,7 @@ import {
 } from 'react-router-dom'
 import { registerSW } from 'virtual:pwa-register'
 import './index.css'
-import { ensureI18n } from './i18n'
+import { setAppLocale } from './i18n'
 import { loadPrefs } from './storage'
 import App from './App.tsx'
 import { MarketingLayout } from './marketing/MarketingLayout'
@@ -34,8 +34,13 @@ function ScrollToTop() {
 
 function AppRoute() {
   useEffect(() => {
-    ensureI18n(loadPrefs().locale)
-    registerSW({ immediate: true })
+    void setAppLocale(loadPrefs().locale)
+    registerSW({
+      immediate: true,
+      onRegisteredSW(_url, registration) {
+        void registration?.update()
+      },
+    })
   }, [])
 
   return (
@@ -45,7 +50,7 @@ function AppRoute() {
   )
 }
 
-ensureI18n(loadPrefs().locale)
+void setAppLocale(loadPrefs().locale)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
