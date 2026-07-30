@@ -1,12 +1,38 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import {
-  checkoutEnabled,
-  getStripe,
-  previewTokenOk,
-  priceIdFor,
-  siteOrigin,
-  type Interval,
-} from '../server/stripe'
+import Stripe from 'stripe'
+
+type Interval = 'month' | 'year'
+
+function getStripe(): Stripe | null {
+  const key = process.env.STRIPE_SECRET_KEY?.trim()
+  if (!key) return null
+  return new Stripe(key)
+}
+
+function checkoutEnabled(): boolean {
+  return process.env.STRIPE_CHECKOUT_ENABLED === 'true'
+}
+
+function previewTokenOk(reqToken: string | undefined): boolean {
+  const expected = process.env.STRIPE_CHECKOUT_PREVIEW_TOKEN?.trim()
+  if (!expected) return false
+  return Boolean(reqToken && reqToken === expected)
+}
+
+function siteOrigin(): string {
+  const explicit = process.env.PUBLIC_SITE_URL?.replace(/\/$/, '')
+  if (explicit) return explicit
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim()
+  if (vercel) return `https://${vercel}`
+  return 'https://tagesanker.de'
+}
+
+function priceIdFor(interval: Interval): string | null {
+  if (interval === 'year') {
+    return process.env.STRIPE_PRICE_YEARLY?.trim() || null
+  }
+  return process.env.STRIPE_PRICE_MONTHLY?.trim() || null
+}
 
 /**
  * Creates a Stripe Checkout Session (subscription + optional one-time top-up).
@@ -54,15 +80,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .toLowerCase()
 
   const origin = siteOrigin()
-  const lineItems: {
-    price?: string
-    quantity?: number
-    price_data?: {
-      currency: string
-      product_data: { name: string; metadata?: Record<string, string> }
-      unit_amount: number
-    }
-  }[] = [{ price: priceId, quantity: 1 }]
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+    { price: priceId, quantity: 1 },
+  ]
 
   if (topupCents >= 100 && topupCents <= 50000) {
     lineItems.push({

@@ -1,12 +1,26 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import type Stripe from 'stripe'
-import { getStripe } from '../server/stripe'
-import { getAdminSupabase } from '../server/supabaseAdmin'
+import { createClient } from '@supabase/supabase-js'
+import Stripe from 'stripe'
 
 export const config = {
   api: {
     bodyParser: false,
   },
+}
+
+function getStripe(): Stripe | null {
+  const key = process.env.STRIPE_SECRET_KEY?.trim()
+  if (!key) return null
+  return new Stripe(key)
+}
+
+function getAdminSupabase() {
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return null
+  return createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
 }
 
 async function readRawBody(req: VercelRequest): Promise<Buffer> {
@@ -65,7 +79,6 @@ async function markFailed(eventId: string) {
     .eq('id', eventId)
 }
 
-/** 5% of gross (cents) for subscription charges; 100% for spend top-ups. */
 async function recordSpendPotFromInvoice(invoice: Stripe.Invoice) {
   const sb = getAdminSupabase()
   if (!sb) return
@@ -80,20 +93,22 @@ async function recordSpendPotFromInvoice(invoice: Stripe.Invoice) {
   for (const line of invoice.lines?.data ?? []) {
     const amount = line.amount ?? 0
     if (amount <= 0) continue
-    const meta = line.price?.metadata || line.metadata || {}
+    const meta =
+      (line as { price?: { metadata?: Record<string, string> } }).price
+        ?.metadata ||
+      line.metadata ||
+      {}
     const isTopup =
       meta.tagesanker === 'spend_topup' ||
       String(line.description || '').toLowerCase().includes('spendentopf')
     if (isTopup) topupCents += amount
-    else if (line.type === 'subscription' || line.price?.type === 'recurring') {
+    else if (line.type === 'subscription') {
       pctCents += Math.round(amount * 0.05)
     } else {
-      // one-time without topup flag: still count 5% of gross
       pctCents += Math.round(amount * 0.05)
     }
   }
 
-  // Fallback: whole invoice * 5% if no line breakdown
   if (pctCents === 0 && topupCents === 0 && (invoice.amount_paid ?? 0) > 0) {
     pctCents = Math.round((invoice.amount_paid ?? 0) * 0.05)
   }
@@ -176,11 +191,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await recordSpendPotFromInvoice(invoice)
         break
       }
-      case 'checkout.session.completed': {
-        // Subscription + optional top-up are also reflected on the first invoice.
-        // Keep hook for future entitlement grants.
+      case 'checkout.session.completed':
         break
-      }
       default:
         break
     }
