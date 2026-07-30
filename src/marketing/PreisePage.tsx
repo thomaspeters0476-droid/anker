@@ -17,7 +17,8 @@ export function PreisePage() {
         <h2>Bald verfügbar</h2>
         <p>
           Ein einfaches Abo mit Testphase ist in Vorbereitung. Sobald es live ist, findest du hier die
-          Details — klar und ohne Kleingedrucktes-Chaos.
+          Details — klar und ohne Kleingedrucktes-Chaos. Bis dahin keine Preise und kein Checkout auf
+          dieser Seite.
         </p>
         <Link to="/app" className="mkt-btn mkt-btn-primary">
           Jetzt gratis testen

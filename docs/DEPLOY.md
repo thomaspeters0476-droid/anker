@@ -71,6 +71,10 @@ Ohne diese Vars: API liefert 503; abgelaufene Geistesblitze mit gesetzter E-Mail
 
 Ohne diese Vars: App läuft lokal weiter; Sync-UI zeigt „nicht konfiguriert“. Setup: [`supabase/README.md`](../supabase/README.md).
 
+### Env-Vars (Stripe — vorbereitet, Checkout öffentlich aus)
+
+Siehe [`STRIPE.md`](./STRIPE.md). Kurz: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_MONTHLY` / `_YEARLY`, **`STRIPE_CHECKOUT_ENABLED=false`** bis Preise live gehen. Optional `STRIPE_CHECKOUT_PREVIEW_TOKEN` für interne Tests.
+
 Siehe auch `.env.example`.
 
 ---

@@ -4,7 +4,7 @@ Projekt-URL: `https://ueioxiffwfsgbmiowtew.supabase.co`
 
 ## Einmalig im Dashboard
 
-1. **SQL:** `user_state` + RLS, `sync_otp`, und Storage-Bucket `sync-blobs` (Migrationen unter `migrations/`).
+1. **SQL:** `user_state` + RLS, `sync_otp`, Storage `sync-blobs`, sowie (Verkauf) `stripe_webhook_events` + `spend_pot_ledger` — Migrationen unter `migrations/`.
 2. **Env:** `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` in Vercel Production.
 3. **Auth URL:** Site URL + Redirects auf `/app` (erledigt).
 4. **E-Mail-Vorlagen** (wichtig für Erkennbarkeit):  

@@ -18,7 +18,8 @@
     "react-dom": "^19.2.7",
     "react-i18next": "^17.0.11",
     "react-router-dom": "^7.18.1",
-    "resend": "^6.18.1"
+    "resend": "^6.18.1",
+    "stripe": "^18.5.0"
   },
   "devDependencies": {
     "@types/marked": "^5.0.2",
