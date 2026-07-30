@@ -34,7 +34,6 @@ export function ensureI18n(locale?: AppLocale) {
       ns: ['common', 'buddy', 'handbook'],
       interpolation: { escapeValue: false },
       returnNull: false,
-      initImmediate: false,
     })
     started = true
     return i18n
