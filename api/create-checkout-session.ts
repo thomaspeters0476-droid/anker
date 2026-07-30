@@ -6,7 +6,7 @@ import {
   priceIdFor,
   siteOrigin,
   type Interval,
-} from './_lib/stripe'
+} from '../server/stripe'
 
 /**
  * Creates a Stripe Checkout Session (subscription + optional one-time top-up).

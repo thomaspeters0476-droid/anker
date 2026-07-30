@@ -12,7 +12,7 @@
 |------|------|
 | Checkout-Session (gated) | [`api/create-checkout-session.ts`](../api/create-checkout-session.ts) |
 | Webhook (Signatur + Spendentopf-Ledger) | [`api/stripe-webhook.ts`](../api/stripe-webhook.ts) |
-| Stripe-Helfer | [`api/_lib/stripe.ts`](../api/_lib/stripe.ts) |
+| Stripe-Helfer | [`server/stripe.ts`](../server/stripe.ts) |
 | DB | Migration `20260730200000_stripe_spend_pot.sql` → `stripe_webhook_events`, `spend_pot_ledger` |
 
 ---
