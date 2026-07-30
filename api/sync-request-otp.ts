@@ -93,7 +93,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   })
 
   if (mailError) {
-    return res.status(502).json({ ok: false, error: mailError.message })
+    const raw = String(mailError.message || mailError.name || 'mail_failed')
+    const lower = raw.toLowerCase()
+    let code = 'mail_failed'
+    if (
+      lower.includes('not authorized') ||
+      lower.includes('not verified') ||
+      lower.includes('from domain') ||
+      lower.includes('tagesanker.de')
+    ) {
+      code = 'mail_domain'
+    } else if (lower.includes('testing email') || lower.includes('example.com')) {
+      code = 'mail_rejected'
+    } else if (lower.includes('api key') || lower.includes('invalid')) {
+      code = 'mail_not_configured'
+    }
+    console.error('sync-request-otp mail failed', raw)
+    return res.status(502).json({ ok: false, error: code })
   }
 
   return res.status(200).json({ ok: true })

@@ -216,7 +216,8 @@
     "errors": {
       "notConfigured": "Sync isn’t configured yet.",
       "invalidEmail": "Please enter a valid email.",
-      "sendFailed": "Couldn’t send the code.",
+      "sendFailed": "Couldn’t send the code. Try again in a moment.",
+      "mailDomain": "Email sending isn’t enabled yet (sender domain). Try later — or tell the operator.",
       "networkSend": "Network error while sending.",
       "needSixDigit": "Please enter the 6-digit code from the email.",
       "invalidCode": "Invalid code.",

@@ -216,7 +216,8 @@
     "errors": {
       "notConfigured": "Sync ist noch nicht konfiguriert.",
       "invalidEmail": "Bitte eine gültige E-Mail eingeben.",
-      "sendFailed": "Code konnte nicht gesendet werden.",
+      "sendFailed": "Code konnte nicht gesendet werden. Kurz nochmal versuchen.",
+      "mailDomain": "E-Mail-Versand ist noch nicht freigeschaltet (Absender-Domain). Bitte später nochmal — oder Betreiber informieren.",
       "networkSend": "Netzwerkfehler beim Senden.",
       "needSixDigit": "Bitte den 6-stelligen Code aus der Mail eingeben.",
       "invalidCode": "Code ungültig.",

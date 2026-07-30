@@ -55,6 +55,10 @@ Nach Push auf `main` typischerweise automatisches Deployment.
 |----------|----------|---------|
 | `RESEND_API_KEY` | `re_...` | ja für Mail |
 | `RESEND_FROM` | `Tagesanker <noreply@tagesanker.de>` | ja — Domain in Resend verifiziert |
+| `SUPABASE_URL` | wie `VITE_SUPABASE_URL` | ja für Sync-OTP (Server) |
+| `SUPABASE_SERVICE_ROLE_KEY` | service_role | ja für Sync-OTP (nur Server, nie im Client) |
+
+**Wenn Sync-Code fehlschlägt mit Domain-Hinweis:** In [Resend](https://resend.com) Domain `tagesanker.de` verifizieren und prüfen, dass `RESEND_API_KEY` zum **gleichen** Resend-Account gehört wie die Domain. Typischer API-Fehler: *API key is not authorized to send emails from tagesanker.de*.
 
 Ohne diese Vars: API liefert 503; abgelaufene Geistesblitze mit gesetzter E-Mail bleiben in der App (kein stilles Löschen).
 

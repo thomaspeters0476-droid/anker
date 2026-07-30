@@ -24,6 +24,11 @@ function messageFromApiError(error?: string): string {
     case 'sync_otp_not_configured':
     case 'mail_not_configured':
       return syncMsg('notConfigured')
+    case 'mail_domain':
+      return syncMsg('mailDomain')
+    case 'mail_failed':
+    case 'mail_rejected':
+      return syncMsg('sendFailed')
     case 'invalid_email':
     case 'invalid_input':
       return syncMsg('invalidEmail')
