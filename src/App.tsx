@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { setAppLocale } from './i18n'
+import { normalizeLocale } from './i18n/locales'
 import type { DayState } from './types'
-import { emptyDay, loadDay, saveDay } from './storage'
+import { emptyDay, loadDay, loadPrefs, saveDay } from './storage'
 import { reconcileExpiredSparks } from './sparkExpiry'
 import { PlanScreen } from './screens/PlanScreen'
 import { FocusScreen } from './screens/FocusScreen'
@@ -72,6 +74,7 @@ function App() {
       if (result.status === 'applied_remote') {
         applySyncedDay(result.day)
         setSyncConflict(null)
+        void setAppLocale(normalizeLocale(loadPrefs().locale))
         setSyncNotice(t('app.syncNotice.appliedRemote'))
       } else if (result.status === 'pushed_local') {
         setSyncConflict(null)

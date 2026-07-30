@@ -7,11 +7,7 @@ import {
 } from './types'
 import { DEFAULT_CAPACITY } from './capacity'
 import { SOFT_FREEZE_DEFAULTS, type AwayNudgeMode } from './softFreeze'
-import {
-  detectBrowserLocale,
-  normalizeLocale,
-  type AppLocale,
-} from './i18n/locales'
+import { normalizeLocale, type AppLocale } from './i18n/locales'
 
 const DAY_KEY = 'fokus-buddy-day'
 const PREFS_KEY = 'anker-prefs'
@@ -143,7 +139,7 @@ function defaultPrefs(): Prefs {
     hiddenLifeTemplates: [],
     customLifeAnchors: [],
     sparksMailEmail: '',
-    locale: detectBrowserLocale(),
+    locale: 'de',
   }
 }
 
@@ -193,9 +189,7 @@ export function loadPrefs(): Prefs {
       hiddenLifeTemplates: normalizeTitleList(data.hiddenLifeTemplates),
       customLifeAnchors: normalizeTitleList(data.customLifeAnchors),
       sparksMailEmail: normalizeSparksMailEmail(data.sparksMailEmail),
-      locale: data.locale
-        ? normalizeLocale(data.locale)
-        : detectBrowserLocale(),
+      locale: data.locale ? normalizeLocale(data.locale) : 'de',
     }
   } catch {
     return defaultPrefs()

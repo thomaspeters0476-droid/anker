@@ -15,22 +15,15 @@ export function isAppLocale(value: unknown): value is AppLocale {
 
 export function normalizeLocale(value: unknown): AppLocale {
   if (isAppLocale(value)) return value
+  if (typeof value === 'string') {
+    const base = value.toLowerCase().split(/[-_]/)[0]
+    if (base === 'en') return 'en'
+    if (base === 'de') return 'de'
+  }
   return 'de'
 }
 
-/** Einmalig: Browser-Hinweis nur de/en */
+/** App-Standard ist Deutsch — Browser-Locale nur optional (z. B. spätere „System“-Option). */
 export function detectBrowserLocale(): AppLocale {
-  try {
-    const langs = navigator.languages?.length
-      ? navigator.languages
-      : [navigator.language]
-    for (const raw of langs) {
-      const base = String(raw).toLowerCase().split('-')[0]
-      if (base === 'en') return 'en'
-      if (base === 'de') return 'de'
-    }
-  } catch {
-    /* ignore */
-  }
   return 'de'
 }
