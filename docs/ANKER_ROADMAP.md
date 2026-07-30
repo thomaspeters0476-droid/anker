@@ -25,7 +25,7 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 | Thema | Ziel |
 |-------|------|
 | ~~**Sync**~~ | ~~Einstellungen und Tagesstand zwischen Geräten~~ *(Magic Link + Supabase, optional)* |
-| **Verkauf / Checkout** | Preise öffentlich + Stripe/Abo (Trial); Paywall erst dann in der App |
+| **Verkauf / Checkout** | Preise öffentlich + Stripe/Abo (Trial); Paywall erst dann in der App; Spendentopf siehe [SPENDENTOPF.md](./SPENDENTOPF.md) |
 | ~~Domains + Marketing~~ | ~~Domains, Landing/Blog, B2C-Rechtstexte~~ *(Juli 2026 erledigt)* |
 | Buddy-Feinschliff | mehr Situationen abdecken, Ton beibehalten (entlasten) |
 | Stabilität PWA | Notifications auf iOS/Android zuverlässiger nach Install |
@@ -37,7 +37,7 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 
 | Thema | Hinweis |
 |-------|---------|
-| **Verkaufsversion / Abo** | Zielrichtung (intern): ca. **2,99 €/Monat**, **19,99 €/Jahr**, **7 Tage Trial**. Argument u. a. werbefrei = weniger Ablenkung — **erst dann in UI/Marketing** |
+| **Verkaufsversion / Abo** | Ziel: ca. **3,99 €/Monat**, **39 €/Jahr**, **7 Tage Trial**. Botschaft: Geld statt Werbung/Datenhandel. Spendentopf: 5 % Brutto + Mehrzahlung → Sozialzugänge, Überschuss → Forschung ([SPENDENTOPF.md](./SPENDENTOPF.md)). **Erst dann in UI/Marketing** |
 | Store-Wrapper | z. B. Capacitor (u. a. M1-Mac-Build) |
 | Optional KI-Buddy | opt-in, kurz, entlastend — Kosten/Datenschutz klären |
 | Datenschutz-Paket | wenn Cloud/Sync: TOMs, AVV, Impressum-Anbindung |
@@ -64,3 +64,4 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 | Jul 2026 | Sync vor Preiserhöhung / 3,99er-Story |
 | Jul 2026 | Buddy zuerst kontextreich lokal, KI optional später |
 | Jul 2026 | Dokuhub analog Schwundbuch (`docs/`) |
+| Jul 2026 | Preisziel **3,99 / 39**; Preisbotschaft: Abo statt Werbung/Datenhandel; Spendentopf ([SPENDENTOPF.md](./SPENDENTOPF.md)): 5 % Brutto + Mehrzahlung vorrangig Sozialzugänge, Jahresüberschuss (nach Reserve) → ADHS-Forschung; Internbericht später auto, Öffentlich-Bericht manuell |
