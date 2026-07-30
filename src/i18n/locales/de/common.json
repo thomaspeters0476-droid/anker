@@ -207,6 +207,23 @@
     "noticeCodeSent": "Mail von Tagesanker (Resend) unterwegs — Betreff mit Sync-Code. Nur die 6 Ziffern hier eintippen.",
     "noticeSignedIn": "Angemeldet — Geräte werden abgeglichen.",
     "noticeSignedOut": "Abgemeldet. Daten bleiben auf diesem Gerät; Sync pausiert.",
+    "explain": {
+      "show": "Was bedeutet das? Kurze Erklärung",
+      "hide": "Erklärung ausblenden",
+      "aria": "Erklärung zum Geräte-Sync",
+      "intro": "In einfachen Worten — nur wenn du Sync nutzen willst:",
+      "syncTerm": "Sync",
+      "syncText": "Zwei Geräte (z. B. Handy und Tablet) sollen denselben Tagesstand teilen.",
+      "mailTerm": "E-Mail-Code",
+      "mailText": "Sechs Ziffern per Mail — nur zum Anmelden. Das ist nicht dein Sync-Passwort.",
+      "vaultTerm": "Tresor",
+      "vaultText": "Geschützter Speicher für deine Cloud-Kopie. Nur mit Passwort lesbar — auch Tagesanker kann nicht mitlesen.",
+      "passTerm": "Sync-Passwort",
+      "passText": "Dein Schlüssel für den Tresor. Am besten im Passwortmanager speichern.",
+      "recoveryTerm": "Recovery-Code",
+      "recoveryText": "Notfall-Ersatz, falls das Passwort weg ist. Einmal gut aufbewahren.",
+      "outro": "Ohne Sync bleibt alles wie bisher nur auf diesem Gerät."
+    },
     "conflict": {
       "ariaLabel": "Sync-Konflikt",
       "body": "Cloud und dieses Gerät haben unterschiedliche Stände mit gleichem Zeitstempel. Was behalten?",

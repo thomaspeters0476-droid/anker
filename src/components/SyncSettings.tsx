@@ -472,6 +472,8 @@ export function SyncSettings({
     else if (result !== 'failed') onNotice?.(t('sync.vault.noticeMailed'))
   }
 
+  const [showExplain, setShowExplain] = useState(false)
+
   let gateHint: string | null = null
   if (!emailOk && otpOk) gateHint = t('sync.gateNeedEmail')
   else if (emailOk && !otpOk) gateHint = t('sync.gateNeedOtp')
@@ -483,6 +485,46 @@ export function SyncSettings({
       {!embedded && <h3 className="sync-title">{t('sync.title')}</h3>}
       <p className="block-hint">{t('sync.hint')}</p>
       <p className="block-hint">{t('sync.vault.trust')}</p>
+      <button
+        type="button"
+        className="ghost sm sync-explain-toggle"
+        aria-expanded={showExplain}
+        onClick={() => setShowExplain((v) => !v)}
+      >
+        {showExplain ? t('sync.explain.hide') : t('sync.explain.show')}
+      </button>
+      {showExplain && (
+        <div
+          className="sync-explain"
+          role="region"
+          aria-label={t('sync.explain.aria')}
+        >
+          <p>{t('sync.explain.intro')}</p>
+          <ul>
+            <li>
+              <strong>{t('sync.explain.syncTerm')}</strong>{' '}
+              {t('sync.explain.syncText')}
+            </li>
+            <li>
+              <strong>{t('sync.explain.mailTerm')}</strong>{' '}
+              {t('sync.explain.mailText')}
+            </li>
+            <li>
+              <strong>{t('sync.explain.vaultTerm')}</strong>{' '}
+              {t('sync.explain.vaultText')}
+            </li>
+            <li>
+              <strong>{t('sync.explain.passTerm')}</strong>{' '}
+              {t('sync.explain.passText')}
+            </li>
+            <li>
+              <strong>{t('sync.explain.recoveryTerm')}</strong>{' '}
+              {t('sync.explain.recoveryText')}
+            </li>
+          </ul>
+          <p className="block-hint">{t('sync.explain.outro')}</p>
+        </div>
+      )}
 
       {email ? (
         <>

@@ -207,6 +207,23 @@
     "noticeCodeSent": "Email from Tagesanker (Resend) on the way — subject with sync code. Type only the 6 digits here.",
     "noticeSignedIn": "Signed in — devices will sync.",
     "noticeSignedOut": "Signed out. Data stays on this device; sync paused.",
+    "explain": {
+      "show": "What does this mean? Short explainer",
+      "hide": "Hide explainer",
+      "aria": "Device sync explainer",
+      "intro": "In plain words — only if you want sync:",
+      "syncTerm": "Sync",
+      "syncText": "Two devices (e.g. phone and tablet) share the same day state.",
+      "mailTerm": "Email code",
+      "mailText": "Six digits by email — only to sign in. Not your sync password.",
+      "vaultTerm": "Vault",
+      "vaultText": "Protected storage for your cloud copy. Readable only with your password — Tagesanker cannot read it either.",
+      "passTerm": "Sync password",
+      "passText": "Your key to the vault. Best saved in a password manager.",
+      "recoveryTerm": "Recovery code",
+      "recoveryText": "Emergency backup if you lose the password. Keep it somewhere safe.",
+      "outro": "Without sync, everything stays on this device only, as before."
+    },
     "conflict": {
       "ariaLabel": "Sync conflict",
       "body": "Cloud and this device have different states with the same timestamp. Keep which?",
