@@ -6,13 +6,18 @@ import {
   normalizeTitleList,
 } from './types'
 import { DEFAULT_CAPACITY } from './capacity'
+import type { Capacity } from './capacity'
+import { capacityForMood } from './mood'
 import { SOFT_FREEZE_DEFAULTS, type AwayNudgeMode } from './softFreeze'
 import { normalizeLocale, type AppLocale } from './i18n/locales'
+import { emptyDrawer } from './drawer/logic'
+import type { DrawerState } from './drawer/types'
 
 const DAY_KEY = 'fokus-buddy-day'
 const PREFS_KEY = 'anker-prefs'
 const CARRY_KEY = 'anker-carry'
 const SPARKS_KEY = 'anker-sparks'
+const DRAWER_KEY = 'anker-drawer'
 const SYNC_META_KEY = 'anker-sync-meta'
 
 let suppressSyncTouch = false
@@ -54,6 +59,7 @@ export type SyncSnapshot = {
   prefs: Prefs
   carry: CarryItem[]
   sparks: Spark[]
+  drawer: DrawerState
 }
 
 function readDayRaw(): DayState | null {
@@ -66,6 +72,24 @@ function readDayRaw(): DayState | null {
   }
 }
 
+export function loadDrawer(): DrawerState {
+  try {
+    const raw = localStorage.getItem(DRAWER_KEY)
+    if (!raw) return emptyDrawer()
+    const data = JSON.parse(raw) as Partial<DrawerState>
+    return {
+      items: Array.isArray(data.items) ? data.items : [],
+    }
+  } catch {
+    return emptyDrawer()
+  }
+}
+
+export function saveDrawer(state: DrawerState): void {
+  localStorage.setItem(DRAWER_KEY, JSON.stringify(state))
+  touchLocalUpdatedAt()
+}
+
 export function getSyncSnapshot(): SyncSnapshot {
   return {
     updatedAt: getLocalUpdatedAt() || new Date(0).toISOString(),
@@ -73,6 +97,7 @@ export function getSyncSnapshot(): SyncSnapshot {
     prefs: loadPrefs(),
     carry: loadCarryOver(),
     sparks: loadSparksVault(),
+    drawer: loadDrawer(),
   }
 }
 
@@ -87,6 +112,9 @@ export function applySyncSnapshot(snap: SyncSnapshot): DayState {
     savePrefs(snap.prefs)
     saveCarryOver(snap.carry)
     saveSparksVault(snap.sparks)
+    if (snap.drawer) {
+      localStorage.setItem(DRAWER_KEY, JSON.stringify(snap.drawer))
+    }
     setLocalUpdatedAt(snap.updatedAt)
   } finally {
     suppressSyncTouch = false
@@ -99,6 +127,7 @@ export function hasMeaningfulLocalData(): boolean {
   if (day && ((day.tasks?.length ?? 0) > 0 || day.started)) return true
   if (loadCarryOver().length > 0) return true
   if (loadSparksVault().length > 0) return true
+  if (loadDrawer().items.length > 0) return true
   const prefs = loadPrefs()
   if (prefs.sparksMailEmail) return true
   if (prefs.customLifeAnchors.length > 0) return true
@@ -123,6 +152,8 @@ export type Prefs = {
   customLifeAnchors: string[]
   sparksMailEmail: string
   locale: AppLocale
+  /** Morgens dünner Plan (Stimmung → Carry → Start). false = bisherige volle Ansicht */
+  shortMorning: boolean
 }
 
 export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
@@ -140,6 +171,7 @@ function defaultPrefs(): Prefs {
     customLifeAnchors: [],
     sparksMailEmail: '',
     locale: 'de',
+    shortMorning: true,
   }
 }
 
@@ -170,8 +202,14 @@ export function loadPrefs(): Prefs {
     const raw = localStorage.getItem(PREFS_KEY)
     if (!raw) return defaultPrefs()
     const data = JSON.parse(raw) as Partial<Prefs>
+    const mergedCap = { ...DEFAULT_CAPACITY, ...data.capacity }
+    // Alte Shipping-Defaults → aktuelles Standard (K4 M3 G1)
+    const capacity =
+      data.capacity && isShippedDefaultCap(data.capacity)
+        ? { ...DEFAULT_CAPACITY }
+        : mergedCap
     return {
-      capacity: { ...DEFAULT_CAPACITY, ...data.capacity },
+      capacity,
       checkInEveryMin: data.checkInEveryMin ?? CHECK_IN_DEFAULT,
       buddyTone: data.buddyTone ?? 'warm',
       lifeMax: clampLifeMax(data.lifeMax ?? LIFE_DEFAULT),
@@ -190,6 +228,7 @@ export function loadPrefs(): Prefs {
       customLifeAnchors: normalizeTitleList(data.customLifeAnchors),
       sparksMailEmail: normalizeSparksMailEmail(data.sparksMailEmail),
       locale: data.locale ? normalizeLocale(data.locale) : 'de',
+      shortMorning: data.shortMorning ?? true,
     }
   } catch {
     return defaultPrefs()
@@ -242,15 +281,34 @@ function mergeSparks(a: Spark[], b: Spark[]): Spark[] {
   )
 }
 
+function isShippedDefaultCap(c: Capacity): boolean {
+  // Frühere mitgelieferte Defaults (nicht selbst feinjustiert)
+  return (
+    (c.large === 0 && c.medium === 2 && c.small === 2) ||
+    (c.large === 1 && c.medium === 2 && c.small === 3)
+  )
+}
+
 function normalizeDay(data: DayState, prefs: Prefs, sparks: Spark[]): DayState {
-  const baselineCapacity = data.baselineCapacity ?? data.capacity ?? prefs.capacity
+  let baselineCapacity = {
+    ...(data.baselineCapacity ?? data.capacity ?? prefs.capacity),
+  }
+  if (isShippedDefaultCap(baselineCapacity)) {
+    baselineCapacity = { ...prefs.capacity }
+  }
+  let capacity = { ...(data.capacity ?? prefs.capacity) }
+  if (isShippedDefaultCap(capacity)) {
+    capacity = data.mood
+      ? capacityForMood(baselineCapacity, data.mood)
+      : { ...baselineCapacity }
+  }
   const baselineLifeMax = data.baselineLifeMax ?? data.lifeMax ?? prefs.lifeMax
   return {
     ...data,
     mood: data.mood ?? null,
-    baselineCapacity: { ...baselineCapacity },
+    baselineCapacity,
     baselineLifeMax,
-    capacity: data.capacity ?? prefs.capacity,
+    capacity,
     lifeMax: clampLifeMax(data.lifeMax ?? prefs.lifeMax),
     introButtonOnSurface:
       data.introButtonOnSurface ?? prefs.introButtonOnSurface,
@@ -356,7 +414,9 @@ export function saveDay(state: DayState): void {
   try {
     localStorage.setItem(DAY_KEY, JSON.stringify(state))
     saveSparksVault(state.sparks)
+    const prefs = loadPrefs()
     savePrefs({
+      ...prefs,
       capacity: { ...(state.baselineCapacity ?? state.capacity) },
       checkInEveryMin: state.checkInEveryMin,
       buddyTone: state.buddyTone,
@@ -370,7 +430,7 @@ export function saveDay(state: DayState): void {
       hiddenLifeTemplates: normalizeTitleList(state.hiddenLifeTemplates),
       customLifeAnchors: normalizeTitleList(state.customLifeAnchors),
       sparksMailEmail: normalizeSparksMailEmail(state.sparksMailEmail),
-      locale: loadPrefs().locale,
+      locale: prefs.locale,
     })
   } finally {
     suppressSyncTouch = false

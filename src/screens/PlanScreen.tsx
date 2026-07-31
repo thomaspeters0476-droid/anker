@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DayState, Task, TaskKind, TaskSize } from '../types'
 import {
@@ -24,7 +24,9 @@ import {
 import {
   clearCarryOver,
   loadCarryOver,
+  loadDrawer,
   loadPrefs,
+  saveDrawer,
   savePrefs,
   SPARK_RETENTION_DAYS,
   type CarryItem,
@@ -36,6 +38,7 @@ import {
 import { PwaGuide } from '../components/PwaGuide'
 import { Handbook } from '../components/Handbook'
 import { SyncSettings } from '../components/SyncSettings'
+import { DrawerPanel } from '../components/DrawerPanel'
 import { isStandaloneApp } from '../pwa'
 import {
   MOOD_OPTIONS,
@@ -50,6 +53,7 @@ import {
 } from '../sparkExpiry'
 import type { SyncConflict } from '../sync'
 import { setAppLocale } from '../i18n'
+import type { DrawerState } from '../drawer/types'
 import {
   APP_LOCALES,
   LOCALE_LABELS,
@@ -106,6 +110,22 @@ export function PlanScreen({
     () => new Set(loadCarryOver().map((_, i) => i)),
   )
   const [notifMsg, setNotifMsg] = useState<string | null>(null)
+  const [moodNudge, setMoodNudge] = useState(false)
+  const [adoptTip, setAdoptTip] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [drawer, setDrawer] = useState<DrawerState>(() => loadDrawer())
+  const [shortMorning, setShortMorning] = useState(
+    () => loadPrefs().shortMorning,
+  )
+  const [planMoreOpen, setPlanMoreOpen] = useState(false)
+
+  function updateDrawer(next: SetStateAction<DrawerState>) {
+    setDrawer((prev) => {
+      const value = typeof next === 'function' ? next(prev) : next
+      saveDrawer(value)
+      return value
+    })
+  }
 
   const work = day.tasks.filter((t) => t.kind === 'work')
   const life = day.tasks.filter((t) => t.kind === 'life')
@@ -127,6 +147,39 @@ export function PlanScreen({
     setCarry(items)
     setSelectedCarry(new Set(items.map((_, i) => i)))
   }, [])
+
+  // Kapazität an aktuelle Mood-Formel anpassen (z. B. nach Fix „nur Mittel“)
+  useEffect(() => {
+    if (day.started || !day.mood) return
+    setDay((d) => {
+      if (!d.mood) return d
+      const baseline = d.baselineCapacity ?? d.capacity
+      const capacity = capacityForMood(baseline, d.mood)
+      if (
+        capacity.large === d.capacity.large &&
+        capacity.medium === d.capacity.medium &&
+        capacity.small === d.capacity.small
+      ) {
+        return d
+      }
+      const lifeMax = clampLifeMax(
+        lifeMaxForMood(d.baselineLifeMax ?? d.lifeMax, d.mood),
+        d.tasks.filter((t) => t.kind === 'life').length,
+      )
+      return {
+        ...d,
+        capacity,
+        lifeMax,
+        tasks: d.tasks.map((t) =>
+          t.kind === 'work'
+            ? { ...t, minutes: minutesForSize(t.size, d.mood) }
+            : t,
+        ),
+      }
+    })
+    // absichtlich nur beim ersten Mount / Mood-Start
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [day.mood, day.started])
 
   const hint = useMemo(
     () =>
@@ -267,6 +320,7 @@ export function PlanScreen({
   }
 
   function applyMood(mood: DayMood) {
+    setMoodNudge(false)
     setDay((d) => {
       const baseline = d.baselineCapacity ?? d.capacity
       const baselineLife = d.baselineLifeMax ?? d.lifeMax
@@ -301,44 +355,79 @@ export function PlanScreen({
     })
   }
 
-  function adoptCarry() {
-    setDay((d) => {
-      const tasks = [...d.tasks]
-      let lifeCount = tasks.filter((t) => t.kind === 'life').length
-      let points = capacityPoints(usedCapacity(tasks))
+  function adoptCarryItems(base: DayState, selected: Set<number>): Task[] {
+    const tasks = [...base.tasks]
+    let lifeCount = tasks.filter((t) => t.kind === 'life').length
+    let points = capacityPoints(usedCapacity(tasks))
 
-      for (const i of [...selectedCarry].sort((a, b) => a - b)) {
-        const item = carry[i]
-        if (!item) continue
-        if (item.kind === 'life') {
-          if (lifeCount >= d.lifeMax) continue
-          tasks.push({
-            id: uid(),
-            title: item.title,
-            kind: 'life',
-            status: 'planned',
-            size: 'small',
-            minutes: SIZE_MINUTES.small,
-          })
-          lifeCount += 1
-        } else {
-          const need = SIZE_POINTS[item.size]
-          const cap = capacityPoints(d.capacity)
-          const fakeUsed = usedCapacity(tasks)
-          if (points + need > cap) continue
-          if (fakeUsed[item.size] >= d.capacity[item.size]) continue
-          tasks.push({
-            id: uid(),
-            title: item.title,
-            kind: 'work',
-            status: 'planned',
-            size: item.size,
-            minutes: item.minutes || SIZE_MINUTES[item.size],
-          })
-          points += need
-        }
+    for (const i of [...selected].sort((a, b) => a - b)) {
+      const item = carry[i]
+      if (!item) continue
+      if (item.kind === 'life') {
+        if (lifeCount >= base.lifeMax) continue
+        tasks.push({
+          id: uid(),
+          title: item.title,
+          kind: 'life',
+          status: 'planned',
+          size: 'small',
+          minutes: SIZE_MINUTES.small,
+        })
+        lifeCount += 1
+      } else {
+        const need = SIZE_POINTS[item.size]
+        const cap = capacityPoints(base.capacity)
+        const fakeUsed = usedCapacity(tasks)
+        if (points + need > cap) continue
+        if (fakeUsed[item.size] >= base.capacity[item.size]) continue
+        tasks.push({
+          id: uid(),
+          title: item.title,
+          kind: 'work',
+          status: 'planned',
+          size: item.size,
+          minutes: item.minutes || SIZE_MINUTES[item.size],
+        })
+        points += need
       }
-      return { ...d, tasks }
+    }
+    return tasks
+  }
+
+  function adoptCarry() {
+    setDay((d) => ({ ...d, tasks: adoptCarryItems(d, selectedCarry) }))
+    clearCarryOver()
+    setCarry([])
+    setSelectedCarry(new Set())
+    if (shortMorning) {
+      setPlanMoreOpen(true)
+      setAdoptTip(true)
+    }
+  }
+
+  function adoptCarryAndStart() {
+    if (!day.mood) {
+      setMoodNudge(true)
+      return
+    }
+    setMoodNudge(false)
+    setAdoptTip(false)
+    setDay((d) => {
+      const tasks = adoptCarryItems(d, selectedCarry)
+      if (tasks.length === 0) {
+        return { ...d, tasks, started: true }
+      }
+      const firstWork = tasks.findIndex((t) => t.kind === 'work')
+      const startIdx = firstWork !== -1 ? firstWork : 0
+      return {
+        ...d,
+        tasks: tasks.map((t, i) =>
+          i === startIdx
+            ? { ...t, status: 'active' }
+            : { ...t, status: 'planned' },
+        ),
+        started: true,
+      }
     })
     clearCarryOver()
     setCarry([])
@@ -349,6 +438,74 @@ export function PlanScreen({
     clearCarryOver()
     setCarry([])
     setSelectedCarry(new Set())
+  }
+
+  function setWorkTaskSize(id: string, size: TaskSize) {
+    setDay((d) => {
+      const others = d.tasks.filter((t) => t.id !== id)
+      const current = d.tasks.find((t) => t.id === id)
+      if (!current || current.kind !== 'work') return d
+      if (current.size === size) return d
+      if (!canAddSize(d.capacity, others, size)) return d
+      return {
+        ...d,
+        tasks: d.tasks.map((t) =>
+          t.id === id
+            ? {
+                ...t,
+                size,
+                minutes: minutesForSize(size, d.mood),
+              }
+            : t,
+        ),
+      }
+    })
+  }
+
+  function suggestTypicalLife() {
+    const room = day.lifeMax - life.length
+    if (room <= 0) return
+    const picks = lifeAnchors
+      .filter((tpl) => !life.some((task) => task.title === tpl))
+      .slice(0, Math.min(2, room))
+    if (picks.length === 0) return
+
+    setDay((d) => {
+      let nextLife = d.tasks.filter((t) => t.kind === 'life').length
+      const tasks = [...d.tasks]
+      let hidden = [...(d.hiddenLifeTemplates ?? [])]
+      let custom = [...(d.customLifeAnchors ?? [])]
+      for (const trimmed of picks) {
+        if (nextLife >= d.lifeMax) break
+        if (tasks.some((t) => t.kind === 'life' && t.title === trimmed)) continue
+        tasks.push({
+          id: uid(),
+          title: trimmed,
+          kind: 'life',
+          status: 'planned',
+          size: 'small',
+          minutes: SIZE_MINUTES.small,
+        })
+        nextLife += 1
+        if (isDefaultLifeTemplate(trimmed)) {
+          hidden = hidden.filter((h) => h !== trimmed)
+        } else if (!custom.includes(trimmed)) {
+          custom = [...custom, trimmed]
+        }
+      }
+      return {
+        ...d,
+        tasks,
+        hiddenLifeTemplates: hidden,
+        customLifeAnchors: custom,
+      }
+    })
+  }
+
+  function persistShortMorning(value: boolean) {
+    setShortMorning(value)
+    savePrefs({ ...loadPrefs(), shortMorning: value })
+    if (!value) setPlanMoreOpen(true)
   }
 
   async function enableNotifications() {
@@ -365,125 +522,38 @@ export function PlanScreen({
   }
 
   function startDay() {
-    if (day.tasks.length === 0) return
-    const firstWork = day.tasks.findIndex((t) => t.kind === 'work')
-    const startIdx = firstWork !== -1 ? firstWork : 0
-    setDay((d) => ({
-      ...d,
-      started: true,
-      tasks: d.tasks.map((t, i) =>
-        i === startIdx
-          ? { ...t, status: 'active' }
-          : { ...t, status: 'planned' },
-      ),
-    }))
+    if (!day.mood) {
+      setMoodNudge(true)
+      return
+    }
+    setMoodNudge(false)
+    setAdoptTip(false)
+    setDay((d) => {
+      if (d.tasks.length === 0) {
+        return { ...d, started: true }
+      }
+      const firstWork = d.tasks.findIndex((t) => t.kind === 'work')
+      const startIdx = firstWork !== -1 ? firstWork : 0
+      return {
+        ...d,
+        started: true,
+        tasks: d.tasks.map((t, i) =>
+          i === startIdx
+            ? { ...t, status: 'active' }
+            : { ...t, status: 'planned' },
+        ),
+      }
+    })
   }
 
   const sizes: TaskSize[] = ['small', 'medium', 'large']
   const perm = notificationPermission()
+  const compactMorning = shortMorning && !day.started
+  const canSuggestLife =
+    life.length < day.lifeMax &&
+    lifeAnchors.some((tpl) => !life.some((task) => task.title === tpl))
 
-  return (
-    <section className="screen plan-screen">
-      <div className="buddy-card" role="status">
-        <span className="buddy-label">{t('common.buddy')}</span>
-        <p>
-          {planBuddy(ctxFromDay(day, { carryCount: carry.length }))}
-        </p>
-      </div>
-
-      {sparkMailNotice && (
-        <div className="buddy-card warn spark-mail-notice" role="status">
-          <span className="buddy-label">{t('plan.sparkMailNoticeLabel')}</span>
-          <p>{sparkMailNotice}</p>
-          {onDismissSparkMailNotice && (
-            <button
-              type="button"
-              className="ghost sm"
-              onClick={onDismissSparkMailNotice}
-            >
-              {t('common.ok')}
-            </button>
-          )}
-        </div>
-      )}
-
-      {!day.started && (
-        <div className="block block--mood">
-          <div className="block-head">
-            <h2>{t('plan.mood.title')}</h2>
-          </div>
-          <p className="block-hint">{t('plan.mood.hint')}</p>
-          <div
-            className="mood-picker"
-            role="group"
-            aria-label={t('plan.mood.ariaLabel')}
-          >
-            {MOOD_OPTIONS.map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                className={`mood-opt ${day.mood === opt.id ? 'active' : ''}`}
-                onClick={() => applyMood(opt.id)}
-              >
-                <span className="mood-label">
-                  {t(`plan.mood.${opt.id}.label`)}
-                </span>
-                <small>{t(`plan.mood.${opt.id}.hint`)}</small>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {carry.length > 0 && !day.started && (
-        <div className="block block--carry">
-          <div className="block-head">
-            <h2>{t('plan.carry.title')}</h2>
-            <span className="count">{carry.length}</span>
-          </div>
-          <p className="block-hint">{t('plan.carry.hint')}</p>
-          <ul className="carry-list">
-            {carry.map((item, i) => (
-              <li key={`${item.title}-${i}`}>
-                <label className="carry-item">
-                  <input
-                    type="checkbox"
-                    checked={selectedCarry.has(i)}
-                    onChange={() => toggleCarry(i)}
-                  />
-                  <span className={`kind tiny ${item.kind}`}>
-                    {item.kind === 'work'
-                      ? t('common.workAbbrev')
-                      : t('common.lifeAbbrev')}
-                  </span>
-                  <span className="carry-title">
-                    {lifeTemplateLabel(item.title, t)}
-                  </span>
-                  {item.kind === 'work' && (
-                    <span className={`size-badge tiny ${item.size}`}>
-                      {sizeLabel(item.size).slice(0, 1)}
-                    </span>
-                  )}
-                </label>
-              </li>
-            ))}
-          </ul>
-          <div className="carry-actions">
-            <button
-              type="button"
-              className="primary"
-              disabled={selectedCarry.size === 0}
-              onClick={adoptCarry}
-            >
-              {t('plan.carry.adopt')}
-            </button>
-            <button type="button" className="ghost" onClick={dismissCarry}>
-              {t('plan.carry.dismiss')}
-            </button>
-          </div>
-        </div>
-      )}
-
+  const workBlock = (
       <div className="block block--work">
         <div className="block-head">
           <h2>{t('plan.work.title')}</h2>
@@ -491,16 +561,45 @@ export function PlanScreen({
             {t('plan.work.count', { used: usedPts, max: maxPts })}
           </span>
         </div>
-        <p className="block-hint">{t('plan.work.hint')}</p>
+        <p className="block-hint">
+          {compactMorning ? t('plan.work.hintShort') : t('plan.work.hint')}
+        </p>
         <ul className="task-list">
           {work.map((task) => (
-            <li key={task.id}>
+            <li key={task.id} className={compactMorning ? 'task-row--sized' : undefined}>
               <span className="task-main">
-                <span className={`size-badge ${task.size}`}>
-                  {sizeLabel(task.size)}
-                </span>
+                {!compactMorning && (
+                  <span className={`size-badge ${task.size}`}>
+                    {sizeLabel(task.size)}
+                  </span>
+                )}
                 {task.title}
               </span>
+              {compactMorning && (
+                <div
+                  className="task-size-switch"
+                  role="group"
+                  aria-label={t('plan.work.sizeAria')}
+                >
+                  {sizes.map((size) => {
+                    const others = day.tasks.filter((t) => t.id !== task.id)
+                    const blocked =
+                      size !== task.size &&
+                      !canAddSize(day.capacity, others, size)
+                    return (
+                      <button
+                        key={size}
+                        type="button"
+                        className={`task-size-opt ${task.size === size ? 'active' : ''}`}
+                        disabled={blocked}
+                        onClick={() => setWorkTaskSize(task.id, size)}
+                      >
+                        {sizeLabel(size).slice(0, 1)}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
               <button
                 type="button"
                 className="ghost"
@@ -562,7 +661,9 @@ export function PlanScreen({
           </form>
         )}
       </div>
+  )
 
+  const lifeBlock = (
       <div className="block block--life">
         <div className="block-head">
           <h2>{t('plan.life.title')}</h2>
@@ -570,7 +671,18 @@ export function PlanScreen({
             {t('plan.life.count', { used: life.length, max: day.lifeMax })}
           </span>
         </div>
-        <p className="block-hint">{t('plan.life.hint')}</p>
+        <p className="block-hint">
+          {compactMorning ? t('plan.life.hintShort') : t('plan.life.hint')}
+        </p>
+        {compactMorning && canSuggestLife && (
+          <button
+            type="button"
+            className="secondary sm life-suggest"
+            onClick={suggestTypicalLife}
+          >
+            {t('plan.life.suggestTypical')}
+          </button>
+        )}
         <ul className="task-list">
           {life.map((task) => (
             <li key={task.id}>
@@ -636,24 +748,246 @@ export function PlanScreen({
           </form>
         )}
       </div>
+  )
 
-      {hint && (
+  return (
+    <section
+      className={`screen plan-screen${compactMorning ? ' plan-screen--short' : ''}`}
+    >
+      <div className="buddy-card" role="status">
+        <span className="buddy-label">{t('common.buddy')}</span>
+        <p>
+          {planBuddy(ctxFromDay(day, { carryCount: carry.length }))}
+        </p>
+      </div>
+
+      {!day.started && (
+        <div className="morning-quick-links">
+          {compactMorning ? (
+            <button
+              type="button"
+              className="ghost sm"
+              onClick={() => persistShortMorning(false)}
+            >
+              {t('plan.switchToFull')}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="ghost sm"
+              onClick={() => persistShortMorning(true)}
+            >
+              {t('plan.switchToShort')}
+            </button>
+          )}
+          {onShowIntro && (
+            <button type="button" className="ghost sm" onClick={onShowIntro}>
+              {t('plan.introSurface.show')}
+            </button>
+          )}
+          <button
+            type="button"
+            className="ghost sm"
+            onClick={() => setSettingsOpen(true)}
+          >
+            {t('settings.summary')}
+          </button>
+          <button
+            type="button"
+            className="ghost sm morning-drawer-link"
+            onClick={() => setDrawerOpen(true)}
+          >
+            {t('drawer.open')}
+            {drawer.items.length > 0 ? ` · ${drawer.items.length}` : ''}
+          </button>
+        </div>
+      )}
+
+      {sparkMailNotice && (
+        <div className="buddy-card warn spark-mail-notice" role="status">
+          <span className="buddy-label">{t('plan.sparkMailNoticeLabel')}</span>
+          <p>{sparkMailNotice}</p>
+          {onDismissSparkMailNotice && (
+            <button
+              type="button"
+              className="ghost sm"
+              onClick={onDismissSparkMailNotice}
+            >
+              {t('common.ok')}
+            </button>
+          )}
+        </div>
+      )}
+
+      {!day.started && (
+        <div
+          className={`block block--mood${moodNudge ? ' block--nudge' : ''}`}
+        >
+          <div className="block-head">
+            <h2>{t('plan.mood.title')}</h2>
+          </div>
+          <p className="block-hint">{t('plan.mood.hint')}</p>
+          {moodNudge && (
+            <p className="plan-nudge" role="status">
+              {t('plan.mood.nudge')}
+            </p>
+          )}
+          <div
+            className="mood-picker"
+            role="group"
+            aria-label={t('plan.mood.ariaLabel')}
+          >
+            {MOOD_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                className={`mood-opt ${day.mood === opt.id ? 'active' : ''}`}
+                onClick={() => applyMood(opt.id)}
+              >
+                <span className="mood-label">
+                  {t(`plan.mood.${opt.id}.label`)}
+                </span>
+                <small>{t(`plan.mood.${opt.id}.hint`)}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {carry.length > 0 && !day.started && (
+        <div className="block block--carry">
+          <div className="block-head">
+            <h2>{t('plan.carry.title')}</h2>
+            <span className="count">{carry.length}</span>
+          </div>
+          <p className="block-hint">
+            {compactMorning ? t('plan.carry.hintShort') : t('plan.carry.hint')}
+          </p>
+          <ul className="carry-list">
+            {carry.map((item, i) => (
+              <li key={`${item.title}-${i}`}>
+                <label className="carry-item">
+                  <input
+                    type="checkbox"
+                    checked={selectedCarry.has(i)}
+                    onChange={() => toggleCarry(i)}
+                  />
+                  <span className={`kind tiny ${item.kind}`}>
+                    {item.kind === 'work'
+                      ? t('common.workAbbrev')
+                      : t('common.lifeAbbrev')}
+                  </span>
+                  <span className="carry-title">
+                    {lifeTemplateLabel(item.title, t)}
+                  </span>
+                  {item.kind === 'work' && (
+                    <span className={`size-badge tiny ${item.size}`}>
+                      {sizeLabel(item.size).slice(0, 1)}
+                    </span>
+                  )}
+                </label>
+              </li>
+            ))}
+          </ul>
+          <div className="carry-actions">
+            {compactMorning ? (
+              <>
+                <button
+                  type="button"
+                  className="primary"
+                  disabled={selectedCarry.size === 0}
+                  onClick={adoptCarryAndStart}
+                >
+                  {t('plan.carry.adoptAndStart')}
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={selectedCarry.size === 0}
+                  onClick={adoptCarry}
+                >
+                  {t('plan.carry.adopt')}
+                </button>
+                <button type="button" className="ghost" onClick={dismissCarry}>
+                  {t('plan.carry.dismiss')}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="primary"
+                  disabled={selectedCarry.size === 0}
+                  onClick={adoptCarry}
+                >
+                  {t('plan.carry.adopt')}
+                </button>
+                <button type="button" className="ghost" onClick={dismissCarry}>
+                  {t('plan.carry.dismiss')}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {adoptTip && compactMorning && day.tasks.length > 0 && !day.started && (
+        <p className="plan-nudge plan-nudge--ok" role="status">
+          {t('plan.carry.adoptTip')}
+        </p>
+      )}
+
+      {compactMorning ? (
+        <details
+          className="morning-more"
+          open={planMoreOpen}
+          onToggle={(e) =>
+            setPlanMoreOpen((e.target as HTMLDetailsElement).open)
+          }
+        >
+          <summary>
+            {t('plan.morningMore')}
+            {day.tasks.length > 0
+              ? ` · ${t('plan.planned.count', { count: day.tasks.length })}`
+              : ''}
+          </summary>
+          {workBlock}
+          {lifeBlock}
+        </details>
+      ) : (
+        <>
+          {workBlock}
+          {lifeBlock}
+        </>
+      )}
+
+      {hint && !compactMorning && (
         <div className="buddy-card warn" role="status">
           <span className="buddy-label">{t('common.buddy')}</span>
           <p>{hint}</p>
         </div>
       )}
 
-      <button
-        type="button"
-        className="primary lg start-btn"
-        disabled={day.tasks.length === 0}
-        onClick={startDay}
-      >
-        {t('plan.startDay')}
-      </button>
+      {!day.started && (
+        <div className="start-day-wrap">
+          <button
+            type="button"
+            className="primary lg start-btn"
+            onClick={startDay}
+          >
+            {day.tasks.length === 0
+              ? t('plan.startDayEmpty')
+              : t('plan.startDay')}
+          </button>
+          {day.tasks.length === 0 && (
+            <p className="block-hint start-day-hint">
+              {t('plan.startDayEmptyHint')}
+            </p>
+          )}
+        </div>
+      )}
 
-      {onShowIntro && day.introButtonOnSurface && (
+      {onShowIntro && day.introButtonOnSurface && !compactMorning && (
         <div className="intro-surface">
           <button
             type="button"
@@ -678,43 +1012,55 @@ export function PlanScreen({
       )}
 
       <div className="plan-footer">
-        <div className="cap-summary muted">
-          <div>
-            <span className="cap-label">{t('plan.capSummary.label')}</span>
-            <strong>
-              {t('plan.capSummary.points', { used: usedPts, max: maxPts })}
-            </strong>
+        {!compactMorning && (
+          <div className="cap-summary muted">
+            <div>
+              <span className="cap-label">{t('plan.capSummary.label')}</span>
+              <strong>
+                {t('plan.capSummary.points', { used: usedPts, max: maxPts })}
+              </strong>
+            </div>
+            <div className="cap-pills">
+              <span>
+                {t('plan.capSummary.large', {
+                  used: used.large,
+                  max: day.capacity.large,
+                })}
+              </span>
+              <span>
+                {t('plan.capSummary.medium', {
+                  used: used.medium,
+                  max: day.capacity.medium,
+                })}
+              </span>
+              <span>
+                {t('plan.capSummary.small', {
+                  used: used.small,
+                  max: day.capacity.small,
+                })}
+              </span>
+            </div>
           </div>
-          <div className="cap-pills">
-            <span>
-              {t('plan.capSummary.large', {
-                used: used.large,
-                max: day.capacity.large,
-              })}
-            </span>
-            <span>
-              {t('plan.capSummary.medium', {
-                used: used.medium,
-                max: day.capacity.medium,
-              })}
-            </span>
-            <span>
-              {t('plan.capSummary.small', {
-                used: used.small,
-                max: day.capacity.small,
-              })}
-            </span>
-          </div>
-        </div>
+        )}
 
         <details
-          className="settings-panel"
+          className={`settings-panel${compactMorning ? ' settings-panel--quiet' : ''}`}
           open={settingsOpen}
           onToggle={(e) =>
             setSettingsOpen((e.target as HTMLDetailsElement).open)
           }
         >
           <summary>{t('settings.summary')}</summary>
+
+          <label className="intro-hide-check settings-check">
+            <input
+              type="checkbox"
+              checked={shortMorning}
+              onChange={(e) => persistShortMorning(e.target.checked)}
+            />
+            {t('settings.shortMorning')}
+          </label>
+          <p className="block-hint">{t('settings.shortMorningHint')}</p>
 
           <details className="settings-section">
             <summary>
@@ -1062,7 +1408,7 @@ export function PlanScreen({
               {t('settings.help.introButton')}
             </label>
 
-            {onShowIntro && !day.introButtonOnSurface && (
+            {onShowIntro && (
               <button
                 type="button"
                 className="secondary lg intro-again"
@@ -1141,6 +1487,14 @@ export function PlanScreen({
       </div>
 
       {handbookOpen && <Handbook onClose={() => setHandbookOpen(false)} />}
+      <DrawerPanel
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        drawer={drawer}
+        setDrawer={updateDrawer}
+        day={day}
+        setDay={setDay}
+      />
     </section>
   )
 }

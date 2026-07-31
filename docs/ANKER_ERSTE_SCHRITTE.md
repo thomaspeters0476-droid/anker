@@ -11,9 +11,9 @@ Vom Öffnen bis zum ersten fokussierten Block.
 ## Kurz-Checkliste
 
 1. App im Browser öffnen (am Handy: besser zum Startbildschirm legen)
-2. Kurze Einführung durchlaufen oder überspringen
+2. Kurze Einführung durchlaufen oder überspringen (zwei Morgen-Varianten!)
 3. Tagesgefühl wählen (gut / geht so / eher schwer)
-4. Wenige Arbeitsaufgaben (klein/mittel/groß) + Alltagsanker
+4. Kurzer Morgen: Offenes mitnehmen oder unter „Noch etwas planen“ ergänzen — oder voller Plan in den Einstellungen
 5. „Tag starten“ → nur die eine Sache
 6. Bei Ideen: Geistesblitz parken, dann zurück
 7. Am Ende: Tag beenden oder alles durch → „Neuen Tag planen“
@@ -32,8 +32,9 @@ Vom Öffnen bis zum ersten fokussierten Block.
 
 ## 2. Einführung
 
-Vier kurze Schritte erklären die Haltung.  
-Später erneut: auf dem Plan „Einführung anzeigen“ (falls sichtbar; sonst in den Einstellungen wieder einschaltbar).  
+Erklärt u. a. **zwei Morgen-Arten**: kurzer Morgen (Standard, weniger auf einmal) und voller Plan (alles sichtbar) — Wechsel unter **Einstellungen → „Kurzer Morgen“**.  
+
+Später erneut: Einstellungen → Einführung nochmal anzeigen.  
 Ausführlicher: **Einstellungen → Handbuch öffnen**.
 
 ---
@@ -41,13 +42,12 @@ Ausführlicher: **Einstellungen → Handbuch öffnen**.
 ## 3. Planen
 
 1. **Wie fühlst du dich heute?** — steuert Menge und Zeit, wird nicht gespeichert als Historie  
-2. Arbeitsaufgaben hinzufügen (Größe wählen)  
-3. Alltagsanker: Vorschlag tippen oder eigenen eintragen  
-4. Unnötige Vorschläge mit **×** ausblenden (z. B. Hund)  
-5. Unten Einstellungen nur bei Bedarf (Kapazität, Buddy-Ton, Freeze, Erinnerungen)  
-6. **Tag starten**
+2. Wenn **„Noch offen“**: übernehmen & starten, nur übernehmen, oder verwerfen  
+3. Bei Bedarf **„Noch etwas planen“**: Arbeit (Größe) + Alltag  
+4. Unten Einstellungen (Kapazität, Buddy, Freeze, **Kurzer Morgen** an/aus)  
+5. **Tag starten** (auch mit leerem Tag möglich)
 
-Wenn **„Noch offen“** erscheint: Häkchen setzen und **Übernehmen** — oder **Verwerfen**.
+Vollansicht: Einstellungen → „Kurzer Morgen“ aus.
 
 ---
 

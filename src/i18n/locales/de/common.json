@@ -42,8 +42,12 @@
     "start": "Loslegen",
     "steps": {
       "planLess": {
-        "title": "Wenig planen",
-        "text": "Morgens nur ein paar Arbeitsaufgaben und Alltagsanker. Wie viele — und wie groß — stellst du unten in den Einstellungen ein."
+        "title": "Kurzer Morgen",
+        "text": "Standard: Stimmung wählen, Offenes von gestern mitnehmen, Tag starten. Arbeit und Alltag stecken unter „Noch etwas planen“ — weniger auf einmal, weniger Freeze."
+      },
+      "morningSwitch": {
+        "title": "Oder der volle Plan",
+        "text": "Der volle Plan zeigt Arbeit, Alltag und Größen sofort — gut, wenn du alles auf einen Blick willst. Wechsel jederzeit: Einstellungen → „Kurzer Morgen“ an oder aus. Kurz = ruhiger Start. Voll = mehr Überblick und Kontrolle."
       },
       "oneThing": {
         "title": "Eine Sache",
@@ -67,6 +71,7 @@
     "mood": {
       "title": "Wie fühlst du dich heute?",
       "hint": "Nur für heute — wird nicht gespeichert oder bewertet. Steuert Menge und Zeit.",
+      "nudge": "Bitte kurz wählen — dann passen Menge und Zeiten besser zu dir.",
       "ariaLabel": "Tagesgefühl",
       "good": {
         "label": "Ziemlich gut",
@@ -84,13 +89,18 @@
     "carry": {
       "title": "Noch offen",
       "hint": "Vom letzten Tag — auswählen und mitnehmen (soweit Kapazität reicht).",
+      "hintShort": "Vom letzten Tag. Ein Tipp: übernehmen und direkt starten.",
       "adopt": "Übernehmen",
+      "adoptAndStart": "Übernehmen & starten",
+      "adoptTip": "Liegt auf dem Plan. Prüfen unter „Noch etwas planen“, dann „Tag starten“ — oder oben gleich starten.",
       "dismiss": "Verwerfen"
     },
     "work": {
       "title": "Arbeit",
       "count": "{{used}}/{{max}} Pkt",
       "hint": "Größe wählen — Timer richtet sich danach.",
+      "hintShort": "Zuerst Größe wählen (Klein / Mittel / Groß), dann Titel. Bei vorhandenen Aufgaben: K · M · G tippen.",
+      "cycleSize": "Größe wechseln",
       "sizeAria": "Umfang",
       "minutes": "{{n}} Min",
       "placeholder": "z. B. Bericht fertigstellen"
@@ -99,6 +109,8 @@
       "title": "Alltag",
       "count": "{{used}}/{{max}}",
       "hint": "Zählt nicht in die Arbeitspunkte. × am Vorschlag blendet ihn aus — eigene bleiben gespeichert.",
+      "hintShort": "Darf später kommen. Oder 1–2 Typische vorschlagen lassen.",
+      "suggestTypical": "Typische Alltagsanker vorschlagen",
       "placeholder": "Eigener Alltagsanker…",
       "forgetAria": "{{title}} nicht mehr vorschlagen",
       "forgetTitle": "Nicht mehr vorschlagen",
@@ -111,7 +123,15 @@
         "errands": "Post / Besorgungen"
       }
     },
+    "morningMore": "Noch etwas planen",
+    "planned": {
+      "count": "{{count}} auf dem Plan"
+    },
+    "switchToFull": "Voller Plan",
+    "switchToShort": "Kurzer Morgen",
     "startDay": "Tag starten",
+    "startDayEmpty": "Mit leerem Tag starten",
+    "startDayEmptyHint": "Du kannst gleich zurück und etwas ergänzen — oder später eine Sache wählen.",
     "introSurface": {
       "show": "Einführung anzeigen",
       "hideButton": "Button ausblenden"
@@ -125,8 +145,44 @@
     },
     "sparkMailNoticeLabel": "Geistesblitze"
   },
+  "drawer": {
+    "title": "Die Schublade",
+    "open": "Schublade",
+    "lead": "Alles, was nicht für jetzt ist — sicher weg, nicht weg. Auf den Anker nur kleine Häppchen.",
+    "drop": "Ablegen",
+    "dropPlaceholder": "Schnell reinwerfen…",
+    "readyCap": "Bereit: {{used}} / {{max}}",
+    "capBlocked": "Genug Häppchen bereit — erst holen oder in Ruhe legen.",
+    "pullTitle": "Auf den Anker holen",
+    "pull": "Holen",
+    "levelAll": "Alle",
+    "level": {
+      "inbox": "Eingang",
+      "ready": "Bereit",
+      "defer": "Aufschub",
+      "frozen": "Eingefroren"
+    },
+    "levelShort": {
+      "inbox": "Eingang",
+      "ready": "Bereit",
+      "defer": "Aufschub",
+      "frozen": "Ruhe"
+    },
+    "emptyLevel": "Hier liegt nichts.",
+    "chunk": "Brocken",
+    "bite": "Häppchen",
+    "chop": "In Häppchen",
+    "chopTitle": "In Häppchen schneiden",
+    "chopHint": "Ein Schritt pro Zeile (oder mit ; getrennt). Kommen unter „Bereit“.",
+    "chopPlaceholder": "Ordner holen\nZahlen tippen\nMail schicken",
+    "chopSave": "Schneiden",
+    "chopCancel": "Abbrechen",
+    "deleteChainWarn": "Das gehört zu einer Kette oder hat Schritte. Wirklich entfernen?"
+  },
   "settings": {
     "summary": "Einstellungen",
+    "shortMorning": "Kurzer Morgen (weniger auf einmal)",
+    "shortMorningHint": "Aus = bisherige volle Plan-Ansicht. Du kannst jederzeit zurückschalten.",
     "capacity": {
       "summary": "Tagesmenge",
       "meta": "Arbeit & Alltag",
@@ -339,6 +395,8 @@
       "closeDay": "Tag schließen"
     },
     "noActive": "Keine aktive Aufgabe mehr. Du kannst den Tag beenden oder etwas Offenes anwählen.",
+    "noActiveEmpty": "Noch keine Aufgabe — das ist in Ordnung. Beende den Tag oder geh zurück und leg eine an.",
+    "backToPlan": "Zurück zum Plan",
     "progress": "{{done}} erledigt · {{waiting}} wartend",
     "timer": {
       "parked": "geparkt",

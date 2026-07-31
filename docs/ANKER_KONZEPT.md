@@ -103,9 +103,9 @@ Wenn alle Arbeitsaufgaben erledigt oder übersprungen sind → **Feierabend-Modu
 | Mittel | 2 | 25 |
 | Groß | 3 | 40 |
 
-- Tagesdeckel: max. **8 Punkte**
+- Tagesdeckel: max. **16 Punkte**
 - Hard-Caps pro Größe (z. B. max. 2× groß)
-- Default-Baseline: 2× mittel + 2× klein (6 Punkte)
+- Default-Baseline: **4× klein + 3× mittel + 1× groß** (13 Punkte) — genug für einen Arbeitstag; Stimmung skaliert bei schweren Tagen runter
 - Nur **Arbeit** zählt gegen die Punkt-Kapazität
 - Einstellbar unten auf dem Plan-Screen
 
@@ -193,8 +193,16 @@ Beim Verlassen der App (Tab/Hintergrund):
 
 ## 15. Einführung
 
-Vier Schritte beim ersten Start (Wenig planen / Eine Sache / Zurückfinden / Weicher Freeze).  
-Erneut über „Einführung anzeigen“ auf dem Plan; Button in Einstellungen versteckbar.
+Sechs Schritte beim ersten Start:
+
+1. **Kurzer Morgen** (Standard) — Stimmung, Offenes, Start; Rest unter „Noch etwas planen“  
+2. **Oder der volle Plan** — alles auf einen Blick; Wechsel unter Einstellungen → „Kurzer Morgen“  
+3. Eine Sache  
+4. Zurückfinden  
+5. Weicher Freeze  
+6. Ruhe-Button  
+
+Erneut über „Einführung anzeigen“ (Einstellungen / Plan, falls sichtbar).
 
 ---
 

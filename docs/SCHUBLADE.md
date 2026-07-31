@@ -2,7 +2,7 @@
 
 **Modul:** Schublade (Job-Tresor & Denk-Werkstatt)  
 **Produkt:** Tagesanker  
-**Stand:** 31. Juli 2026 · Konzept (noch nicht gebaut)  
+**Stand:** 31. Juli 2026 · **erste Basis in der App** (manuell; KI-Häppchen / Runden / Fristen-Phasen folgen)  
 **Quelle / Feinkonzept-Rohfassung:** [`Wünsche/die schublade.docx`](./Wünsche/die%20schublade.docx)
 
 Verwandt: [ANKER_KONZEPT.md](./ANKER_KONZEPT.md) · [BUDDY.md](./BUDDY.md) · [ANKER_ROADMAP.md](./ANKER_ROADMAP.md) · [DATENMODELL.md](./DATENMODELL.md)

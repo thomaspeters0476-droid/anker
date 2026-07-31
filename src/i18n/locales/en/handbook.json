@@ -15,6 +15,12 @@
     },
     "plan": {
       "title": "2. Plan",
+      "morningH": "Two morning modes",
+      "morningItems": [
+        "Short morning (default): mood → still open → start; rest under “Plan a little more” — calmer, less freeze",
+        "Full plan: work, life, and sizes right away — more overview",
+        "Switch: Settings → “Short morning” on or off"
+      ],
       "buddyH": "Buddy card",
       "buddyP": "Short text at the top: greeting, mood tip, note about open tasks from the last run.",
       "moodH": "Day feel",
@@ -40,7 +46,7 @@
       "carryH": "Still open",
       "carryP": "Open tasks from the last day or “Plan a new day”. Take over (watch capacity) or discard.",
       "startH": "Start day",
-      "startP": "Needs at least one task. Then Focus screen."
+      "startP": "Can start with tasks — or with an empty day and add later. Then Focus screen."
     },
     "fokus": {
       "title": "3. Focus",
@@ -72,6 +78,7 @@
       "title": "5. Settings",
       "rows": {
         "capacity": { "label": "Capacity", "text": "How many work tasks of which size" },
+        "shortMorning": { "label": "Short morning", "text": "On = thin start; off = full plan" },
         "lifeMax": { "label": "Life anchors max.", "text": "1–5" },
         "tone": { "label": "Buddy tone", "text": "warm / short / clear" },
         "checkin": { "label": "Check-in", "text": "Interval 10–40 min." },

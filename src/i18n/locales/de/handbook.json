@@ -15,6 +15,12 @@
     },
     "plan": {
       "title": "2. Plan",
+      "morningH": "Zwei Morgen-Varianten",
+      "morningItems": [
+        "Kurzer Morgen (Standard): Stimmung → Offenes → Start; Rest unter „Noch etwas planen“ — ruhiger, weniger Freeze",
+        "Voller Plan: Arbeit, Alltag und Größen sofort — mehr Überblick",
+        "Wechsel: Einstellungen → „Kurzer Morgen“ an oder aus"
+      ],
       "buddyH": "Buddy-Karte",
       "buddyP": "Kurzer Text oben: Gruß, Stimmungshinweis, Hinweis auf offene Aufgaben vom letzten Durchgang.",
       "moodH": "Tagesgefühl",
@@ -40,7 +46,7 @@
       "carryH": "Noch offen",
       "carryP": "Offene Aufgaben vom letzten Tag oder „Neuen Tag planen“. Übernehmen (Kapazität beachten) oder Verwerfen.",
       "startH": "Tag starten",
-      "startP": "Nur mit mindestens einer Aufgabe. Danach Fokus-Screen."
+      "startP": "Mit Aufgaben — oder mit leerem Tag (später ergänzen). Danach Fokus-Screen."
     },
     "fokus": {
       "title": "3. Fokus",
@@ -72,6 +78,7 @@
       "title": "5. Einstellungen",
       "rows": {
         "capacity": { "label": "Kapazität", "text": "Wie viele Arbeitsaufgaben welcher Größe" },
+        "shortMorning": { "label": "Kurzer Morgen", "text": "An = dünner Start; aus = voller Plan" },
         "lifeMax": { "label": "Alltagsanker max.", "text": "1–5" },
         "tone": { "label": "Buddy-Ton", "text": "warm / kurz / klar" },
         "checkin": { "label": "Check-in", "text": "Intervall 10–40 Min." },

@@ -489,7 +489,9 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
           <p>
             {inFeierabend
               ? feierabend(ctxFromDay(day, { lifeLeft }))
-              : t('focus.noActive')}
+              : day.tasks.length === 0
+                ? t('focus.noActiveEmpty')
+                : t('focus.noActive')}
           </p>
         </div>
         {sparkControls}
@@ -510,6 +512,15 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
               </li>
             ))}
           </ul>
+        )}
+        {day.tasks.length === 0 && (
+          <button
+            type="button"
+            className="secondary lg"
+            onClick={() => setDay((d) => ({ ...d, started: false }))}
+          >
+            {t('focus.backToPlan')}
+          </button>
         )}
         <button type="button" className="ghost lg end-day" onClick={endDay}>
           {t('focus.endDay')}

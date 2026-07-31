@@ -19,15 +19,19 @@ export const HARD_CAPS: Record<TaskSize, number> = {
   small: 8,
 }
 
-/** Gesamtpunkte-Deckel — verhindert „alles auf Maximum“ */
-export const MAX_DAY_POINTS = 8
+/** Gesamtpunkte-Deckel — Schutz vor Überplanung, aber genug für einen Arbeitstag */
+export const MAX_DAY_POINTS = 16
 
 export type Capacity = Record<TaskSize, number>
 
+/**
+ * Standard: 4× klein + 3× mittel + 1× groß = 13 Punkte
+ * Genug, um am Tag etwas geschafft zu bekommen — Stimmung skaliert weiter runter.
+ */
 export const DEFAULT_CAPACITY: Capacity = {
-  large: 0,
-  medium: 2,
-  small: 2, // 6 Punkte — realistischer Normal-Tag
+  large: 1,
+  medium: 3,
+  small: 4,
 }
 
 export function capacityPoints(cap: Capacity): number {

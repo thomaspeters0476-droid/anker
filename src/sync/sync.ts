@@ -9,6 +9,8 @@ import {
   type Prefs,
 } from '../storage'
 import type { DayState, Spark } from '../types'
+import type { DrawerState } from '../drawer/types'
+import { emptyDrawer } from '../drawer/logic'
 import i18n, { ensureI18n } from '../i18n'
 import { getSupabase } from './client'
 import { getSession } from './auth'
@@ -45,6 +47,7 @@ export type SyncSnapshotPayload = {
   prefs: Prefs
   carry: CarryItem[]
   sparks: CloudSpark[]
+  drawer?: DrawerState
 }
 
 export type RemoteState = {
@@ -91,6 +94,14 @@ function asPlainPayload(raw: unknown): SyncSnapshotPayload | null {
     prefs: o.prefs as Prefs,
     carry: Array.isArray(o.carry) ? (o.carry as CarryItem[]) : [],
     sparks,
+    drawer:
+      o.drawer && typeof o.drawer === 'object'
+        ? {
+            items: Array.isArray((o.drawer as DrawerState).items)
+              ? (o.drawer as DrawerState).items
+              : [],
+          }
+        : emptyDrawer(),
   }
 }
 
@@ -165,6 +176,7 @@ async function buildCloudPlaintext(
     prefs: snap.prefs,
     carry: snap.carry,
     sparks: cloudSparks,
+    drawer: snap.drawer ?? emptyDrawer(),
   }
 }
 
@@ -286,6 +298,7 @@ export async function applyRemote(remote: RemoteState): Promise<DayState> {
     prefs: remote.payload.prefs,
     carry: remote.payload.carry,
     sparks,
+    drawer: remote.payload.drawer ?? emptyDrawer(),
   })
 }
 
@@ -388,6 +401,7 @@ export async function syncNow(options?: {
       hasDrawing: Boolean(s.drawingDataUrl),
       hasAudio: Boolean(s.audioDataUrl),
     })),
+    drawer: local.drawer ?? emptyDrawer(),
   }
 
   if (remoteMs > localMs) {

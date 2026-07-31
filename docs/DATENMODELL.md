@@ -12,6 +12,7 @@ Persistenz: **Browser `localStorage`**, optional Cloud-Sync (Supabase) nach OTP 
 | `anker-prefs` | Dauerhafte Einstellungen (Baseline-Kapazität, Buddy, lifeMax, Freeze, Life-Anker, …) |
 | `anker-carry` | Offene Aufgaben zum Mitnehmen (`CarryItem[]`) |
 | `anker-sparks` | Geistesblitz-Vault (Ablauf über `reconcileExpiredSparks`) |
+| `anker-drawer` | Schublade (`DrawerState`) |
 | `anker-intro-seen` | `'1'` nach Intro |
 | `anker-sync-meta` | `{ updatedAt }` für Last-Write-Wins Sync |
 
@@ -19,7 +20,7 @@ Prefs u. a.: `sparksMailEmail` — optional, Zieladresse für Ablauf-Mail.
 
 ### Cloud (`user_state`)
 
-Eine Zeile pro User: `payload` = `{ day, prefs, carry, sparks }`, `updated_at`. Details: [`supabase/`](../supabase/).
+Eine Zeile pro User: `payload` = `{ day, prefs, carry, sparks, drawer }`, `updated_at`. Details: [`supabase/`](../supabase/).
 
 ---
 
@@ -105,7 +106,8 @@ UI: PlanScreen „Noch offen“ → Übernehmen / Verwerfen (`clearCarryOver`).
 | medium | 2 | 25 |
 | large | 3 | 40 |
 
-- `MAX_DAY_POINTS = 8`
+- `MAX_DAY_POINTS = 16`
+- Default-Kapazität: 4× klein, 3× mittel, 1× groß (13 Punkte)
 - Hard-Caps: large≤2, medium≤6, small≤8
 - Default-Baseline: medium:2, small:2
 

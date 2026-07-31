@@ -35,6 +35,14 @@ Alle Funktionen aus Nutzersicht. Schnellstart: [ANKER_ERSTE_SCHRITTE.md](./ANKER
 
 ## 2. Plan
 
+### Zwei Morgen-Varianten
+
+| | **Kurzer Morgen** (Standard) | **Voller Plan** |
+|---|------------------------------|-----------------|
+| Gut für | ruhigen Start, weniger Entscheidungen | Überblick und direkte Kontrolle |
+| Siehst du | Stimmung → Offenes → Start; Rest unter „Noch etwas planen“ | Arbeit, Alltag, Größen sofort |
+| Wechsel | Einstellungen → **„Kurzer Morgen“** an/aus | dasselbe |
+
 ### Buddy-Karte
 
 Kurzer Text oben: Gruß, Stimmungshinweis, Hinweis auf offene Aufgaben vom letzten Durchgang.
@@ -121,6 +129,7 @@ Am unteren Rand des Plans (aufklappbar):
 
 | Einstellung | Wirkung |
 |-------------|---------|
+| **Kurzer Morgen** | an = dünner Start; aus = voller Plan |
 | Kapazität S/M/L | Wie viele Arbeitsaufgaben welcher Größe |
 | Alltagsanker max. | 1–5 |
 | Buddy-Ton | warm / kurz / klar |

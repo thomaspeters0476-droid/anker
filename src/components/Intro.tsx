@@ -5,6 +5,7 @@ const INTRO_KEY = 'anker-intro-seen'
 
 const STEP_KEYS = [
   'planLess',
+  'morningSwitch',
   'oneThing',
   'findBack',
   'softFreeze',

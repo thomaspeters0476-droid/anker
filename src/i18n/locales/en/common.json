@@ -42,8 +42,12 @@
     "start": "Get started",
     "steps": {
       "planLess": {
-        "title": "Plan less",
-        "text": "In the morning, only a few work tasks and life anchors. How many — and how big — you set below in Settings."
+        "title": "Short morning",
+        "text": "Default: pick your mood, bring along what’s still open from yesterday, start the day. Work and life sit under “Plan a little more” — less at once, less freeze."
+      },
+      "morningSwitch": {
+        "title": "Or the full plan",
+        "text": "The full plan shows work, life, and sizes right away — good when you want everything at a glance. Switch anytime: Settings → “Short morning” on or off. Short = calmer start. Full = more overview and control."
       },
       "oneThing": {
         "title": "One thing",
@@ -67,6 +71,7 @@
     "mood": {
       "title": "How do you feel today?",
       "hint": "Only for today — not saved or judged. Controls amount and time.",
+      "nudge": "Please pick one — then amount and times fit you better.",
       "ariaLabel": "Day mood",
       "good": {
         "label": "Pretty good",
@@ -84,13 +89,18 @@
     "carry": {
       "title": "Still open",
       "hint": "From yesterday — pick and bring along (as capacity allows).",
+      "hintShort": "From yesterday. One tip: bring along and start right away.",
       "adopt": "Bring along",
+      "adoptAndStart": "Bring along & start",
+      "adoptTip": "On your plan. Check under “Plan a little more”, then “Start day” — or start above.",
       "dismiss": "Discard"
     },
     "work": {
       "title": "Work",
       "count": "{{used}}/{{max}} pts",
       "hint": "Pick a size — the timer follows.",
+      "hintShort": "Pick a size first (Small / Medium / Large), then the title. For existing tasks: tap S · M · L.",
+      "cycleSize": "Change size",
       "sizeAria": "Size",
       "minutes": "{{n}} min",
       "placeholder": "e.g. finish report"
@@ -99,6 +109,8 @@
       "title": "Life",
       "count": "{{used}}/{{max}}",
       "hint": "Doesn’t count toward work points. × on a suggestion hides it — your own stay saved.",
+      "hintShort": "Can wait. Or suggest 1–2 usual life anchors.",
+      "suggestTypical": "Suggest usual life anchors",
       "placeholder": "Your own life anchor…",
       "forgetAria": "Don’t suggest {{title}} again",
       "forgetTitle": "Don’t suggest again",
@@ -111,7 +123,15 @@
         "errands": "Mail / errands"
       }
     },
+    "morningMore": "Plan a little more",
+    "planned": {
+      "count": "{{count}} on the plan"
+    },
+    "switchToFull": "Full plan",
+    "switchToShort": "Short morning",
     "startDay": "Start day",
+    "startDayEmpty": "Start with an empty day",
+    "startDayEmptyHint": "You can go back and add something — or pick one thing later.",
     "introSurface": {
       "show": "Show introduction",
       "hideButton": "Hide button"
@@ -125,8 +145,44 @@
     },
     "sparkMailNoticeLabel": "Sparks"
   },
+  "drawer": {
+    "title": "The drawer",
+    "open": "Drawer",
+    "lead": "Everything not for right now — safe, not gone. Only small bites onto the day.",
+    "drop": "Park",
+    "dropPlaceholder": "Quick drop…",
+    "readyCap": "Ready: {{used}} / {{max}}",
+    "capBlocked": "Enough bites ready — pull some or put things to rest first.",
+    "pullTitle": "Pull onto today",
+    "pull": "Pull",
+    "levelAll": "All",
+    "level": {
+      "inbox": "Inbox",
+      "ready": "Ready",
+      "defer": "Snooze",
+      "frozen": "Frozen"
+    },
+    "levelShort": {
+      "inbox": "Inbox",
+      "ready": "Ready",
+      "defer": "Snooze",
+      "frozen": "Rest"
+    },
+    "emptyLevel": "Nothing here.",
+    "chunk": "Chunk",
+    "bite": "Bite",
+    "chop": "Into bites",
+    "chopTitle": "Cut into bites",
+    "chopHint": "One step per line (or ; separated). They land under Ready.",
+    "chopPlaceholder": "Get folder\nType numbers\nSend mail",
+    "chopSave": "Cut",
+    "chopCancel": "Cancel",
+    "deleteChainWarn": "This is part of a chain or has steps. Really remove?"
+  },
   "settings": {
     "summary": "Settings",
+    "shortMorning": "Short morning (less at once)",
+    "shortMorningHint": "Off = previous full plan view. You can switch back anytime.",
     "capacity": {
       "summary": "Day capacity",
       "meta": "Work & life",
@@ -339,6 +395,8 @@
       "closeDay": "Close day"
     },
     "noActive": "No active task left. You can end the day or pick something still open.",
+    "noActiveEmpty": "No task yet — that’s fine. End the day, or go back and add one.",
+    "backToPlan": "Back to plan",
     "progress": "{{done}} done · {{waiting}} waiting",
     "timer": {
       "parked": "parked",

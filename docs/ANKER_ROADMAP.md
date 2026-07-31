@@ -25,7 +25,7 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 | Thema | Ziel |
 |-------|------|
 | ~~**Sync**~~ | ~~Einstellungen und Tagesstand zwischen Geräten~~ *(Magic Link + Supabase, optional)* |
-| **Schublade** | Konzept fest ([SCHUBLADE.md](./SCHUBLADE.md)): KI-Zerkleinerung zentral, Runden, Cap einstellbar — **noch nicht gebaut** |
+| **Schublade** | Erste Basis live: Eingang, Bereit, Aufschub, Eingefroren, manuell Häppchen, auf Plan holen, Sync. KI/Runden/Fristen folgen ([SCHUBLADE.md](./SCHUBLADE.md)) |
 | **Verkauf / Checkout** | Stripe vorbereitet ([STRIPE.md](./STRIPE.md), Checkout gated). Preise öffentlich + Paywall **noch nicht** — siehe [SPENDENTOPF.md](./SPENDENTOPF.md) |
 | ~~Domains + Marketing~~ | ~~Domains, Landing/Blog, B2C-Rechtstexte~~ *(Juli 2026 erledigt)* |
 | Buddy-Feinschliff | mehr Situationen abdecken, Ton beibehalten (entlasten) |

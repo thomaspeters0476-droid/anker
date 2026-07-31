@@ -42,6 +42,8 @@ function useHandbookSections(): Section[] {
       id: 'plan',
       title: t('sections.plan.title'),
       blocks: [
+        { type: 'h', text: t('sections.plan.morningH') },
+        { type: 'ul', items: list('sections.plan.morningItems') },
         { type: 'h', text: t('sections.plan.buddyH') },
         { type: 'p', text: t('sections.plan.buddyP') },
         { type: 'h', text: t('sections.plan.moodH') },
@@ -86,6 +88,7 @@ function useHandbookSections(): Section[] {
           type: 'rows',
           rows: [
             row('sections.settings.rows.capacity'),
+            row('sections.settings.rows.shortMorning'),
             row('sections.settings.rows.lifeMax'),
             row('sections.settings.rows.tone'),
             row('sections.settings.rows.checkin'),
