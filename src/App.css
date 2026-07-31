@@ -1,10 +1,10 @@
 .app-shell {
-  width: min(560px, 100%);
-  padding: 1.25rem 1.1rem 2.5rem;
+  width: min(var(--app-shell-max), 100%);
+  padding: var(--app-pad-y) var(--app-pad-x) 2.5rem;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--app-gap);
   animation: rise 0.55s ease both;
 }
 
@@ -2012,4 +2012,130 @@
   font-weight: 600;
   background: rgba(232, 240, 236, 0.92);
   color: #1c2b24;
+}
+
+/* ——— Tablet & Desktop (Sync): mehr Fläche, gleiches Design ——— */
+@media (min-width: 720px) {
+  .screen {
+    gap: 1.25rem;
+  }
+
+  .brand-name {
+    font-size: 2.15rem;
+  }
+
+  .brand-tag {
+    font-size: 1.02rem;
+  }
+
+  .buddy-card {
+    padding: 1.15rem 1.25rem;
+  }
+
+  .buddy-card p {
+    font-size: 1.12rem;
+  }
+
+  .block {
+    padding: 1.15rem 1.2rem 1.25rem;
+  }
+
+  .focus-title {
+    font-size: clamp(1.85rem, 3.2vw, 2.35rem);
+  }
+
+  .timer-ring {
+    width: min(280px, 42vw);
+  }
+
+  .timer-digits {
+    font-size: 2.65rem;
+  }
+
+  .focus-actions,
+  .checkin-actions {
+    gap: 0.65rem;
+  }
+
+  .queue-btn,
+  .spark-btn,
+  .vault-btn {
+    padding: 0.85rem 1rem;
+    font-size: 1.02rem;
+  }
+
+  .primary.lg,
+  .secondary.lg,
+  .ghost.lg {
+    padding: 1.05rem 1.15rem;
+    font-size: 1.08rem;
+  }
+
+  .intro-text {
+    max-width: 34rem;
+    font-size: 1.18rem;
+  }
+
+  .regulate-panel {
+    width: min(520px, 100%);
+  }
+
+  .regulate-title {
+    font-size: 1.95rem;
+  }
+
+  .spark-overlay {
+    place-items: center;
+    padding: 1.5rem;
+  }
+
+  .spark-panel {
+    width: min(560px, 100%);
+    max-height: min(86dvh, 760px);
+    border-radius: 22px;
+    padding: 1.25rem 1.3rem 1.35rem;
+  }
+}
+
+@media (min-width: 960px) {
+  .timer-ring {
+    width: min(300px, 36vw);
+  }
+
+  .mood-opt {
+    padding: 0.85rem 1rem;
+    min-height: 4.5rem;
+  }
+
+  .cap-summary {
+    padding: 1rem 1.15rem;
+  }
+
+  /* Einstellungen: Labels und Controls etwas großzügiger */
+  .settings-row,
+  .tone-row {
+    font-size: 1rem;
+  }
+
+  .handbook-dl-row {
+    grid-template-columns: 9rem 1fr;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Maus/Trackpad: klare Hover-Feedbacks, Farben unverändert */
+  .mood-opt:hover:not(.active):not(:disabled) {
+    border-color: rgba(47, 111, 94, 0.28);
+    background: rgba(47, 111, 94, 0.05);
+  }
+
+  .queue-btn:hover,
+  .spark-btn:hover,
+  .vault-btn:hover:not(.locked) {
+    border-color: rgba(47, 111, 94, 0.28);
+  }
+
+  .size-opt:hover:not(.active):not(:disabled) {
+    border-color: rgba(47, 111, 94, 0.3);
+  }
 }

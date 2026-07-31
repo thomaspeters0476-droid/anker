@@ -222,5 +222,6 @@ Details: [DATENMODELL.md](./DATENMODELL.md).
 
 - Nutzer: [ANKER_ERSTE_SCHRITTE.md](./ANKER_ERSTE_SCHRITTE.md), [ANKER_HANDBUCH.md](./ANKER_HANDBUCH.md)
 - Planung: [ANKER_ROADMAP.md](./ANKER_ROADMAP.md)
+- Geplant: [SCHUBLADE.md](./SCHUBLADE.md) — Vorrat, Zerkleinerung, Runden *(Konzept, noch nicht in der App)*
 - Technik: [ARCHITEKTUR.md](./ARCHITEKTUR.md), [DATENMODELL.md](./DATENMODELL.md), [DEPLOY.md](./DEPLOY.md)
 - Marketing: [anker-onepager.pdf](./anker-onepager.pdf)

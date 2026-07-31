@@ -74,6 +74,20 @@ src/
 
 ---
 
+## UI / Geräte (Sync)
+
+Die App (`/app`) ist **ein Fokus-Strom**, nicht ein Desktop-Dashboard. Farben, Typo und Atmosphäre bleiben auf allen Geräten gleich.
+
+| Breite | Shell (max) | Haltung |
+|--------|-------------|---------|
+| Phone | 560px | Default |
+| Tablet (~720+) | 680px | Mehr Padding/Luft, Overlays zentriert |
+| Desktop (~960+) | 780–820px | Lesbarer, Maus-Hover; weiterhin eine Spalte |
+
+CSS-Variablen: `--app-shell-max`, `--app-pad-*`, `--app-gap` in [`src/index.css`](../src/index.css); Feintuning in [`src/App.css`](../src/App.css).
+
+---
+
 ## PWA
 
 - Plugin: `vite-plugin-pwa` in [`vite.config.ts`](../vite.config.ts)

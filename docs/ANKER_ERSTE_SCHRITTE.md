@@ -24,7 +24,7 @@ Vom Öffnen bis zum ersten fokussierten Block.
 
 ## 1. Öffnen und installieren
 
-- Desktop: Browser-Tab reicht zum Testen
+- Desktop / Tablet: Browser reicht; Layout nutzt die Breite besser, bleibt aber ein ruhiger Fokus-Strom (gleiche Farben)
 - **Handy:** in der App die Install-Hinweise nutzen (iPhone: Safari → Teilen → Zum Home-Bildschirm; Android: Chrome → Installieren / Zum Startbildschirm)
 - Erinnerungen funktionieren zuverlässiger, wenn die App installiert ist und Mitteilungen erlaubt sind
 

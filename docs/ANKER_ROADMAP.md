@@ -25,10 +25,12 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 | Thema | Ziel |
 |-------|------|
 | ~~**Sync**~~ | ~~Einstellungen und Tagesstand zwischen Geräten~~ *(Magic Link + Supabase, optional)* |
+| **Schublade** | Konzept fest ([SCHUBLADE.md](./SCHUBLADE.md)): KI-Zerkleinerung zentral, Runden, Cap einstellbar — **noch nicht gebaut** |
 | **Verkauf / Checkout** | Stripe vorbereitet ([STRIPE.md](./STRIPE.md), Checkout gated). Preise öffentlich + Paywall **noch nicht** — siehe [SPENDENTOPF.md](./SPENDENTOPF.md) |
 | ~~Domains + Marketing~~ | ~~Domains, Landing/Blog, B2C-Rechtstexte~~ *(Juli 2026 erledigt)* |
 | Buddy-Feinschliff | mehr Situationen abdecken, Ton beibehalten (entlasten) |
 | Stabilität PWA | Notifications auf iOS/Android zuverlässiger nach Install |
+| ~~App Tablet/Desktop~~ | ~~Shell breiter, gleiches Design (Sync)~~ *(Juli 2026)* |
 | Doku/Prozess | CHANGELOG bei Releases pflegen |
 
 ---
@@ -65,3 +67,6 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 | Jul 2026 | Buddy zuerst kontextreich lokal, KI optional später |
 | Jul 2026 | Dokuhub analog Schwundbuch (`docs/`) |
 | Jul 2026 | Preisziel **3,99 / 39**; Preisbotschaft: Abo statt Werbung/Datenhandel; Spendentopf ([SPENDENTOPF.md](./SPENDENTOPF.md)): 5 % Brutto + Mehrzahlung vorrangig Sozialzugänge, Jahresüberschuss (nach Reserve) → ADHS-Forschung; Internbericht später auto, Öffentlich-Bericht manuell |
+| Jul 2026 | **Schublade**-Konzept fest: KI-Zerkleinerung zentral; Runden unbegrenzt; Cap einstellbar (Default 25); Fristen 5d/1d; Ketten nicht einfach streichen ([SCHUBLADE.md](./SCHUBLADE.md)) |
+| Jul 2026 | Optional KI-Buddy (Roadmap „Später“) ≠ Schubladen-KI-Häppchen — Häppchen-KI ist für das Modul Pflichtmerkmal |
+| Jul 2026 | App-UI Tablet/Desktop: breitere Shell (bis ~820px), Design/Farben unverändert — Sync-Nutzung |

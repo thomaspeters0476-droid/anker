@@ -25,6 +25,7 @@ Dateinamen mit Präfix `ANKER_` bleiben vorerst (Repo-Historie); Inhalt spricht 
 | [ANKER_ROADMAP.md](./ANKER_ROADMAP.md) | Jetzt / als Nächstes / später (Sync, Verkaufsversion) |
 | [SPENDENTOPF.md](./SPENDENTOPF.md) | 5 % Brutto + Mehrzahlung → Sozialzugänge; Jahresüberschuss → ADHS-Forschung |
 | [STRIPE.md](./STRIPE.md) | Stripe-Vorbereitung (Checkout gated, keine öffentlichen Preise) |
+| [SCHUBLADE.md](./SCHUBLADE.md) | Modul Schublade: Zerkleinerung, Runden, vier Ebenen (Konzept) |
 | [anker-onepager.pdf](./anker-onepager.pdf) | Ein-Seiten-Überblick (Marketing) · Quelle: [anker-onepager.html](./anker-onepager.html) |
 
 ## Nutzer
