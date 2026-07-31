@@ -4,6 +4,7 @@ import { setAppLocale } from './i18n'
 import { normalizeLocale } from './i18n/locales'
 import type { DayState } from './types'
 import { emptyDay, loadDay, loadPrefs, saveDay } from './storage'
+import { ProductNav } from './components/ProductNav'
 import { reconcileExpiredSparks } from './sparkExpiry'
 import { PlanScreen } from './screens/PlanScreen'
 import { FocusScreen } from './screens/FocusScreen'
@@ -56,6 +57,9 @@ function App() {
   const [syncEmail, setSyncEmail] = useState<string | null>(null)
   const [syncNotice, setSyncNotice] = useState<string | null>(null)
   const [syncConflict, setSyncConflict] = useState<SyncConflict | null>(null)
+  const [drawerEnabled, setDrawerEnabled] = useState(
+    () => loadPrefs().drawerEnabled,
+  )
   const reconciledRef = useRef(false)
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
@@ -63,6 +67,7 @@ function App() {
   const applySyncedDay = useCallback((next: DayState) => {
     skipPersistRef.current = true
     setDay(next)
+    setDrawerEnabled(loadPrefs().drawerEnabled)
   }, [])
 
   const runSync = useCallback(async () => {
@@ -220,6 +225,7 @@ function App() {
           )}
         </div>
         <p className="brand-tag">{t('app.brandTag')}</p>
+        {!showIntro && drawerEnabled && <ProductNav active="anker" />}
         {!showIntro && !regulateOpen && showRegulateTip && (
           <div className="regulate-tip" role="status">
             <p>
@@ -262,6 +268,8 @@ function App() {
                   setSyncConflict(null)
                 }}
                 onSyncVaultReady={() => void runSync()}
+                drawerEnabled={drawerEnabled}
+                onDrawerEnabledChange={setDrawerEnabled}
               />
             )}
             {screen === 'focus' && (

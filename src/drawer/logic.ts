@@ -131,7 +131,7 @@ export function chopIntoBites(
   if (titles.length === 0) return state
 
   const t = nowIso()
-  const bites: DrawerItem[] = titles.map((title, idx) => ({
+  const bites: DrawerItem[] = titles.map((title) => ({
     id: uid(),
     title,
     level: 'ready' as const,

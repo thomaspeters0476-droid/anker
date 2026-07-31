@@ -154,6 +154,12 @@ export type Prefs = {
   locale: AppLocale
   /** Morgens dünner Plan (Stimmung → Carry → Start). false = bisherige volle Ansicht */
   shortMorning: boolean
+  /**
+   * Schublade im Tagesanker aktiv (Nav + Overlay).
+   * Default aus — reine Anker-Nutzer sehen nichts davon.
+   * Besuch von /schublade schaltet an (Brücke).
+   */
+  drawerEnabled: boolean
 }
 
 export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
@@ -172,6 +178,7 @@ function defaultPrefs(): Prefs {
     sparksMailEmail: '',
     locale: 'de',
     shortMorning: true,
+    drawerEnabled: false,
   }
 }
 
@@ -229,6 +236,7 @@ export function loadPrefs(): Prefs {
       sparksMailEmail: normalizeSparksMailEmail(data.sparksMailEmail),
       locale: data.locale ? normalizeLocale(data.locale) : 'de',
       shortMorning: data.shortMorning ?? true,
+      drawerEnabled: data.drawerEnabled ?? false,
     }
   } catch {
     return defaultPrefs()

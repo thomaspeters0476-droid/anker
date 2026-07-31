@@ -79,6 +79,10 @@
       "rows": {
         "capacity": { "label": "Capacity", "text": "How many work tasks of which size" },
         "shortMorning": { "label": "Short morning", "text": "On = thin start; off = full plan" },
+        "drawer": {
+          "label": "The drawer",
+          "text": "Optional. Own app at /schublade; off by default in Tagesanker. Shared data/sync."
+        },
         "lifeMax": { "label": "Life anchors max.", "text": "1–5" },
         "tone": { "label": "Buddy tone", "text": "warm / short / clear" },
         "checkin": { "label": "Check-in", "text": "Interval 10–40 min." },

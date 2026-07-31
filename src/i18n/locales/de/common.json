@@ -145,8 +145,18 @@
     },
     "sparkMailNoticeLabel": "Geistesblitze"
   },
+  "productNav": {
+    "label": "Apps",
+    "heute": "Heute",
+    "schublade": "Schublade",
+    "openSchublade": "Zur Schublade-App",
+    "openAnker": "Zum Tagesanker"
+  },
   "drawer": {
     "title": "Die Schublade",
+    "appTag": "Vorrat & Häppchen — eigene App, gemeinsame Daten",
+    "appBridgeHint": "Tagesanker und Schublade teilen Sync und lokalen Stand. Zwei Einstiege, eine Pflege.",
+    "installSummary": "Als App installieren",
     "open": "Schublade",
     "lead": "Alles, was nicht für jetzt ist — sicher weg, nicht weg. Auf den Anker nur kleine Häppchen.",
     "drop": "Ablegen",
@@ -183,6 +193,8 @@
     "summary": "Einstellungen",
     "shortMorning": "Kurzer Morgen (weniger auf einmal)",
     "shortMorningHint": "Aus = bisherige volle Plan-Ansicht. Du kannst jederzeit zurückschalten.",
+    "drawerEnabled": "Die Schublade aktivieren",
+    "drawerEnabledHint": "Optional. Öffnet die Brücke zur Schublade-App (/schublade). Standard: aus.",
     "capacity": {
       "summary": "Tagesmenge",
       "meta": "Arbeit & Alltag",
@@ -352,10 +364,10 @@
     }
   },
   "pwa": {
-    "installed": "Gut: Tagesanker ist als App auf dem Gerät. Erinnerungen funktionieren am besten so.",
+    "installed": "Gut: {{name}} ist als App auf dem Gerät. Erinnerungen funktionieren am besten so.",
     "installedStrong": "Gut:",
-    "title": "Erinnerungen am Handy",
-    "lead": "Kurz gesagt: Tagesanker einmal auf den Startbildschirm legen. Dann wie eine normale App öffnen — und Mitteilungen erlauben.",
+    "title": "{{name}} aufs Handy",
+    "lead": "Kurz gesagt: {{name}} einmal auf den Startbildschirm legen. Dann wie eine normale App öffnen — und Mitteilungen erlauben. Tagesanker und Schublade lassen sich getrennt installieren.",
     "ios": {
       "title": "iPhone",
       "step1": "Unten auf Teilen tippen (Quadrat mit Pfeil).",
@@ -364,7 +376,7 @@
       "step2Strong": "Zum Home-Bildschirm",
       "step3": "Hinzufügen tippen.",
       "step3Strong": "Hinzufügen",
-      "step4": "Tagesanker vom Home-Bildschirm öffnen (nicht über Safari).",
+      "step4": "{{name}} vom Home-Bildschirm öffnen (nicht über Safari).",
       "step5": "Wenn gefragt: Mitteilungen erlauben.",
       "step5Strong": "Mitteilungen erlauben",
       "note": "Tipp: Am iPhone geht das nur über Safari — nicht über Chrome."
@@ -379,12 +391,12 @@
       "step3": "Installieren / Hinzufügen.",
       "step3a": "Installieren",
       "step3b": "Hinzufügen",
-      "step4": "Tagesanker vom Startbildschirm öffnen.",
+      "step4": "{{name}} vom Startbildschirm öffnen.",
       "step5": "Wenn gefragt: Benachrichtigungen erlauben.",
       "step5Strong": "Benachrichtigungen erlauben",
       "note": "Am besten mit Chrome."
     },
-    "foot": "Fertig. Du brauchst keinen App-Store — nur diese Website einmal speichern."
+    "foot": "Fertig. Du brauchst keinen App-Store — nur diese Seite einmal speichern."
   },
   "focus": {
     "feierabend": {

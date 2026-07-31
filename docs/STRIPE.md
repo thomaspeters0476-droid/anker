@@ -2,7 +2,8 @@
 
 **Stand:** 30.07.2026  
 **Öffentlich:** Checkout **aus** (`STRIPE_CHECKOUT_ENABLED` ≠ `true`). Preise-Seite zeigt **keine** Beträge.  
-**Konzept:** [SPENDENTOPF.md](./SPENDENTOPF.md) · Preise-Ziel intern 3,99 / 39 + 7 Tage Trial.
+**Konzept:** [SPENDENTOPF.md](./SPENDENTOPF.md) · Anker-Ziel intern 3,99 / 39 + 7 Tage Trial.  
+**Module:** später eigene Prices für **Schublade** (kostenpflichtig) und **Bundle Beides** (günstiger als Summe) — siehe [SCHUBLADE.md](./SCHUBLADE.md) §12a.
 
 ---
 

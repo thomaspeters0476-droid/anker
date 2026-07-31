@@ -89,6 +89,7 @@ function useHandbookSections(): Section[] {
           rows: [
             row('sections.settings.rows.capacity'),
             row('sections.settings.rows.shortMorning'),
+            row('sections.settings.rows.drawer'),
             row('sections.settings.rows.lifeMax'),
             row('sections.settings.rows.tone'),
             row('sections.settings.rows.checkin'),

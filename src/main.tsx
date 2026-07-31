@@ -11,7 +11,9 @@ import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import { setAppLocale } from './i18n'
 import { loadPrefs } from './storage'
+import { applyProductShell, productShellFromPath } from './pwa'
 import App from './App.tsx'
+import SchubladeApp from './SchubladeApp.tsx'
 import { MarketingLayout } from './marketing/MarketingLayout'
 import { LandingPage } from './marketing/LandingPage'
 import { BlogIndexPage } from './marketing/BlogIndexPage'
@@ -32,7 +34,15 @@ function ScrollToTop() {
   return null
 }
 
-function AppRoute() {
+function ProductShellMeta() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    applyProductShell(productShellFromPath(pathname))
+  }, [pathname])
+  return null
+}
+
+function useAppBoot() {
   useEffect(() => {
     void setAppLocale(loadPrefs().locale)
     registerSW({
@@ -42,10 +52,22 @@ function AppRoute() {
       },
     })
   }, [])
+}
 
+function AppRoute() {
+  useAppBoot()
   return (
     <div className="app-route">
       <App />
+    </div>
+  )
+}
+
+function SchubladeRoute() {
+  useAppBoot()
+  return (
+    <div className="app-route">
+      <SchubladeApp />
     </div>
   )
 }
@@ -56,6 +78,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <ScrollToTop />
+      <ProductShellMeta />
       <Routes>
         <Route element={<MarketingLayout />}>
           <Route index element={<LandingPage />} />
@@ -68,6 +91,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="widerruf" element={<WiderrufPage />} />
         </Route>
         <Route path="app/*" element={<AppRoute />} />
+        <Route path="schublade/*" element={<SchubladeRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

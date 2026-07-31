@@ -1,9 +1,16 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isLikelyAndroid, isLikelyIos, isStandaloneApp } from '../pwa'
+import {
+  isLikelyAndroid,
+  isLikelyIos,
+  isStandaloneApp,
+  type ProductShell,
+} from '../pwa'
 
 type Props = {
   compact?: boolean
+  /** Welche App installiert werden soll (eigener Homescreen-Eintrag) */
+  product?: ProductShell
 }
 
 function emphasizeParts(text: string, parts: string[]): ReactNode {
@@ -20,15 +27,18 @@ function emphasizeParts(text: string, parts: string[]): ReactNode {
   )
 }
 
-export function PwaGuide({ compact = false }: Props) {
+export function PwaGuide({ compact = false, product = 'anker' }: Props) {
   const { t } = useTranslation()
   const installed = isStandaloneApp()
   const ios = isLikelyIos()
   const android = isLikelyAndroid()
+  const name =
+    product === 'schublade' ? t('drawer.title') : t('app.brandName')
+  const nameOpts = { name }
 
   if (installed) {
     const strong = t('pwa.installedStrong')
-    const full = t('pwa.installed')
+    const full = t('pwa.installed', nameOpts)
     return (
       <div className="pwa-guide installed">
         <p>
@@ -41,10 +51,12 @@ export function PwaGuide({ compact = false }: Props) {
 
   return (
     <div className={`pwa-guide ${compact ? 'compact' : ''}`}>
-      <h3>{t('pwa.title')}</h3>
-      <p className="pwa-lead">{t('pwa.lead')}</p>
+      <h3>{t('pwa.title', nameOpts)}</h3>
+      <p className="pwa-lead">{t('pwa.lead', nameOpts)}</p>
 
-      <div className={`pwa-cols ${ios ? 'prefer-ios' : ''} ${android ? 'prefer-android' : ''}`}>
+      <div
+        className={`pwa-cols ${ios ? 'prefer-ios' : ''} ${android ? 'prefer-android' : ''}`}
+      >
         <article className="pwa-card">
           <h4>{t('pwa.ios.title')}</h4>
           <ol>
@@ -57,7 +69,7 @@ export function PwaGuide({ compact = false }: Props) {
             <li>
               {emphasizeParts(t('pwa.ios.step3'), [t('pwa.ios.step3Strong')])}
             </li>
-            <li>{t('pwa.ios.step4')}</li>
+            <li>{t('pwa.ios.step4', nameOpts)}</li>
             <li>
               {emphasizeParts(t('pwa.ios.step5'), [t('pwa.ios.step5Strong')])}
             </li>
@@ -85,7 +97,7 @@ export function PwaGuide({ compact = false }: Props) {
                 t('pwa.android.step3b'),
               ])}
             </li>
-            <li>{t('pwa.android.step4')}</li>
+            <li>{t('pwa.android.step4', nameOpts)}</li>
             <li>
               {emphasizeParts(t('pwa.android.step5'), [
                 t('pwa.android.step5Strong'),

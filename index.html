@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="manifest" href="/manifest.webmanifest" id="app-manifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#2f6f5e" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -15,6 +15,23 @@
       name="description"
       content="Tagesanker hilft dir, den Tag mit einer Sache nach der anderen zu halten — ohne Scores, ohne Streaks, ohne Druck."
     />
+    <script>
+      /* Zwei PWAs: Manifest vor React setzen, damit „App installieren“ die richtige ist */
+      (function () {
+        if (location.pathname.indexOf('/schublade') !== 0) return
+        var m = document.getElementById('app-manifest')
+        if (m) m.setAttribute('href', '/manifest-schublade.webmanifest')
+        var t = document.querySelector('meta[name="apple-mobile-web-app-title"]')
+        if (t) t.setAttribute('content', 'Die Schublade')
+        var d = document.querySelector('meta[name="description"]')
+        if (d)
+          d.setAttribute(
+            'content',
+            'Vorrat & Häppchen — sicher weg, nicht weg.',
+          )
+        document.title = 'Die Schublade — Vorrat & Häppchen'
+      })()
+    </script>
     <link rel="canonical" href="https://tagesanker.de/" />
     <meta property="og:title" content="Tagesanker" />
     <meta

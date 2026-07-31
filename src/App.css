@@ -2408,6 +2408,47 @@
   background: #fff;
 }
 
+.product-nav {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.product-nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  color: var(--ink-muted, #5c5348);
+  background: color-mix(in srgb, var(--surface, #fff) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink, #2a241c) 12%, transparent);
+}
+
+.product-nav-link.on,
+.product-nav-link.active {
+  color: var(--ink, #2a241c);
+  background: color-mix(in srgb, var(--accent, #c4a574) 28%, var(--surface, #fff));
+  border-color: color-mix(in srgb, var(--accent, #c4a574) 45%, transparent);
+  font-weight: 600;
+}
+
+.schublade-shell .brand-name {
+  letter-spacing: 0.01em;
+}
+
+.drawer-app-block {
+  padding-top: 0.25rem;
+}
+
+.drawer-workspace--page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .morning-drawer-link {
   font-weight: 600 !important;
 }

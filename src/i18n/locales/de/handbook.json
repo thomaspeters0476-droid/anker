@@ -79,6 +79,10 @@
       "rows": {
         "capacity": { "label": "Kapazität", "text": "Wie viele Arbeitsaufgaben welcher Größe" },
         "shortMorning": { "label": "Kurzer Morgen", "text": "An = dünner Start; aus = voller Plan" },
+        "drawer": {
+          "label": "Die Schublade",
+          "text": "Optional. Eigene App unter /schublade; im Tagesanker default aus. Gemeinsame Daten/Sync."
+        },
         "lifeMax": { "label": "Alltagsanker max.", "text": "1–5" },
         "tone": { "label": "Buddy-Ton", "text": "warm / kurz / klar" },
         "checkin": { "label": "Check-in", "text": "Intervall 10–40 Min." },

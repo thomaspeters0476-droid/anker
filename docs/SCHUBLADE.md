@@ -263,16 +263,79 @@ Schwebender / präsenter Geistesblitz-Knopf auch in der Schubladen-Ansicht: tipp
 
 ---
 
-## 12. Daten & Sync (Richtung)
+## 12. Daten & Sync
 
-Noch nicht implementiert. Bei Bau:
-
-- Eigene persistente Collection (nicht nur `DayState.tasks`).
-- Felder sinngemäß: Titel, Ebene/Zustand, optional Parent/Kette, Energie-Tag, Wiedervorlage, Wartet-auf, Frist, Zeitstempel (Anlage / letzte Interaktion), Herkunft.
-- Sync-Payload erweitern (`user_state`); LWW wie bestehende Snapshots.
+- Persistenz: `anker-drawer` (`DrawerState`), siehe [DATENMODELL.md](./DATENMODELL.md)
+- Sync-Payload: `{ day, prefs, carry, sparks, drawer }`
 - **Kein stilles Löschen** bei Sync/Cleanup — Ausnahme nur explizite Nutzeraktion (Verwerfen). Aufschub = unsichtbar, nicht gelöscht.
 
-Details später in [DATENMODELL.md](./DATENMODELL.md) ergänzen.
+Erste Basis in der App: Eingang / Bereit / Aufschub / Eingefroren, manuell Häppchen, auf Plan holen. KI, Runden, Fristen-Phasen folgen.
+
+---
+
+## 12a. Produktmodell: einzeln & zusammen
+
+**Haltung:** Schublade wird **funktionsreicher** als der reine Tagesanker. Beides soll **einzeln nutz- und vermarktbar** sein; niemand bei Tagesanker muss Schublade „mitnehmen“.
+
+| Man hat | Erfahrung |
+|---------|-----------|
+| **Nur Tagesanker** | Plan → Fokus → Done. Keine Schubladen-UI. |
+| **Nur Schublade** | Vorrat / Häppchen / Fristen … ohne Tagesanker-Zwang. |
+| **Beides** | **Eine Oberfläche**, klare Bereiche (z. B. Heute \| Schublade), gemeinsame Daten/Sync. |
+
+**Faustregel:** Verkaufen = zwei Angebote. Bei Beides: gemeinsame Daten/Sync, klare Nav — **kein zweites Repo**.
+
+### Vercel / Web (fest)
+
+| Schicht | Entscheidung |
+|---------|----------------|
+| **Wahrnehmung** | **Zwei Apps** — `/app` = Tagesanker, `/schublade` = Die Schublade |
+| **Programmpflege** | **Ein Git-Repo**, **ein Vercel-Projekt**, ein Deploy |
+| **Daten** | Gemeinsam (localStorage-Keys + Sync-Payload inkl. `drawer`) |
+| **Tagesanker** | Schublade **default aus** (`drawerEnabled`); Einstellungen oder Besuch von `/schublade` aktivieren die Brücke (Nav Heute \| Schublade) |
+| **PWA-Install** | **Beide allein installierbar** — eigene Manifeste (`id`/`start_url`/`scope`: `/app` vs `/schublade`). Zwei Homescreen-Icons möglich. |
+
+Manifeste: `manifest.webmanifest` (Anker), `manifest-schublade.webmanifest` (Schublade). Unter `/schublade` wird das Schubladen-Manifest gesetzt (auch vor React).
+
+Optional später: zweite Domain (z. B. `schublade.…`) zeigt auf dasselbe Vercel-Projekt und leitet auf `/schublade` — weiterhin **kein** zweites Codebase.
+
+**Nicht** zwei Vercel-Projekte mit doppeltem Deploy, solange nichts anderes erzwungen wird (Env-Trennung, Billing). Wartung geht vor Store-Illusion.
+
+### Preis / Verkauf (fest — Beträge später)
+
+| Angebot | Haltung |
+|---------|---------|
+| **Schublade allein** | **Immer kostenpflichtig** (kein dauerhaft gratis Vollprodukt). Testphase/Trial möglich wie beim Anker. |
+| **Tagesanker allein** | Eigenes Abo (Zielrichtung bisher ca. 3,99 €/Monat — siehe Roadmap / [STRIPE.md](./STRIPE.md)). |
+| **Bundle Beides** | **Günstiger als Summe** der Einzel-Abos — Anreiz für beide Module, ohne Schublade „umsonst“ mitzugeben. |
+
+Schublade ist das **größere Funktionspaket** → eigenständiger Preis, nicht nur Upsell-Schnäppchen ohne Wert.  
+Öffentliche Beträge / Paywall erst in der Verkaufsversion (Testphase gratis, Checkout gated).
+
+---
+
+## 12b. App Store / Play Store (später)
+
+### Empfohlen: eine Store-App, Module per IAP
+
+- Ein Listing (Familienname / „Tagesanker“)
+- In‑App Purchases: Abo **Tagesanker** · Abo **Schublade** (pflichtig kostenpflichtig) · **Bundle Beides** (günstiger als Einzelkauf)
+- Freischaltung steuert dieselben Module wie im Web
+- Bei Beides: Navigation Heute \| Schublade — wirkt wie ein Produkt
+
+Web: Stripe (wie vorbereitet). Native Builds: Store-IAP für iOS/Android (Capacitor o. Ä.); Entitlements idealerweise am Account spiegeln.
+
+### Alternative: zwei Store-Apps
+
+Ja, möglich — z. B. App „Tagesanker“ und App „Die Schublade“, und in jeder die **andere als Zusatz** kaufen/ freischalten.
+
+| | |
+|---|---|
+| **Wie** | Gemeinsamer Account (Login/Sync); Kauf in App A setzt Entitlement, das App B erkennt (Universal Purchase / Shared Secret / eigener Server-Check). Upsell: „Schublade freischalten“ → IAP oder Link zur anderen App + Restore. |
+| **Vorteil** | Klare Store-Suche pro Name; wer nur Schublade will, findet sie eigenständig. |
+| **Nachteil** | Zwei Binaries, zwei Reviews, zwei Update-Zyklen; Nutzer brauchen oft **beide Installationen**, wenn sie zusammenarbeiten sollen — mehr Reibung (ADHS-ungünstig). Kauf über Kreuz ist fehleranfällig (Restore, Familienfreigabe, unterschiedliche Bundles). |
+
+**Festlegung vorerst:** Store-Zielbild = **eine App + IAP-Module** (+ Bundle). Zwei Listings nur erwägen, wenn Schublade klar als eigenständiges Lead-Produkt mit eigener Akquise läuft und die Sync-/Upsell-Komplexität bewusst getragen wird.
 
 ---
 
@@ -292,12 +355,14 @@ Details später in [DATENMODELL.md](./DATENMODELL.md) ergänzen.
 - Buddy: Öffnen, Cap, lange liegen (21 / 14), Runden-Ende  
 - Carry nur Runden-Rest; Kette bleibt in der Schublade  
 - Persistenz + Sync  
+- **Optional / freischaltbar** — Tagesanker ohne Schublade nutzbar  
 
 ### Später vertiefen
 
 - Filter-App-Bridge  
 - KI-Qualität / Modelle feiner  
 - UI-Feinschliff Overlay-Animation  
+- Store-IAP / Entitlements  
 
 ### Bewusst nicht
 
@@ -306,6 +371,7 @@ Details später in [DATENMODELL.md](./DATENMODELL.md) ergänzen.
 - Scores, Streaks, „Produktivitätsbericht Schublade“  
 - Unbegrenztes Zerkleinern bei vollem Bereit-Fach  
 - Runden-UI ohne Schublade  
+- Schublade als Pflicht für reine Tagesanker-Nutzer  
 
 ---
 
@@ -323,6 +389,11 @@ Details später in [DATENMODELL.md](./DATENMODELL.md) ergänzen.
 | Jul 2026 | Ketten-Glied **nicht einfach streichen** — Dialog / Gesamtvorhaben |
 | Jul 2026 | **Nie heimlich löschen**; Verwerfen nur bewusst |
 | Jul 2026 | Ohne Schublade: Tagesanker-Verhalten unverändert |
+| Aug 2026 | Schublade = größeres Funktionspaket; **einzeln vermarktbar**; bei Beides **eine UI** |
+| Aug 2026 | Store-Ziel: **eine App + IAP-Module** (Bundle); zwei Store-Apps nur Ausnahme |
+| Aug 2026 | Web: **zwei Einstiege** `/app` + `/schublade`, **ein** Vercel/Repo; `drawerEnabled` default aus |
+| Aug 2026 | Schublade **kostet** (allein); Bundle Beides **günstiger als Summe** — Beträge später |
+| Aug 2026 | Schublade **allein als PWA installierbar** (eigenes Manifest / scope) |
 
 ---
 
@@ -335,3 +406,5 @@ Details später in [DATENMODELL.md](./DATENMODELL.md) ergänzen.
 | KI-Häppchen | Zentralmerkmal; manuell Fallback; Anbieter/Opt-in bei Anbindung |
 | Lange liegen | 21 Tage → einmal fragen; Quiet 14 Tage |
 | Carry / Kette | Carry = Runden-Rest; Kette in Schublade; kein einfaches Streichen von Ketten-Gliedern |
+| Produkt / Store | Einzeln nutzbar; zusammen eine App; Store = eine Listing + IAP (nicht Pflicht: zwei Apps) |
+| Preis Schublade | Immer kostenpflichtig; Bundle günstiger als Anker + Schublade einzeln |

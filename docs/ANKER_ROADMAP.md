@@ -25,7 +25,7 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 | Thema | Ziel |
 |-------|------|
 | ~~**Sync**~~ | ~~Einstellungen und Tagesstand zwischen Geräten~~ *(Magic Link + Supabase, optional)* |
-| **Schublade** | Erste Basis live: Eingang, Bereit, Aufschub, Eingefroren, manuell Häppchen, auf Plan holen, Sync. KI/Runden/Fristen folgen ([SCHUBLADE.md](./SCHUBLADE.md)) |
+| **Schublade** | Zwei Web-Einstiege: `/app` + `/schublade` (ein Vercel). Modul default aus; Basis-UI live. KI/Runden/Fristen folgen ([SCHUBLADE.md](./SCHUBLADE.md)) |
 | **Verkauf / Checkout** | Stripe vorbereitet ([STRIPE.md](./STRIPE.md), Checkout gated). Preise öffentlich + Paywall **noch nicht** — siehe [SPENDENTOPF.md](./SPENDENTOPF.md) |
 | ~~Domains + Marketing~~ | ~~Domains, Landing/Blog, B2C-Rechtstexte~~ *(Juli 2026 erledigt)* |
 | Buddy-Feinschliff | mehr Situationen abdecken, Ton beibehalten (entlasten) |
@@ -39,8 +39,8 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 
 | Thema | Hinweis |
 |-------|---------|
-| **Verkaufsversion / Abo** | Ziel: ca. **3,99 €/Monat**, **39 €/Jahr**, **7 Tage Trial**. Botschaft: Geld statt Werbung/Datenhandel. Spendentopf: 5 % Brutto + Mehrzahlung → Sozialzugänge, Überschuss → Forschung ([SPENDENTOPF.md](./SPENDENTOPF.md)). **Erst dann in UI/Marketing** |
-| Store-Wrapper | z. B. Capacitor (u. a. M1-Mac-Build) |
+| **Verkaufsversion / Abo** | Anker-Ziel: ca. **3,99 €/Monat**, **39 €/Jahr**, **7 Tage Trial**. **Schublade kostet** (eigenes Abo); **Bundle Beides günstiger als Summe**. Spendentopf wie gehabt ([SPENDENTOPF.md](./SPENDENTOPF.md)). Beträge Schublade/Bundle noch offen. **Erst dann in UI/Marketing** |
+| Store-Wrapper | z. B. Capacitor; **eine Store-App**, Module per IAP (Tagesanker / Schublade / Bundle) — siehe [SCHUBLADE.md](./SCHUBLADE.md) §12a/b |
 | Optional KI-Buddy | opt-in, kurz, entlastend — Kosten/Datenschutz klären |
 | Datenschutz-Paket | wenn Cloud/Sync: TOMs, AVV, Impressum-Anbindung |
 
@@ -70,3 +70,5 @@ Testphase = App **kostenlos**, ohne Paywall. Verkaufs-/Abo-Themen nur hier dokum
 | Jul 2026 | **Schublade**-Konzept fest: KI-Zerkleinerung zentral; Runden unbegrenzt; Cap einstellbar (Default 25); Fristen 5d/1d; Ketten nicht einfach streichen ([SCHUBLADE.md](./SCHUBLADE.md)) |
 | Jul 2026 | Optional KI-Buddy (Roadmap „Später“) ≠ Schubladen-KI-Häppchen — Häppchen-KI ist für das Modul Pflichtmerkmal |
 | Jul 2026 | App-UI Tablet/Desktop: breitere Shell (bis ~820px), Design/Farben unverändert — Sync-Nutzung |
+| Aug 2026 | Produkt: Tagesanker & Schublade **einzeln** vermarktbar; bei Beides **eine UI**; Store-Ziel **eine App + IAP-Module** (zwei Store-Apps nur Ausnahme) |
+| Aug 2026 | Schublade **immer kostenpflichtig**; Bundle **günstiger als Einzelkauf** (Euro-Beträge später) |

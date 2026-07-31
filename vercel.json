@@ -26,6 +26,15 @@
       ]
     },
     {
+      "source": "/manifest-schublade.webmanifest",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        }
+      ]
+    },
+    {
       "source": "/sitemap.xml",
       "headers": [
         {

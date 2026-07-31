@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type SetStateAction } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { DayState, Task, TaskKind, TaskSize } from '../types'
 import {
@@ -76,6 +77,8 @@ type Props = {
   onSyncUseCloud?: () => void
   onSyncSignedOut?: () => void
   onSyncVaultReady?: () => void
+  drawerEnabled?: boolean
+  onDrawerEnabledChange?: (on: boolean) => void
 }
 
 function uid() {
@@ -96,6 +99,8 @@ export function PlanScreen({
   onSyncUseCloud,
   onSyncSignedOut,
   onSyncVaultReady,
+  drawerEnabled = false,
+  onDrawerEnabledChange,
 }: Props) {
   const { t, i18n } = useTranslation()
   const [locale, setLocale] = useState<AppLocale>(() => loadPrefs().locale)
@@ -508,6 +513,12 @@ export function PlanScreen({
     if (!value) setPlanMoreOpen(true)
   }
 
+  function setDrawerEnabledPref(value: boolean) {
+    savePrefs({ ...loadPrefs(), drawerEnabled: value })
+    onDrawerEnabledChange?.(value)
+    if (!value) setDrawerOpen(false)
+  }
+
   async function enableNotifications() {
     const result = await requestNotificationPermission()
     if (result === 'granted') {
@@ -792,14 +803,21 @@ export function PlanScreen({
           >
             {t('settings.summary')}
           </button>
-          <button
-            type="button"
-            className="ghost sm morning-drawer-link"
-            onClick={() => setDrawerOpen(true)}
-          >
-            {t('drawer.open')}
-            {drawer.items.length > 0 ? ` · ${drawer.items.length}` : ''}
-          </button>
+          {drawerEnabled && (
+            <>
+              <button
+                type="button"
+                className="ghost sm morning-drawer-link"
+                onClick={() => setDrawerOpen(true)}
+              >
+                {t('drawer.open')}
+                {drawer.items.length > 0 ? ` · ${drawer.items.length}` : ''}
+              </button>
+              <Link to="/schublade" className="ghost sm morning-drawer-link">
+                {t('productNav.openSchublade')}
+              </Link>
+            </>
+          )}
         </div>
       )}
 
@@ -1061,6 +1079,23 @@ export function PlanScreen({
             {t('settings.shortMorning')}
           </label>
           <p className="block-hint">{t('settings.shortMorningHint')}</p>
+
+          <label className="intro-hide-check settings-check">
+            <input
+              type="checkbox"
+              checked={drawerEnabled}
+              onChange={(e) => setDrawerEnabledPref(e.target.checked)}
+            />
+            {t('settings.drawerEnabled')}
+          </label>
+          <p className="block-hint">{t('settings.drawerEnabledHint')}</p>
+          {drawerEnabled && (
+            <p>
+              <Link to="/schublade" className="secondary sm">
+                {t('productNav.openSchublade')}
+              </Link>
+            </p>
+          )}
 
           <details className="settings-section">
             <summary>
@@ -1487,14 +1522,16 @@ export function PlanScreen({
       </div>
 
       {handbookOpen && <Handbook onClose={() => setHandbookOpen(false)} />}
-      <DrawerPanel
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        drawer={drawer}
-        setDrawer={updateDrawer}
-        day={day}
-        setDay={setDay}
-      />
+      {drawerEnabled && (
+        <DrawerPanel
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          drawer={drawer}
+          setDrawer={updateDrawer}
+          day={day}
+          setDay={setDay}
+        />
+      )}
     </section>
   )
 }

@@ -145,8 +145,18 @@
     },
     "sparkMailNoticeLabel": "Sparks"
   },
+  "productNav": {
+    "label": "Apps",
+    "heute": "Today",
+    "schublade": "Drawer",
+    "openSchublade": "Open drawer app",
+    "openAnker": "Open Tagesanker"
+  },
   "drawer": {
     "title": "The drawer",
+    "appTag": "Stock & bites — own app, shared data",
+    "appBridgeHint": "Tagesanker and the drawer share sync and local state. Two entries, one codebase.",
+    "installSummary": "Install as app",
     "open": "Drawer",
     "lead": "Everything not for right now — safe, not gone. Only small bites onto the day.",
     "drop": "Park",
@@ -183,6 +193,8 @@
     "summary": "Settings",
     "shortMorning": "Short morning (less at once)",
     "shortMorningHint": "Off = previous full plan view. You can switch back anytime.",
+    "drawerEnabled": "Enable the drawer",
+    "drawerEnabledHint": "Optional. Unlocks the bridge to the drawer app (/schublade). Default: off.",
     "capacity": {
       "summary": "Day capacity",
       "meta": "Work & life",
@@ -352,10 +364,10 @@
     }
   },
   "pwa": {
-    "installed": "Good: Tagesanker is installed as an app on this device. Reminders work best this way.",
+    "installed": "Good: {{name}} is installed as an app on this device. Reminders work best this way.",
     "installedStrong": "Good:",
-    "title": "Reminders on your phone",
-    "lead": "In short: add Tagesanker to the home screen once. Then open it like a normal app — and allow notifications.",
+    "title": "{{name}} on your phone",
+    "lead": "In short: add {{name}} to the home screen once. Then open it like a normal app — and allow notifications. Tagesanker and the drawer can be installed separately.",
     "ios": {
       "title": "iPhone",
       "step1": "Tap Share at the bottom (square with arrow).",
@@ -364,7 +376,7 @@
       "step2Strong": "Add to Home Screen",
       "step3": "Tap Add.",
       "step3Strong": "Add",
-      "step4": "Open Tagesanker from the home screen (not via Safari).",
+      "step4": "Open {{name}} from the home screen (not via Safari).",
       "step5": "When asked: Allow Notifications.",
       "step5Strong": "Allow Notifications",
       "note": "Tip: On iPhone this only works in Safari — not Chrome."
@@ -379,12 +391,12 @@
       "step3": "Install / Add.",
       "step3a": "Install",
       "step3b": "Add",
-      "step4": "Open Tagesanker from the home screen.",
+      "step4": "Open {{name}} from the home screen.",
       "step5": "When asked: Allow notifications.",
       "step5Strong": "Allow notifications",
       "note": "Best with Chrome."
     },
-    "foot": "Done. You don’t need an app store — just save this site once."
+    "foot": "Done. You don’t need an app store — just save this page once."
   },
   "focus": {
     "feierabend": {

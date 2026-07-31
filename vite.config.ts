@@ -14,7 +14,9 @@ export default defineConfig({
         'icon-192.png',
         'icon-512.png',
       ],
+      // Tagesanker-PWA. Schublade: public/manifest-schublade.webmanifest (eigene id/scope).
       manifest: {
+        id: '/app',
         name: 'Tagesanker',
         short_name: 'Tagesanker',
         description: 'Eine Sache. Realistisch. Zurückfinden.',
