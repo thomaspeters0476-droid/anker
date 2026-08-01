@@ -2426,6 +2426,33 @@
   color: var(--ink-soft, #5c564c);
 }
 
+.drawer-chip--later {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--ink, #2a241c) 8%, transparent);
+  color: var(--ink-soft, #5c564c);
+}
+
+.drawer-item--later {
+  opacity: 0.92;
+}
+
+.drawer-pull-ahead {
+  margin-top: 0.25rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent, #2f6f5e) 28%, var(--line));
+  background: color-mix(in srgb, var(--accent, #2f6f5e) 8%, var(--surface, #fff));
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.drawer-pull-ahead .block-hint {
+  margin: 0;
+}
+
 .drawer-item--child {
   padding: 0.55rem 0.65rem;
   border-radius: 12px;

@@ -272,6 +272,11 @@
       "kurz": "Genug bereit. Erst holen oder in Ruhe legen.",
       "klar": "Bereit-Cap voll. Holen oder Aufschub/Eingefroren — dann wieder zerlegen."
     },
+    "pullAhead": {
+      "warm": "In der Kette kommt eigentlich zuerst „{{earlier}}“. Das hier ist für später gedacht — willst du es wirklich jetzt schon machen?",
+      "kurz": "Eigentlich zuerst: „{{earlier}}“. Trotzdem jetzt?",
+      "klar": "Kettenreihenfolge: zuerst „{{earlier}}“. Jetzt vorziehen?"
+    },
     "alreadySmall": {
       "warm": "Das Häppchen ist schon klein genug für einen Fokusblock. Lieber holen — weiterzerlegen macht oft nur Mikro-Schritte und Stress.",
       "kurz": "Schon klein genug. Holen statt weiterzerlegen.",

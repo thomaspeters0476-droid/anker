@@ -272,6 +272,11 @@
       "kurz": "Enough ready. Pull or rest first.",
       "klar": "Ready cap full. Pull or snooze/freeze — then cut again."
     },
+    "pullAhead": {
+      "warm": "In the chain, “{{earlier}}” comes first. This one is meant for later — do you really want it now?",
+      "kurz": "Actually first: “{{earlier}}”. Still now?",
+      "klar": "Chain order: first “{{earlier}}”. Pull ahead now?"
+    },
     "alreadySmall": {
       "warm": "That bite is already small enough for one focus block. Better pull it — splitting further often creates micro-steps and stress.",
       "kurz": "Already small enough. Pull instead of splitting.",

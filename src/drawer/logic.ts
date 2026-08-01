@@ -392,6 +392,54 @@ export function chopIntoBites(
   }
 }
 
+/** Geschwister einer Kette unter „Bereit“, in KI-/Schnitt-Reihenfolge */
+export function readyChainSiblings(
+  items: DrawerItem[],
+  parentId: string,
+  today = todayKey(),
+): DrawerItem[] {
+  return items
+    .filter(
+      (i) =>
+        i.parentId === parentId &&
+        i.level === 'ready' &&
+        !i.isChunk &&
+        isVisibleInDrawer(i, today),
+    )
+    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
+}
+
+/**
+ * free = keine Kette · next = nächster Schritt · later = eigentlich später
+ * (Reihenfolge kommt aus dem Zerlegen / der KI)
+ */
+export function chainPullRole(
+  items: DrawerItem[],
+  item: DrawerItem,
+  today = todayKey(),
+): 'free' | 'next' | 'later' {
+  if (!item.parentId || item.isChunk) return 'free'
+  if (item.level !== 'ready') return 'free'
+  const siblings = readyChainSiblings(items, item.parentId, today)
+  if (siblings.length === 0) return 'free'
+  if (siblings[0]?.id === item.id) return 'next'
+  if (siblings.some((s) => s.id === item.id)) return 'later'
+  return 'free'
+}
+
+/** Erster noch offener Vorgänger in der Kette (für Buddy-Text) */
+export function earlierChainStep(
+  items: DrawerItem[],
+  item: DrawerItem,
+  today = todayKey(),
+): DrawerItem | null {
+  if (!item.parentId) return null
+  const siblings = readyChainSiblings(items, item.parentId, today)
+  const idx = siblings.findIndex((s) => s.id === item.id)
+  if (idx <= 0) return null
+  return siblings[0] ?? null
+}
+
 /** Nächstes holbares Häppchen einer Kette (oder Einzel-ready); Notfall-Fristen zuerst */
 export function nextPullable(
   items: DrawerItem[],
@@ -400,13 +448,10 @@ export function nextPullable(
   const ready = items.filter(
     (i) => i.level === 'ready' && !i.isChunk && isVisibleInDrawer(i, today),
   )
-  // Ohne Parent: frei. Mit Parent: nur wenn kein älteres Geschwister noch ready/planned in drawer
+  // Ohne Parent: frei. Mit Parent: nur der nächste Ketten-Schritt ohne Rückfrage
   const pullable = ready.filter((i) => {
-    if (!i.parentId) return true
-    const siblings = ready
-      .filter((s) => s.parentId === i.parentId)
-      .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
-    return siblings[0]?.id === i.id
+    const role = chainPullRole(items, i, today)
+    return role === 'free' || role === 'next'
   })
   return pullable.sort((a, b) => {
     const pa = deadlinePhase(a, today)

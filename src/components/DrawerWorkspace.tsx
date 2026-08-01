@@ -6,11 +6,13 @@ import {
   addDaysToToday,
   addInboxItem,
   canChop,
+  chainPullRole,
   childrenOf,
   chopIntoBites,
   countReady,
   daysUntilDeadline,
   deadlinePhase,
+  earlierChainStep,
   isChainMember,
   itemsByLevel,
   itemsWithDeadlinePhase,
@@ -85,6 +87,8 @@ export function DrawerWorkspace({
   const [chopSteer, setChopSteer] = useState<
     'already_small' | 'too_fine' | 'too_many' | null
   >(null)
+  /** Ketten-Vorziehen: Buddy fragt nach Bestätigung */
+  const [pullConfirmId, setPullConfirmId] = useState<string | null>(null)
   const aiOptIn = aiChopOptIn ?? loadPrefs().drawerAiChopOptIn
   const readyCap =
     readyCapProp ?? loadPrefs().drawerReadyCap ?? DRAWER_READY_CAP_DEFAULT
@@ -109,12 +113,19 @@ export function DrawerWorkspace({
   const chopParent = chopId
     ? drawer.items.find((i) => i.id === chopId)
     : undefined
+  const pullConfirmItem = pullConfirmId
+    ? drawer.items.find((i) => i.id === pullConfirmId) ?? null
+    : null
+  const pullAheadEarlier = pullConfirmItem
+    ? earlierChainStep(drawer.items, pullConfirmItem)
+    : null
   const chopSheetRef = useRef<HTMLDivElement | null>(null)
   const chopTextRef = useRef<HTMLTextAreaElement | null>(null)
 
   const buddyLine = drawerBuddy(day.buddyTone, {
     chopBlocked: !chopOk,
-    chopSteer,
+    chopSteer: pullConfirmId ? null : chopSteer,
+    pullAheadEarlier: pullAheadEarlier?.title ?? null,
     emergencyCount: emergency.length,
     radarCount: radar.length,
   })
@@ -184,11 +195,25 @@ export function DrawerWorkspace({
     setOpenLevel('inbox')
   }
 
-  function pullItem(item: DrawerItem) {
+  function doPullItem(item: DrawerItem) {
     if (!canAddSize(day.capacity, day.tasks, 'small')) return
     const task = pullToTask(item, day.mood, 'small')
     setDay((d) => ({ ...d, tasks: [...d.tasks, task] }))
     patchDrawer((d) => removeItem(d, item.id))
+    setPullConfirmId(null)
+  }
+
+  function pullItem(item: DrawerItem, opts?: { force?: boolean }) {
+    if (!canAddSize(day.capacity, day.tasks, 'small')) return
+    const role = chainPullRole(drawer.items, item)
+    // Späterer Ketten-Schritt: Buddy fragt — Reihenfolge war Absicht
+    if (!opts?.force && role === 'later') {
+      setPullConfirmId(item.id)
+      setChopSteer(null)
+      closeChop()
+      return
+    }
+    doPullItem(item)
   }
 
   function submitChop() {
@@ -318,11 +343,13 @@ export function DrawerWorkspace({
     const kids = childrenOf(drawer.items, item.id)
     const canExpand = Boolean(item.isChunk) || kids.length > 0
     const expanded = expandedChunkId === item.id
+    const pullRole = chainPullRole(drawer.items, item)
+    const confirmingPull = pullConfirmId === item.id
 
     return (
       <li
         key={item.id}
-        className={`drawer-item${nested ? ' drawer-item--child' : ''}${phase === 'emergency' ? ' drawer-item--emergency' : ''}${phase === 'radar' ? ' drawer-item--radar' : ''}${expanded ? ' drawer-item--expanded' : ''}`}
+        className={`drawer-item${nested ? ' drawer-item--child' : ''}${phase === 'emergency' ? ' drawer-item--emergency' : ''}${phase === 'radar' ? ' drawer-item--radar' : ''}${expanded ? ' drawer-item--expanded' : ''}${pullRole === 'later' ? ' drawer-item--later' : ''}`}
       >
         <div className="drawer-item-main">
           {parent && (
@@ -356,6 +383,11 @@ export function DrawerWorkspace({
               {item.parentId && (
                 <span className="drawer-chip">{t('drawer.bite')}</span>
               )}
+              {pullRole === 'later' && (
+                <span className="drawer-chip drawer-chip--later">
+                  {t('drawer.pullLaterChip')}
+                </span>
+              )}
             </>
           )}
           {item.waitingOn && (
@@ -377,10 +409,10 @@ export function DrawerWorkspace({
           )}
         </div>
         <div className="drawer-item-actions">
-          {itemLevel === 'ready' && !item.isChunk && (
+          {itemLevel === 'ready' && !item.isChunk && !confirmingPull && (
             <button
               type="button"
-              className="primary sm"
+              className={pullRole === 'later' ? 'secondary sm' : 'primary sm'}
               disabled={!canAddSize(day.capacity, day.tasks, 'small')}
               onClick={() => pullItem(item)}
             >
@@ -596,6 +628,28 @@ export function DrawerWorkspace({
                 {t('drawer.deadlineClear')}
               </button>
             )}
+          </div>
+        )}
+        {confirmingPull && (
+          <div className="drawer-pull-ahead" role="status">
+            <p className="block-hint">{t('drawer.pullAheadHint')}</p>
+            <div className="carry-actions">
+              <button
+                type="button"
+                className="primary sm"
+                disabled={!canAddSize(day.capacity, day.tasks, 'small')}
+                onClick={() => pullItem(item, { force: true })}
+              >
+                {t('drawer.pullAheadConfirm')}
+              </button>
+              <button
+                type="button"
+                className="ghost sm"
+                onClick={() => setPullConfirmId(null)}
+              >
+                {t('drawer.pullAheadCancel')}
+              </button>
+            </div>
           </div>
         )}
         {chopId === item.id && (
