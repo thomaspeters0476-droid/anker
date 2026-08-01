@@ -50,7 +50,12 @@ function useAppBoot() {
     registerSW({
       immediate: true,
       onRegisteredSW(_url, registration) {
-        void registration?.update()
+        if (!registration) return
+        void registration.update()
+        // Periodisch nach Updates schauen — verhindert steckenbleibende Marketing-Routen
+        window.setInterval(() => {
+          void registration.update()
+        }, 60 * 60 * 1000)
       },
     })
   }, [])
