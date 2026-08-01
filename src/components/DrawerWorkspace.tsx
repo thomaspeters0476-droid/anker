@@ -95,6 +95,8 @@ export function DrawerWorkspace({
   const chopParent = chopId
     ? drawer.items.find((i) => i.id === chopId)
     : undefined
+  const chopSheetRef = useRef<HTMLDivElement | null>(null)
+  const chopTextRef = useRef<HTMLTextAreaElement | null>(null)
 
   const buddyLine = drawerBuddy(day.buddyTone, {
     chopBlocked: !chopOk,
@@ -107,6 +109,13 @@ export function DrawerWorkspace({
   ) {
     setDrawer((prev) => refreshReadyCapLatch(updater(prev), readyCap))
   }
+
+  useEffect(() => {
+    if (!chopId) return
+    // Formular liegt am Eintrag — sofort sichtbar machen
+    chopSheetRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    window.setTimeout(() => chopTextRef.current?.focus(), 80)
+  }, [chopId])
 
   useEffect(() => {
     if (activeStaleId) {
@@ -174,11 +183,12 @@ export function DrawerWorkspace({
       .map((s) => s.trim())
       .filter(Boolean)
     if (lines.length === 0) return
-    if (!canChop(drawer, readyCap)) return
+    if (!chopRoomFor(lines.length)) {
+      setChopErr(t('drawer.capBlocked'))
+      return
+    }
     patchDrawer((d) => chopIntoBites(d, chopId, lines))
-    setChopId(null)
-    setChopText('')
-    setChopErr(null)
+    closeChop()
     setOpenLevel('ready')
   }
 
@@ -201,9 +211,33 @@ export function DrawerWorkspace({
   }
 
   function openChop(item: DrawerItem) {
+    setMoreOpenId(null)
+    setSnoozeId(null)
+    setWaitId(null)
+    setDeadlineEditId(null)
+    // Tab auf die Ebene des Eintrags, sonst wirkt der Klick „tot“
+    if (item.level && openLevel !== 'all' && openLevel !== item.level) {
+      setOpenLevel(item.level)
+    }
     setChopId(item.id)
     setChopText('')
     setChopErr(null)
+  }
+
+  function closeChop() {
+    setChopId(null)
+    setChopText('')
+    setChopErr(null)
+  }
+
+  function chopRoomFor(lineCount: number): boolean {
+    if (!chopParent || lineCount < 1) return false
+    const n = countReady(drawer.items)
+    // Häppchen ersetzen: −1 + neue Zeilen
+    if (chopParent.isChunk === false) {
+      return n - 1 + lineCount <= readyCap
+    }
+    return n + lineCount <= readyCap && chopOk
   }
 
   function deadlineLabel(item: DrawerItem): string | null {
@@ -268,10 +302,11 @@ export function DrawerWorkspace({
             Boolean(item.isChunk)) && (
             <button
               type="button"
-              className="secondary sm"
-              disabled={!chopOk}
-              title={chopOk ? undefined : t('drawer.capBlocked')}
-              onClick={() => openChop(item)}
+              className={`secondary sm${chopId === item.id ? ' on' : ''}`}
+              aria-expanded={chopId === item.id}
+              onClick={() =>
+                chopId === item.id ? closeChop() : openChop(item)
+              }
             >
               {item.isChunk === false
                 ? t('drawer.chopAgain')
@@ -471,6 +506,73 @@ export function DrawerWorkspace({
                 {t('drawer.deadlineClear')}
               </button>
             )}
+          </div>
+        )}
+        {chopId === item.id && (
+          <div
+            className="drawer-chop-sheet drawer-chop-sheet--inline"
+            ref={chopSheetRef}
+          >
+            <h3>
+              {item.isChunk === false
+                ? t('drawer.chopAgainTitle')
+                : t('drawer.chopTitle')}
+            </h3>
+            <p className="block-hint">
+              {item.isChunk === false
+                ? t('drawer.chopAgainHint')
+                : t('drawer.chopHint')}
+            </p>
+            {!chopOk && item.isChunk !== false && (
+              <p className="block-hint drawer-chop-err" role="status">
+                {t('drawer.capBlocked')}
+              </p>
+            )}
+            {aiOptIn ? (
+              <div className="carry-actions drawer-chop-ai-row">
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={chopBusy}
+                  onClick={() => void runAiSuggest()}
+                >
+                  {chopBusy ? t('drawer.chopAiBusy') : t('drawer.chopAiSuggest')}
+                </button>
+              </div>
+            ) : (
+              <p className="block-hint">{t('drawer.chopAiOptInHint')}</p>
+            )}
+            {chopErr && (
+              <p className="block-hint drawer-chop-err" role="alert">
+                {chopErr}
+              </p>
+            )}
+            <textarea
+              ref={chopTextRef}
+              rows={4}
+              value={chopText}
+              onChange={(e) => setChopText(e.target.value)}
+              placeholder={t('drawer.chopPlaceholder')}
+              disabled={chopBusy}
+            />
+            <div className="carry-actions">
+              <button
+                type="button"
+                className="primary"
+                disabled={chopBusy || !chopText.trim()}
+                onClick={submitChop}
+              >
+                {t('drawer.chopSave')}
+              </button>
+              <button
+                type="button"
+                className="ghost"
+                disabled={chopBusy}
+                onClick={closeChop}
+              >
+                {t('drawer.chopCancel')}
+              </button>
+            </div>
           </div>
         )}
         {level === 'deadline' && phase === 'emergency' && item.isChunk && (
@@ -681,73 +783,6 @@ export function DrawerWorkspace({
         },
       )}
 
-      {chopId && (
-        <div className="drawer-chop-sheet">
-          <h3>
-            {chopParent?.isChunk === false
-              ? t('drawer.chopAgainTitle')
-              : t('drawer.chopTitle')}
-          </h3>
-          {chopParent && (
-            <p className="drawer-chop-parent">
-              <strong>{chopParent.title}</strong>
-            </p>
-          )}
-          <p className="block-hint">
-            {chopParent?.isChunk === false
-              ? t('drawer.chopAgainHint')
-              : t('drawer.chopHint')}
-          </p>
-          {aiOptIn ? (
-            <div className="carry-actions drawer-chop-ai-row">
-              <button
-                type="button"
-                className="secondary"
-                disabled={chopBusy || !chopParent}
-                onClick={() => void runAiSuggest()}
-              >
-                {chopBusy ? t('drawer.chopAiBusy') : t('drawer.chopAiSuggest')}
-              </button>
-            </div>
-          ) : (
-            <p className="block-hint">{t('drawer.chopAiOptInHint')}</p>
-          )}
-          {chopErr && (
-            <p className="block-hint drawer-chop-err" role="alert">
-              {chopErr}
-            </p>
-          )}
-          <textarea
-            rows={4}
-            value={chopText}
-            onChange={(e) => setChopText(e.target.value)}
-            placeholder={t('drawer.chopPlaceholder')}
-            disabled={chopBusy}
-          />
-          <div className="carry-actions">
-            <button
-              type="button"
-              className="primary"
-              disabled={chopBusy || !chopText.trim() || !chopOk}
-              onClick={submitChop}
-            >
-              {t('drawer.chopSave')}
-            </button>
-            <button
-              type="button"
-              className="ghost"
-              disabled={chopBusy}
-              onClick={() => {
-                setChopId(null)
-                setChopText('')
-                setChopErr(null)
-              }}
-            >
-              {t('drawer.chopCancel')}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

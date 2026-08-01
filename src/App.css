@@ -2419,6 +2419,19 @@
   gap: 0.45rem;
 }
 
+.drawer-chop-sheet--inline {
+  margin-top: 0.45rem;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface, #fff) 88%, var(--accent, #2f6f5e));
+}
+
+.drawer-chop-sheet--inline h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
 .plan-round-line,
 .done-round-hint {
   margin: 0.45rem 0 0;
