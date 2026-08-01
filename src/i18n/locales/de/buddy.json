@@ -301,6 +301,11 @@
       "warm": "{{count}} Sache(n) tauchen demnächst auf dem Radar auf — planen oder zerlegen, wenn Kapazität da ist.",
       "kurz": "{{count}}× Demnächst — bei Gelegenheit.",
       "klar": "Radar: {{count}}. Einplanen oder zerlegen."
+    },
+    "tidyReady": {
+      "warm": "{{count}} liegen bereit. Eins auf den Anker reicht oft — oder {{rest}} in Ruhe legen, dann wird’s wieder klar.",
+      "kurz": "{{count}} bereit. Eins holen oder {{rest}} in Ruhe.",
+      "klar": "Bereit: {{count}}. Holen (1) oder {{rest}} → Ruhe."
     }
   }
 }

@@ -43,6 +43,14 @@ export const DRAWER_READY_CAP_MAX = 40
 export const DRAWER_READY_CAP_DEFAULT = 25
 export const DRAWER_READY_CAP_HYSTERESIS = 5
 
+/** Kompakte Ansicht — Rest hinter „weitere …“ */
+export const DRAWER_READY_FOCUS = 3
+export const DRAWER_INBOX_FOCUS = 5
+export const DRAWER_PULL_FOCUS = 3
+/** Ab so vielen Bereit-Häppchen: Buddy schlägt Aufräumen vor */
+export const DRAWER_TIDY_AT = 8
+export const DRAWER_TIDY_REST = 5
+
 /** Harte Fristen — siehe SCHUBLADE.md §6 */
 export const DRAWER_DEADLINE_RADAR_DAYS = 5
 export const DRAWER_DEADLINE_EMERGENCY_DAYS = 1

@@ -2776,6 +2776,62 @@
   margin: 0.15rem 0 1rem;
 }
 
+.drawer-tidy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.drawer-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.drawer-brocken-group,
+.drawer-more-fold,
+.drawer-quiet-fold {
+  border: 1px solid color-mix(in srgb, var(--line) 90%, transparent);
+  border-radius: 12px;
+  padding: 0.35rem 0.65rem 0.45rem;
+  background: color-mix(in srgb, var(--card-solid) 70%, transparent);
+}
+
+.drawer-brocken-group > summary,
+.drawer-more-fold > summary,
+.drawer-quiet-fold > summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  list-style: none;
+  padding: 0.35rem 0.15rem;
+}
+
+.drawer-brocken-group > summary::-webkit-details-marker,
+.drawer-more-fold > summary::-webkit-details-marker,
+.drawer-quiet-fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.drawer-brocken-group[open] > summary,
+.drawer-more-fold[open] > summary {
+  color: var(--accent-deep);
+  margin-bottom: 0.25rem;
+}
+
+.drawer-tab-count {
+  margin-left: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  opacity: 0.55;
+}
+
+.drawer-level-tabs button.on .drawer-tab-count {
+  opacity: 0.8;
+}
+
 /* Schublade: kühleres Blau-Grau — sofort anderer Ort als der grüne Anker */
 .schublade-shell {
   --bg0: #e4eef5;

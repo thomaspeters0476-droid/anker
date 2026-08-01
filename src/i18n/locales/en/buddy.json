@@ -301,6 +301,11 @@
       "warm": "{{count}} item(s) are on the radar soon — plan or cut when you have capacity.",
       "kurz": "{{count}}× coming up — when you can.",
       "klar": "Radar: {{count}}. Plan or cut."
+    },
+    "tidyReady": {
+      "warm": "{{count}} are ready. Pulling one onto today is often enough — or put {{rest}} to rest so it clears again.",
+      "kurz": "{{count}} ready. Pull one or rest {{rest}}.",
+      "klar": "Ready: {{count}}. Pull 1 or {{rest}} → rest."
     }
   }
 }

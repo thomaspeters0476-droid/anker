@@ -515,3 +515,114 @@ export function childrenOf(
     )
     .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
 }
+
+export type DrawerItemGroup = {
+  key: string
+  /** Brocken-Titel — null = Einzelstück ohne Gruppe */
+  label: string | null
+  items: DrawerItem[]
+}
+
+/** Bereit: Notfall → nächster Ketten-Schritt → frei → später */
+export function sortReadyForFocus(
+  levelItems: DrawerItem[],
+  allItems: DrawerItem[],
+  today = todayKey(),
+): DrawerItem[] {
+  return [...levelItems].sort((a, b) => {
+    const rank = (i: DrawerItem) => {
+      const phase = deadlinePhase(i, today)
+      if (phase === 'emergency') return 0
+      if (i.isChunk) return 1
+      const role = chainPullRole(allItems, i, today)
+      if (role === 'next') return 2
+      if (role === 'free') return 3
+      if (phase === 'radar') return 4
+      return 5
+    }
+    const r = rank(a) - rank(b)
+    if (r !== 0) return r
+    return Date.parse(a.createdAt) - Date.parse(b.createdAt)
+  })
+}
+
+/** Häppchen unter Brocken bündeln; Brocken und Einzelne bleiben eigene Gruppen */
+export function groupItemsByParent(
+  allItems: DrawerItem[],
+  levelItems: DrawerItem[],
+): DrawerItemGroup[] {
+  const groups = new Map<string, DrawerItemGroup>()
+  const order: string[] = []
+
+  for (const item of levelItems) {
+    if (item.isChunk) {
+      const key = `chunk:${item.id}`
+      if (!groups.has(key)) {
+        groups.set(key, { key, label: null, items: [] })
+        order.push(key)
+      }
+      groups.get(key)!.items.push(item)
+      continue
+    }
+    if (item.parentId) {
+      const parent = allItems.find((i) => i.id === item.parentId)
+      const key = `p:${item.parentId}`
+      if (!groups.has(key)) {
+        groups.set(key, {
+          key,
+          label: parent?.title?.trim() || null,
+          items: [],
+        })
+        order.push(key)
+      }
+      groups.get(key)!.items.push(item)
+      continue
+    }
+    const key = `solo:${item.id}`
+    groups.set(key, { key, label: null, items: [item] })
+    order.push(key)
+  }
+
+  return order.map((k) => groups.get(k)!)
+}
+
+/**
+ * Kandidaten für „in Ruhe“: nicht die Fokus-Spitze, nicht Notfall, nicht nächster Ketten-Schritt.
+ */
+export function readyRestCandidates(
+  items: DrawerItem[],
+  keepFocus = 3,
+  today = todayKey(),
+): DrawerItem[] {
+  const ready = items.filter(
+    (i) => i.level === 'ready' && !i.isChunk && isVisibleInDrawer(i, today),
+  )
+  const sorted = sortReadyForFocus(ready, items, today)
+  const keep = new Set<string>()
+  let kept = 0
+  for (const i of sorted) {
+    const phase = deadlinePhase(i, today)
+    const role = chainPullRole(items, i, today)
+    if (phase === 'emergency' || role === 'next') {
+      keep.add(i.id)
+      continue
+    }
+    if (kept < keepFocus) {
+      keep.add(i.id)
+      kept += 1
+    }
+  }
+  return sorted.filter((i) => !keep.has(i.id))
+}
+
+export function moveItems(
+  state: DrawerState,
+  ids: string[],
+  level: DrawerLevel,
+): DrawerState {
+  let next = state
+  for (const id of ids) {
+    next = moveItem(next, id, level)
+  }
+  return next
+}

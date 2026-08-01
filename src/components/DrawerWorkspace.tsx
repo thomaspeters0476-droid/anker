@@ -14,21 +14,25 @@ import {
   daysUntilDeadline,
   deadlinePhase,
   earlierChainStep,
+  groupItemsByParent,
   isChainMember,
   itemsByLevel,
   itemsWithDeadlinePhase,
   keepStaleItem,
   markStaleAsked,
   moveItem,
+  moveItems,
   nextPullable,
   nextStaleAsk,
   parentOf,
   pullToTask,
+  readyRestCandidates,
   refreshReadyCapLatch,
   removeItem,
   setItemDeadline,
   setWaitingOn,
   snoozeItem,
+  sortReadyForFocus,
 } from '../drawer/logic'
 import { suggestChopBites } from '../drawer/chopAi'
 import {
@@ -39,7 +43,12 @@ import {
   parseChopLines,
 } from '../drawer/chopGuards'
 import {
+  DRAWER_INBOX_FOCUS,
+  DRAWER_PULL_FOCUS,
   DRAWER_READY_CAP_DEFAULT,
+  DRAWER_READY_FOCUS,
+  DRAWER_TIDY_AT,
+  DRAWER_TIDY_REST,
   type DrawerItem,
   type DrawerLevel,
   type DrawerState,
@@ -85,6 +94,10 @@ export function DrawerWorkspace({
   const [chopErr, setChopErr] = useState<string | null>(null)
   const [openLevel, setOpenLevel] = useState<DrawerLevel | 'all'>('inbox')
   const [frozenOpen, setFrozenOpen] = useState(false)
+  const [deferOpen, setDeferOpen] = useState(false)
+  const [readyMoreOpen, setReadyMoreOpen] = useState(false)
+  const [inboxMoreOpen, setInboxMoreOpen] = useState(false)
+  const [tidyDismissed, setTidyDismissed] = useState(false)
   const [deadlineEditId, setDeadlineEditId] = useState<string | null>(null)
   const [snoozeId, setSnoozeId] = useState<string | null>(null)
   const [waitId, setWaitId] = useState<string | null>(null)
@@ -119,6 +132,15 @@ export function DrawerWorkspace({
   const readyCount = countReady(drawer.items)
   const chopOk = canChop(drawer, readyCap)
   const pullable = useMemo(() => nextPullable(drawer.items), [drawer.items])
+  const restCandidates = useMemo(
+    () => readyRestCandidates(drawer.items, DRAWER_READY_FOCUS),
+    [drawer.items],
+  )
+  const tidyRestN = Math.min(DRAWER_TIDY_REST, restCandidates.length)
+  const showTidy =
+    !tidyDismissed &&
+    tidyRestN > 0 &&
+    (readyCount >= DRAWER_TIDY_AT || !chopOk)
   const emergency = useMemo(
     () => itemsWithDeadlinePhase(drawer.items, 'emergency'),
     [drawer.items],
@@ -127,6 +149,10 @@ export function DrawerWorkspace({
     () => itemsWithDeadlinePhase(drawer.items, 'radar'),
     [drawer.items],
   )
+
+  useEffect(() => {
+    if (readyCount < DRAWER_TIDY_AT && chopOk) setTidyDismissed(false)
+  }, [readyCount, chopOk])
   /** Angezeigte Frage — bleibt bis Antwort, auch nach Quiet-Markierung */
   const [activeStaleId, setActiveStaleId] = useState<string | null>(null)
   const markedStaleRef = useRef<string | null>(null)
@@ -150,7 +176,10 @@ export function DrawerWorkspace({
     chopSteer: pullConfirmId ? null : chopSteer,
     pullAheadEarlier: pullAheadEarlier?.title ?? null,
     emergencyCount: emergency.length,
-    radarCount: radar.length,
+    radarCount: showTidy ? 0 : radar.length,
+    readyCount: showTidy ? readyCount : 0,
+    restN: showTidy ? tidyRestN : 0,
+    tidyAt: DRAWER_TIDY_AT,
   })
 
   function patchDrawer(
@@ -225,6 +254,124 @@ export function DrawerWorkspace({
     setDay((d) => ({ ...d, tasks: [...d.tasks, task] }))
     patchDrawer((d) => removeItem(d, item.id))
     setPullConfirmId(null)
+  }
+
+  function tidyPullOne() {
+    const next = pullable[0]
+    if (!next) return
+    pullItem(next)
+  }
+
+  function tidyRestSome() {
+    const ids = restCandidates.slice(0, tidyRestN).map((i) => i.id)
+    if (ids.length === 0) return
+    patchDrawer((d) => moveItems(d, ids, 'frozen'))
+    setTidyDismissed(true)
+  }
+
+  function renderGroupedItems(
+    items: DrawerItem[],
+    level: DrawerLevel | 'deadline',
+    opts?: { groupsOpen?: boolean },
+  ) {
+    const groups = groupItemsByParent(drawer.items, items)
+    const groupsOpen = opts?.groupsOpen ?? true
+    return (
+      <div className="drawer-group-list">
+        {groups.map((group) => {
+          const useFold =
+            Boolean(group.label) &&
+            group.items.length >= 1 &&
+            !group.items.every((i) => i.isChunk)
+          if (!useFold) {
+            return (
+              <ul key={group.key} className="drawer-item-list">
+                {group.items.map((item) => renderItem(item, level))}
+              </ul>
+            )
+          }
+          const hasNext = group.items.some(
+            (i) => chainPullRole(drawer.items, i) === 'next',
+          )
+          return (
+            <details
+              key={group.key}
+              className="drawer-brocken-group"
+              open={groupsOpen || hasNext || group.items.length <= 2}
+            >
+              <summary>
+                {t('drawer.groupBrocken', {
+                  title: group.label,
+                  count: group.items.length,
+                })}
+              </summary>
+              <ul className="drawer-item-list">
+                {group.items.map((item) => renderItem(item, level))}
+              </ul>
+            </details>
+          )
+        })}
+      </div>
+    )
+  }
+
+  function renderLevelBody(level: DrawerLevel, items: DrawerItem[]) {
+    const ordered =
+      level === 'ready' ? sortReadyForFocus(items, drawer.items) : items
+    const focusN =
+      level === 'ready'
+        ? DRAWER_READY_FOCUS
+        : level === 'inbox'
+          ? DRAWER_INBOX_FOCUS
+          : ordered.length
+    const head = ordered.slice(0, focusN)
+    const rest = ordered.slice(focusN)
+    const moreOpen =
+      level === 'ready'
+        ? readyMoreOpen
+        : level === 'inbox'
+          ? inboxMoreOpen
+          : true
+    const setMoreOpen =
+      level === 'ready'
+        ? setReadyMoreOpen
+        : level === 'inbox'
+          ? setInboxMoreOpen
+          : undefined
+    const foldQuiet = level === 'defer' || level === 'frozen'
+    const groupsOpen = !foldQuiet
+
+    const inner = (
+      <>
+        {head.length === 0 && rest.length === 0 ? null : (
+          renderGroupedItems(head, level, { groupsOpen })
+        )}
+        {rest.length > 0 && setMoreOpen && (
+          <details
+            className="drawer-more-fold"
+            open={moreOpen}
+            onToggle={(e) =>
+              setMoreOpen((e.target as HTMLDetailsElement).open)
+            }
+          >
+            <summary>
+              {t(`drawer.moreInLevel.${level}`, { count: rest.length })}
+            </summary>
+            {renderGroupedItems(rest, level, { groupsOpen: false })}
+          </details>
+        )}
+        {rest.length > 0 && !setMoreOpen && (
+          <details className="drawer-more-fold">
+            <summary>
+              {t(`drawer.moreInLevel.${level}`, { count: rest.length })}
+            </summary>
+            {renderGroupedItems(rest, level, { groupsOpen: false })}
+          </details>
+        )}
+      </>
+    )
+
+    return inner
   }
 
   function pullItem(item: DrawerItem, opts?: { force?: boolean }) {
@@ -861,6 +1008,35 @@ export function DrawerWorkspace({
         <div className="buddy-card drawer-buddy" role="status">
           <span className="buddy-label">{t('common.buddy')}</span>
           <p>{buddyLine}</p>
+          {showTidy && (
+            <div className="drawer-tidy-actions">
+              <button
+                type="button"
+                className="primary sm"
+                disabled={
+                  pullable.length === 0 ||
+                  !canAddSize(day.capacity, day.tasks, 'small')
+                }
+                onClick={tidyPullOne}
+              >
+                {t('drawer.tidyPullOne')}
+              </button>
+              <button
+                type="button"
+                className="secondary sm"
+                onClick={tidyRestSome}
+              >
+                {t('drawer.tidyRestN', { n: tidyRestN })}
+              </button>
+              <button
+                type="button"
+                className="ghost sm"
+                onClick={() => setTidyDismissed(true)}
+              >
+                {t('drawer.tidyLater')}
+              </button>
+            </div>
+          )}
         </div>
       )}
       {showCap && (
@@ -943,11 +1119,11 @@ export function DrawerWorkspace({
         </details>
       )}
 
-      {pullable.length > 0 && (
+      {pullable.length > 0 && openLevel !== 'inbox' && (
         <div className="drawer-pull-block">
           <h3>{t('drawer.pullTitle')}</h3>
           <ul className="task-list">
-            {pullable.slice(0, 6).map((item) => {
+            {pullable.slice(0, DRAWER_PULL_FOCUS).map((item) => {
               const parent = parentOf(drawer.items, item)
               return (
                 <li key={item.id}>
@@ -989,6 +1165,11 @@ export function DrawerWorkspace({
             onClick={() => setOpenLevel(lv)}
           >
             {lv === 'all' ? t('drawer.levelAll') : t(`drawer.level.${lv}`)}
+            {lv !== 'all' && (
+              <span className="drawer-tab-count">
+                {itemsByLevel(drawer, lv).length}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -999,39 +1180,71 @@ export function DrawerWorkspace({
         const emptyHint = t(`drawer.emptyLevelBy.${level}`, {
           defaultValue: t('drawer.emptyLevel'),
         })
+        const body =
+          items.length === 0 ? (
+            <p className="block-hint">{emptyHint}</p>
+          ) : (
+            renderLevelBody(level, items)
+          )
+
         if (level === 'frozen' && openLevel === 'all') {
           return (
             <details
               key={level}
-              className="drawer-level-block drawer-frozen-fold"
+              className="drawer-level-block drawer-quiet-fold"
               open={frozenOpen}
               onToggle={(e) =>
                 setFrozenOpen((e.target as HTMLDetailsElement).open)
               }
             >
+              <summary>{t('drawer.foldFrozen', { count: items.length })}</summary>
+              {body}
+            </details>
+          )
+        }
+        if (level === 'defer' && openLevel === 'all') {
+          return (
+            <details
+              key={level}
+              className="drawer-level-block drawer-quiet-fold"
+              open={deferOpen}
+              onToggle={(e) =>
+                setDeferOpen((e.target as HTMLDetailsElement).open)
+              }
+            >
+              <summary>{t('drawer.foldDefer', { count: items.length })}</summary>
+              {body}
+            </details>
+          )
+        }
+        if (
+          (level === 'frozen' || level === 'defer') &&
+          openLevel === level
+        ) {
+          return (
+            <details
+              key={level}
+              className="drawer-level-block drawer-quiet-fold"
+              open={level === 'frozen' ? frozenOpen : deferOpen}
+              onToggle={(e) => {
+                const open = (e.target as HTMLDetailsElement).open
+                if (level === 'frozen') setFrozenOpen(open)
+                else setDeferOpen(open)
+              }}
+            >
               <summary>
-                {t(`drawer.level.${level}`)} ({items.length})
+                {level === 'frozen'
+                  ? t('drawer.foldFrozen', { count: items.length })
+                  : t('drawer.foldDefer', { count: items.length })}
               </summary>
-              {items.length === 0 ? (
-                <p className="block-hint">{emptyHint}</p>
-              ) : (
-                <ul className="drawer-item-list">
-                  {items.map((item) => renderItem(item, level))}
-                </ul>
-              )}
+              {body}
             </details>
           )
         }
         return (
           <div key={level} className="drawer-level-block">
             {openLevel === 'all' && <h3>{t(`drawer.level.${level}`)}</h3>}
-            {items.length === 0 ? (
-              <p className="block-hint">{emptyHint}</p>
-            ) : (
-              <ul className="drawer-item-list">
-                {items.map((item) => renderItem(item, level))}
-              </ul>
-            )}
+            {body}
           </div>
         )
       })}

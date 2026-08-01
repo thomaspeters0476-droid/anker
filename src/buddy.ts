@@ -249,6 +249,10 @@ export function drawerBuddy(
     pullAheadEarlier?: string | null
     emergencyCount?: number
     radarCount?: number
+    /** Viele Bereit-Häppchen — Aufräumen vorschlagen */
+    readyCount?: number
+    restN?: number
+    tidyAt?: number
   },
 ): string | null {
   if (opts.chopBlocked) return pick(tone, 'drawer.capBlocked')
@@ -266,6 +270,13 @@ export function drawerBuddy(
   }
   if ((opts.emergencyCount ?? 0) > 0) {
     return pick(tone, 'drawer.emergency', { count: opts.emergencyCount! })
+  }
+  const tidyAt = opts.tidyAt ?? 8
+  if ((opts.readyCount ?? 0) >= tidyAt && (opts.restN ?? 0) > 0) {
+    return pick(tone, 'drawer.tidyReady', {
+      count: opts.readyCount!,
+      rest: opts.restN!,
+    })
   }
   if ((opts.radarCount ?? 0) > 0) {
     return pick(tone, 'drawer.radar', { count: opts.radarCount! })
