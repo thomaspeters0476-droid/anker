@@ -319,7 +319,12 @@ export function removeItem(state: DrawerState, id: string): DrawerState {
   }
 }
 
-/** Manuell in Häppchen schneiden — Rest als ready, Parent bleibt als Chunk in inbox/ready */
+/**
+ * In Häppchen schneiden.
+ * - Brocken/Eingang: Parent bleibt als Chunk, neue Häppchen darunter.
+ * - Fertiges Häppchen weiter zerteilen: ersetzt den Schritt in derselben Kette
+ *   (Reihenfolge bleibt, Geschwister warten weiter).
+ */
 export function chopIntoBites(
   state: DrawerState,
   parentId: string,
@@ -331,6 +336,33 @@ export function chopIntoBites(
   if (titles.length === 0) return state
 
   const t = nowIso()
+  const isLeafBite = parent.isChunk === false
+
+  // Häppchen weiter zerteilen → kleinere Schritte an derselben Kettenstelle
+  if (isLeafBite) {
+    const baseMs = Date.parse(parent.createdAt)
+    const start = Number.isFinite(baseMs) ? baseMs : Date.now()
+    const bites: DrawerItem[] = titles.map((title, idx) => ({
+      id: uid(),
+      title,
+      level: 'ready' as const,
+      parentId: parent.parentId ?? null,
+      isChunk: false,
+      energy: 'normal' as const,
+      deadline: parent.deadline ?? null,
+      createdAt: new Date(start + idx).toISOString(),
+      updatedAt: t,
+      touchedAt: t,
+    }))
+    return {
+      ...state,
+      items: [
+        ...bites,
+        ...state.items.filter((i) => i.id !== parentId),
+      ],
+    }
+  }
+
   const bites: DrawerItem[] = titles.map((title) => ({
     id: uid(),
     title,
@@ -344,7 +376,6 @@ export function chopIntoBites(
     touchedAt: t,
   }))
 
-  // Parent als Chunk behalten, Ebene inbox oder frozen je nach vorher
   const nextParent: DrawerItem = {
     ...parent,
     isChunk: true,

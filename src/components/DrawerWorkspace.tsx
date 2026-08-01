@@ -253,17 +253,6 @@ export function DrawerWorkspace({
           )}
         </div>
         <div className="drawer-item-actions">
-          {(itemLevel === 'inbox' || item.isChunk) && item.isChunk !== false && (
-            <button
-              type="button"
-              className="secondary sm"
-              disabled={!chopOk}
-              title={chopOk ? undefined : t('drawer.capBlocked')}
-              onClick={() => openChop(item)}
-            >
-              {t('drawer.chop')}
-            </button>
-          )}
           {itemLevel === 'ready' && !item.isChunk && (
             <button
               type="button"
@@ -272,6 +261,21 @@ export function DrawerWorkspace({
               onClick={() => pullItem(item)}
             >
               {t('drawer.pull')}
+            </button>
+          )}
+          {(itemLevel === 'inbox' ||
+            itemLevel === 'ready' ||
+            Boolean(item.isChunk)) && (
+            <button
+              type="button"
+              className="secondary sm"
+              disabled={!chopOk}
+              title={chopOk ? undefined : t('drawer.capBlocked')}
+              onClick={() => openChop(item)}
+            >
+              {item.isChunk === false
+                ? t('drawer.chopAgain')
+                : t('drawer.chop')}
             </button>
           )}
           {itemLevel === 'defer' && (
@@ -679,13 +683,21 @@ export function DrawerWorkspace({
 
       {chopId && (
         <div className="drawer-chop-sheet">
-          <h3>{t('drawer.chopTitle')}</h3>
+          <h3>
+            {chopParent?.isChunk === false
+              ? t('drawer.chopAgainTitle')
+              : t('drawer.chopTitle')}
+          </h3>
           {chopParent && (
             <p className="drawer-chop-parent">
               <strong>{chopParent.title}</strong>
             </p>
           )}
-          <p className="block-hint">{t('drawer.chopHint')}</p>
+          <p className="block-hint">
+            {chopParent?.isChunk === false
+              ? t('drawer.chopAgainHint')
+              : t('drawer.chopHint')}
+          </p>
           {aiOptIn ? (
             <div className="carry-actions drawer-chop-ai-row">
               <button
