@@ -251,7 +251,7 @@
     "drawerEnabled": "Enable the drawer",
     "drawerEnabledHint": "Optional. Unlocks the bridge to the drawer app (/schublade). Default: off.",
     "drawerAiChop": "AI help when cutting into bites",
-    "drawerAiChopHint": "When on: the chunk title is sent to Azure (same setup as Schwundbuch) for step suggestions. You can still edit. Default: off.",
+    "drawerAiChopHint": "When on: the chunk title is sent to our AI server for step suggestions. You can still edit. Default: off.",
     "drawerReadyCap": "Ready cap: {{n}}",
     "drawerReadyCapHint": "Max bites under Ready (15–40). At the cap: pull or rest first, then cut again.",
     "capacity": {

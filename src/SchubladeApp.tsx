@@ -21,6 +21,7 @@ import { DrawerWorkspace } from './components/DrawerWorkspace'
 import { ProductNav } from './components/ProductNav'
 import { PwaGuide } from './components/PwaGuide'
 import { SyncSettings } from './components/SyncSettings'
+import { RegulateButton, RegulateDown } from './components/RegulateDown'
 import {
   getSession,
   isSyncConfigured,
@@ -48,6 +49,7 @@ export function SchubladeApp() {
   const [syncNotice, setSyncNotice] = useState<string | null>(null)
   const [syncConflict, setSyncConflict] = useState<SyncConflict | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [regulateOpen, setRegulateOpen] = useState(false)
   const [aiChopOptIn, setAiChopOptIn] = useState(
     () => loadPrefs().drawerAiChopOptIn,
   )
@@ -125,20 +127,9 @@ export function SchubladeApp() {
 
   useEffect(() => {
     if (!isSyncConfigured() || !syncEmail) return
-    const onVis = () => {
-      if (document.visibilityState === 'visible') void runSync()
-    }
-    const onOnline = () => void runSync()
-    document.addEventListener('visibilitychange', onVis)
-    window.addEventListener('online', onOnline)
-    const unsub = subscribeUserState(() => {
+    return subscribeUserState(() => {
       void runSync()
     })
-    return () => {
-      document.removeEventListener('visibilitychange', onVis)
-      window.removeEventListener('online', onOnline)
-      unsub()
-    }
   }, [syncEmail, runSync])
 
   function updateDrawer(next: SetStateAction<DrawerState>) {
@@ -178,21 +169,35 @@ export function SchubladeApp() {
             <span className="brand-mark" aria-hidden />
             <span className="brand-name">{t('drawer.title')}</span>
           </div>
-          <button
-            type="button"
-            className="ghost sm"
-            onClick={() => setSettingsOpen((v) => !v)}
-          >
-            {t('settings.summary')}
-          </button>
+          {!regulateOpen && (
+            <RegulateButton onClick={() => setRegulateOpen(true)} />
+          )}
         </div>
         <p className="brand-tag">{t('drawer.appTag')}</p>
-        <ProductNav active="schublade" />
+        {!regulateOpen && <ProductNav active="schublade" />}
       </header>
 
       <main className="main">
-        {settingsOpen && (
-          <details className="settings-panel" open>
+        <section className="block drawer-app-block">
+          <DrawerWorkspace
+            variant="page"
+            drawer={drawer}
+            setDrawer={updateDrawer}
+            day={day}
+            setDay={setDay}
+            aiChopOptIn={aiChopOptIn}
+            readyCap={readyCap}
+          />
+        </section>
+
+        <div className="plan-footer">
+          <details
+            className="settings-panel"
+            open={settingsOpen}
+            onToggle={(e) =>
+              setSettingsOpen((e.target as HTMLDetailsElement).open)
+            }
+          >
             <summary>{t('settings.summary')}</summary>
             <p className="block-hint">{t('drawer.appBridgeHint')}</p>
             <p>
@@ -214,9 +219,7 @@ export function SchubladeApp() {
             </label>
             <p className="block-hint">{t('settings.drawerAiChopHint')}</p>
             <div className="settings-row">
-              <span>
-                {t('settings.drawerReadyCap', { n: readyCap })}
-              </span>
+              <span>{t('settings.drawerReadyCap', { n: readyCap })}</span>
               <button
                 type="button"
                 className="ghost sm"
@@ -256,20 +259,22 @@ export function SchubladeApp() {
                     : t('settings.sync.metaLocalOnly')}
                 </span>
               </summary>
-              <SyncSettings
-                email={syncEmail}
-                notice={syncNotice}
-                conflict={syncConflict}
-                onNotice={setSyncNotice}
-                onKeepLocal={() => void keepLocalConflict()}
-                onUseCloud={() => void useCloudConflict()}
-                onSignedOut={() => {
-                  setSyncEmail(null)
-                  setSyncConflict(null)
-                }}
-                onVaultReady={() => void runSync()}
-                embedded
-              />
+              {settingsOpen && (
+                <SyncSettings
+                  email={syncEmail}
+                  notice={syncNotice}
+                  conflict={syncConflict}
+                  onNotice={setSyncNotice}
+                  onKeepLocal={() => void keepLocalConflict()}
+                  onUseCloud={() => void useCloudConflict()}
+                  onSignedOut={() => {
+                    setSyncEmail(null)
+                    setSyncConflict(null)
+                  }}
+                  onVaultReady={() => void runSync()}
+                  embedded
+                />
+              )}
             </details>
             {syncEmail ? (
               <p className="sync-status-bar" role="status">
@@ -277,20 +282,12 @@ export function SchubladeApp() {
               </p>
             ) : null}
           </details>
-        )}
-
-        <section className="block drawer-app-block">
-          <DrawerWorkspace
-            variant="page"
-            drawer={drawer}
-            setDrawer={updateDrawer}
-            day={day}
-            setDay={setDay}
-            aiChopOptIn={aiChopOptIn}
-            readyCap={readyCap}
-          />
-        </section>
+        </div>
       </main>
+
+      {regulateOpen && (
+        <RegulateDown onClose={() => setRegulateOpen(false)} />
+      )}
     </div>
   )
 }

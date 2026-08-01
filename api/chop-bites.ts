@@ -104,7 +104,8 @@ async function callResponsesApi(input: {
     body: JSON.stringify({
       model: input.deployment,
       instructions: input.system,
-      input: `Vorhaben / Brocken:\n${input.title}`,
+      // Azure verlangt „json“ im Input, wenn text.format=json_object
+      input: `Reply as JSON. Vorhaben / Brocken:\n${input.title}`,
       max_output_tokens: 800,
       text: { format: { type: 'json_object' } },
     }),
@@ -146,7 +147,7 @@ async function callChatCompletionsApi(input: {
         { role: 'user', content: `Vorhaben / Brocken:\n${input.title}` },
       ],
       response_format: { type: 'json_object' },
-      temperature: 0.3,
+      // gpt-5-mini: nur Default-Temperature; kein temperature-Feld setzen
       max_completion_tokens: 800,
     }),
   })
@@ -188,7 +189,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     let content: string | null = null
     let lastErr: unknown
-    if (version.startsWith('2025')) {
+
+    // Chat Completions zuerst — stabiler für gpt-5-mini
+    try {
+      content = await callChatCompletionsApi({
+        endpoint,
+        key,
+        deployment,
+        version,
+        system,
+        title,
+      })
+    } catch (e) {
+      lastErr = e
+    }
+
+    if (!content && version.startsWith('2025')) {
       try {
         content = await callResponsesApi({
           endpoint,
@@ -202,23 +218,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         lastErr = e
       }
     }
-    if (!content) {
-      try {
-        content = await callChatCompletionsApi({
-          endpoint,
-          key,
-          deployment,
-          version,
-          system,
-          title,
-        })
-      } catch (e) {
-        lastErr = e
-        if (!content) throw e
-      }
-    }
 
     if (!content) {
+      console.error('[chop-bites] empty', String(lastErr ?? ''))
       throw lastErr instanceof Error ? lastErr : new Error('empty_response')
     }
 
@@ -228,7 +230,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(200).json({ ok: true, bites })
-  } catch {
+  } catch (e) {
+    console.error('[chop-bites] failed', String(e))
     return res.status(502).json({ ok: false, error: 'ai_failed' })
   }
 }

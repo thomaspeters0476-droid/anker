@@ -251,7 +251,7 @@
     "drawerEnabled": "Die Schublade aktivieren",
     "drawerEnabledHint": "Optional. Öffnet die Brücke zur Schublade-App (/schublade). Standard: aus.",
     "drawerAiChop": "KI-Hilfe beim Zerlegen",
-    "drawerAiChopHint": "Wenn an: Der Titel des Brockens geht an Azure (wie bei Schwundbuch), für Schritt-Vorschläge. Du kannst alles noch ändern. Standard: aus.",
+    "drawerAiChopHint": "Wenn an: Der Titel des Brockens geht an unseren KI-Server für Schritt-Vorschläge. Du kannst alles noch ändern. Standard: aus.",
     "drawerReadyCap": "Bereit-Cap: {{n}}",
     "drawerReadyCapHint": "Max. Häppchen unter „Bereit“ (15–40). Bei Cap: erst holen oder in Ruhe legen, dann wieder zerlegen.",
     "capacity": {
