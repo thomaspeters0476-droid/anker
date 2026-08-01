@@ -6,6 +6,7 @@ import {
   addDaysToToday,
   addInboxItem,
   canChop,
+  childrenOf,
   chopIntoBites,
   countReady,
   daysUntilDeadline,
@@ -18,6 +19,7 @@ import {
   moveItem,
   nextPullable,
   nextStaleAsk,
+  parentOf,
   pullToTask,
   refreshReadyCapLatch,
   removeItem,
@@ -71,6 +73,8 @@ export function DrawerWorkspace({
   const [waitId, setWaitId] = useState<string | null>(null)
   const [waitDraft, setWaitDraft] = useState('')
   const [moreOpenId, setMoreOpenId] = useState<string | null>(null)
+  /** Aufgeklappte Brocken → Häppchen darunter */
+  const [expandedChunkId, setExpandedChunkId] = useState<string | null>(null)
   const aiOptIn = aiChopOptIn ?? loadPrefs().drawerAiChopOptIn
   const readyCap =
     readyCapProp ?? loadPrefs().drawerReadyCap ?? DRAWER_READY_CAP_DEFAULT
@@ -251,22 +255,58 @@ export function DrawerWorkspace({
     return t('drawer.deadlineInDays', { days, date: item.deadline })
   }
 
-  function renderItem(item: DrawerItem, level: DrawerLevel | 'deadline') {
+  function renderItem(
+    item: DrawerItem,
+    level: DrawerLevel | 'deadline',
+    opts?: { nested?: boolean },
+  ) {
+    const nested = Boolean(opts?.nested)
     const phase = deadlinePhase(item)
     const dLabel = deadlineLabel(item)
     const itemLevel = item.level
+    const parent = !nested ? parentOf(drawer.items, item) : null
+    const kids = childrenOf(drawer.items, item.id)
+    const canExpand = Boolean(item.isChunk) || kids.length > 0
+    const expanded = expandedChunkId === item.id
+
     return (
       <li
         key={item.id}
-        className={`drawer-item${phase === 'emergency' ? ' drawer-item--emergency' : ''}${phase === 'radar' ? ' drawer-item--radar' : ''}`}
+        className={`drawer-item${nested ? ' drawer-item--child' : ''}${phase === 'emergency' ? ' drawer-item--emergency' : ''}${phase === 'radar' ? ' drawer-item--radar' : ''}${expanded ? ' drawer-item--expanded' : ''}`}
       >
         <div className="drawer-item-main">
-          <strong>{item.title}</strong>
-          {item.isChunk && (
-            <span className="drawer-chip">{t('drawer.chunk')}</span>
+          {parent && (
+            <p className="drawer-item-parent">
+              {t('drawer.parentLine', { title: parent.title })}
+            </p>
           )}
-          {item.parentId && (
-            <span className="drawer-chip">{t('drawer.bite')}</span>
+          {canExpand ? (
+            <button
+              type="button"
+              className="drawer-item-title-btn"
+              aria-expanded={expanded}
+              title={
+                expanded
+                  ? t('drawer.chunkCollapseHint')
+                  : t('drawer.chunkExpandHint')
+              }
+              onClick={() =>
+                setExpandedChunkId((id) => (id === item.id ? null : item.id))
+              }
+            >
+              <strong>{item.title}</strong>
+              <span className="drawer-chip">{t('drawer.chunk')}</span>
+              <span className="drawer-chip drawer-chip--count">
+                {t('drawer.chunkChildren', { count: kids.length })}
+              </span>
+            </button>
+          ) : (
+            <>
+              <strong>{item.title}</strong>
+              {item.parentId && (
+                <span className="drawer-chip">{t('drawer.bite')}</span>
+              )}
+            </>
           )}
           {item.waitingOn && (
             <span className="drawer-chip drawer-chip--wait">
@@ -578,6 +618,17 @@ export function DrawerWorkspace({
         {level === 'deadline' && phase === 'emergency' && item.isChunk && (
           <p className="block-hint">{t('drawer.deadlineEmergencyChop')}</p>
         )}
+        {expanded && (
+          <div className="drawer-item-children">
+            {kids.length === 0 ? (
+              <p className="block-hint">{t('drawer.chunkEmptyChildren')}</p>
+            ) : (
+              <ul className="drawer-item-list drawer-item-list--nested">
+                {kids.map((child) => renderItem(child, child.level, { nested: true }))}
+              </ul>
+            )}
+          </div>
+        )}
       </li>
     )
   }
@@ -696,26 +747,34 @@ export function DrawerWorkspace({
         <div className="drawer-pull-block">
           <h3>{t('drawer.pullTitle')}</h3>
           <ul className="task-list">
-            {pullable.slice(0, 6).map((item) => (
-              <li key={item.id}>
-                <span className="task-main">
-                  {item.title}
-                  {deadlinePhase(item) === 'emergency' && (
-                    <span className="drawer-chip drawer-chip--emergency">
-                      {t('drawer.deadlineUrgentChip')}
-                    </span>
-                  )}
-                </span>
-                <button
-                  type="button"
-                  className="primary sm"
-                  disabled={!canAddSize(day.capacity, day.tasks, 'small')}
-                  onClick={() => pullItem(item)}
-                >
-                  {t('drawer.pull')}
-                </button>
-              </li>
-            ))}
+            {pullable.slice(0, 6).map((item) => {
+              const parent = parentOf(drawer.items, item)
+              return (
+                <li key={item.id}>
+                  <span className="task-main">
+                    {parent && (
+                      <span className="drawer-item-parent drawer-item-parent--inline">
+                        {t('drawer.parentLine', { title: parent.title })}
+                      </span>
+                    )}
+                    <span>{item.title}</span>
+                    {deadlinePhase(item) === 'emergency' && (
+                      <span className="drawer-chip drawer-chip--emergency">
+                        {t('drawer.deadlineUrgentChip')}
+                      </span>
+                    )}
+                  </span>
+                  <button
+                    type="button"
+                    className="primary sm"
+                    disabled={!canAddSize(day.capacity, day.tasks, 'small')}
+                    onClick={() => pullItem(item)}
+                  >
+                    {t('drawer.pull')}
+                  </button>
+                </li>
+              )
+            })}
           </ul>
         </div>
       )}

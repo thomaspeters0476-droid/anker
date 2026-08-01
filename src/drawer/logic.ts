@@ -445,3 +445,25 @@ export function itemsByLevel(
     .filter((i) => i.level === level && isVisibleInDrawer(i, today))
     .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
 }
+
+/** Parent-Brocken eines Häppchens (falls noch vorhanden) */
+export function parentOf(
+  items: DrawerItem[],
+  item: DrawerItem,
+): DrawerItem | null {
+  if (!item.parentId) return null
+  return items.find((i) => i.id === item.parentId) ?? null
+}
+
+/** Direkte Kinder eines Brockens — Kettenreihenfolge */
+export function childrenOf(
+  items: DrawerItem[],
+  parentId: string,
+  today = todayKey(),
+): DrawerItem[] {
+  return items
+    .filter(
+      (i) => i.parentId === parentId && isVisibleInDrawer(i, today),
+    )
+    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
+}
