@@ -8,6 +8,8 @@ import {
   DRAWER_READY_CAP_HYSTERESIS,
   DRAWER_READY_CAP_MAX,
   DRAWER_READY_CAP_MIN,
+  DRAWER_STALE_DAYS,
+  DRAWER_STALE_QUIET_DAYS,
   type DeadlinePhase,
   type DrawerItem,
   type DrawerLevel,
@@ -105,12 +107,80 @@ export function setItemDeadline(
   const value =
     deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? deadline : null
   return {
+    ...state,
     items: state.items.map((i) =>
       i.id === id
         ? { ...i, deadline: value, updatedAt: t, touchedAt: t }
         : i,
     ),
   }
+}
+
+function daysBetweenIso(fromIso: string, today = todayKey()): number | null {
+  const day = fromIso.slice(0, 10)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return null
+  const a = Date.parse(`${day}T12:00:00`)
+  const b = Date.parse(`${today}T12:00:00`)
+  if (Number.isNaN(a) || Number.isNaN(b)) return null
+  return Math.round((b - a) / 86_400_000)
+}
+
+/** Lange liegen: 21 Tage ohne Touch, dann Frage; Quiet 14 Tage nach Frage */
+export function isStaleAskDue(item: DrawerItem, today = todayKey()): boolean {
+  if (item.level === 'frozen') return false
+  if (!isVisibleInDrawer(item, today)) return false
+  const untouched = daysBetweenIso(item.touchedAt, today)
+  if (untouched === null || untouched < DRAWER_STALE_DAYS) return false
+  if (item.staleAskedAt) {
+    const sinceAsk = daysBetweenIso(item.staleAskedAt, today)
+    if (sinceAsk !== null && sinceAsk < DRAWER_STALE_QUIET_DAYS) return false
+  }
+  return true
+}
+
+export function nextStaleAsk(
+  items: DrawerItem[],
+  today = todayKey(),
+): DrawerItem | null {
+  const due = items
+    .filter((i) => isStaleAskDue(i, today))
+    .sort(
+      (a, b) => Date.parse(a.touchedAt) - Date.parse(b.touchedAt),
+    )
+  return due[0] ?? null
+}
+
+export function markStaleAsked(state: DrawerState, id: string): DrawerState {
+  const t = nowIso()
+  return {
+    ...state,
+    items: state.items.map((i) =>
+      i.id === id ? { ...i, staleAskedAt: t, updatedAt: t } : i,
+    ),
+  }
+}
+
+/** Behalten: Touch zurücksetzen (21-Tage-Uhr neu) */
+export function keepStaleItem(state: DrawerState, id: string): DrawerState {
+  const t = nowIso()
+  return {
+    ...state,
+    items: state.items.map((i) =>
+      i.id === id
+        ? {
+            ...i,
+            touchedAt: t,
+            updatedAt: t,
+            staleAskedAt: null,
+          }
+        : i,
+    ),
+  }
+}
+
+export function isChainMember(state: DrawerState, item: DrawerItem): boolean {
+  if (item.parentId) return true
+  return state.items.some((x) => x.parentId === item.id)
 }
 
 export function countReady(items: DrawerItem[]): number {
@@ -220,8 +290,11 @@ export function addDaysToToday(days: number, today = todayKey()): string {
 export function touchItem(state: DrawerState, id: string): DrawerState {
   const t = nowIso()
   return {
+    ...state,
     items: state.items.map((i) =>
-      i.id === id ? { ...i, touchedAt: t, updatedAt: t } : i,
+      i.id === id
+        ? { ...i, touchedAt: t, updatedAt: t, staleAskedAt: null }
+        : i,
     ),
   }
 }

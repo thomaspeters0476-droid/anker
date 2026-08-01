@@ -224,7 +224,14 @@
     "waitingOnHint": "Ball in someone else’s court — short note.",
     "waitingOnPlaceholder": "e.g. accountant",
     "waitingOnClear": "Clear",
-    "waitingOnChip": "waiting: {{who}}"
+    "waitingOnChip": "waiting: {{who}}",
+    "staleLead": "This has been sitting here a while. Still need it — or shall we put it away together?",
+    "staleKeep": "Keep",
+    "staleRest": "Put to rest",
+    "staleDiscard": "Discard",
+    "staleChainHint": "Part of a chain — “Put to rest” is often better than deleting one link.",
+    "staleDiscardWarn": "Really discard? Only on purpose — nothing is deleted silently.",
+    "staleDiscardChainWarn": "This is part of a chain or has steps. Really remove the item / undertaking?"
   },
   "settings": {
     "summary": "Settings",

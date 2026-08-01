@@ -224,7 +224,14 @@
     "waitingOnHint": "Ball bei jemand anderem — kurz notieren.",
     "waitingOnPlaceholder": "z. B. Steuerberater",
     "waitingOnClear": "Löschen",
-    "waitingOnChip": "wartet: {{who}}"
+    "waitingOnChip": "wartet: {{who}}",
+    "staleLead": "Das liegt schon eine Weile hier. Brauchst du’s noch — oder dürfen wir’s gemeinsam weglegen?",
+    "staleKeep": "Behalten",
+    "staleRest": "In Ruhe",
+    "staleDiscard": "Verwerfen",
+    "staleChainHint": "Gehört zu einer Kette — „In Ruhe“ ist oft besser als ein einzelnes Glied zu streichen.",
+    "staleDiscardWarn": "Wirklich verwerfen? Nur bewusst — nichts wird still gelöscht.",
+    "staleDiscardChainWarn": "Das ist Teil einer Kette oder hat Schritte. Wirklich das Vorhaben / diesen Eintrag entfernen?"
   },
   "settings": {
     "summary": "Einstellungen",

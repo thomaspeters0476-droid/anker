@@ -22,7 +22,13 @@ export type DrawerItem = {
   updatedAt: string
   /** Letzte bewusste Interaktion (für „lange liegen“) */
   touchedAt: string
+  /** Wann zuletzt zur Lange-liegen-Frage gezeigt (ISO) — Quiet 14 Tage */
+  staleAskedAt?: string | null
 }
+
+/** Lange liegen — siehe SCHUBLADE.md §8 */
+export const DRAWER_STALE_DAYS = 21
+export const DRAWER_STALE_QUIET_DAYS = 14
 
 export type DrawerState = {
   items: DrawerItem[]

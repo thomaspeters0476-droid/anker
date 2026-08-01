@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DayState } from '../types'
 import { drawerBuddy } from '../buddy'
@@ -10,10 +10,14 @@ import {
   countReady,
   daysUntilDeadline,
   deadlinePhase,
+  isChainMember,
   itemsByLevel,
   itemsWithDeadlinePhase,
+  keepStaleItem,
+  markStaleAsked,
   moveItem,
   nextPullable,
+  nextStaleAsk,
   pullToTask,
   refreshReadyCapLatch,
   removeItem,
@@ -81,6 +85,12 @@ export function DrawerWorkspace({
     () => itemsWithDeadlinePhase(drawer.items, 'radar'),
     [drawer.items],
   )
+  /** Angezeigte Frage — bleibt bis Antwort, auch nach Quiet-Markierung */
+  const [activeStaleId, setActiveStaleId] = useState<string | null>(null)
+  const markedStaleRef = useRef<string | null>(null)
+  const staleItem = activeStaleId
+    ? drawer.items.find((i) => i.id === activeStaleId) ?? null
+    : null
   const chopParent = chopId
     ? drawer.items.find((i) => i.id === chopId)
     : undefined
@@ -95,6 +105,52 @@ export function DrawerWorkspace({
     updater: (d: DrawerState) => DrawerState,
   ) {
     setDrawer((prev) => refreshReadyCapLatch(updater(prev), readyCap))
+  }
+
+  useEffect(() => {
+    if (activeStaleId) {
+      if (!drawer.items.some((i) => i.id === activeStaleId)) {
+        setActiveStaleId(null)
+        markedStaleRef.current = null
+      }
+      return
+    }
+    const next = nextStaleAsk(drawer.items)
+    if (!next) return
+    setActiveStaleId(next.id)
+    if (markedStaleRef.current !== next.id) {
+      markedStaleRef.current = next.id
+      patchDrawer((d) => markStaleAsked(d, next.id))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drawer.items, activeStaleId])
+
+  function answerStaleKeep() {
+    if (!staleItem) return
+    patchDrawer((d) => keepStaleItem(d, staleItem.id))
+    setActiveStaleId(null)
+    markedStaleRef.current = null
+  }
+
+  function answerStaleRest() {
+    if (!staleItem) return
+    patchDrawer((d) =>
+      moveItem(keepStaleItem(d, staleItem.id), staleItem.id, 'frozen'),
+    )
+    setActiveStaleId(null)
+    markedStaleRef.current = null
+  }
+
+  function answerStaleDiscard() {
+    if (!staleItem) return
+    const chain = isChainMember(drawer, staleItem)
+    const ok = window.confirm(
+      chain ? t('drawer.staleDiscardChainWarn') : t('drawer.staleDiscardWarn'),
+    )
+    if (!ok) return
+    patchDrawer((d) => removeItem(d, staleItem.id))
+    setActiveStaleId(null)
+    markedStaleRef.current = null
   }
 
   function addDrop() {
@@ -429,6 +485,37 @@ export function DrawerWorkspace({
           {t('drawer.drop')}
         </button>
       </form>
+
+      {staleItem && (
+        <div className="drawer-stale-card" role="status">
+          <p className="drawer-stale-lead">{t('drawer.staleLead')}</p>
+          <p className="drawer-stale-title">
+            <strong>{staleItem.title}</strong>
+          </p>
+          {isChainMember(drawer, staleItem) && (
+            <p className="block-hint">{t('drawer.staleChainHint')}</p>
+          )}
+          <div className="carry-actions drawer-stale-actions">
+            <button type="button" className="primary sm" onClick={answerStaleKeep}>
+              {t('drawer.staleKeep')}
+            </button>
+            <button
+              type="button"
+              className="secondary sm"
+              onClick={answerStaleRest}
+            >
+              {t('drawer.staleRest')}
+            </button>
+            <button
+              type="button"
+              className="ghost sm"
+              onClick={answerStaleDiscard}
+            >
+              {t('drawer.staleDiscard')}
+            </button>
+          </div>
+        </div>
+      )}
 
       {emergency.length > 0 && (
         <div className="drawer-deadline-block drawer-deadline-block--emergency">

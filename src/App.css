@@ -2456,6 +2456,28 @@
   margin: 0.5rem 0 0.75rem;
 }
 
+.drawer-stale-card {
+  margin: 0.75rem 0;
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--ink, #2a241c) 14%, transparent);
+  background: color-mix(in srgb, var(--surface, #fff) 88%, var(--accent, #c4a574));
+}
+
+.drawer-stale-lead {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.drawer-stale-title {
+  margin: 0 0 0.5rem;
+}
+
+.drawer-stale-actions {
+  flex-wrap: wrap;
+}
+
 .drawer-frozen-fold {
   margin: 0.75rem 0;
 }
