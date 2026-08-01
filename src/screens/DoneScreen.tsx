@@ -63,7 +63,14 @@ export function DoneScreen({ day, setDay, drawerEnabled = false }: Props) {
                     ? t('common.workAbbrev')
                     : t('common.lifeAbbrev')}
                 </span>
-                {lifeTemplateLabel(task.title, t)}
+                <span className="done-task-text">
+                  {task.parentTitle && (
+                    <span className="task-parent-line">
+                      {t('drawer.parentLine', { title: task.parentTitle })}
+                    </span>
+                  )}
+                  {lifeTemplateLabel(task.title, t)}
+                </span>
               </li>
             ))}
           </ul>

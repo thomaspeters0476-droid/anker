@@ -172,7 +172,10 @@ export type Prefs = {
   drawerAdvanced: boolean
 }
 
-export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
+export type CarryItem = Pick<
+  Task,
+  'title' | 'kind' | 'size' | 'minutes' | 'parentTitle'
+>
 
 function defaultPrefs(): Prefs {
   return {
@@ -406,6 +409,9 @@ function unfinishedToCarry(tasks: Task[]): CarryItem[] {
       kind: t.kind,
       size: t.size,
       minutes: t.minutes,
+      ...(t.parentTitle?.trim()
+        ? { parentTitle: t.parentTitle.trim() }
+        : {}),
     }))
 }
 

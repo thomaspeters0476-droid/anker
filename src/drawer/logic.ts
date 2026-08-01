@@ -470,7 +470,9 @@ export function pullToTask(
   item: DrawerItem,
   mood: DayMood | null | undefined,
   size: TaskSize = 'small',
+  parentTitle?: string | null,
 ): Task {
+  const brocken = parentTitle?.trim()
   return {
     id: uid(),
     title: item.title,
@@ -478,6 +480,7 @@ export function pullToTask(
     status: 'planned',
     size,
     minutes: minutesForSize(size, mood) || SIZE_MINUTES[size],
+    ...(brocken ? { parentTitle: brocken } : {}),
   }
 }
 

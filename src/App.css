@@ -1583,6 +1583,7 @@
 
 .task-main {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.45rem;
   min-width: 0;
@@ -2505,6 +2506,32 @@
   color: var(--ink-soft, #5c564c);
   letter-spacing: 0.01em;
   line-height: 1.3;
+}
+
+.task-parent-line {
+  display: block;
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+}
+
+.task-parent-line--focus {
+  margin: 0 0 0.2rem;
+}
+
+.queue-task-text,
+.waiting-task-text,
+.done-task-text,
+.carry-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  min-width: 0;
 }
 
 .drawer-item-parent--inline {

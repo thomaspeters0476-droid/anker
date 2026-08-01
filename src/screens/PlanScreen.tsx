@@ -405,6 +405,9 @@ export function PlanScreen({
           status: 'planned',
           size: item.size,
           minutes: item.minutes || SIZE_MINUTES[item.size],
+          ...(item.parentTitle?.trim()
+            ? { parentTitle: item.parentTitle.trim() }
+            : {}),
         })
         points += need
       }
@@ -597,6 +600,11 @@ export function PlanScreen({
           {work.map((task) => (
             <li key={task.id} className={compactMorning ? 'task-row--sized' : undefined}>
               <span className="task-main">
+                {task.parentTitle && (
+                  <span className="task-parent-line">
+                    {t('drawer.parentLine', { title: task.parentTitle })}
+                  </span>
+                )}
                 {!compactMorning && (
                   <span className={`size-badge ${task.size}`}>
                     {sizeLabel(task.size)}
@@ -922,6 +930,11 @@ export function PlanScreen({
                       : t('common.lifeAbbrev')}
                   </span>
                   <span className="carry-title">
+                    {item.parentTitle && (
+                      <span className="task-parent-line">
+                        {t('drawer.parentLine', { title: item.parentTitle })}
+                      </span>
+                    )}
                     {lifeTemplateLabel(item.title, t)}
                   </span>
                   {item.kind === 'work' && (

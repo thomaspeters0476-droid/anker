@@ -220,7 +220,8 @@ export function DrawerWorkspace({
 
   function doPullItem(item: DrawerItem) {
     if (!canAddSize(day.capacity, day.tasks, 'small')) return
-    const task = pullToTask(item, day.mood, 'small')
+    const parent = parentOf(drawer.items, item)
+    const task = pullToTask(item, day.mood, 'small', parent?.title)
     setDay((d) => ({ ...d, tasks: [...d.tasks, task] }))
     patchDrawer((d) => removeItem(d, item.id))
     setPullConfirmId(null)

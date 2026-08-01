@@ -11,6 +11,8 @@ export interface Task {
   status: TaskStatus
   size: TaskSize
   minutes: number
+  /** Brocken-Titel, wenn das Häppchen aus der Schublade kam */
+  parentTitle?: string
 }
 
 export type SparkMode = 'note' | 'draw' | 'audio'

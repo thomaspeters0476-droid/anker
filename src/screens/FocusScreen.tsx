@@ -507,7 +507,14 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
                   <span className={`kind ${task.kind}`}>
                     {task.kind === 'work' ? t('common.work') : t('common.life')}
                   </span>
-                  {lifeTemplateLabel(task.title, t)}
+                  <span className="queue-task-text">
+                    {task.parentTitle && (
+                      <span className="task-parent-line">
+                        {t('drawer.parentLine', { title: task.parentTitle })}
+                      </span>
+                    )}
+                    {lifeTemplateLabel(task.title, t)}
+                  </span>
                 </button>
               </li>
             ))}
@@ -587,6 +594,11 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
         </span>
       </div>
 
+      {active.parentTitle && (
+        <p className="task-parent-line task-parent-line--focus">
+          {t('drawer.parentLine', { title: active.parentTitle })}
+        </p>
+      )}
       <h2 className="focus-title">{lifeTemplateLabel(active.title, t)}</h2>
 
       <div className="timer-ring" style={{ ['--p' as string]: `${progress}%` }}>
@@ -680,7 +692,14 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
                     {sizeLabel(task.size).slice(0, 1)}
                   </span>
                 )}
-                {lifeTemplateLabel(task.title, t)}
+                <span className="waiting-task-text">
+                  {task.parentTitle && (
+                    <span className="task-parent-line">
+                      {t('drawer.parentLine', { title: task.parentTitle })}
+                    </span>
+                  )}
+                  {lifeTemplateLabel(task.title, t)}
+                </span>
               </li>
             ))}
           </ul>
