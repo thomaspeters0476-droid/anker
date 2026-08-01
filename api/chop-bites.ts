@@ -2,6 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 type Body = {
   title?: string
+  /** Übergeordnetes Vorhaben (Brocken), wenn ein Häppchen weiter zerlegt wird */
+  parentTitle?: string
   locale?: string
 }
 
@@ -25,7 +27,7 @@ function apiVersion(): string {
   return process.env.AZURE_OPENAI_API_VERSION?.trim() || '2025-04-01-preview'
 }
 
-function systemPrompt(locale: 'de' | 'en'): string {
+function systemPrompt(locale: 'de' | 'en', hasParent: boolean): string {
   if (locale === 'en') {
     return [
       'You break one messy task into tiny concrete next actions for an ADHD-friendly drawer app.',
@@ -33,7 +35,12 @@ function systemPrompt(locale: 'de' | 'en'): string {
       `Write ${MIN_BITES}-${MAX_BITES} short steps in English.`,
       'Each bite: one doable action, under ~80 characters, no numbering, no moralizing.',
       'Order by natural sequence. Prefer minutes-scale steps over vague goals.',
-    ].join(' ')
+      hasParent
+        ? 'A parent chunk (overall goal) is given plus the step to split further. Stay strictly inside that goal — do not invent a different project from the step title alone.'
+        : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
   }
   return [
     'Du zerlegst ein unübersichtliches Vorhaben in kleine, konkrete nächste Schritte für eine ADHS-freundliche Schubladen-App.',
@@ -41,7 +48,34 @@ function systemPrompt(locale: 'de' | 'en'): string {
     `Schreibe ${MIN_BITES}-${MAX_BITES} kurze Schritte auf Deutsch.`,
     'Jedes Häppchen: eine machbare Handlung, unter ca. 80 Zeichen, ohne Nummerierung, ohne Moralisieren.',
     'Reihenfolge wie man es natürlich macht. Lieber Minuten-Schritte als vage Ziele.',
-  ].join(' ')
+    hasParent
+      ? 'Es gibt einen Brocken (Gesamtvorhaben) und den Schritt, der weiter zerlegt wird. Bleib strikt im Brocken — erfinde kein anderes Projekt nur aus dem Häppchen-Titel.'
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+}
+
+function userPrompt(
+  title: string,
+  parentTitle: string | null,
+  locale: 'de' | 'en',
+): string {
+  if (parentTitle) {
+    if (locale === 'en') {
+      return [
+        'Reply as JSON.',
+        `Parent chunk (overall goal):\n${parentTitle}`,
+        `Step to split further (stay inside the parent):\n${title}`,
+      ].join('\n\n')
+    }
+    return [
+      'Reply as JSON.',
+      `Brocken (Gesamtvorhaben):\n${parentTitle}`,
+      `Schritt, der weiter zerlegt wird (im Brocken bleiben):\n${title}`,
+    ].join('\n\n')
+  }
+  return `Reply as JSON. Vorhaben / Brocken:\n${title}`
 }
 
 function parseBites(raw: string): string[] {
@@ -92,7 +126,7 @@ async function callResponsesApi(input: {
   deployment: string
   version: string
   system: string
-  title: string
+  user: string
 }): Promise<string | null> {
   const url = `${input.endpoint}/openai/responses?api-version=${input.version}`
   const res = await fetch(url, {
@@ -105,7 +139,7 @@ async function callResponsesApi(input: {
       model: input.deployment,
       instructions: input.system,
       // Azure verlangt „json“ im Input, wenn text.format=json_object
-      input: `Reply as JSON. Vorhaben / Brocken:\n${input.title}`,
+      input: input.user,
       max_output_tokens: 800,
       text: { format: { type: 'json_object' } },
     }),
@@ -132,7 +166,7 @@ async function callChatCompletionsApi(input: {
   deployment: string
   version: string
   system: string
-  title: string
+  user: string
 }): Promise<string | null> {
   const url = `${input.endpoint}/openai/deployments/${encodeURIComponent(input.deployment)}/chat/completions?api-version=${input.version}`
   const res = await fetch(url, {
@@ -144,7 +178,7 @@ async function callChatCompletionsApi(input: {
     body: JSON.stringify({
       messages: [
         { role: 'system', content: input.system },
-        { role: 'user', content: `Vorhaben / Brocken:\n${input.title}` },
+        { role: 'user', content: input.user },
       ],
       response_format: { type: 'json_object' },
       // gpt-5-mini: nur Default-Temperature; kein temperature-Feld setzen
@@ -178,13 +212,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (title.length < 2) {
     return res.status(400).json({ ok: false, error: 'invalid_title' })
   }
+  const parentRaw = String(body.parentTitle ?? '').trim().slice(0, MAX_TITLE)
+  const parentTitle =
+    parentRaw.length >= 2 && parentRaw.toLowerCase() !== title.toLowerCase()
+      ? parentRaw
+      : null
 
   const locale = String(body.locale ?? 'de').toLowerCase() === 'en' ? 'en' : 'de'
   const endpoint = normalizeEndpoint(process.env.AZURE_OPENAI_ENDPOINT!.trim())
   const key = process.env.AZURE_OPENAI_KEY!.trim()
   const deployment = process.env.AZURE_OPENAI_DEPLOYMENT!.trim()
   const version = apiVersion()
-  const system = systemPrompt(locale)
+  const system = systemPrompt(locale, Boolean(parentTitle))
+  const user = userPrompt(title, parentTitle, locale)
 
   try {
     let content: string | null = null
@@ -198,7 +238,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         deployment,
         version,
         system,
-        title,
+        user,
       })
     } catch (e) {
       lastErr = e
@@ -212,7 +252,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           deployment,
           version,
           system,
-          title,
+          user,
         })
       } catch (e) {
         lastErr = e

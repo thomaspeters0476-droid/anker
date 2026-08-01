@@ -200,10 +200,14 @@ export function DrawerWorkspace({
     if (!chopParent || chopBusy) return
     setChopBusy(true)
     setChopErr(null)
-    const result = await suggestChopBites(
-      chopParent.title,
-      i18n.language.startsWith('en') ? 'en' : 'de',
-    )
+    const parent = parentOf(drawer.items, chopParent)
+    const result = await suggestChopBites({
+      title: chopParent.title,
+      locale: i18n.language.startsWith('en') ? 'en' : 'de',
+      // Beim Weiterzerteilen: Brocken mitgeben, sonst driftet die KI am Häppchen-Titel
+      parentTitle:
+        chopParent.isChunk === false ? (parent?.title ?? null) : null,
+    })
     setChopBusy(false)
     if (!result.ok) {
       const key = `drawer.chopAiError.${result.error}`

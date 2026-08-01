@@ -2,15 +2,33 @@ export type ChopAiResult =
   | { ok: true; bites: string[] }
   | { ok: false; error: string }
 
+export type ChopAiInput = {
+  title: string
+  locale: string
+  /** Brocken / Gesamtvorhaben — bei Weiterzerteilen mitgeben */
+  parentTitle?: string | null
+}
+
 export async function suggestChopBites(
-  title: string,
-  locale: string,
+  titleOrInput: string | ChopAiInput,
+  locale?: string,
 ): Promise<ChopAiResult> {
+  const input: ChopAiInput =
+    typeof titleOrInput === 'string'
+      ? { title: titleOrInput, locale: locale ?? 'de' }
+      : titleOrInput
+
   try {
     const res = await fetch('/api/chop-bites', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, locale }),
+      body: JSON.stringify({
+        title: input.title,
+        locale: input.locale,
+        ...(input.parentTitle?.trim()
+          ? { parentTitle: input.parentTitle.trim() }
+          : {}),
+      }),
     })
     const data = (await res.json().catch(() => null)) as {
       ok?: boolean
