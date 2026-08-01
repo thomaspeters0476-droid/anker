@@ -30,8 +30,8 @@ import {
 import { suggestChopBites } from '../drawer/chopAi'
 import {
   bitesTooFine,
-  CHOP_FIRST_PREFERRED_MAX,
-  CHOP_FURTHER_MAX,
+  CHOP_MAX,
+  CHOP_MIN,
   looksAlreadySmall,
   parseChopLines,
 } from '../drawer/chopGuards'
@@ -195,15 +195,13 @@ export function DrawerWorkspace({
     if (!chopId || !chopParent) return
     const lines = parseChopLines(chopText)
     if (lines.length === 0) return
-    const further = chopParent.isChunk === false
-    if (further && lines.length > CHOP_FURTHER_MAX) {
+    if (lines.length > CHOP_MAX) {
       setChopSteer('too_many')
-      setChopErr(t('drawer.chopSteerTooMany', { max: CHOP_FURTHER_MAX }))
+      setChopErr(t('drawer.chopSteerTooMany', { max: CHOP_MAX }))
       return
     }
-    if (!further && lines.length > CHOP_FIRST_PREFERRED_MAX) {
-      setChopSteer('too_many')
-      setChopErr(t('drawer.chopSteerTooMany', { max: CHOP_FIRST_PREFERRED_MAX }))
+    if (lines.length < CHOP_MIN) {
+      setChopErr(t('drawer.chopSteerTooFew', { min: CHOP_MIN }))
       return
     }
     if (bitesTooFine(lines)) {
@@ -240,23 +238,23 @@ export function DrawerWorkspace({
     })
     setChopBusy(false)
     if (!result.ok) {
+      if (result.error === 'too_many_bites') setChopSteer('too_many')
       const key = `drawer.chopAiError.${result.error}`
       const msg = t(key)
       setChopErr(msg === key ? t('drawer.chopAiError.generic') : msg)
       return
     }
-    const capped = further
-      ? result.bites.slice(0, CHOP_FURTHER_MAX)
-      : result.bites.slice(0, CHOP_FIRST_PREFERRED_MAX)
-    setChopText(capped.join('\n'))
+    // Nie still abschneiden — API liefert nur gültige 3–5
     if (
-      bitesTooFine(capped) ||
-      (further && capped.length > CHOP_FURTHER_MAX)
+      result.bites.length < CHOP_MIN ||
+      result.bites.length > CHOP_MAX
     ) {
-      setChopSteer('too_fine')
-    } else if (!further && result.bites.length > CHOP_FIRST_PREFERRED_MAX) {
       setChopSteer('too_many')
+      setChopErr(t('drawer.chopAiError.bad_ai_response'))
+      return
     }
+    setChopText(result.bites.join('\n'))
+    if (bitesTooFine(result.bites)) setChopSteer('too_fine')
   }
 
   function openChop(item: DrawerItem) {

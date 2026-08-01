@@ -283,9 +283,9 @@
       "klar": "Too micro. Only a few steps that stand alone."
     },
     "tooMany": {
-      "warm": "Too many parts at once. First cut about 3–5 bites — if one is still coarse, split that one later.",
-      "kurz": "Max 3–5 parts. Finer later.",
-      "klar": "First cut: 3–5. More only via split further."
+      "warm": "Each split only 3–5 parts that cover everything — not 10 then trim. If one is still coarse, split that one later (or you get dozens).",
+      "kurz": "3–5 parts, drop nothing. Finer later one by one.",
+      "klar": "Level: 3–5 complete. Don’t truncate; go one level deeper if needed."
     },
     "emergency": {
       "warm": "{{count}} item(s) with a near deadline — at the top of the drawer. No panic fire, just visibility.",

@@ -283,9 +283,9 @@
       "klar": "Zu mikro. Maximal wenige Schritte, die allein Sinn ergeben."
     },
     "tooMany": {
-      "warm": "Zu viele Teile auf einmal. Erst grob in ca. 3–5 Häppchen — was noch zu groß ist, später einzeln weiterzerteilen.",
-      "kurz": "Max. 3–5 Teile. Feineres später.",
-      "klar": "Erster Schnitt: 3–5. Mehr erst per Weiterzerteilen."
+      "warm": "Pro Zerlegung nur 3–5 Teile, die alles abdecken — nicht 10 und dann kürzen. Was noch grob ist, einzeln weiterzerteilen (sonst werden’s schnell Dutzende).",
+      "kurz": "3–5 Teile, nichts weglassen. Feineres später einzeln.",
+      "klar": "Stufe: 3–5 vollständig. Nicht abschneiden; bei Bedarf eine Stufe tiefer."
     },
     "emergency": {
       "warm": "{{count}} Sache(n) mit naher Frist — oben in der Schublade. Kein Panikfeuer, nur sichtbar machen.",

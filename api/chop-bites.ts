@@ -4,17 +4,17 @@ type Body = {
   title?: string
   /** Übergeordnetes Vorhaben (Brocken), wenn ein Häppchen weiter zerlegt wird */
   parentTitle?: string
-  /** further = Häppchen weiter zerteilen — strengere Größenregeln */
+  /** further = Häppchen weiter zerteilen */
   mode?: 'first' | 'further'
   locale?: string
 }
 
 const MAX_TITLE = 200
-const MIN_BITES = 2
-/** Erste Zerlegung: grob 3–5 — Feineres später per Weiterzerteilen */
-const MIN_BITES_FIRST = 3
-const MAX_BITES_FIRST = 5
-const MAX_BITES_FURTHER = 3
+/** Jede Zerlegungsstufe: 3–5 — nie still abschneiden (sonst fehlt Arbeit) */
+const MIN_BITES = 3
+const MAX_BITES = 5
+/** Parse-Obergrenze nur zum Erkennen von „zu viele“, nicht zum Kürzen */
+const PARSE_DETECT_CAP = 20
 
 function azureConfigured(): boolean {
   return Boolean(
@@ -32,38 +32,31 @@ function apiVersion(): string {
   return process.env.AZURE_OPENAI_API_VERSION?.trim() || '2025-04-01-preview'
 }
 
-function systemPrompt(
-  locale: 'de' | 'en',
-  mode: 'first' | 'further',
-): string {
+function systemPrompt(locale: 'de' | 'en', mode: 'first' | 'further'): string {
   // Kurz halten — gpt-5-mini Reasoning kostet Tokens + Zeit
   if (locale === 'en') {
-    if (mode === 'further') {
-      return [
-        'Split one step further. JSON only: {"bites":["..."]}.',
-        `Exactly 2-${MAX_BITES_FURTHER} clearer substeps inside the parent chunk.`,
-        'Each ~5–25 min, <80 chars. No micro-actions. Never more than 3.',
-      ].join(' ')
-    }
     return [
-      'Split a chunk into ADHD-friendly bites. JSON only: {"bites":["..."]}.',
-      `Aim for ${MIN_BITES_FIRST}-${MAX_BITES_FIRST} steps — never more than ${MAX_BITES_FIRST}.`,
-      'Coarse first cut only; finer splits come later. Each ~5–25 min, <80 chars.',
-      'No micro-actions (open file, click, sit down).',
-    ].join(' ')
-  }
-  if (mode === 'further') {
-    return [
-      'Einen Schritt weiter zerlegen. Nur JSON: {"bites":["..."]}.',
-      `Genau 2-${MAX_BITES_FURTHER} klarere Teilschritte im Brocken.`,
-      'Je ca. 5–25 Min., <80 Zeichen. Keine Mikro-Handlungen. Nie mehr als 3.',
+      mode === 'further'
+        ? 'Split one step further inside its parent chunk. JSON only: {"bites":["..."]}.'
+        : 'Split a chunk into ADHD-friendly bites. JSON only: {"bites":["..."]}.',
+      `Return ${MIN_BITES}-${MAX_BITES} steps — never fewer than ${MIN_BITES}, never more than ${MAX_BITES}.`,
+      'The set must cover the COMPLETE work of the given title (merge if needed; do not drop work).',
+      'Each ~5–25 min, <80 chars. No micro-actions (open file, click, sit down).',
+      mode === 'first'
+        ? 'Coarse cut; finer detail comes from later further-splits of single bites.'
+        : 'Stay inside the parent goal.',
     ].join(' ')
   }
   return [
-    'Brocken in ADHS-taugliche Häppchen schneiden. Nur JSON: {"bites":["..."]}.',
-    `Ziel: ${MIN_BITES_FIRST}-${MAX_BITES_FIRST} Teile — niemals mehr als ${MAX_BITES_FIRST}.`,
-    'Nur der grobe erste Schnitt; Feineres kommt später per Weiterzerteilen.',
+    mode === 'further'
+      ? 'Einen Schritt weiter zerlegen (im Brocken bleiben). Nur JSON: {"bites":["..."]}.'
+      : 'Brocken in ADHS-taugliche Häppchen schneiden. Nur JSON: {"bites":["..."]}.',
+    `Genau ${MIN_BITES}-${MAX_BITES} Schritte — nie weniger als ${MIN_BITES}, nie mehr als ${MAX_BITES}.`,
+    'Die Menge muss die KOMPLETTE Arbeit des Titels abdecken (zusammenfassen statt weglassen).',
     'Je ca. 5–25 Min., <80 Zeichen. Keine Mikro-Handlungen (Datei öffnen, klicken).',
+    mode === 'first'
+      ? 'Grober Schnitt; Feineres später durch Weiterzerteilen einzelner Häppchen.'
+      : 'Im Gesamtvorhaben bleiben.',
   ].join(' ')
 }
 
@@ -75,24 +68,41 @@ function userPrompt(
   if (parentTitle) {
     if (locale === 'en') {
       return [
-        'Reply as JSON.',
-        `Parent chunk (overall goal):\n${parentTitle}`,
-        `Step to split further (stay inside the parent):\n${title}`,
+        `Reply as JSON with ${MIN_BITES}-${MAX_BITES} bites (hard max ${MAX_BITES}) covering the full step.`,
+        `Parent chunk:\n${parentTitle}`,
+        `Step to split further:\n${title}`,
       ].join('\n\n')
     }
     return [
-      'Reply as JSON.',
-      `Brocken (Gesamtvorhaben):\n${parentTitle}`,
-      `Schritt, der weiter zerlegt wird (im Brocken bleiben):\n${title}`,
+      `Reply as JSON mit ${MIN_BITES}–${MAX_BITES} Häppchen (hart max. ${MAX_BITES}), die den ganzen Schritt abdecken.`,
+      `Brocken:\n${parentTitle}`,
+      `Schritt zum Weiterzerlegen:\n${title}`,
     ].join('\n\n')
   }
   if (locale === 'en') {
-    return `Reply as JSON with 3-5 bites (max 5). Chunk:\n${title}`
+    return `Reply as JSON with ${MIN_BITES}-${MAX_BITES} bites (hard max ${MAX_BITES}) covering the full chunk:\n${title}`
   }
-  return `Reply as JSON mit 3–5 Häppchen (max. 5). Brocken:\n${title}`
+  return `Reply as JSON mit ${MIN_BITES}–${MAX_BITES} Häppchen (hart max. ${MAX_BITES}), die den ganzen Brocken abdecken:\n${title}`
 }
 
-function parseBites(raw: string, maxBites: number): string[] {
+function repairPrompt(
+  locale: 'de' | 'en',
+  count: number,
+  kind: 'too_many' | 'too_few',
+): string {
+  if (locale === 'en') {
+    if (kind === 'too_many') {
+      return `You returned ${count} bites — too many. Reply again as JSON with exactly ${MIN_BITES}-${MAX_BITES} bites that still cover ALL the work (merge steps; do not omit work).`
+    }
+    return `You returned ${count} bites — too few. Reply again as JSON with ${MIN_BITES}-${MAX_BITES} bites covering the complete work.`
+  }
+  if (kind === 'too_many') {
+    return `Du hast ${count} Häppchen geliefert — zu viele. Nochmal als JSON mit genau ${MIN_BITES}–${MAX_BITES} Häppchen, die DIE GESAMTE Arbeit abdecken (zusammenfassen, nichts weglassen).`
+  }
+  return `Du hast ${count} Häppchen geliefert — zu wenige. Nochmal als JSON mit ${MIN_BITES}–${MAX_BITES} Häppchen, die die komplette Arbeit abdecken.`
+}
+
+function parseBites(raw: string): string[] {
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
@@ -111,7 +121,7 @@ function parseBites(raw: string, maxBites: number): string[] {
   return bites
     .map((b) => (typeof b === 'string' ? b.trim() : ''))
     .filter((b) => b.length > 0 && b.length <= 120)
-    .slice(0, maxBites)
+    .slice(0, PARSE_DETECT_CAP)
 }
 
 function parseResponsesText(payload: {
@@ -152,7 +162,6 @@ async function callResponsesApi(input: {
     body: JSON.stringify({
       model: input.deployment,
       instructions: input.system,
-      // Azure verlangt „json“ im Input, wenn text.format=json_object
       input: input.user,
       max_output_tokens: 2200,
       text: { format: { type: 'json_object' } },
@@ -196,7 +205,6 @@ async function callChatCompletionsApi(input: {
         { role: 'user', content: input.user },
       ],
       response_format: { type: 'json_object' },
-      // gpt-5-mini: Reasoning zählt zu completion_tokens — 800 reicht oft nicht
       max_completion_tokens: input.maxCompletionTokens,
     }),
   })
@@ -223,6 +231,39 @@ async function callChatCompletionsApi(input: {
   return content
 }
 
+async function generateOnce(input: {
+  endpoint: string
+  key: string
+  deployment: string
+  version: string
+  system: string
+  user: string
+}): Promise<string> {
+  let lastErr: unknown
+  for (const budget of [2200, 4000]) {
+    try {
+      const content = await callChatCompletionsApi({
+        ...input,
+        maxCompletionTokens: budget,
+      })
+      if (content) return content
+    } catch (e) {
+      lastErr = e
+      console.error('[chop-bites] chat', String(e))
+    }
+  }
+  if (input.version.startsWith('2025')) {
+    try {
+      const content = await callResponsesApi(input)
+      if (content) return content
+    } catch (e) {
+      lastErr = e
+      console.error('[chop-bites] responses', String(e))
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error('empty_response')
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
@@ -247,7 +288,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       : null
   const mode: 'first' | 'further' =
     body.mode === 'further' || parentTitle ? 'further' : 'first'
-  const maxBites = mode === 'further' ? MAX_BITES_FURTHER : MAX_BITES_FIRST
 
   const locale = String(body.locale ?? 'de').toLowerCase() === 'en' ? 'en' : 'de'
   const endpoint = normalizeEndpoint(process.env.AZURE_OPENAI_ENDPOINT!.trim())
@@ -255,52 +295,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const deployment = process.env.AZURE_OPENAI_DEPLOYMENT!.trim()
   const version = apiVersion()
   const system = systemPrompt(locale, mode)
-  const user = userPrompt(title, parentTitle, locale)
+  const baseUser = userPrompt(title, parentTitle, locale)
 
   try {
-    let content: string | null = null
-    let lastErr: unknown
+    let content = await generateOnce({
+      endpoint,
+      key,
+      deployment,
+      version,
+      system,
+      user: baseUser,
+    })
+    let bites = parseBites(content)
 
-    // gpt-5-mini: Reasoning frisst completion_tokens — erst 2200, bei Leer-Antwort 4000
-    for (const budget of [2200, 4000]) {
-      try {
-        content = await callChatCompletionsApi({
-          endpoint,
-          key,
-          deployment,
-          version,
-          system,
-          user,
-          maxCompletionTokens: budget,
-        })
-        if (content) break
-      } catch (e) {
-        lastErr = e
-        console.error('[chop-bites] chat', String(e))
-      }
+    // Zu viele/wenige: einmal nachbessern — nicht still kürzen (sonst fehlt Arbeit)
+    if (bites.length > MAX_BITES || (bites.length > 0 && bites.length < MIN_BITES)) {
+      const kind = bites.length > MAX_BITES ? 'too_many' : 'too_few'
+      console.error('[chop-bites] recount', kind, bites.length)
+      content = await generateOnce({
+        endpoint,
+        key,
+        deployment,
+        version,
+        system,
+        user: `${baseUser}\n\n${repairPrompt(locale, bites.length, kind)}`,
+      })
+      bites = parseBites(content)
     }
 
-    if (!content && version.startsWith('2025')) {
-      try {
-        content = await callResponsesApi({
-          endpoint,
-          key,
-          deployment,
-          version,
-          system,
-          user,
-        })
-      } catch (e) {
-        lastErr = e
-        console.error('[chop-bites] responses', String(e))
-      }
+    if (bites.length > MAX_BITES) {
+      return res.status(502).json({ ok: false, error: 'too_many_bites' })
     }
-
-    if (!content) {
-      throw lastErr instanceof Error ? lastErr : new Error('empty_response')
-    }
-
-    const bites = parseBites(content, maxBites)
     if (bites.length < MIN_BITES) {
       return res.status(502).json({ ok: false, error: 'bad_ai_response' })
     }

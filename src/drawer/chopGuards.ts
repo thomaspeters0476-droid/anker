@@ -1,11 +1,17 @@
 /**
- * Gegen Mikro-Zerlegung: Häppchen sollen greifbar bleiben (~ein Fokusblock),
- * nicht „Stift nehmen / Datei öffnen“.
+ * Zerlegung in Stufen à 3–5.
+ * Wenn jemand jede Stufe voll ausreizt: 5 → 25 → 125 Häppchen —
+ * deshalb Buddy gegen unnötiges Weiterzerteilen schon greifbarer Schritte.
  */
 
-export const CHOP_FURTHER_MAX = 3
-/** Erste Zerlegung eines Brockens: grob 3–5, nie ein Dutzend */
-export const CHOP_FIRST_PREFERRED_MAX = 5
+/** Pro Zerlegung (erster Schnitt und Weiterzerteilen) */
+export const CHOP_MIN = 3
+export const CHOP_MAX = 5
+
+/** @deprecated alias — gleiche Grenze für alle Stufen */
+export const CHOP_FURTHER_MAX = CHOP_MAX
+/** @deprecated alias */
+export const CHOP_FIRST_PREFERRED_MAX = CHOP_MAX
 
 const MICRO_RE =
   /^(stift|maus|klick|öffnen|aufmachen|hinsetzen|aufstehen|atmen|trinken|speichern|scrollen)\b/i
