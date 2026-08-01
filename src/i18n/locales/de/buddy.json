@@ -268,19 +268,19 @@
   },
   "drawer": {
     "capBlocked": {
-      "warm": "Du hast schon genug kleine Schritte bereit. Hol erst ein paar auf den Anker — oder leg Dinge in Ruhe. Dann zerlegen wir wieder.",
-      "kurz": "Genug bereit. Erst holen oder in Ruhe legen.",
-      "klar": "Bereit-Cap voll. Holen oder Aufschub/Eingefroren — dann wieder zerlegen."
+      "warm": "Du hast schon genug kleine Schritte zum Holen. Hol erst einen auf den Tag — oder leg Dinge in Ruhe. Dann zerlegen wir wieder.",
+      "kurz": "Genug zum Holen. Erst holen oder in Ruhe legen.",
+      "klar": "Zum Holen voll. Holen oder in Ruhe — dann wieder zerlegen."
     },
     "pullAhead": {
-      "warm": "In der Kette kommt eigentlich zuerst „{{earlier}}“. Das hier ist für später gedacht — willst du es wirklich jetzt schon machen?",
+      "warm": "Eigentlich kommt zuerst „{{earlier}}“. Das hier ist für später gedacht — willst du es wirklich jetzt schon machen?",
       "kurz": "Eigentlich zuerst: „{{earlier}}“. Trotzdem jetzt?",
-      "klar": "Kettenreihenfolge: zuerst „{{earlier}}“. Jetzt vorziehen?"
+      "klar": "Reihenfolge: zuerst „{{earlier}}“. Jetzt vorziehen?"
     },
     "alreadySmall": {
-      "warm": "Das Häppchen ist schon klein genug für einen Fokusblock. Lieber holen — weiterzerlegen macht oft nur Mikro-Schritte und Stress.",
+      "warm": "Der Schritt ist schon klein genug für einen Fokusblock. Lieber holen — weiterzerlegen macht oft nur Mikro-Kram und Stress.",
       "kurz": "Schon klein genug. Holen statt weiterzerlegen.",
-      "klar": "Schritt ist greifbar. Nicht weiter zerlegen — auf den Anker holen."
+      "klar": "Schritt ist greifbar. Nicht weiter zerlegen — auf den Tag holen."
     },
     "tooFine": {
       "warm": "Das wird zu fein (Stift/öffnen/klicken…). Lieber 2–3 greifbare Schritte à ein paar Minuten — sonst verlierst du den Faden.",
@@ -288,24 +288,24 @@
       "klar": "Zu mikro. Maximal wenige Schritte, die allein Sinn ergeben."
     },
     "tooMany": {
-      "warm": "Pro Zerlegung nur 3–5 Teile, die alles abdecken — nicht 10 und dann kürzen. Was noch grob ist, einzeln weiterzerteilen (sonst werden’s schnell Dutzende).",
+      "warm": "Pro Zerlegung nur 3–5 Teile, die alles abdecken — nicht 10 und dann kürzen. Was noch grob ist, einzeln weiterzerlegen.",
       "kurz": "3–5 Teile, nichts weglassen. Feineres später einzeln.",
       "klar": "Stufe: 3–5 vollständig. Nicht abschneiden; bei Bedarf eine Stufe tiefer."
     },
     "emergency": {
       "warm": "{{count}} Sache(n) mit naher Frist — oben in der Schublade. Kein Panikfeuer, nur sichtbar machen.",
       "kurz": "{{count}}× bald fällig — oben ansehen.",
-      "klar": "Frist-Notfall: {{count}}. Oben priorisieren."
+      "klar": "Bald fällig: {{count}}. Oben priorisieren."
     },
     "radar": {
-      "warm": "{{count}} Sache(n) tauchen demnächst auf dem Radar auf — planen oder zerlegen, wenn Kapazität da ist.",
+      "warm": "{{count}} Sache(n) kommen demnächst — planen oder zerlegen, wenn Kapazität da ist.",
       "kurz": "{{count}}× Demnächst — bei Gelegenheit.",
-      "klar": "Radar: {{count}}. Einplanen oder zerlegen."
+      "klar": "Demnächst: {{count}}. Einplanen oder zerlegen."
     },
     "tidyReady": {
-      "warm": "{{count}} liegen bereit. Eins auf den Anker reicht oft — oder {{rest}} in Ruhe legen, dann wird’s wieder klar.",
-      "kurz": "{{count}} bereit. Eins holen oder {{rest}} in Ruhe.",
-      "klar": "Bereit: {{count}}. Holen (1) oder {{rest}} → Ruhe."
+      "warm": "{{count}} liegen zum Holen. Eins auf den Tag reicht oft — oder {{rest}} in Ruhe legen, dann wird’s wieder klar.",
+      "kurz": "{{count}} zum Holen. Eins holen oder {{rest}} in Ruhe.",
+      "klar": "Zum Holen: {{count}}. Holen (1) oder {{rest}} → Ruhe."
     }
   }
 }

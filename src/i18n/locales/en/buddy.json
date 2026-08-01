@@ -268,19 +268,19 @@
   },
   "drawer": {
     "capBlocked": {
-      "warm": "You already have enough small steps ready. Pull some onto today — or put things to rest. Then we can cut again.",
-      "kurz": "Enough ready. Pull or rest first.",
-      "klar": "Ready cap full. Pull or snooze/freeze — then cut again."
+      "warm": "You already have enough small steps ready to pull. Pull one onto today first — or put things to rest. Then we break things down again.",
+      "kurz": "Enough ready to pull. Pull or rest first.",
+      "klar": "Ready to pull is full. Pull or rest — then break down again."
     },
     "pullAhead": {
-      "warm": "In the chain, “{{earlier}}” comes first. This one is meant for later — do you really want it now?",
+      "warm": "“{{earlier}}” actually comes first. This one is meant for later — do you really want it now?",
       "kurz": "Actually first: “{{earlier}}”. Still now?",
-      "klar": "Chain order: first “{{earlier}}”. Pull ahead now?"
+      "klar": "Order: first “{{earlier}}”. Pull ahead now?"
     },
     "alreadySmall": {
-      "warm": "That bite is already small enough for one focus block. Better pull it — splitting further often creates micro-steps and stress.",
-      "kurz": "Already small enough. Pull instead of splitting.",
-      "klar": "Step is doable. Don’t split further — pull onto today."
+      "warm": "That step is already small enough for one focus block. Better pull it — breaking it down further often creates micro-work and stress.",
+      "kurz": "Already small enough. Pull instead of breaking further.",
+      "klar": "Step is doable. Don’t break further — pull onto today."
     },
     "tooFine": {
       "warm": "That’s too fine (pen/open/click…). Prefer 2–3 doable steps of a few minutes — or you lose the thread.",
@@ -288,24 +288,24 @@
       "klar": "Too micro. Only a few steps that stand alone."
     },
     "tooMany": {
-      "warm": "Each split only 3–5 parts that cover everything — not 10 then trim. If one is still coarse, split that one later (or you get dozens).",
+      "warm": "Each split only 3–5 parts that cover everything — not 10 then trim. If one is still coarse, break that one down later.",
       "kurz": "3–5 parts, drop nothing. Finer later one by one.",
       "klar": "Level: 3–5 complete. Don’t truncate; go one level deeper if needed."
     },
     "emergency": {
       "warm": "{{count}} item(s) with a near deadline — at the top of the drawer. No panic fire, just visibility.",
       "kurz": "{{count}}× due soon — check top.",
-      "klar": "Deadline emergency: {{count}}. Prioritize at top."
+      "klar": "Due soon: {{count}}. Prioritize at top."
     },
     "radar": {
-      "warm": "{{count}} item(s) are on the radar soon — plan or cut when you have capacity.",
+      "warm": "{{count}} item(s) are coming up soon — plan or break down when you have capacity.",
       "kurz": "{{count}}× coming up — when you can.",
-      "klar": "Radar: {{count}}. Plan or cut."
+      "klar": "Coming up: {{count}}. Plan or break down."
     },
     "tidyReady": {
-      "warm": "{{count}} are ready. Pulling one onto today is often enough — or put {{rest}} to rest so it clears again.",
-      "kurz": "{{count}} ready. Pull one or rest {{rest}}.",
-      "klar": "Ready: {{count}}. Pull 1 or {{rest}} → rest."
+      "warm": "{{count}} are ready to pull. Pulling one onto today is often enough — or put {{rest}} to rest so it clears again.",
+      "kurz": "{{count}} ready to pull. Pull one or rest {{rest}}.",
+      "klar": "Ready to pull: {{count}}. Pull 1 or {{rest}} → rest."
     }
   }
 }
