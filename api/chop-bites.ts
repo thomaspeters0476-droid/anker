@@ -35,29 +35,24 @@ function systemPrompt(
   mode: 'first' | 'further',
 ): string {
   const max = mode === 'further' ? MAX_BITES_FURTHER : MAX_BITES_FIRST
+  // Kurz halten — gpt-5-mini Reasoning kostet Tokens + Zeit
   if (locale === 'en') {
     return [
-      'You break one messy task into concrete next actions for an ADHD-friendly drawer app.',
-      'Reply ONLY as JSON: { "bites": ["...", "..."] }',
-      `Write ${MIN_BITES}-${max} steps in English — prefer fewer if the work is already clear.`,
-      'Each bite: one doable focus block of roughly 5–25 minutes, under ~80 characters, no numbering, no moralizing.',
-      'Do NOT invent micro-actions (pick up pen, open file, click, sit down, breathe). Those are too small.',
-      'Order by natural sequence. Prefer meaningful steps over vague goals AND over atomized clicks.',
+      'Split a task into ADHD-friendly next actions. JSON only: {"bites":["..."]}.',
+      `${MIN_BITES}-${max} steps, each ~5–25 min, <80 chars, no numbering.`,
+      'No micro-actions (open file, click, sit down).',
       mode === 'further'
-        ? 'Parent chunk (overall goal) plus a step to split further are given. Stay inside the parent. If the step is already one clear focus block, return only 2 slightly clearer substeps — never a ritual of tiny actions.'
-        : 'Prefer 2–5 bites for a first cut. Stop when steps are pullable onto a day plan.',
+        ? 'Stay inside the parent chunk. Prefer 2–3 clearer substeps.'
+        : 'Prefer 2–5 pullable steps.',
     ].join(' ')
   }
   return [
-    'Du zerlegst ein Vorhaben in konkrete nächste Schritte für eine ADHS-freundliche Schubladen-App.',
-    'Antworte NUR als JSON: { "bites": ["...", "..."] }',
-    `Schreibe ${MIN_BITES}-${max} Schritte auf Deutsch — lieber weniger, wenn es schon klar ist.`,
-    'Jedes Häppchen: ein greifbarer Fokusblock ca. 5–25 Minuten, unter ca. 80 Zeichen, ohne Nummerierung, ohne Moralisieren.',
-    'KEINE Mikro-Handlungen (Stift nehmen, Datei öffnen, klicken, hinsetzen, atmen). Das ist zu klein.',
-    'Reihenfolge natürlich. Greifbare Schritte — weder vage Ziele noch atomisierte Klicks.',
+    'Zerlege ein Vorhaben in ADHS-taugliche nächste Schritte. Nur JSON: {"bites":["..."]}.',
+    `${MIN_BITES}-${max} Schritte, je ca. 5–25 Min., <80 Zeichen, ohne Nummerierung.`,
+    'Keine Mikro-Handlungen (Datei öffnen, klicken, hinsetzen).',
     mode === 'further'
-      ? 'Brocken (Gesamtvorhaben) plus Schritt zum Weiterzerlegen sind gegeben. Im Brocken bleiben. Ist der Schritt schon ein klarer Fokusblock: nur 2 etwas klarere Teilschritte — kein Ritual aus Mikro-Aktionen.'
-      : 'Erste Zerlegung: oft 2–5 Häppchen. Aufhören, wenn Schritte auf den Tag holbar sind.',
+      ? 'Im Brocken bleiben. Lieber 2–3 klarere Teilschritte.'
+      : 'Lieber 2–5 holbare Schritte.',
   ].join(' ')
 }
 
@@ -145,7 +140,7 @@ async function callResponsesApi(input: {
       instructions: input.system,
       // Azure verlangt „json“ im Input, wenn text.format=json_object
       input: input.user,
-      max_output_tokens: 800,
+      max_output_tokens: 2200,
       text: { format: { type: 'json_object' } },
     }),
   })
@@ -172,6 +167,7 @@ async function callChatCompletionsApi(input: {
   version: string
   system: string
   user: string
+  maxCompletionTokens: number
 }): Promise<string | null> {
   const url = `${input.endpoint}/openai/deployments/${encodeURIComponent(input.deployment)}/chat/completions?api-version=${input.version}`
   const res = await fetch(url, {
@@ -186,8 +182,8 @@ async function callChatCompletionsApi(input: {
         { role: 'user', content: input.user },
       ],
       response_format: { type: 'json_object' },
-      // gpt-5-mini: nur Default-Temperature; kein temperature-Feld setzen
-      max_completion_tokens: 800,
+      // gpt-5-mini: Reasoning zählt zu completion_tokens — 800 reicht oft nicht
+      max_completion_tokens: input.maxCompletionTokens,
     }),
   })
   if (!res.ok) {
@@ -195,9 +191,22 @@ async function callChatCompletionsApi(input: {
     throw new Error(`azure_chat_${res.status}:${body.slice(0, 200)}`)
   }
   const payload = (await res.json()) as {
-    choices?: { message?: { content?: string } }[]
+    choices?: {
+      finish_reason?: string
+      message?: { content?: string | null }
+    }[]
+    usage?: { completion_tokens_details?: { reasoning_tokens?: number } }
   }
-  return payload.choices?.[0]?.message?.content ?? null
+  const choice = payload.choices?.[0]
+  const content = choice?.message?.content?.trim() || null
+  if (!content) {
+    const reason = choice?.finish_reason ?? 'empty'
+    const reasoning = payload.usage?.completion_tokens_details?.reasoning_tokens
+    throw new Error(
+      `azure_chat_empty:${reason}:reasoning=${reasoning ?? '?'}:budget=${input.maxCompletionTokens}`,
+    )
+  }
+  return content
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -238,18 +247,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let content: string | null = null
     let lastErr: unknown
 
-    // Chat Completions zuerst — stabiler für gpt-5-mini
-    try {
-      content = await callChatCompletionsApi({
-        endpoint,
-        key,
-        deployment,
-        version,
-        system,
-        user,
-      })
-    } catch (e) {
-      lastErr = e
+    // gpt-5-mini: Reasoning frisst completion_tokens — erst 2200, bei Leer-Antwort 4000
+    for (const budget of [2200, 4000]) {
+      try {
+        content = await callChatCompletionsApi({
+          endpoint,
+          key,
+          deployment,
+          version,
+          system,
+          user,
+          maxCompletionTokens: budget,
+        })
+        if (content) break
+      } catch (e) {
+        lastErr = e
+        console.error('[chop-bites] chat', String(e))
+      }
     }
 
     if (!content && version.startsWith('2025')) {
@@ -264,11 +278,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
       } catch (e) {
         lastErr = e
+        console.error('[chop-bites] responses', String(e))
       }
     }
 
     if (!content) {
-      console.error('[chop-bites] empty', String(lastErr ?? ''))
       throw lastErr instanceof Error ? lastErr : new Error('empty_response')
     }
 
