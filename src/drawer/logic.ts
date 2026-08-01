@@ -6,6 +6,8 @@ import {
   DRAWER_DEADLINE_RADAR_DAYS,
   DRAWER_READY_CAP_DEFAULT,
   DRAWER_READY_CAP_HYSTERESIS,
+  DRAWER_READY_CAP_MAX,
+  DRAWER_READY_CAP_MIN,
   type DeadlinePhase,
   type DrawerItem,
   type DrawerLevel,
@@ -21,7 +23,27 @@ function nowIso() {
 }
 
 export function emptyDrawer(): DrawerState {
-  return { items: [] }
+  return { items: [], readyCapLatched: false }
+}
+
+export function clampReadyCap(n: number): number {
+  return Math.max(
+    DRAWER_READY_CAP_MIN,
+    Math.min(DRAWER_READY_CAP_MAX, Math.round(n)),
+  )
+}
+
+/** Cap-Latch aktualisieren (nach Holen/Chop/Verschieben) */
+export function refreshReadyCapLatch(
+  state: DrawerState,
+  cap = DRAWER_READY_CAP_DEFAULT,
+): DrawerState {
+  const n = countReady(state.items)
+  if (n >= cap) return { ...state, readyCapLatched: true }
+  if (n <= Math.max(0, cap - DRAWER_READY_CAP_HYSTERESIS)) {
+    return { ...state, readyCapLatched: false }
+  }
+  return state
 }
 
 export function todayKey(): string {
@@ -101,17 +123,21 @@ export function countReady(items: DrawerItem[]): number {
 }
 
 export function canChop(
-  items: DrawerItem[],
+  stateOrItems: DrawerState | DrawerItem[],
   cap = DRAWER_READY_CAP_DEFAULT,
 ): boolean {
-  return countReady(items) < cap
-}
-
-export function canChopAgain(
-  items: DrawerItem[],
-  cap = DRAWER_READY_CAP_DEFAULT,
-): boolean {
-  return countReady(items) <= Math.max(0, cap - DRAWER_READY_CAP_HYSTERESIS)
+  const items = Array.isArray(stateOrItems)
+    ? stateOrItems
+    : stateOrItems.items
+  const latched = Array.isArray(stateOrItems)
+    ? false
+    : Boolean(stateOrItems.readyCapLatched)
+  const n = countReady(items)
+  if (n >= cap) return false
+  if (latched && n > Math.max(0, cap - DRAWER_READY_CAP_HYSTERESIS)) {
+    return false
+  }
+  return true
 }
 
 export function addInboxItem(state: DrawerState, title: string): DrawerState {
@@ -127,7 +153,7 @@ export function addInboxItem(state: DrawerState, title: string): DrawerState {
     updatedAt: t,
     touchedAt: t,
   }
-  return { items: [item, ...state.items] }
+  return { ...state, items: [item, ...state.items] }
 }
 
 export function moveItem(
@@ -137,19 +163,58 @@ export function moveItem(
   patch?: Partial<Pick<DrawerItem, 'snoozeUntil' | 'waitingOn' | 'deadline'>>,
 ): DrawerState {
   const t = nowIso()
-  return {
+  const next: DrawerState = {
+    ...state,
     items: state.items.map((i) =>
       i.id === id
         ? {
             ...i,
             level,
             ...patch,
+            // Beim Verlassen von defer: Wiedervorlage zurücksetzen
+            ...(level !== 'defer' && patch?.snoozeUntil === undefined
+              ? { snoozeUntil: null }
+              : {}),
             updatedAt: t,
             touchedAt: t,
           }
         : i,
     ),
   }
+  return next
+}
+
+/** Sanfter Aufschub: Ebene defer + Wiedervorlage */
+export function snoozeItem(
+  state: DrawerState,
+  id: string,
+  until: string,
+): DrawerState {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(until)) return state
+  return moveItem(state, id, 'defer', { snoozeUntil: until })
+}
+
+export function setWaitingOn(
+  state: DrawerState,
+  id: string,
+  waitingOn: string | null,
+): DrawerState {
+  const t = nowIso()
+  const value = waitingOn?.trim() ? waitingOn.trim().slice(0, 80) : null
+  return {
+    ...state,
+    items: state.items.map((i) =>
+      i.id === id
+        ? { ...i, waitingOn: value, updatedAt: t, touchedAt: t }
+        : i,
+    ),
+  }
+}
+
+export function addDaysToToday(days: number, today = todayKey()): string {
+  const d = new Date(`${today}T12:00:00`)
+  d.setDate(d.getDate() + days)
+  return d.toISOString().slice(0, 10)
 }
 
 export function touchItem(state: DrawerState, id: string): DrawerState {
@@ -171,10 +236,14 @@ export function removeItem(state: DrawerState, id: string): DrawerState {
       state.items.filter((i) => i.parentId === id).map((i) => i.id),
     )
     return {
+      ...state,
       items: state.items.filter((i) => i.id !== id && !childIds.has(i.id)),
     }
   }
-  return { items: state.items.filter((i) => i.id !== id) }
+  return {
+    ...state,
+    items: state.items.filter((i) => i.id !== id),
+  }
 }
 
 /** Manuell in Häppchen schneiden — Rest als ready, Parent bleibt als Chunk in inbox/ready */
@@ -211,6 +280,7 @@ export function chopIntoBites(
   }
 
   return {
+    ...state,
     items: [
       ...bites,
       ...state.items.map((i) => (i.id === parentId ? nextParent : i)),

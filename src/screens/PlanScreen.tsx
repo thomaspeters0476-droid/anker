@@ -125,6 +125,7 @@ export function PlanScreen({
   const [aiChopOptIn, setAiChopOptIn] = useState(
     () => loadPrefs().drawerAiChopOptIn,
   )
+  const [readyCap, setReadyCap] = useState(() => loadPrefs().drawerReadyCap)
   const [planMoreOpen, setPlanMoreOpen] = useState(false)
 
   function updateDrawer(next: SetStateAction<DrawerState>) {
@@ -1118,6 +1119,34 @@ export function PlanScreen({
                 {t('settings.drawerAiChop')}
               </label>
               <p className="block-hint">{t('settings.drawerAiChopHint')}</p>
+              <div className="settings-row">
+                <span>{t('settings.drawerReadyCap', { n: readyCap })}</span>
+                <button
+                  type="button"
+                  className="ghost sm"
+                  disabled={readyCap <= 15}
+                  onClick={() => {
+                    const n = Math.max(15, readyCap - 1)
+                    setReadyCap(n)
+                    savePrefs({ ...loadPrefs(), drawerReadyCap: n })
+                  }}
+                >
+                  −
+                </button>
+                <button
+                  type="button"
+                  className="ghost sm"
+                  disabled={readyCap >= 40}
+                  onClick={() => {
+                    const n = Math.min(40, readyCap + 1)
+                    setReadyCap(n)
+                    savePrefs({ ...loadPrefs(), drawerReadyCap: n })
+                  }}
+                >
+                  +
+                </button>
+              </div>
+              <p className="block-hint">{t('settings.drawerReadyCapHint')}</p>
             </>
           )}
 
@@ -1555,6 +1584,7 @@ export function PlanScreen({
           day={day}
           setDay={setDay}
           aiChopOptIn={aiChopOptIn}
+          readyCap={readyCap}
         />
       )}
     </section>

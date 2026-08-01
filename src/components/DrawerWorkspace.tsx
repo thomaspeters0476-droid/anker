@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DayState } from '../types'
+import { drawerBuddy } from '../buddy'
 import {
+  addDaysToToday,
   addInboxItem,
   canChop,
   chopIntoBites,
@@ -13,8 +15,11 @@ import {
   moveItem,
   nextPullable,
   pullToTask,
+  refreshReadyCapLatch,
   removeItem,
   setItemDeadline,
+  setWaitingOn,
+  snoozeItem,
 } from '../drawer/logic'
 import { suggestChopBites } from '../drawer/chopAi'
 import {
@@ -34,6 +39,7 @@ type Props = {
   variant?: 'overlay' | 'page'
   onClose?: () => void
   aiChopOptIn?: boolean
+  readyCap?: number
 }
 
 const LEVELS: DrawerLevel[] = ['inbox', 'ready', 'defer', 'frozen']
@@ -46,6 +52,7 @@ export function DrawerWorkspace({
   variant = 'page',
   onClose,
   aiChopOptIn,
+  readyCap: readyCapProp,
 }: Props) {
   const { t, i18n } = useTranslation()
   const [draft, setDraft] = useState('')
@@ -54,11 +61,17 @@ export function DrawerWorkspace({
   const [chopBusy, setChopBusy] = useState(false)
   const [chopErr, setChopErr] = useState<string | null>(null)
   const [openLevel, setOpenLevel] = useState<DrawerLevel | 'all'>('inbox')
+  const [frozenOpen, setFrozenOpen] = useState(false)
   const [deadlineEditId, setDeadlineEditId] = useState<string | null>(null)
+  const [snoozeId, setSnoozeId] = useState<string | null>(null)
+  const [waitId, setWaitId] = useState<string | null>(null)
+  const [waitDraft, setWaitDraft] = useState('')
   const aiOptIn = aiChopOptIn ?? loadPrefs().drawerAiChopOptIn
+  const readyCap =
+    readyCapProp ?? loadPrefs().drawerReadyCap ?? DRAWER_READY_CAP_DEFAULT
 
   const readyCount = countReady(drawer.items)
-  const chopOk = canChop(drawer.items)
+  const chopOk = canChop(drawer, readyCap)
   const pullable = useMemo(() => nextPullable(drawer.items), [drawer.items])
   const emergency = useMemo(
     () => itemsWithDeadlinePhase(drawer.items, 'emergency'),
@@ -72,8 +85,20 @@ export function DrawerWorkspace({
     ? drawer.items.find((i) => i.id === chopId)
     : undefined
 
+  const buddyLine = drawerBuddy(day.buddyTone, {
+    chopBlocked: !chopOk,
+    emergencyCount: emergency.length,
+    radarCount: radar.length,
+  })
+
+  function patchDrawer(
+    updater: (d: DrawerState) => DrawerState,
+  ) {
+    setDrawer((prev) => refreshReadyCapLatch(updater(prev), readyCap))
+  }
+
   function addDrop() {
-    setDrawer((d) => addInboxItem(d, draft))
+    patchDrawer((d) => addInboxItem(d, draft))
     setDraft('')
     setOpenLevel('inbox')
   }
@@ -82,7 +107,7 @@ export function DrawerWorkspace({
     if (!canAddSize(day.capacity, day.tasks, 'small')) return
     const task = pullToTask(item, day.mood, 'small')
     setDay((d) => ({ ...d, tasks: [...d.tasks, task] }))
-    setDrawer((d) => removeItem(d, item.id))
+    patchDrawer((d) => removeItem(d, item.id))
   }
 
   function submitChop() {
@@ -92,8 +117,8 @@ export function DrawerWorkspace({
       .map((s) => s.trim())
       .filter(Boolean)
     if (lines.length === 0) return
-    if (!canChop(drawer.items) && readyCount >= DRAWER_READY_CAP_DEFAULT) return
-    setDrawer((d) => chopIntoBites(d, chopId, lines))
+    if (!canChop(drawer, readyCap)) return
+    patchDrawer((d) => chopIntoBites(d, chopId, lines))
     setChopId(null)
     setChopText('')
     setChopErr(null)
@@ -152,6 +177,16 @@ export function DrawerWorkspace({
           {item.parentId && (
             <span className="drawer-chip">{t('drawer.bite')}</span>
           )}
+          {item.waitingOn && (
+            <span className="drawer-chip drawer-chip--wait">
+              {t('drawer.waitingOnChip', { who: item.waitingOn })}
+            </span>
+          )}
+          {itemLevel === 'defer' && item.snoozeUntil && (
+            <span className="drawer-chip">
+              {t('drawer.snoozeUntilChip', { date: item.snoozeUntil })}
+            </span>
+          )}
           {dLabel && (
             <span
               className={`drawer-chip drawer-chip--deadline drawer-chip--${phase}`}
@@ -186,17 +221,36 @@ export function DrawerWorkspace({
             type="button"
             className="ghost sm"
             onClick={() =>
+              setSnoozeId((id) => (id === item.id ? null : item.id))
+            }
+          >
+            {t('drawer.snooze')}
+          </button>
+          <button
+            type="button"
+            className="ghost sm"
+            onClick={() => {
+              setWaitId((id) => (id === item.id ? null : item.id))
+              setWaitDraft(item.waitingOn ?? '')
+            }}
+          >
+            {t('drawer.waitingOn')}
+          </button>
+          <button
+            type="button"
+            className="ghost sm"
+            onClick={() =>
               setDeadlineEditId((id) => (id === item.id ? null : item.id))
             }
           >
             {t('drawer.deadlineSet')}
           </button>
-          {LEVELS.filter((l) => l !== itemLevel).map((l) => (
+          {LEVELS.filter((l) => l !== itemLevel && l !== 'defer').map((l) => (
             <button
               key={l}
               type="button"
               className="ghost sm"
-              onClick={() => setDrawer((d) => moveItem(d, item.id, l))}
+              onClick={() => patchDrawer((d) => moveItem(d, item.id, l))}
             >
               → {t(`drawer.levelShort.${l}`)}
             </button>
@@ -211,12 +265,93 @@ export function DrawerWorkspace({
               ) {
                 if (!window.confirm(t('drawer.deleteChainWarn'))) return
               }
-              setDrawer((d) => removeItem(d, item.id))
+              patchDrawer((d) => removeItem(d, item.id))
             }}
           >
             ✕
           </button>
         </div>
+        {snoozeId === item.id && (
+          <div className="drawer-deadline-edit">
+            <span className="block-hint">{t('drawer.snoozeHint')}</span>
+            <button
+              type="button"
+              className="secondary sm"
+              onClick={() => {
+                patchDrawer((d) => snoozeItem(d, item.id, addDaysToToday(1)))
+                setSnoozeId(null)
+              }}
+            >
+              {t('drawer.snoozeTomorrow')}
+            </button>
+            <button
+              type="button"
+              className="secondary sm"
+              onClick={() => {
+                patchDrawer((d) => snoozeItem(d, item.id, addDaysToToday(3)))
+                setSnoozeId(null)
+              }}
+            >
+              {t('drawer.snooze3d')}
+            </button>
+            <button
+              type="button"
+              className="secondary sm"
+              onClick={() => {
+                patchDrawer((d) => snoozeItem(d, item.id, addDaysToToday(7)))
+                setSnoozeId(null)
+              }}
+            >
+              {t('drawer.snooze7d')}
+            </button>
+            <label>
+              <span className="block-hint">{t('drawer.snoozeDate')}</span>
+              <input
+                type="date"
+                onChange={(e) => {
+                  if (!e.target.value) return
+                  patchDrawer((d) => snoozeItem(d, item.id, e.target.value))
+                  setSnoozeId(null)
+                }}
+              />
+            </label>
+          </div>
+        )}
+        {waitId === item.id && (
+          <form
+            className="drawer-deadline-edit"
+            onSubmit={(e) => {
+              e.preventDefault()
+              patchDrawer((d) => setWaitingOn(d, item.id, waitDraft))
+              setWaitId(null)
+            }}
+          >
+            <label>
+              <span className="block-hint">{t('drawer.waitingOnHint')}</span>
+              <input
+                value={waitDraft}
+                onChange={(e) => setWaitDraft(e.target.value)}
+                placeholder={t('drawer.waitingOnPlaceholder')}
+                maxLength={80}
+              />
+            </label>
+            <button type="submit" className="primary sm">
+              {t('common.ok')}
+            </button>
+            {item.waitingOn && (
+              <button
+                type="button"
+                className="ghost sm"
+                onClick={() => {
+                  patchDrawer((d) => setWaitingOn(d, item.id, null))
+                  setWaitId(null)
+                }}
+              >
+                {t('drawer.waitingOnClear')}
+              </button>
+            )}
+          </form>
+        )}
         {deadlineEditId === item.id && (
           <div className="drawer-deadline-edit">
             <label>
@@ -226,7 +361,7 @@ export function DrawerWorkspace({
                 value={item.deadline ?? ''}
                 onChange={(e) => {
                   const v = e.target.value || null
-                  setDrawer((d) => setItemDeadline(d, item.id, v))
+                  patchDrawer((d) => setItemDeadline(d, item.id, v))
                 }}
               />
             </label>
@@ -235,7 +370,7 @@ export function DrawerWorkspace({
                 type="button"
                 className="ghost sm"
                 onClick={() => {
-                  setDrawer((d) => setItemDeadline(d, item.id, null))
+                  patchDrawer((d) => setItemDeadline(d, item.id, null))
                   setDeadlineEditId(null)
                 }}
               >
@@ -264,10 +399,16 @@ export function DrawerWorkspace({
         </div>
       ) : null}
       <p className="block-hint">{t('drawer.lead')}</p>
+      {buddyLine && (
+        <div className="buddy-card drawer-buddy" role="status">
+          <span className="buddy-label">{t('common.buddy')}</span>
+          <p>{buddyLine}</p>
+        </div>
+      )}
       <p className="drawer-cap-line">
         {t('drawer.readyCap', {
           used: readyCount,
-          max: DRAWER_READY_CAP_DEFAULT,
+          max: readyCap,
         })}
       </p>
 
@@ -355,6 +496,29 @@ export function DrawerWorkspace({
         (level) => {
           const items = itemsByLevel(drawer, level)
           if (openLevel === 'all' && items.length === 0) return null
+          if (level === 'frozen' && openLevel === 'all') {
+            return (
+              <details
+                key={level}
+                className="drawer-level-block drawer-frozen-fold"
+                open={frozenOpen}
+                onToggle={(e) =>
+                  setFrozenOpen((e.target as HTMLDetailsElement).open)
+                }
+              >
+                <summary>
+                  {t(`drawer.level.${level}`)} ({items.length})
+                </summary>
+                {items.length === 0 ? (
+                  <p className="block-hint">{t('drawer.emptyLevel')}</p>
+                ) : (
+                  <ul className="drawer-item-list">
+                    {items.map((item) => renderItem(item, level))}
+                  </ul>
+                )}
+              </details>
+            )
+          }
           return (
             <div key={level} className="drawer-level-block">
               {openLevel === 'all' && <h3>{t(`drawer.level.${level}`)}</h3>}
@@ -409,7 +573,7 @@ export function DrawerWorkspace({
             <button
               type="button"
               className="primary"
-              disabled={chopBusy || !chopText.trim()}
+              disabled={chopBusy || !chopText.trim() || !chopOk}
               onClick={submitChop}
             >
               {t('drawer.chopSave')}

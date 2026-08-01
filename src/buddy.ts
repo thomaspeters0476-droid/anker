@@ -237,3 +237,22 @@ export function feierabend(ctx: BuddyCtx): string {
   }
   return pick(ctx.tone, 'feierabend.withLife', { count: lifeLeft })
 }
+
+/** Kurze Schubladen-Hinweise (Cap / Fristen) — entlastend */
+export function drawerBuddy(
+  tone: BuddyTone,
+  opts: {
+    chopBlocked?: boolean
+    emergencyCount?: number
+    radarCount?: number
+  },
+): string | null {
+  if (opts.chopBlocked) return pick(tone, 'drawer.capBlocked')
+  if ((opts.emergencyCount ?? 0) > 0) {
+    return pick(tone, 'drawer.emergency', { count: opts.emergencyCount! })
+  }
+  if ((opts.radarCount ?? 0) > 0) {
+    return pick(tone, 'drawer.radar', { count: opts.radarCount! })
+  }
+  return null
+}

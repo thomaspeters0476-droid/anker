@@ -26,7 +26,12 @@ export type DrawerItem = {
 
 export type DrawerState = {
   items: DrawerItem[]
+  /** Cap erreicht → Chop erst wieder unter Cap−Hysterese */
+  readyCapLatched?: boolean
 }
+
+export const DRAWER_READY_CAP_MIN = 15
+export const DRAWER_READY_CAP_MAX = 40
 
 /** Soft-Cap Bereit-Häppchen (Default); Nutzer-Einstellung später */
 export const DRAWER_READY_CAP_DEFAULT = 25

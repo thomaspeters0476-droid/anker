@@ -10,8 +10,8 @@ import type { Capacity } from './capacity'
 import { capacityForMood } from './mood'
 import { SOFT_FREEZE_DEFAULTS, type AwayNudgeMode } from './softFreeze'
 import { normalizeLocale, type AppLocale } from './i18n/locales'
-import { emptyDrawer } from './drawer/logic'
-import type { DrawerState } from './drawer/types'
+import { clampReadyCap, emptyDrawer } from './drawer/logic'
+import { DRAWER_READY_CAP_DEFAULT, type DrawerState } from './drawer/types'
 
 const DAY_KEY = 'fokus-buddy-day'
 const PREFS_KEY = 'anker-prefs'
@@ -79,6 +79,7 @@ export function loadDrawer(): DrawerState {
     const data = JSON.parse(raw) as Partial<DrawerState>
     return {
       items: Array.isArray(data.items) ? data.items : [],
+      readyCapLatched: Boolean(data.readyCapLatched),
     }
   } catch {
     return emptyDrawer()
@@ -162,6 +163,8 @@ export type Prefs = {
   drawerEnabled: boolean
   /** KI-Vorschläge beim Zerlegen — Opt-in (Titel geht an Azure) */
   drawerAiChopOptIn: boolean
+  /** Soft-Cap Bereit-Häppchen (15–40, Default 25) */
+  drawerReadyCap: number
 }
 
 export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
@@ -182,6 +185,7 @@ function defaultPrefs(): Prefs {
     shortMorning: true,
     drawerEnabled: false,
     drawerAiChopOptIn: false,
+    drawerReadyCap: DRAWER_READY_CAP_DEFAULT,
   }
 }
 
@@ -241,6 +245,9 @@ export function loadPrefs(): Prefs {
       shortMorning: data.shortMorning ?? true,
       drawerEnabled: data.drawerEnabled ?? false,
       drawerAiChopOptIn: data.drawerAiChopOptIn ?? false,
+      drawerReadyCap: clampReadyCap(
+        data.drawerReadyCap ?? DRAWER_READY_CAP_DEFAULT,
+      ),
     }
   } catch {
     return defaultPrefs()

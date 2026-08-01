@@ -212,7 +212,19 @@
     "deadlineEmergencyHint": "Oben holen oder erst in Häppchen schneiden. Nicht still nachts auf den Plan schieben.",
     "deadlineEmergencyChop": "Noch ein Brocken — erst in Häppchen, dann den nächsten Schritt holen.",
     "deadlineRadarTitle": "Demnächst (Radar)",
-    "deadlineRadarHint": "In den nächsten Tagen fällig — planen oder zerlegen, ohne Dauerpanik."
+    "deadlineRadarHint": "In den nächsten Tagen fällig — planen oder zerlegen, ohne Dauerpanik.",
+    "snooze": "Aufschub",
+    "snoozeHint": "Weg aus der Ansicht bis zum Datum — nicht gelöscht.",
+    "snoozeTomorrow": "Morgen",
+    "snooze3d": "+3 Tage",
+    "snooze7d": "+7 Tage",
+    "snoozeDate": "Datum",
+    "snoozeUntilChip": "bis {{date}}",
+    "waitingOn": "Wartet auf…",
+    "waitingOnHint": "Ball bei jemand anderem — kurz notieren.",
+    "waitingOnPlaceholder": "z. B. Steuerberater",
+    "waitingOnClear": "Löschen",
+    "waitingOnChip": "wartet: {{who}}"
   },
   "settings": {
     "summary": "Einstellungen",
@@ -222,6 +234,8 @@
     "drawerEnabledHint": "Optional. Öffnet die Brücke zur Schublade-App (/schublade). Standard: aus.",
     "drawerAiChop": "KI-Hilfe beim Zerlegen",
     "drawerAiChopHint": "Wenn an: Der Titel des Brockens geht an Azure (wie bei Schwundbuch), für Schritt-Vorschläge. Du kannst alles noch ändern. Standard: aus.",
+    "drawerReadyCap": "Bereit-Cap: {{n}}",
+    "drawerReadyCapHint": "Max. Häppchen unter „Bereit“ (15–40). Bei Cap: erst holen oder in Ruhe legen, dann wieder zerlegen.",
     "capacity": {
       "summary": "Tagesmenge",
       "meta": "Arbeit & Alltag",

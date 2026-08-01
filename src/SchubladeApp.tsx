@@ -48,6 +48,9 @@ export function SchubladeApp() {
   const [aiChopOptIn, setAiChopOptIn] = useState(
     () => loadPrefs().drawerAiChopOptIn,
   )
+  const [readyCap, setReadyCap] = useState(
+    () => loadPrefs().drawerReadyCap,
+  )
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
 
@@ -205,6 +208,36 @@ export function SchubladeApp() {
               {t('settings.drawerAiChop')}
             </label>
             <p className="block-hint">{t('settings.drawerAiChopHint')}</p>
+            <div className="settings-row">
+              <span>
+                {t('settings.drawerReadyCap', { n: readyCap })}
+              </span>
+              <button
+                type="button"
+                className="ghost sm"
+                disabled={readyCap <= 15}
+                onClick={() => {
+                  const n = Math.max(15, readyCap - 1)
+                  setReadyCap(n)
+                  savePrefs({ ...loadPrefs(), drawerReadyCap: n })
+                }}
+              >
+                −
+              </button>
+              <button
+                type="button"
+                className="ghost sm"
+                disabled={readyCap >= 40}
+                onClick={() => {
+                  const n = Math.min(40, readyCap + 1)
+                  setReadyCap(n)
+                  savePrefs({ ...loadPrefs(), drawerReadyCap: n })
+                }}
+              >
+                +
+              </button>
+            </div>
+            <p className="block-hint">{t('settings.drawerReadyCapHint')}</p>
             <details className="settings-section">
               <summary>{t('drawer.installSummary')}</summary>
               <PwaGuide product="schublade" compact />
@@ -249,6 +282,7 @@ export function SchubladeApp() {
             day={day}
             setDay={setDay}
             aiChopOptIn={aiChopOptIn}
+            readyCap={readyCap}
           />
         </section>
       </main>

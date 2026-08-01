@@ -2448,6 +2448,23 @@
   color: #6b5a3e;
 }
 
+.drawer-chip--wait {
+  font-style: italic;
+}
+
+.drawer-buddy {
+  margin: 0.5rem 0 0.75rem;
+}
+
+.drawer-frozen-fold {
+  margin: 0.75rem 0;
+}
+
+.drawer-frozen-fold summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
 .drawer-deadline-edit {
   display: flex;
   flex-wrap: wrap;

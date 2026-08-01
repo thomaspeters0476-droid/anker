@@ -400,6 +400,7 @@ Ja, möglich — z. B. App „Tagesanker“ und App „Die Schublade“, und i
 | Aug 2026 | KI-Häppchen: Azure OpenAI wie Schwundbuch (`AZURE_OPENAI_*`), Opt-in, manuell Fallback |
 | Aug 2026 | Runden: bei Schublade am Runden-Ende Feierabend oder „Noch eine Runde“ (unbegrenzt) |
 | Aug 2026 | Fristen live: Radar 5d / Notfall 1d; Bypass oben beim Holen; Frist erbt auf Häppchen |
+| Aug 2026 | Cap einstellbar (15–40) + Hysterese; Aufschub/Wartet-auf; Eingefroren eingeklappt; Buddy Cap/Radar |
 
 ---
 

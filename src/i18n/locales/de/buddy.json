@@ -265,5 +265,22 @@
       "kurz": "Feierabend. Noch {{count}}× Alltag.",
       "klar": "Arbeit abgeschlossen. Alltag: {{count}}. Speicher offen."
     }
+  },
+  "drawer": {
+    "capBlocked": {
+      "warm": "Du hast schon genug kleine Schritte bereit. Hol erst ein paar auf den Anker — oder leg Dinge in Ruhe. Dann zerlegen wir wieder.",
+      "kurz": "Genug bereit. Erst holen oder in Ruhe legen.",
+      "klar": "Bereit-Cap voll. Holen oder Aufschub/Eingefroren — dann wieder zerlegen."
+    },
+    "emergency": {
+      "warm": "{{count}} Sache(n) mit naher Frist — oben in der Schublade. Kein Panikfeuer, nur sichtbar machen.",
+      "kurz": "{{count}}× bald fällig — oben ansehen.",
+      "klar": "Frist-Notfall: {{count}}. Oben priorisieren."
+    },
+    "radar": {
+      "warm": "{{count}} Sache(n) tauchen demnächst auf dem Radar auf — planen oder zerlegen, wenn Kapazität da ist.",
+      "kurz": "{{count}}× Demnächst — bei Gelegenheit.",
+      "klar": "Radar: {{count}}. Einplanen oder zerlegen."
+    }
   }
 }

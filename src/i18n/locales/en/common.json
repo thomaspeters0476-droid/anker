@@ -212,7 +212,19 @@
     "deadlineEmergencyHint": "Pull to today or cut into bites first. Nothing is silently pushed onto the plan overnight.",
     "deadlineEmergencyChop": "Still a chunk — cut into bites, then pull the next step.",
     "deadlineRadarTitle": "Coming up (radar)",
-    "deadlineRadarHint": "Due in the next days — plan or cut, without constant panic."
+    "deadlineRadarHint": "Due in the next days — plan or cut, without constant panic.",
+    "snooze": "Snooze",
+    "snoozeHint": "Hidden until the date — not deleted.",
+    "snoozeTomorrow": "Tomorrow",
+    "snooze3d": "+3 days",
+    "snooze7d": "+7 days",
+    "snoozeDate": "Date",
+    "snoozeUntilChip": "until {{date}}",
+    "waitingOn": "Waiting on…",
+    "waitingOnHint": "Ball in someone else’s court — short note.",
+    "waitingOnPlaceholder": "e.g. accountant",
+    "waitingOnClear": "Clear",
+    "waitingOnChip": "waiting: {{who}}"
   },
   "settings": {
     "summary": "Settings",
@@ -222,6 +234,8 @@
     "drawerEnabledHint": "Optional. Unlocks the bridge to the drawer app (/schublade). Default: off.",
     "drawerAiChop": "AI help when cutting into bites",
     "drawerAiChopHint": "When on: the chunk title is sent to Azure (same setup as Schwundbuch) for step suggestions. You can still edit. Default: off.",
+    "drawerReadyCap": "Ready cap: {{n}}",
+    "drawerReadyCapHint": "Max bites under Ready (15–40). At the cap: pull or rest first, then cut again.",
     "capacity": {
       "summary": "Day capacity",
       "meta": "Work & life",

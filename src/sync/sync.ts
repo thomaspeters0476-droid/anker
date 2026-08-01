@@ -100,6 +100,9 @@ function asPlainPayload(raw: unknown): SyncSnapshotPayload | null {
             items: Array.isArray((o.drawer as DrawerState).items)
               ? (o.drawer as DrawerState).items
               : [],
+            readyCapLatched: Boolean(
+              (o.drawer as DrawerState).readyCapLatched,
+            ),
           }
         : emptyDrawer(),
   }

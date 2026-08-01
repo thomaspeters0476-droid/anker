@@ -265,5 +265,22 @@
       "kurz": "Clock-out. {{count}}× life left.",
       "klar": "Work finished. Life: {{count}}. Vault open."
     }
+  },
+  "drawer": {
+    "capBlocked": {
+      "warm": "You already have enough small steps ready. Pull some onto today — or put things to rest. Then we can cut again.",
+      "kurz": "Enough ready. Pull or rest first.",
+      "klar": "Ready cap full. Pull or snooze/freeze — then cut again."
+    },
+    "emergency": {
+      "warm": "{{count}} item(s) with a near deadline — at the top of the drawer. No panic fire, just visibility.",
+      "kurz": "{{count}}× due soon — check top.",
+      "klar": "Deadline emergency: {{count}}. Prioritize at top."
+    },
+    "radar": {
+      "warm": "{{count}} item(s) are on the radar soon — plan or cut when you have capacity.",
+      "kurz": "{{count}}× coming up — when you can.",
+      "klar": "Radar: {{count}}. Plan or cut."
+    }
   }
 }
