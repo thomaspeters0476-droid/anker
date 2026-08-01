@@ -199,7 +199,20 @@
       "ai_failed": "KI gerade nicht erreichbar — bitte manuell oder später.",
       "network": "Keine Verbindung — bitte manuell oder später."
     },
-    "deleteChainWarn": "Das gehört zu einer Kette oder hat Schritte. Wirklich entfernen?"
+    "deleteChainWarn": "Das gehört zu einer Kette oder hat Schritte. Wirklich entfernen?",
+    "deadlineSet": "Frist",
+    "deadlineLabel": "Harte Frist",
+    "deadlineClear": "Frist entfernen",
+    "deadlineToday": "Frist heute",
+    "deadlineTomorrow": "Frist morgen",
+    "deadlineInDays": "Frist in {{days}} Tagen ({{date}})",
+    "deadlineOverdue": "Überfällig ({{days}} Tage)",
+    "deadlineUrgentChip": "Dringend",
+    "deadlineEmergencyTitle": "Notfall — bald fällig",
+    "deadlineEmergencyHint": "Oben holen oder erst in Häppchen schneiden. Nicht still nachts auf den Plan schieben.",
+    "deadlineEmergencyChop": "Noch ein Brocken — erst in Häppchen, dann den nächsten Schritt holen.",
+    "deadlineRadarTitle": "Demnächst (Radar)",
+    "deadlineRadarHint": "In den nächsten Tagen fällig — planen oder zerlegen, ohne Dauerpanik."
   },
   "settings": {
     "summary": "Einstellungen",

@@ -199,7 +199,20 @@
       "ai_failed": "AI unavailable right now — manual or later.",
       "network": "No connection — manual or later."
     },
-    "deleteChainWarn": "This is part of a chain or has steps. Really remove?"
+    "deleteChainWarn": "This is part of a chain or has steps. Really remove?",
+    "deadlineSet": "Deadline",
+    "deadlineLabel": "Hard deadline",
+    "deadlineClear": "Clear deadline",
+    "deadlineToday": "Due today",
+    "deadlineTomorrow": "Due tomorrow",
+    "deadlineInDays": "Due in {{days}} days ({{date}})",
+    "deadlineOverdue": "Overdue ({{days}} days)",
+    "deadlineUrgentChip": "Urgent",
+    "deadlineEmergencyTitle": "Emergency — due soon",
+    "deadlineEmergencyHint": "Pull to today or cut into bites first. Nothing is silently pushed onto the plan overnight.",
+    "deadlineEmergencyChop": "Still a chunk — cut into bites, then pull the next step.",
+    "deadlineRadarTitle": "Coming up (radar)",
+    "deadlineRadarHint": "Due in the next days — plan or cut, without constant panic."
   },
   "settings": {
     "summary": "Settings",

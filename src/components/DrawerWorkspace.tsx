@@ -6,11 +6,15 @@ import {
   canChop,
   chopIntoBites,
   countReady,
+  daysUntilDeadline,
+  deadlinePhase,
   itemsByLevel,
+  itemsWithDeadlinePhase,
   moveItem,
   nextPullable,
   pullToTask,
   removeItem,
+  setItemDeadline,
 } from '../drawer/logic'
 import { suggestChopBites } from '../drawer/chopAi'
 import {
@@ -27,10 +31,8 @@ type Props = {
   setDrawer: React.Dispatch<React.SetStateAction<DrawerState>>
   day: DayState
   setDay: React.Dispatch<React.SetStateAction<DayState>>
-  /** Overlay: Schließen-Knopf; page: freistehende App */
   variant?: 'overlay' | 'page'
   onClose?: () => void
-  /** KI-Opt-in; wenn gesetzt, steuert Parent (sonst Prefs) */
   aiChopOptIn?: boolean
 }
 
@@ -52,11 +54,20 @@ export function DrawerWorkspace({
   const [chopBusy, setChopBusy] = useState(false)
   const [chopErr, setChopErr] = useState<string | null>(null)
   const [openLevel, setOpenLevel] = useState<DrawerLevel | 'all'>('inbox')
+  const [deadlineEditId, setDeadlineEditId] = useState<string | null>(null)
   const aiOptIn = aiChopOptIn ?? loadPrefs().drawerAiChopOptIn
 
   const readyCount = countReady(drawer.items)
   const chopOk = canChop(drawer.items)
   const pullable = useMemo(() => nextPullable(drawer.items), [drawer.items])
+  const emergency = useMemo(
+    () => itemsWithDeadlinePhase(drawer.items, 'emergency'),
+    [drawer.items],
+  )
+  const radar = useMemo(
+    () => itemsWithDeadlinePhase(drawer.items, 'radar'),
+    [drawer.items],
+  )
   const chopParent = chopId
     ? drawer.items.find((i) => i.id === chopId)
     : undefined
@@ -107,6 +118,139 @@ export function DrawerWorkspace({
     setChopText(result.bites.join('\n'))
   }
 
+  function openChop(item: DrawerItem) {
+    setChopId(item.id)
+    setChopText('')
+    setChopErr(null)
+  }
+
+  function deadlineLabel(item: DrawerItem): string | null {
+    const phase = deadlinePhase(item)
+    if (phase === 'none' || !item.deadline) return null
+    const days = daysUntilDeadline(item.deadline)
+    if (days === null) return null
+    if (days < 0) return t('drawer.deadlineOverdue', { days: Math.abs(days) })
+    if (days === 0) return t('drawer.deadlineToday')
+    if (days === 1) return t('drawer.deadlineTomorrow')
+    return t('drawer.deadlineInDays', { days, date: item.deadline })
+  }
+
+  function renderItem(item: DrawerItem, level: DrawerLevel | 'deadline') {
+    const phase = deadlinePhase(item)
+    const dLabel = deadlineLabel(item)
+    const itemLevel = item.level
+    return (
+      <li
+        key={item.id}
+        className={`drawer-item${phase === 'emergency' ? ' drawer-item--emergency' : ''}${phase === 'radar' ? ' drawer-item--radar' : ''}`}
+      >
+        <div className="drawer-item-main">
+          <strong>{item.title}</strong>
+          {item.isChunk && (
+            <span className="drawer-chip">{t('drawer.chunk')}</span>
+          )}
+          {item.parentId && (
+            <span className="drawer-chip">{t('drawer.bite')}</span>
+          )}
+          {dLabel && (
+            <span
+              className={`drawer-chip drawer-chip--deadline drawer-chip--${phase}`}
+            >
+              {dLabel}
+            </span>
+          )}
+        </div>
+        <div className="drawer-item-actions">
+          {(itemLevel === 'inbox' || item.isChunk) && item.isChunk !== false && (
+            <button
+              type="button"
+              className="secondary sm"
+              disabled={!chopOk}
+              title={chopOk ? undefined : t('drawer.capBlocked')}
+              onClick={() => openChop(item)}
+            >
+              {t('drawer.chop')}
+            </button>
+          )}
+          {itemLevel === 'ready' && !item.isChunk && (
+            <button
+              type="button"
+              className="primary sm"
+              disabled={!canAddSize(day.capacity, day.tasks, 'small')}
+              onClick={() => pullItem(item)}
+            >
+              {t('drawer.pull')}
+            </button>
+          )}
+          <button
+            type="button"
+            className="ghost sm"
+            onClick={() =>
+              setDeadlineEditId((id) => (id === item.id ? null : item.id))
+            }
+          >
+            {t('drawer.deadlineSet')}
+          </button>
+          {LEVELS.filter((l) => l !== itemLevel).map((l) => (
+            <button
+              key={l}
+              type="button"
+              className="ghost sm"
+              onClick={() => setDrawer((d) => moveItem(d, item.id, l))}
+            >
+              → {t(`drawer.levelShort.${l}`)}
+            </button>
+          ))}
+          <button
+            type="button"
+            className="ghost sm"
+            onClick={() => {
+              if (
+                item.parentId ||
+                drawer.items.some((x) => x.parentId === item.id)
+              ) {
+                if (!window.confirm(t('drawer.deleteChainWarn'))) return
+              }
+              setDrawer((d) => removeItem(d, item.id))
+            }}
+          >
+            ✕
+          </button>
+        </div>
+        {deadlineEditId === item.id && (
+          <div className="drawer-deadline-edit">
+            <label>
+              <span className="block-hint">{t('drawer.deadlineLabel')}</span>
+              <input
+                type="date"
+                value={item.deadline ?? ''}
+                onChange={(e) => {
+                  const v = e.target.value || null
+                  setDrawer((d) => setItemDeadline(d, item.id, v))
+                }}
+              />
+            </label>
+            {item.deadline && (
+              <button
+                type="button"
+                className="ghost sm"
+                onClick={() => {
+                  setDrawer((d) => setItemDeadline(d, item.id, null))
+                  setDeadlineEditId(null)
+                }}
+              >
+                {t('drawer.deadlineClear')}
+              </button>
+            )}
+          </div>
+        )}
+        {level === 'deadline' && phase === 'emergency' && item.isChunk && (
+          <p className="block-hint">{t('drawer.deadlineEmergencyChop')}</p>
+        )}
+      </li>
+    )
+  }
+
   return (
     <div className={`drawer-workspace drawer-workspace--${variant}`}>
       {variant === 'overlay' ? (
@@ -145,13 +289,40 @@ export function DrawerWorkspace({
         </button>
       </form>
 
+      {emergency.length > 0 && (
+        <div className="drawer-deadline-block drawer-deadline-block--emergency">
+          <h3>{t('drawer.deadlineEmergencyTitle')}</h3>
+          <p className="block-hint">{t('drawer.deadlineEmergencyHint')}</p>
+          <ul className="drawer-item-list">
+            {emergency.map((item) => renderItem(item, 'deadline'))}
+          </ul>
+        </div>
+      )}
+
+      {radar.length > 0 && (
+        <div className="drawer-deadline-block drawer-deadline-block--radar">
+          <h3>{t('drawer.deadlineRadarTitle')}</h3>
+          <p className="block-hint">{t('drawer.deadlineRadarHint')}</p>
+          <ul className="drawer-item-list">
+            {radar.map((item) => renderItem(item, 'deadline'))}
+          </ul>
+        </div>
+      )}
+
       {pullable.length > 0 && (
         <div className="drawer-pull-block">
           <h3>{t('drawer.pullTitle')}</h3>
           <ul className="task-list">
             {pullable.slice(0, 6).map((item) => (
               <li key={item.id}>
-                <span className="task-main">{item.title}</span>
+                <span className="task-main">
+                  {item.title}
+                  {deadlinePhase(item) === 'emergency' && (
+                    <span className="drawer-chip drawer-chip--emergency">
+                      {t('drawer.deadlineUrgentChip')}
+                    </span>
+                  )}
+                </span>
                 <button
                   type="button"
                   className="primary sm"
@@ -191,71 +362,7 @@ export function DrawerWorkspace({
                 <p className="block-hint">{t('drawer.emptyLevel')}</p>
               ) : (
                 <ul className="drawer-item-list">
-                  {items.map((item) => (
-                    <li key={item.id} className="drawer-item">
-                      <div className="drawer-item-main">
-                        <strong>{item.title}</strong>
-                        {item.isChunk && (
-                          <span className="drawer-chip">
-                            {t('drawer.chunk')}
-                          </span>
-                        )}
-                        {item.parentId && (
-                          <span className="drawer-chip">
-                            {t('drawer.bite')}
-                          </span>
-                        )}
-                      </div>
-                      <div className="drawer-item-actions">
-                        {level === 'inbox' && item.isChunk !== false && (
-                          <button
-                            type="button"
-                            className="secondary sm"
-                            disabled={!chopOk}
-                            title={chopOk ? undefined : t('drawer.capBlocked')}
-                              onClick={() => {
-                                setChopId(item.id)
-                                setChopText('')
-                                setChopErr(null)
-                              }}
-                            >
-                              {t('drawer.chop')}
-                            </button>
-                        )}
-                        {LEVELS.filter((l) => l !== level).map((l) => (
-                          <button
-                            key={l}
-                            type="button"
-                            className="ghost sm"
-                            onClick={() =>
-                              setDrawer((d) => moveItem(d, item.id, l))
-                            }
-                          >
-                            → {t(`drawer.levelShort.${l}`)}
-                          </button>
-                        ))}
-                        <button
-                          type="button"
-                          className="ghost sm"
-                          onClick={() => {
-                            if (
-                              item.parentId ||
-                              drawer.items.some((x) => x.parentId === item.id)
-                            ) {
-                              if (
-                                !window.confirm(t('drawer.deleteChainWarn'))
-                              ) {
-                                return
-                              }
-                            }
-                            setDrawer((d) => removeItem(d, item.id))
-                          }}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </li>
-                  ))}
+                  {items.map((item) => renderItem(item, level))}
                 </ul>
               )}
             </div>

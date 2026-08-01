@@ -133,6 +133,8 @@ Damit Fristen nicht vergessen werden, aber keine Dauerpanik entsteht:
 
 Haltung: **Puffer vor der Frist, kein Panik-Dauerfeuer.**
 
+**Umsetzung:** Frist pro Eintrag (Datum). Bereiche „Notfall“ / „Demnächst“ in der Schublade; holbare Häppchen mit Notfall-Frist oben. Beim Zerkleinern erbt die Kette die Frist. Kein stilles Nachtschieben auf den Anker.
+
 ---
 
 ## 7. Vorratsschutz (Bereit-Cap) — fest
@@ -397,6 +399,7 @@ Ja, möglich — z. B. App „Tagesanker“ und App „Die Schublade“, und i
 | Aug 2026 | Schublade **allein als PWA installierbar** (eigenes Manifest / scope) |
 | Aug 2026 | KI-Häppchen: Azure OpenAI wie Schwundbuch (`AZURE_OPENAI_*`), Opt-in, manuell Fallback |
 | Aug 2026 | Runden: bei Schublade am Runden-Ende Feierabend oder „Noch eine Runde“ (unbegrenzt) |
+| Aug 2026 | Fristen live: Radar 5d / Notfall 1d; Bypass oben beim Holen; Frist erbt auf Häppchen |
 
 ---
 

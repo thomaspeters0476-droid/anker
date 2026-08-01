@@ -31,3 +31,9 @@ export type DrawerState = {
 /** Soft-Cap Bereit-Häppchen (Default); Nutzer-Einstellung später */
 export const DRAWER_READY_CAP_DEFAULT = 25
 export const DRAWER_READY_CAP_HYSTERESIS = 5
+
+/** Harte Fristen — siehe SCHUBLADE.md §6 */
+export const DRAWER_DEADLINE_RADAR_DAYS = 5
+export const DRAWER_DEADLINE_EMERGENCY_DAYS = 1
+
+export type DeadlinePhase = 'none' | 'sleep' | 'radar' | 'emergency'

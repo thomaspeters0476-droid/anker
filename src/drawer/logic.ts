@@ -2,8 +2,11 @@ import type { Task, TaskSize } from '../types'
 import { SIZE_MINUTES } from '../capacity'
 import { minutesForSize, type DayMood } from '../mood'
 import {
+  DRAWER_DEADLINE_EMERGENCY_DAYS,
+  DRAWER_DEADLINE_RADAR_DAYS,
   DRAWER_READY_CAP_DEFAULT,
   DRAWER_READY_CAP_HYSTERESIS,
+  type DeadlinePhase,
   type DrawerItem,
   type DrawerLevel,
   type DrawerState,
@@ -31,6 +34,61 @@ export function isVisibleInDrawer(item: DrawerItem, today = todayKey()): boolean
     return false
   }
   return true
+}
+
+/** Tage bis Frist (negativ = überfällig); null ohne gültige Frist */
+export function daysUntilDeadline(
+  deadline: string | null | undefined,
+  today = todayKey(),
+): number | null {
+  if (!deadline || !/^\d{4}-\d{2}-\d{2}$/.test(deadline)) return null
+  const d = Date.parse(`${deadline}T12:00:00`)
+  const t = Date.parse(`${today}T12:00:00`)
+  if (Number.isNaN(d) || Number.isNaN(t)) return null
+  return Math.round((d - t) / 86_400_000)
+}
+
+export function deadlinePhase(
+  item: DrawerItem,
+  today = todayKey(),
+): DeadlinePhase {
+  const days = daysUntilDeadline(item.deadline, today)
+  if (days === null) return 'none'
+  if (days <= DRAWER_DEADLINE_EMERGENCY_DAYS) return 'emergency'
+  if (days <= DRAWER_DEADLINE_RADAR_DAYS) return 'radar'
+  return 'sleep'
+}
+
+/** Demnächst / Notfall — auch eingefroren/Aufschub, damit Fristen nicht verschwinden */
+export function itemsWithDeadlinePhase(
+  items: DrawerItem[],
+  phase: 'radar' | 'emergency',
+  today = todayKey(),
+): DrawerItem[] {
+  return items
+    .filter((i) => deadlinePhase(i, today) === phase)
+    .sort((a, b) => {
+      const da = daysUntilDeadline(a.deadline, today) ?? 99
+      const db = daysUntilDeadline(b.deadline, today) ?? 99
+      return da - db
+    })
+}
+
+export function setItemDeadline(
+  state: DrawerState,
+  id: string,
+  deadline: string | null,
+): DrawerState {
+  const t = nowIso()
+  const value =
+    deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? deadline : null
+  return {
+    items: state.items.map((i) =>
+      i.id === id
+        ? { ...i, deadline: value, updatedAt: t, touchedAt: t }
+        : i,
+    ),
+  }
 }
 
 export function countReady(items: DrawerItem[]): number {
@@ -138,11 +196,10 @@ export function chopIntoBites(
     parentId,
     isChunk: false,
     energy: 'normal' as const,
+    deadline: parent.deadline ?? null,
     createdAt: t,
     updatedAt: t,
     touchedAt: t,
-    // nur Schritt 1 sofort „bereit“-fühlend — alle ready, aber Reihenfolge via createdAt
-    // Spec: oft nur Schritt 1 bereit; wir setzen alle ready, holen nur erstes ohne erledigte Geschwister
   }))
 
   // Parent als Chunk behalten, Ebene inbox oder frozen je nach vorher
@@ -161,7 +218,7 @@ export function chopIntoBites(
   }
 }
 
-/** Nächstes holbares Häppchen einer Kette (oder Einzel-ready) */
+/** Nächstes holbares Häppchen einer Kette (oder Einzel-ready); Notfall-Fristen zuerst */
 export function nextPullable(
   items: DrawerItem[],
   today = todayKey(),
@@ -170,12 +227,23 @@ export function nextPullable(
     (i) => i.level === 'ready' && !i.isChunk && isVisibleInDrawer(i, today),
   )
   // Ohne Parent: frei. Mit Parent: nur wenn kein älteres Geschwister noch ready/planned in drawer
-  return ready.filter((i) => {
+  const pullable = ready.filter((i) => {
     if (!i.parentId) return true
     const siblings = ready
       .filter((s) => s.parentId === i.parentId)
       .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
     return siblings[0]?.id === i.id
+  })
+  return pullable.sort((a, b) => {
+    const pa = deadlinePhase(a, today)
+    const pb = deadlinePhase(b, today)
+    const rank = (p: DeadlinePhase) =>
+      p === 'emergency' ? 0 : p === 'radar' ? 1 : 2
+    const r = rank(pa) - rank(pb)
+    if (r !== 0) return r
+    const da = daysUntilDeadline(a.deadline, today) ?? 99
+    const db = daysUntilDeadline(b.deadline, today) ?? 99
+    return da - db
   })
 }
 
