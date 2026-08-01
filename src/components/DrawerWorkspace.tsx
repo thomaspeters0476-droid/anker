@@ -21,6 +21,8 @@ import {
   itemsWithDeadlinePhase,
   keepStaleItem,
   markStaleAsked,
+  countTrash,
+  emptyTrash,
   moveItem,
   moveItems,
   nextPullable,
@@ -30,10 +32,13 @@ import {
   readyRestCandidates,
   refreshReadyCapLatch,
   removeItem,
+  restoreFromTrash,
   setItemDeadline,
   setWaitingOn,
   snoozeItem,
   sortReadyForFocus,
+  trashItem,
+  trashTopItems,
 } from '../drawer/logic'
 import { suggestChopBites } from '../drawer/chopAi'
 import {
@@ -244,9 +249,10 @@ export function DrawerWorkspace({
       chain ? t('drawer.staleDiscardChainWarn') : t('drawer.staleDiscardWarn'),
     )
     if (!ok) return
-    patchDrawer((d) => removeItem(d, staleItem.id))
+    patchDrawer((d) => trashItem(d, staleItem.id))
     setActiveStaleId(null)
     markedStaleRef.current = null
+    setActionFlash(t('drawer.trashedFlash', { title: staleItem.title }))
   }
 
   function addDrop() {
@@ -723,29 +729,29 @@ export function DrawerWorkspace({
               className="ghost sm drawer-item-remove"
               onClick={() => {
                 const childCount = drawer.items.filter(
-                  (x) => x.parentId === item.id,
+                  (x) => x.parentId === item.id && x.level !== 'trash',
                 ).length
                 const ok =
                   item.isChunk || childCount > 0
                     ? window.confirm(
-                        t('drawer.deleteProjectWarn', {
+                        t('drawer.trashProjectWarn', {
                           title: item.title,
                           count: childCount,
                         }),
                       )
                     : window.confirm(
-                        t('drawer.deleteItemWarn', { title: item.title }),
+                        t('drawer.trashItemWarn', { title: item.title }),
                       )
                 if (!ok) return
-                patchDrawer((d) => removeItem(d, item.id))
+                patchDrawer((d) => trashItem(d, item.id))
                 setMoreOpenId(null)
                 setActionFlash(
                   childCount > 0 || item.isChunk
-                    ? t('drawer.deletedProjectFlash', {
+                    ? t('drawer.trashedProjectFlash', {
                         title: item.title,
                         count: childCount,
                       })
-                    : t('drawer.deletedItemFlash', { title: item.title }),
+                    : t('drawer.trashedFlash', { title: item.title }),
                 )
               }}
             >
@@ -1288,6 +1294,66 @@ export function DrawerWorkspace({
           </div>
         )
       })}
+
+      {variant === 'page' && (
+        <details className="drawer-trash-fold">
+          <summary>
+            {t('drawer.trashTitle', { count: countTrash(drawer) })}
+          </summary>
+          <p className="block-hint">{t('drawer.trashLead')}</p>
+          {countTrash(drawer) === 0 ? (
+            <p className="block-hint">{t('drawer.trashEmpty')}</p>
+          ) : (
+            <>
+              <ul className="drawer-item-list">
+                {trashTopItems(drawer).map((item) => {
+                  const childCount = drawer.items.filter(
+                    (x) => x.parentId === item.id && x.level === 'trash',
+                  ).length
+                  return (
+                    <li key={item.id} className="drawer-item drawer-item--trash">
+                      <div className="drawer-item-main">
+                        <strong>{item.title}</strong>
+                        {childCount > 0 && (
+                          <span className="drawer-chip">
+                            {t('drawer.trashWithSteps', { count: childCount })}
+                          </span>
+                        )}
+                      </div>
+                      <div className="drawer-item-actions">
+                        <button
+                          type="button"
+                          className="secondary sm"
+                          onClick={() => {
+                            patchDrawer((d) => restoreFromTrash(d, item.id))
+                            setActionFlash(
+                              t('drawer.restoredFlash', { title: item.title }),
+                            )
+                          }}
+                        >
+                          {t('drawer.trashRestore')}
+                        </button>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+              <button
+                type="button"
+                className="ghost sm drawer-trash-empty"
+                onClick={() => {
+                  if (!window.confirm(t('drawer.trashEmptyWarn'))) return
+                  const n = countTrash(drawer)
+                  patchDrawer((d) => emptyTrash(d))
+                  setActionFlash(t('drawer.trashEmptiedFlash', { count: n }))
+                }}
+              >
+                {t('drawer.trashEmptyAction')}
+              </button>
+            </>
+          )}
+        </details>
+      )}
     </div>
   )
 }

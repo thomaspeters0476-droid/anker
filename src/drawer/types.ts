@@ -1,6 +1,9 @@
 /** Schublade — siehe docs/SCHUBLADE.md */
 
-export type DrawerLevel = 'inbox' | 'ready' | 'defer' | 'frozen'
+export type DrawerLevel = 'inbox' | 'ready' | 'defer' | 'frozen' | 'trash'
+
+/** Aktive Ebenen (ohne Papierkorb) */
+export type DrawerActiveLevel = Exclude<DrawerLevel, 'trash'>
 
 export type DrawerEnergy = 'mini' | 'focus' | 'normal'
 
@@ -24,6 +27,10 @@ export type DrawerItem = {
   touchedAt: string
   /** Wann zuletzt zur Lange-liegen-Frage gezeigt (ISO) — Quiet 14 Tage */
   staleAskedAt?: string | null
+  /** Wohin zurück nach Wiederherstellen aus dem Papierkorb */
+  trashedFrom?: DrawerActiveLevel | null
+  /** Wann in den Papierkorb gelegt (ISO) */
+  trashedAt?: string | null
 }
 
 /** Lange liegen — siehe SCHUBLADE.md §8 */

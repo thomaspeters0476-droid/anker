@@ -12,6 +12,7 @@ import {
   DRAWER_STALE_QUIET_DAYS,
   type DeadlinePhase,
   type DrawerItem,
+  type DrawerActiveLevel,
   type DrawerLevel,
   type DrawerState,
 } from './types'
@@ -52,8 +53,9 @@ export function todayKey(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-/** Sichtbar in der Schublade (Aufschub noch nicht fällig) */
+/** Sichtbar in der Schublade (Aufschub noch nicht fällig; Papierkorb ausgenommen) */
 export function isVisibleInDrawer(item: DrawerItem, today = todayKey()): boolean {
+  if (item.level === 'trash') return false
   if (item.level === 'defer' && item.snoozeUntil && item.snoozeUntil > today) {
     return false
   }
@@ -90,7 +92,9 @@ export function itemsWithDeadlinePhase(
   today = todayKey(),
 ): DrawerItem[] {
   return items
-    .filter((i) => deadlinePhase(i, today) === phase)
+    .filter(
+      (i) => i.level !== 'trash' && deadlinePhase(i, today) === phase,
+    )
     .sort((a, b) => {
       const da = daysUntilDeadline(a.deadline, today) ?? 99
       const db = daysUntilDeadline(b.deadline, today) ?? 99
@@ -127,7 +131,7 @@ function daysBetweenIso(fromIso: string, today = todayKey()): number | null {
 
 /** Lange liegen: 21 Tage ohne Touch, dann Frage; Quiet 14 Tage nach Frage */
 export function isStaleAskDue(item: DrawerItem, today = todayKey()): boolean {
-  if (item.level === 'frozen') return false
+  if (item.level === 'frozen' || item.level === 'trash') return false
   if (!isVisibleInDrawer(item, today)) return false
   const untouched = daysBetweenIso(item.touchedAt, today)
   if (untouched === null || untouched < DRAWER_STALE_DAYS) return false
@@ -299,6 +303,7 @@ export function touchItem(state: DrawerState, id: string): DrawerState {
   }
 }
 
+/** Endgültig löschen (z. B. Holen auf den Tag, Papierkorb leeren) */
 export function removeItem(state: DrawerState, id: string): DrawerState {
   const victim = state.items.find((i) => i.id === id)
   if (!victim) return state
@@ -317,6 +322,96 @@ export function removeItem(state: DrawerState, id: string): DrawerState {
     ...state,
     items: state.items.filter((i) => i.id !== id),
   }
+}
+
+function asActiveLevel(level: DrawerLevel): DrawerActiveLevel {
+  if (level === 'trash') return 'inbox'
+  return level
+}
+
+/** Eintrag + direkte Kinder (noch nicht im Papierkorb) */
+export function collectTrashIds(state: DrawerState, id: string): string[] {
+  const victim = state.items.find((i) => i.id === id)
+  if (!victim || victim.level === 'trash') return []
+  const ids = [id]
+  for (const i of state.items) {
+    if (i.parentId === id && i.level !== 'trash') ids.push(i.id)
+  }
+  return ids
+}
+
+/** In den Papierkorb — wiederherstellbar, bis geleert */
+export function trashItem(state: DrawerState, id: string): DrawerState {
+  const ids = collectTrashIds(state, id)
+  if (ids.length === 0) return state
+  const idSet = new Set(ids)
+  const t = nowIso()
+  return {
+    ...state,
+    items: state.items.map((i) => {
+      if (!idSet.has(i.id) || i.level === 'trash') return i
+      return {
+        ...i,
+        level: 'trash' as const,
+        trashedFrom: asActiveLevel(i.level),
+        trashedAt: t,
+        updatedAt: t,
+      }
+    }),
+  }
+}
+
+export function restoreFromTrash(state: DrawerState, id: string): DrawerState {
+  const item = state.items.find((i) => i.id === id)
+  if (!item || item.level !== 'trash') return state
+  const ids = [id]
+  for (const i of state.items) {
+    if (i.level === 'trash' && i.parentId === id) ids.push(i.id)
+  }
+  const idSet = new Set(ids)
+  const t = nowIso()
+  return {
+    ...state,
+    items: state.items.map((i) => {
+      if (!idSet.has(i.id)) return i
+      const dest = i.trashedFrom ?? 'inbox'
+      return {
+        ...i,
+        level: dest,
+        trashedFrom: null,
+        trashedAt: null,
+        updatedAt: t,
+        touchedAt: t,
+      }
+    }),
+  }
+}
+
+export function emptyTrash(state: DrawerState): DrawerState {
+  return {
+    ...state,
+    items: state.items.filter((i) => i.level !== 'trash'),
+  }
+}
+
+export function countTrash(state: DrawerState): number {
+  return state.items.filter((i) => i.level === 'trash').length
+}
+
+/** Papierkorb-Liste: Vorhaben + Einzelne; Kinder nur wenn Elternteil nicht auch im Korb */
+export function trashTopItems(state: DrawerState): DrawerItem[] {
+  const trash = state.items.filter((i) => i.level === 'trash')
+  return trash
+    .filter((i) => {
+      if (!i.parentId) return true
+      const parent = state.items.find((p) => p.id === i.parentId)
+      return !parent || parent.level !== 'trash'
+    })
+    .sort(
+      (a, b) =>
+        Date.parse(b.trashedAt ?? b.updatedAt) -
+        Date.parse(a.trashedAt ?? a.updatedAt),
+    )
 }
 
 /**
