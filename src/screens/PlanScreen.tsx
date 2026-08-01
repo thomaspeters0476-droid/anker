@@ -337,31 +337,39 @@ export function PlanScreen({
     })
   }
 
+  function dayWithMood(d: DayState, mood: DayMood): DayState {
+    const baseline = d.baselineCapacity ?? d.capacity
+    const baselineLife = d.baselineLifeMax ?? d.lifeMax
+    const capacity = capacityForMood(baseline, mood)
+    const lifeMax = clampLifeMax(
+      lifeMaxForMood(baselineLife, mood),
+      d.tasks.filter((t) => t.kind === 'life').length,
+    )
+    const tasks = d.tasks.map((t) =>
+      t.kind === 'work'
+        ? { ...t, minutes: minutesForSize(t.size, mood) }
+        : t,
+    )
+    return {
+      ...d,
+      mood,
+      baselineCapacity: baseline,
+      baselineLifeMax: baselineLife,
+      capacity,
+      lifeMax,
+      tasks,
+    }
+  }
+
+  /** Ohne Angabe: „ziemlich gut“ — keine Pflichtfrage */
+  function dayWithMoodOrGood(d: DayState): DayState {
+    if (d.mood) return d
+    return dayWithMood(d, 'good')
+  }
+
   function applyMood(mood: DayMood) {
     setMoodNudge(false)
-    setDay((d) => {
-      const baseline = d.baselineCapacity ?? d.capacity
-      const baselineLife = d.baselineLifeMax ?? d.lifeMax
-      const capacity = capacityForMood(baseline, mood)
-      const lifeMax = clampLifeMax(
-        lifeMaxForMood(baselineLife, mood),
-        d.tasks.filter((t) => t.kind === 'life').length,
-      )
-      const tasks = d.tasks.map((t) =>
-        t.kind === 'work'
-          ? { ...t, minutes: minutesForSize(t.size, mood) }
-          : t,
-      )
-      return {
-        ...d,
-        mood,
-        baselineCapacity: baseline,
-        baselineLifeMax: baselineLife,
-        capacity,
-        lifeMax,
-        tasks,
-      }
-    })
+    setDay((d) => dayWithMood(d, mood))
   }
 
   function toggleCarry(index: number) {
@@ -427,21 +435,18 @@ export function PlanScreen({
   }
 
   function adoptCarryAndStart() {
-    if (!day.mood) {
-      setMoodNudge(true)
-      return
-    }
     setMoodNudge(false)
     setAdoptTip(false)
     setDay((d) => {
-      const tasks = adoptCarryItems(d, selectedCarry)
+      const withMood = dayWithMoodOrGood(d)
+      const tasks = adoptCarryItems(withMood, selectedCarry)
       if (tasks.length === 0) {
-        return { ...d, tasks, started: true }
+        return { ...withMood, tasks, started: true }
       }
       const firstWork = tasks.findIndex((t) => t.kind === 'work')
       const startIdx = firstWork !== -1 ? firstWork : 0
       return {
-        ...d,
+        ...withMood,
         tasks: tasks.map((t, i) =>
           i === startIdx
             ? { ...t, status: 'active' }
@@ -554,22 +559,19 @@ export function PlanScreen({
   }
 
   function startDay() {
-    if (!day.mood) {
-      setMoodNudge(true)
-      return
-    }
     setMoodNudge(false)
     setAdoptTip(false)
     setDay((d) => {
-      if (d.tasks.length === 0) {
-        return { ...d, started: true }
+      const withMood = dayWithMoodOrGood(d)
+      if (withMood.tasks.length === 0) {
+        return { ...withMood, started: true }
       }
-      const firstWork = d.tasks.findIndex((t) => t.kind === 'work')
+      const firstWork = withMood.tasks.findIndex((t) => t.kind === 'work')
       const startIdx = firstWork !== -1 ? firstWork : 0
       return {
-        ...d,
+        ...withMood,
         started: true,
-        tasks: d.tasks.map((t, i) =>
+        tasks: withMood.tasks.map((t, i) =>
           i === startIdx
             ? { ...t, status: 'active' }
             : { ...t, status: 'planned' },

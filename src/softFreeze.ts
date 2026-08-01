@@ -3,10 +3,10 @@
 export type AwayNudgeMode = 'off' | 'once' | 'repeat'
 
 export const SOFT_FREEZE_DEFAULTS = {
-  /** Timer pausieren + Rückkehr-Impuls */
+  /** Sanfte Erinnerungen wenn weg — Timer läuft weiter (Arbeit oft woanders) */
   softFreezeEnabled: true,
   /**
-   * Beim Weggehen erinnern:
+   * Beim Weggehen erinnern (ohne Timer zu stoppen):
    * once = ein sanfter Impuls (Empfehlung)
    * repeat = wenige weitere, mit Abstand
    * off = keine Extra-Mitteilungen

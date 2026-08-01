@@ -43,7 +43,7 @@
     "steps": {
       "planLess": {
         "title": "Short morning",
-        "text": "Default: pick your mood, bring along what’s still open from yesterday, start the day. Work and life sit under “Plan a little more” — less at once, less freeze."
+        "text": "Default: bring along what’s still open from yesterday, start the day (mood optional — otherwise “pretty good”). Work and life sit under “Plan a little more” — less at once, less freeze."
       },
       "morningSwitch": {
         "title": "Or the full plan",
@@ -59,7 +59,7 @@
       },
       "softFreeze": {
         "title": "Soft freeze",
-        "text": "When you leave the app, the timer pauses gently. Optionally, notifications nudge you back — without locking you in. Adjust or turn off: below under Settings."
+        "text": "The timer keeps running while you work elsewhere — that’s often needed. Optionally, notifications gently nudge you back to focus. Adjust or turn off: below under Settings."
       },
       "regulate": {
         "title": "Calm button",
@@ -70,8 +70,8 @@
   "plan": {
     "mood": {
       "title": "How do you feel today?",
-      "hint": "Only for today — not saved or judged. Controls amount and time.",
-      "nudge": "Please pick one — then amount and times fit you better.",
+      "hint": "Optional. If you skip it, we assume “pretty good” — normal amount and times.",
+      "nudge": "Optional — otherwise we start with “pretty good”.",
       "ariaLabel": "Day mood",
       "good": {
         "label": "Pretty good",
@@ -339,9 +339,9 @@
       "notifUnsupported": "Not available in this browser.",
       "softFreeze": {
         "label": "Soft freeze",
-        "pauseOnLeave": "Pause timer when leaving",
-        "hint": "Default: on, at most one gentle nudge. Not locking you in — just calling you back.",
-        "awayNudges": "Reminders when away",
+        "pauseOnLeave": "Reminders when the app is in the background",
+        "hint": "The timer keeps running (work often happens on other pages). Default: at most one gentle nudge — not locking you in.",
+        "awayNudges": "How often to remind",
         "nudgeOff": "None",
         "nudgeOnce": "Once (recommended)",
         "nudgeRepeat": "Repeat",

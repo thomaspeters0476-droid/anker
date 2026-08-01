@@ -61,7 +61,7 @@
       "feierabendH": "Knocking off",
       "feierabendP": "When work is done: sparks unlock. Life tasks may still follow.",
       "freezeH": "Soft freeze",
-      "freezeP": "Leave the app → timer pauses. Optional gentle notifications. Adjustable below.",
+      "freezeP": "Timer keeps running while you work elsewhere. Optional gentle notifications. Adjustable below.",
       "endH": "End day",
       "endP": "Open items marked skipped → wrap-up."
     },
@@ -87,7 +87,7 @@
         "tone": { "label": "Buddy tone", "text": "warm / short / clear" },
         "checkin": { "label": "Check-in", "text": "Interval 10–40 min." },
         "reminders": { "label": "Reminders", "text": "Browser notifications" },
-        "freeze": { "label": "Freeze", "text": "Pause on leave; away nudges" },
+        "freeze": { "label": "Freeze", "text": "Timer keeps running; optional away nudges" },
         "language": { "label": "Language", "text": "App UI (DE / EN)" },
         "intro": { "label": "Introduction", "text": "Button on the start screen" },
         "pwa": { "label": "PWA", "text": "Install hints" },

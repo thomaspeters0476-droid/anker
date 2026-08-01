@@ -61,7 +61,7 @@
       "feierabendH": "Feierabend",
       "feierabendP": "Wenn die Arbeit durch ist: Geistesblitze frei. Alltag kann noch folgen.",
       "freezeH": "Weicher Freeze",
-      "freezeP": "App verlassen → Timer pausiert. Optional sanfte Mitteilungen. Einstellbar unten.",
+      "freezeP": "Timer läuft weiter, wenn du woanders arbeitest. Optional sanfte Mitteilungen. Einstellbar unten.",
       "endH": "Tag beenden",
       "endP": "Offenes wird als übersprungen markiert → Abschluss."
     },
@@ -87,7 +87,7 @@
         "tone": { "label": "Buddy-Ton", "text": "warm / kurz / klar" },
         "checkin": { "label": "Check-in", "text": "Intervall 10–40 Min." },
         "reminders": { "label": "Erinnerungen", "text": "Browser-Mitteilungen" },
-        "freeze": { "label": "Freeze", "text": "Pause beim Verlassen; Away-Nudges" },
+        "freeze": { "label": "Freeze", "text": "Timer läuft weiter; optionale Erinnerungen" },
         "language": { "label": "Sprache", "text": "App-Oberfläche (DE / EN)" },
         "intro": { "label": "Einführung", "text": "Button auf der Startseite" },
         "pwa": { "label": "PWA", "text": "Install-Hinweise" },

@@ -43,7 +43,7 @@
     "steps": {
       "planLess": {
         "title": "Kurzer Morgen",
-        "text": "Standard: Stimmung wählen, Offenes von gestern mitnehmen, Tag starten. Arbeit und Alltag stecken unter „Noch etwas planen“ — weniger auf einmal, weniger Freeze."
+        "text": "Standard: Offenes von gestern mitnehmen, Tag starten (Stimmung optional — sonst „gut“). Arbeit und Alltag stecken unter „Noch etwas planen“ — weniger auf einmal, weniger Freeze."
       },
       "morningSwitch": {
         "title": "Oder der volle Plan",
@@ -59,7 +59,7 @@
       },
       "softFreeze": {
         "title": "Weicher Freeze",
-        "text": "Verlässt du die App, pausiert der Timer sanft. Optional erinnern dich Mitteilungen, zurückzukommen — ohne dich einzusperren. Anpassen oder ausstellen: unten unter Einstellungen."
+        "text": "Der Timer läuft weiter, wenn du woanders arbeitest — das ist oft nötig. Optional erinnern dich Mitteilungen sanft an den Fokus. Anpassen oder ausstellen: unten unter Einstellungen."
       },
       "regulate": {
         "title": "Ruhe-Button",
@@ -70,8 +70,8 @@
   "plan": {
     "mood": {
       "title": "Wie fühlst du dich heute?",
-      "hint": "Nur für heute — wird nicht gespeichert oder bewertet. Steuert Menge und Zeit.",
-      "nudge": "Bitte kurz wählen — dann passen Menge und Zeiten besser zu dir.",
+      "hint": "Optional. Ohne Angabe gehen wir von „ziemlich gut“ aus — Menge und Zeiten wie gewohnt.",
+      "nudge": "Optional — sonst starten wir mit „ziemlich gut“.",
       "ariaLabel": "Tagesgefühl",
       "good": {
         "label": "Ziemlich gut",
@@ -339,9 +339,9 @@
       "notifUnsupported": "In diesem Browser nicht verfügbar.",
       "softFreeze": {
         "label": "Weicher Freeze",
-        "pauseOnLeave": "Beim Verlassen Timer pausieren",
-        "hint": "Standard: an, höchstens eine sanfte Erinnerung. Nicht einsperren — nur zurückrufen.",
-        "awayNudges": "Erinnerungen wenn weg",
+        "pauseOnLeave": "Erinnerungen wenn App im Hintergrund",
+        "hint": "Timer läuft weiter (Arbeit oft auf anderen Seiten). Standard: höchstens eine sanfte Erinnerung — nicht einsperren.",
+        "awayNudges": "Wie oft erinnern",
         "nudgeOff": "Keine",
         "nudgeOnce": "Einmal (empfohlen)",
         "nudgeRepeat": "Wiederholen",

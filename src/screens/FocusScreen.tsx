@@ -18,7 +18,6 @@ import {
   sparkVaultLocked,
   startFocus,
   timeboxOver,
-  welcomeBack,
 } from '../buddy'
 import { SparkCapture } from '../components/SparkCapture'
 import { SparkVault } from '../components/SparkVault'
@@ -89,24 +88,60 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
   const [buddyMsg, setBuddyMsg] = useState(() =>
     active ? startFocus(active, ctxFromDay(day)) : '',
   )
-  const elapsedRef = useRef(0)
   const activeIdRef = useRef(active?.id)
   const wasRunningRef = useRef(true)
   const sleepNotifiedRef = useRef(false)
   const feierabendShownRef = useRef(false)
   const awayNudgeCountRef = useRef(0)
   const awayNudgeTimerRef = useRef<number | null>(null)
-  const frozenByAwayRef = useRef(false)
   const regulateWasOpenRef = useRef(false)
+  /** Wall-clock: läuft auch im Hintergrund weiter (andere Tabs/Apps) */
+  const endsAtRef = useRef<number | null>(null)
+  const nextCheckInAtRef = useRef<number | null>(null)
+  const checkInRemainingMsRef = useRef<number | null>(null)
   const runningRef = useRef(running)
   runningRef.current = running
   const secondsLeftRef = useRef(secondsLeft)
   secondsLeftRef.current = secondsLeft
+  const checkInEveryMs = day.checkInEveryMin * 60 * 1000
+
+  function clearTimerDeadlines() {
+    endsAtRef.current = null
+    nextCheckInAtRef.current = null
+  }
+
+  function snapshotTimerDeadlines() {
+    const now = Date.now()
+    if (endsAtRef.current != null) {
+      const left = Math.max(0, Math.round((endsAtRef.current - now) / 1000))
+      secondsLeftRef.current = left
+      setSecondsLeft(left)
+    }
+    if (nextCheckInAtRef.current != null) {
+      checkInRemainingMsRef.current = Math.max(
+        0,
+        nextCheckInAtRef.current - now,
+      )
+    }
+    clearTimerDeadlines()
+  }
+
+  function armTimerDeadlines(leftSec: number, checkInMs?: number) {
+    const now = Date.now()
+    endsAtRef.current = now + Math.max(0, leftSec) * 1000
+    const untilCheckIn =
+      checkInMs ?? checkInRemainingMsRef.current ?? checkInEveryMs
+    nextCheckInAtRef.current = now + Math.max(0, untilCheckIn)
+    checkInRemainingMsRef.current = null
+  }
 
   // Runterregeln: Timer sanft pausieren; nach Rückkehr Hinweis, nicht auto-starten
   useEffect(() => {
     if (regulateOpen) {
-      if (runningRef.current) setRunning(false)
+      if (runningRef.current) {
+        snapshotTimerDeadlines()
+        setRunning(false)
+      }
       setShowCheckIn(false)
       regulateWasOpenRef.current = true
       return
@@ -125,7 +160,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     awayNudgeCountRef.current = 0
   }
 
-  // Weicher Freeze: Tab/App verlassen
+  // Weicher Freeze: optional erinnern — Timer läuft weiter (Arbeit oft woanders)
   useEffect(() => {
     if (!day.softFreezeEnabled || !day.started) return
 
@@ -134,8 +169,6 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
         const current = day.tasks.find((task) => task.status === 'active')
         if (!current) return
 
-        frozenByAwayRef.current = runningRef.current
-        if (runningRef.current) setRunning(false)
         clearAwayNudges()
 
         const canNudge =
@@ -177,11 +210,6 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
       }
 
       clearAwayNudges()
-      if (frozenByAwayRef.current) {
-        const current = day.tasks.find((task) => task.status === 'active')
-        setBuddyMsg(welcomeBack(current, ctxFromDay(day)))
-        frozenByAwayRef.current = false
-      }
     }
 
     document.addEventListener('visibilitychange', onVisibility)
@@ -196,10 +224,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     day.awayNudgeMode,
     day.awayNudgeEveryMin,
     day.awayNudgeMax,
-    day.buddyTone,
-    day.mood,
     day.tasks,
-    day.sparks.length,
     t,
   ])
 
@@ -207,10 +232,13 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     if (!active) return
     if (activeIdRef.current !== active.id) {
       activeIdRef.current = active.id
-      setSecondsLeft(active.minutes * 60)
+      const left = active.minutes * 60
+      checkInRemainingMsRef.current = null
+      setSecondsLeft(left)
+      secondsLeftRef.current = left
+      armTimerDeadlines(left, checkInEveryMs)
       setRunning(true)
       setShowCheckIn(false)
-      elapsedRef.current = 0
       if (inFeierabend && active.kind === 'life') {
         setBuddyMsg(feierabend(ctxFromDay(day, { lifeLeft })))
       } else if (active.kind === 'life') {
@@ -219,7 +247,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
         setBuddyMsg(startFocus(active, ctxFromDay(day)))
       }
     }
-  }, [active, day, inFeierabend, lifeLeft])
+  }, [active, day, inFeierabend, lifeLeft, checkInEveryMs])
 
   // Feierabend-Hinweis einmal, wenn Arbeit fertig wird
   useEffect(() => {
@@ -260,30 +288,35 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
   }, [day.notificationsEnabled, sleepPending, day, t])
 
   useEffect(() => {
-    if (!running || showCheckIn || captureOpen || regulateOpen || !active)
+    if (!running || showCheckIn || captureOpen || regulateOpen || !active) {
+      if (!running) clearTimerDeadlines()
       return
-    const id = window.setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          setRunning(false)
-          setBuddyMsg(timeboxOver(ctxFromDay(day)))
-          return 0
-        }
-        return s - 1
-      })
-      elapsedRef.current += 1
-      if (elapsedRef.current >= day.checkInEveryMin * 60) {
-        elapsedRef.current = 0
+    }
+
+    if (endsAtRef.current == null) {
+      armTimerDeadlines(secondsLeftRef.current)
+    }
+
+    const syncFromClock = () => {
+      const now = Date.now()
+      if (endsAtRef.current == null) return
+
+      const left = Math.max(0, Math.round((endsAtRef.current - now) / 1000))
+      secondsLeftRef.current = left
+      setSecondsLeft(left)
+
+      if (
+        nextCheckInAtRef.current != null &&
+        now >= nextCheckInAtRef.current
+      ) {
+        snapshotTimerDeadlines()
         setShowCheckIn(true)
         setRunning(false)
         setBuddyMsg(
           checkInPrompt(
             active,
             ctxFromDay(day, {
-              minutesLeft: Math.max(
-                0,
-                Math.ceil(secondsLeftRef.current / 60),
-              ),
+              minutesLeft: Math.max(0, Math.ceil(left / 60)),
             }),
           ),
         )
@@ -294,9 +327,26 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
             'anker-checkin',
           )
         }
+        return
       }
-    }, 1000)
-    return () => window.clearInterval(id)
+
+      if (left <= 0) {
+        clearTimerDeadlines()
+        setRunning(false)
+        setBuddyMsg(timeboxOver(ctxFromDay(day)))
+      }
+    }
+
+    syncFromClock()
+    const id = window.setInterval(syncFromClock, 1000)
+    const onVis = () => {
+      if (document.visibilityState === 'visible') syncFromClock()
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => {
+      window.clearInterval(id)
+      document.removeEventListener('visibilitychange', onVis)
+    }
   }, [
     running,
     showCheckIn,
@@ -304,7 +354,6 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     regulateOpen,
     active,
     day,
-    day.checkInEveryMin,
     day.notificationsEnabled,
     t,
   ])
@@ -382,12 +431,17 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     setShowCheckIn(false)
     const ctx = ctxFromDay(day)
     if (choice === 'still') {
+      checkInRemainingMsRef.current = null
+      armTimerDeadlines(secondsLeftRef.current, checkInEveryMs)
       setRunning(true)
       setBuddyMsg(afterStill(active, ctx))
     } else if (choice === 'drift') {
+      checkInRemainingMsRef.current = null
+      armTimerDeadlines(secondsLeftRef.current, checkInEveryMs)
       setRunning(true)
       setBuddyMsg(afterDrift(ctx))
     } else {
+      clearTimerDeadlines()
       setRunning(false)
       setBuddyMsg(afterPause(ctx))
     }
@@ -395,6 +449,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
 
   function openCapture() {
     wasRunningRef.current = running
+    if (running) snapshotTimerDeadlines()
     setRunning(false)
     setCaptureOpen(true)
   }
@@ -404,7 +459,10 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     if (active) {
       setBuddyMsg(backToFocus(active, ctxFromDay(day)))
     }
-    if (wasRunningRef.current && !showCheckIn) setRunning(true)
+    if (wasRunningRef.current && !showCheckIn) {
+      armTimerDeadlines(secondsLeftRef.current)
+      setRunning(true)
+    }
   }
 
   function saveSpark(partial: Omit<Spark, 'id' | 'createdAt'>) {
@@ -653,12 +711,23 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
             type="button"
             className="secondary"
             onClick={() => {
-              if (!running && secondsLeft === 0 && active) {
-                setSecondsLeft(active.minutes * 60)
-                elapsedRef.current = 0
-                setBuddyMsg(anotherRound(ctxFromDay(day)))
+              if (running) {
+                snapshotTimerDeadlines()
+                setRunning(false)
+                return
               }
-              setRunning((r) => !r)
+              if (secondsLeft === 0 && active) {
+                const left = active.minutes * 60
+                setSecondsLeft(left)
+                secondsLeftRef.current = left
+                checkInRemainingMsRef.current = null
+                armTimerDeadlines(left, checkInEveryMs)
+                setBuddyMsg(anotherRound(ctxFromDay(day)))
+                setRunning(true)
+                return
+              }
+              armTimerDeadlines(secondsLeftRef.current)
+              setRunning(true)
             }}
           >
             {running
