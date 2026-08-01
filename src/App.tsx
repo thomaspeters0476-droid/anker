@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { setAppLocale } from './i18n'
 import { normalizeLocale } from './i18n/locales'
 import type { DayState } from './types'
-import { emptyDay, loadDay, loadPrefs, saveDay } from './storage'
+import { emptyDay, loadDay, loadPrefs } from './storage'
+import { bindPersistFlush, scheduleSaveDay } from './persist'
 import { ProductNav } from './components/ProductNav'
 import { reconcileExpiredSparks } from './sparkExpiry'
 import { PlanScreen } from './screens/PlanScreen'
@@ -101,12 +102,14 @@ function App() {
     }
   }, [applySyncedDay, t])
 
+  useEffect(() => bindPersistFlush(), [])
+
   useEffect(() => {
     if (skipPersistRef.current) {
       skipPersistRef.current = false
       return
     }
-    saveDay(day)
+    scheduleSaveDay(day)
     if (isSyncConfigured() && syncEmail) schedulePush()
   }, [day, syncEmail])
 
@@ -279,7 +282,13 @@ function App() {
                 regulateOpen={regulateOpen}
               />
             )}
-            {screen === 'done' && <DoneScreen day={day} setDay={setDay} />}
+            {screen === 'done' && (
+              <DoneScreen
+                day={day}
+                setDay={setDay}
+                drawerEnabled={drawerEnabled}
+              />
+            )}
           </>
         )}
       </main>

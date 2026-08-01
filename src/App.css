@@ -2381,6 +2381,27 @@
   gap: 0.3rem;
 }
 
+.drawer-item-actions--more {
+  margin-top: 0.25rem;
+  padding-top: 0.25rem;
+  border-top: 1px dashed var(--line);
+}
+
+.drawer-item-more.on {
+  font-weight: 600;
+}
+
+.app-route-fallback {
+  min-height: 40vh;
+  background:
+    radial-gradient(
+      120% 80% at 10% 0%,
+      color-mix(in srgb, var(--accent, #2f6f5e) 10%, transparent),
+      transparent 55%
+    ),
+    var(--bg, #f7f4ef);
+}
+
 .drawer-pull-block {
   margin-top: 0.35rem;
   padding: 0.65rem 0.75rem;

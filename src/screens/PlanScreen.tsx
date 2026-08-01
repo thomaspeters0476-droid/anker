@@ -27,11 +27,11 @@ import {
   loadCarryOver,
   loadDrawer,
   loadPrefs,
-  saveDrawer,
   savePrefs,
   SPARK_RETENTION_DAYS,
   type CarryItem,
 } from '../storage'
+import { scheduleSaveDrawer } from '../persist'
 import {
   notificationPermission,
   requestNotificationPermission,
@@ -131,7 +131,7 @@ export function PlanScreen({
   function updateDrawer(next: SetStateAction<DrawerState>) {
     setDrawer((prev) => {
       const value = typeof next === 'function' ? next(prev) : next
-      saveDrawer(value)
+      scheduleSaveDrawer(value)
       return value
     })
   }
@@ -1553,17 +1553,19 @@ export function PlanScreen({
                   : t('settings.sync.metaLocalOnly')}
               </span>
             </summary>
-            <SyncSettings
-              email={syncEmail}
-              notice={syncNotice}
-              conflict={syncConflict}
-              onKeepLocal={onSyncKeepLocal}
-              onUseCloud={onSyncUseCloud}
-              onSignedOut={onSyncSignedOut}
-              onNotice={onSyncNotice}
-              onVaultReady={onSyncVaultReady}
-              embedded
-            />
+            {settingsOpen && (
+              <SyncSettings
+                email={syncEmail}
+                notice={syncNotice}
+                conflict={syncConflict}
+                onKeepLocal={onSyncKeepLocal}
+                onUseCloud={onSyncUseCloud}
+                onSignedOut={onSyncSignedOut}
+                onNotice={onSyncNotice}
+                onVaultReady={onSyncVaultReady}
+                embedded
+              />
+            )}
           </details>
         </details>
 

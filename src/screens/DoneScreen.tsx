@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { DayState } from '../types'
 import { workTasksSettled } from '../types'
 import { ctxFromDay, dayDone } from '../buddy'
-import { emptyDay, loadPrefs, rollDayForward, startNextRound } from '../storage'
+import { emptyDay, rollDayForward, startNextRound } from '../storage'
 import { SparkVault } from '../components/SparkVault'
 import { lifeTemplateLabel } from '../i18n/lifeLabels'
 import { deleteSparkRemote } from '../sync'
@@ -11,11 +11,12 @@ import { deleteSparkRemote } from '../sync'
 type Props = {
   day: DayState
   setDay: React.Dispatch<React.SetStateAction<DayState>>
+  drawerEnabled?: boolean
 }
 
-export function DoneScreen({ day, setDay }: Props) {
+export function DoneScreen({ day, setDay, drawerEnabled = false }: Props) {
   const { t } = useTranslation()
-  const drawerOn = loadPrefs().drawerEnabled
+  const drawerOn = drawerEnabled
   const round = Math.max(1, day.round ?? 1)
   const done = day.tasks.filter((task) => task.status === 'done')
   const skipped = day.tasks.filter((task) => task.status === 'skipped')
@@ -109,11 +110,11 @@ export function DoneScreen({ day, setDay }: Props) {
 
       {drawerOn ? (
         <div className="done-round-actions">
-          <button type="button" className="primary lg" onClick={anotherRound}>
-            {t('done.anotherRound', { next: round + 1 })}
-          </button>
-          <button type="button" className="secondary lg" onClick={feierabend}>
+          <button type="button" className="primary lg" onClick={feierabend}>
             {t('done.feierabend')}
+          </button>
+          <button type="button" className="secondary lg" onClick={anotherRound}>
+            {t('done.anotherRound', { next: round + 1 })}
           </button>
           <p className="block-hint">{t('done.roundChoiceHint')}</p>
         </div>

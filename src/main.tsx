@@ -1,4 +1,4 @@
-import { StrictMode, useEffect } from 'react'
+import { StrictMode, Suspense, lazy, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   BrowserRouter,
@@ -12,8 +12,6 @@ import './index.css'
 import { setAppLocale } from './i18n'
 import { loadPrefs } from './storage'
 import { applyProductShell, productShellFromPath } from './pwa'
-import App from './App.tsx'
-import SchubladeApp from './SchubladeApp.tsx'
 import { MarketingLayout } from './marketing/MarketingLayout'
 import { LandingPage } from './marketing/LandingPage'
 import { BlogIndexPage } from './marketing/BlogIndexPage'
@@ -25,6 +23,9 @@ import {
   ImpressumPage,
   WiderrufPage,
 } from './marketing/LegalPages'
+
+const App = lazy(() => import('./App.tsx'))
+const SchubladeApp = lazy(() => import('./SchubladeApp.tsx'))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -54,11 +55,17 @@ function useAppBoot() {
   }, [])
 }
 
+function RouteFallback() {
+  return <div className="app-route-fallback" aria-busy="true" />
+}
+
 function AppRoute() {
   useAppBoot()
   return (
     <div className="app-route">
-      <App />
+      <Suspense fallback={<RouteFallback />}>
+        <App />
+      </Suspense>
     </div>
   )
 }
@@ -67,7 +74,9 @@ function SchubladeRoute() {
   useAppBoot()
   return (
     <div className="app-route">
-      <SchubladeApp />
+      <Suspense fallback={<RouteFallback />}>
+        <SchubladeApp />
+      </Suspense>
     </div>
   )
 }

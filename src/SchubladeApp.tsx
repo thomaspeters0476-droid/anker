@@ -9,10 +9,13 @@ import {
   loadDay,
   loadDrawer,
   loadPrefs,
-  saveDay,
-  saveDrawer,
   savePrefs,
 } from './storage'
+import {
+  bindPersistFlush,
+  scheduleSaveDay,
+  scheduleSaveDrawer,
+} from './persist'
 import type { DrawerState } from './drawer/types'
 import { DrawerWorkspace } from './components/DrawerWorkspace'
 import { ProductNav } from './components/ProductNav'
@@ -99,12 +102,14 @@ export function SchubladeApp() {
     }
   }, [])
 
+  useEffect(() => bindPersistFlush(), [])
+
   useEffect(() => {
     if (skipPersistRef.current) {
       skipPersistRef.current = false
       return
     }
-    saveDay(day)
+    scheduleSaveDay(day)
     if (isSyncConfigured() && syncEmail) schedulePush()
   }, [day, syncEmail])
 
@@ -139,7 +144,7 @@ export function SchubladeApp() {
   function updateDrawer(next: SetStateAction<DrawerState>) {
     setDrawer((prev) => {
       const value = typeof next === 'function' ? next(prev) : next
-      saveDrawer(value)
+      scheduleSaveDrawer(value)
       if (isSyncConfigured() && syncEmail) schedulePush()
       return value
     })

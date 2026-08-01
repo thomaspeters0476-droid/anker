@@ -70,6 +70,7 @@ export function DrawerWorkspace({
   const [snoozeId, setSnoozeId] = useState<string | null>(null)
   const [waitId, setWaitId] = useState<string | null>(null)
   const [waitDraft, setWaitDraft] = useState('')
+  const [moreOpenId, setMoreOpenId] = useState<string | null>(null)
   const aiOptIn = aiChopOptIn ?? loadPrefs().drawerAiChopOptIn
   const readyCap =
     readyCapProp ?? loadPrefs().drawerReadyCap ?? DRAWER_READY_CAP_DEFAULT
@@ -273,60 +274,93 @@ export function DrawerWorkspace({
               {t('drawer.pull')}
             </button>
           )}
-          <button
-            type="button"
-            className="ghost sm"
-            onClick={() =>
-              setSnoozeId((id) => (id === item.id ? null : item.id))
-            }
-          >
-            {t('drawer.snooze')}
-          </button>
-          <button
-            type="button"
-            className="ghost sm"
-            onClick={() => {
-              setWaitId((id) => (id === item.id ? null : item.id))
-              setWaitDraft(item.waitingOn ?? '')
-            }}
-          >
-            {t('drawer.waitingOn')}
-          </button>
-          <button
-            type="button"
-            className="ghost sm"
-            onClick={() =>
-              setDeadlineEditId((id) => (id === item.id ? null : item.id))
-            }
-          >
-            {t('drawer.deadlineSet')}
-          </button>
-          {LEVELS.filter((l) => l !== itemLevel && l !== 'defer').map((l) => (
+          {itemLevel === 'defer' && (
             <button
-              key={l}
               type="button"
-              className="ghost sm"
-              onClick={() => patchDrawer((d) => moveItem(d, item.id, l))}
+              className="secondary sm"
+              onClick={() => patchDrawer((d) => moveItem(d, item.id, 'inbox'))}
             >
-              → {t(`drawer.levelShort.${l}`)}
+              {t('drawer.backToInbox')}
             </button>
-          ))}
+          )}
+          {itemLevel === 'frozen' && (
+            <button
+              type="button"
+              className="secondary sm"
+              onClick={() => patchDrawer((d) => moveItem(d, item.id, 'ready'))}
+            >
+              {t('drawer.thaw')}
+            </button>
+          )}
           <button
             type="button"
-            className="ghost sm"
-            onClick={() => {
-              if (
-                item.parentId ||
-                drawer.items.some((x) => x.parentId === item.id)
-              ) {
-                if (!window.confirm(t('drawer.deleteChainWarn'))) return
-              }
-              patchDrawer((d) => removeItem(d, item.id))
-            }}
+            className={`ghost sm drawer-item-more${moreOpenId === item.id ? ' on' : ''}`}
+            aria-expanded={moreOpenId === item.id}
+            aria-label={t('drawer.itemMoreAria')}
+            onClick={() =>
+              setMoreOpenId((id) => (id === item.id ? null : item.id))
+            }
           >
-            ✕
+            {t('drawer.itemMore')}
           </button>
         </div>
+        {moreOpenId === item.id && (
+          <div className="drawer-item-actions drawer-item-actions--more">
+            <button
+              type="button"
+              className="ghost sm"
+              onClick={() =>
+                setSnoozeId((id) => (id === item.id ? null : item.id))
+              }
+            >
+              {t('drawer.snooze')}
+            </button>
+            <button
+              type="button"
+              className="ghost sm"
+              onClick={() => {
+                setWaitId((id) => (id === item.id ? null : item.id))
+                setWaitDraft(item.waitingOn ?? '')
+              }}
+            >
+              {t('drawer.waitingOn')}
+            </button>
+            <button
+              type="button"
+              className="ghost sm"
+              onClick={() =>
+                setDeadlineEditId((id) => (id === item.id ? null : item.id))
+              }
+            >
+              {t('drawer.deadlineSet')}
+            </button>
+            {LEVELS.filter((l) => l !== itemLevel && l !== 'defer').map((l) => (
+              <button
+                key={l}
+                type="button"
+                className="ghost sm"
+                onClick={() => patchDrawer((d) => moveItem(d, item.id, l))}
+              >
+                → {t(`drawer.levelShort.${l}`)}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="ghost sm"
+              onClick={() => {
+                if (
+                  item.parentId ||
+                  drawer.items.some((x) => x.parentId === item.id)
+                ) {
+                  if (!window.confirm(t('drawer.deleteChainWarn'))) return
+                }
+                patchDrawer((d) => removeItem(d, item.id))
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
         {snoozeId === item.id && (
           <div className="drawer-deadline-edit">
             <span className="block-hint">{t('drawer.snoozeHint')}</span>
@@ -454,19 +488,23 @@ export function DrawerWorkspace({
           )}
         </div>
       ) : null}
-      <p className="block-hint">{t('drawer.lead')}</p>
+      <p className="block-hint">
+        {variant === 'overlay' ? t('drawer.leadShort') : t('drawer.lead')}
+      </p>
       {buddyLine && (
         <div className="buddy-card drawer-buddy" role="status">
           <span className="buddy-label">{t('common.buddy')}</span>
           <p>{buddyLine}</p>
         </div>
       )}
-      <p className="drawer-cap-line">
-        {t('drawer.readyCap', {
-          used: readyCount,
-          max: readyCap,
-        })}
-      </p>
+      {(variant === 'page' || readyCount > 0 || !chopOk) && (
+        <p className="drawer-cap-line">
+          {t('drawer.readyCap', {
+            used: readyCount,
+            max: readyCap,
+          })}
+        </p>
+      )}
 
       <form
         className="add-row"
@@ -527,15 +565,26 @@ export function DrawerWorkspace({
         </div>
       )}
 
-      {radar.length > 0 && (
-        <div className="drawer-deadline-block drawer-deadline-block--radar">
-          <h3>{t('drawer.deadlineRadarTitle')}</h3>
-          <p className="block-hint">{t('drawer.deadlineRadarHint')}</p>
-          <ul className="drawer-item-list">
-            {radar.map((item) => renderItem(item, 'deadline'))}
-          </ul>
-        </div>
-      )}
+      {radar.length > 0 &&
+        (variant === 'page' ? (
+          <div className="drawer-deadline-block drawer-deadline-block--radar">
+            <h3>{t('drawer.deadlineRadarTitle')}</h3>
+            <p className="block-hint">{t('drawer.deadlineRadarHint')}</p>
+            <ul className="drawer-item-list">
+              {radar.map((item) => renderItem(item, 'deadline'))}
+            </ul>
+          </div>
+        ) : (
+          <details className="drawer-deadline-block drawer-deadline-block--radar">
+            <summary>
+              {t('drawer.deadlineRadarTitle')} ({radar.length})
+            </summary>
+            <p className="block-hint">{t('drawer.deadlineRadarHint')}</p>
+            <ul className="drawer-item-list">
+              {radar.map((item) => renderItem(item, 'deadline'))}
+            </ul>
+          </details>
+        ))}
 
       {pullable.length > 0 && (
         <div className="drawer-pull-block">
@@ -566,7 +615,11 @@ export function DrawerWorkspace({
       )}
 
       <div className="drawer-level-tabs" role="tablist">
-        {(['all', ...LEVELS] as const).map((lv) => (
+        {(
+          (variant === 'overlay'
+            ? LEVELS
+            : (['all', ...LEVELS] as const)) as readonly (DrawerLevel | 'all')[]
+        ).map((lv) => (
           <button
             key={lv}
             type="button"
@@ -583,6 +636,9 @@ export function DrawerWorkspace({
         (level) => {
           const items = itemsByLevel(drawer, level)
           if (openLevel === 'all' && items.length === 0) return null
+          const emptyHint = t(`drawer.emptyLevelBy.${level}`, {
+            defaultValue: t('drawer.emptyLevel'),
+          })
           if (level === 'frozen' && openLevel === 'all') {
             return (
               <details
@@ -597,7 +653,7 @@ export function DrawerWorkspace({
                   {t(`drawer.level.${level}`)} ({items.length})
                 </summary>
                 {items.length === 0 ? (
-                  <p className="block-hint">{t('drawer.emptyLevel')}</p>
+                  <p className="block-hint">{emptyHint}</p>
                 ) : (
                   <ul className="drawer-item-list">
                     {items.map((item) => renderItem(item, level))}
@@ -610,7 +666,7 @@ export function DrawerWorkspace({
             <div key={level} className="drawer-level-block">
               {openLevel === 'all' && <h3>{t(`drawer.level.${level}`)}</h3>}
               {items.length === 0 ? (
-                <p className="block-hint">{t('drawer.emptyLevel')}</p>
+                <p className="block-hint">{emptyHint}</p>
               ) : (
                 <ul className="drawer-item-list">
                   {items.map((item) => renderItem(item, level))}

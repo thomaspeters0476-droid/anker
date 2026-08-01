@@ -433,8 +433,8 @@ export async function syncNow(options?: {
 
 let pushTimer: ReturnType<typeof setTimeout> | null = null
 
-/** Plan/prefs: short debounce. Sparks use pushSparkNow (0 debounce). */
-export function schedulePush(delayMs = 400): void {
+/** Plan/drawer/prefs: längerer Debounce. Sparks nutzen weiter kurze Delays. */
+export function schedulePush(delayMs = 1600): void {
   if (pushTimer) clearTimeout(pushTimer)
   pushTimer = setTimeout(() => {
     pushTimer = null

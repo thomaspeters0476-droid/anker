@@ -458,29 +458,55 @@ export function loadDay(): DayState | null {
   }
 }
 
+function prefsMirrorFromDay(state: DayState, locale: AppLocale): Prefs {
+  const prefs = loadPrefs()
+  return {
+    ...prefs,
+    capacity: { ...(state.baselineCapacity ?? state.capacity) },
+    checkInEveryMin: state.checkInEveryMin,
+    buddyTone: state.buddyTone,
+    lifeMax: state.baselineLifeMax ?? state.lifeMax,
+    introButtonOnSurface: state.introButtonOnSurface,
+    notificationsEnabled: state.notificationsEnabled,
+    softFreezeEnabled: state.softFreezeEnabled,
+    awayNudgeMode: state.awayNudgeMode,
+    awayNudgeEveryMin: state.awayNudgeEveryMin,
+    awayNudgeMax: state.awayNudgeMax,
+    hiddenLifeTemplates: normalizeTitleList(state.hiddenLifeTemplates),
+    customLifeAnchors: normalizeTitleList(state.customLifeAnchors),
+    sparksMailEmail: normalizeSparksMailEmail(state.sparksMailEmail),
+    locale,
+  }
+}
+
+function prefsEqualForDay(a: Prefs, b: Prefs): boolean {
+  return (
+    a.checkInEveryMin === b.checkInEveryMin &&
+    a.buddyTone === b.buddyTone &&
+    a.lifeMax === b.lifeMax &&
+    a.introButtonOnSurface === b.introButtonOnSurface &&
+    a.notificationsEnabled === b.notificationsEnabled &&
+    a.softFreezeEnabled === b.softFreezeEnabled &&
+    a.awayNudgeMode === b.awayNudgeMode &&
+    a.awayNudgeEveryMin === b.awayNudgeEveryMin &&
+    a.awayNudgeMax === b.awayNudgeMax &&
+    a.sparksMailEmail === b.sparksMailEmail &&
+    a.capacity.large === b.capacity.large &&
+    a.capacity.medium === b.capacity.medium &&
+    a.capacity.small === b.capacity.small &&
+    a.hiddenLifeTemplates.join('\0') === b.hiddenLifeTemplates.join('\0') &&
+    a.customLifeAnchors.join('\0') === b.customLifeAnchors.join('\0')
+  )
+}
+
 export function saveDay(state: DayState): void {
   suppressSyncTouch = true
   try {
     localStorage.setItem(DAY_KEY, JSON.stringify(state))
     saveSparksVault(state.sparks)
     const prefs = loadPrefs()
-    savePrefs({
-      ...prefs,
-      capacity: { ...(state.baselineCapacity ?? state.capacity) },
-      checkInEveryMin: state.checkInEveryMin,
-      buddyTone: state.buddyTone,
-      lifeMax: state.baselineLifeMax ?? state.lifeMax,
-      introButtonOnSurface: state.introButtonOnSurface,
-      notificationsEnabled: state.notificationsEnabled,
-      softFreezeEnabled: state.softFreezeEnabled,
-      awayNudgeMode: state.awayNudgeMode,
-      awayNudgeEveryMin: state.awayNudgeEveryMin,
-      awayNudgeMax: state.awayNudgeMax,
-      hiddenLifeTemplates: normalizeTitleList(state.hiddenLifeTemplates),
-      customLifeAnchors: normalizeTitleList(state.customLifeAnchors),
-      sparksMailEmail: normalizeSparksMailEmail(state.sparksMailEmail),
-      locale: prefs.locale,
-    })
+    const next = prefsMirrorFromDay(state, prefs.locale)
+    if (!prefsEqualForDay(prefs, next)) savePrefs(next)
   } finally {
     suppressSyncTouch = false
   }
