@@ -76,6 +76,14 @@ body {
   background-attachment: fixed;
 }
 
+/* Schublade-App: ganze Seite in kühlerem Ton */
+body:has(.schublade-shell) {
+  background:
+    radial-gradient(1200px 600px at 12% -8%, #c5d8e8 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #d8e4ef 0%, transparent 52%),
+    linear-gradient(165deg, #e4eef5, #f3f6f9 55%, #d2e1ec);
+}
+
 button,
 input,
 select {
@@ -119,6 +127,15 @@ button {
       linear-gradient(165deg, var(--bg0), var(--bg2) 55%, var(--bg1));
   }
 
+  body:has(.schublade-shell) {
+    background:
+      radial-gradient(900px 700px at -5% 20%, rgba(180, 205, 225, 0.9) 0%, transparent 55%),
+      radial-gradient(800px 600px at 105% 75%, rgba(200, 218, 232, 0.85) 0%, transparent 50%),
+      radial-gradient(1200px 600px at 10% -10%, #c5d8e8 0%, transparent 55%),
+      radial-gradient(900px 500px at 100% 0%, #d8e4ef 0%, transparent 50%),
+      linear-gradient(165deg, #e4eef5, #f3f6f9 55%, #d2e1ec);
+  }
+
   .app-route::before,
   .app-route::after {
     content: '';
@@ -138,6 +155,14 @@ button {
     background-repeat: no-repeat, no-repeat, repeat-y;
     background-size: 100% 100%, 100% 100%, 280px 500px;
     background-position: center, center, center top;
+  }
+
+  .app-route:has(.schublade-shell)::before,
+  .app-route:has(.schublade-shell)::after {
+    background-image:
+      radial-gradient(ellipse 85% 55% at 28% 16%, rgba(61, 102, 128, 0.16), transparent 72%),
+      radial-gradient(ellipse 75% 50% at 58% 80%, rgba(74, 93, 107, 0.12), transparent 74%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='500' viewBox='0 0 280 500' fill='none'%3E%3Cpath d='M30 6c68 56 32 114 92 170s40 122 100 176' stroke='%233d6680' stroke-opacity='0.38' stroke-width='2.1' stroke-linecap='round'/%3E%3Cpath d='M8 78c76 44 46 106 98 152s56 108 110 150' stroke='%232a4a5e' stroke-opacity='0.28' stroke-width='1.8' stroke-linecap='round'/%3E%3Cpath d='M78 -6c46 66 14 120 64 178s32 126 76 178' stroke='%234a5d6b' stroke-opacity='0.26' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M124 56c52 40 20 90 68 128' stroke='%233d6680' stroke-opacity='0.22' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M48 210c44 34 18 78 58 112' stroke='%232a4a5e' stroke-opacity='0.2' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='96' cy='132' r='4.2' fill='%233d6680' fill-opacity='0.4'/%3E%3Ccircle cx='178' cy='244' r='3.4' fill='%234a5d6b' fill-opacity='0.36'/%3E%3Ccircle cx='72' cy='342' r='3.8' fill='%233d6680' fill-opacity='0.34'/%3E%3Ccircle cx='206' cy='404' r='3' fill='%232a4a5e' fill-opacity='0.3'/%3E%3Ccircle cx='140' cy='88' r='2.4' fill='%233d6680' fill-opacity='0.28'/%3E%3Cpath d='M142 80c16 8 22 22 14 32s-24 10-32-2 4-28 18-30z' fill='%233d6680' fill-opacity='0.2'/%3E%3Cpath d='M198 296c14 6 18 18 10 26s-22 8-28-2 4-24 18-24z' fill='%234a5d6b' fill-opacity='0.22'/%3E%3Cpath d='M60 208c12 6 16 16 9 24s-20 7-24-2 3-20 15-22z' fill='%233d6680' fill-opacity='0.16'/%3E%3Cpath d='M168 160c11 5 14 14 8 20s-17 6-21-1 2-17 13-19z' fill='%234a5d6b' fill-opacity='0.14'/%3E%3C/svg%3E");
   }
 
   .app-route::before {

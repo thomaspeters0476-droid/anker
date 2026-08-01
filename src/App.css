@@ -174,17 +174,17 @@
   height: 14px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 6px rgba(47, 111, 94, 0.18);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent);
   animation: pulse 2.8s ease-in-out infinite;
 }
 
 @keyframes pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 6px rgba(47, 111, 94, 0.16);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 20%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 10px rgba(47, 111, 94, 0.06);
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 8%, transparent);
   }
 }
 
@@ -212,33 +212,60 @@
   gap: 1.1rem;
 }
 
+/* Buddy als ruhige Sprechblase — dezent, kein Comic */
 .buddy-card {
-  background: var(--card);
+  --buddy-bubble-bg: color-mix(in srgb, var(--accent) 10%, var(--card-solid));
+  --buddy-bubble-line: color-mix(in srgb, var(--accent) 26%, var(--line));
+  position: relative;
+  z-index: 1;
+  background: var(--buddy-bubble-bg);
   backdrop-filter: blur(10px);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 1rem 1.1rem;
-  box-shadow: var(--shadow);
-  animation: softIn 0.4s ease both;
+  border: 1px solid var(--buddy-bubble-line);
+  border-radius: 1.35rem 1.35rem 1.35rem 0.72rem;
+  padding: 1rem 1.2rem 1.15rem;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--ink) 7%, transparent);
+  animation: softIn 0.45s ease both;
+  margin-bottom: 0.55rem;
+}
+
+.buddy-card::after {
+  content: '';
+  position: absolute;
+  left: 1.4rem;
+  bottom: -7px;
+  width: 13px;
+  height: 13px;
+  background: var(--buddy-bubble-bg);
+  border-right: 1px solid var(--buddy-bubble-line);
+  border-bottom: 1px solid var(--buddy-bubble-line);
+  border-radius: 0 0 3px 0;
+  transform: rotate(45deg);
+  pointer-events: none;
 }
 
 .buddy-card.warn {
-  background: var(--warn-bg);
-  border-color: rgba(138, 90, 43, 0.25);
+  --buddy-bubble-bg: color-mix(in srgb, var(--warn) 12%, var(--card-solid));
+  --buddy-bubble-line: color-mix(in srgb, var(--warn) 28%, var(--line));
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--warn) 10%, transparent);
 }
 
 .buddy-card p {
-  margin: 0.35rem 0 0;
-  font-size: 1.08rem;
-  line-height: 1.45;
+  margin: 0.4rem 0 0;
+  font-family: var(--font-display);
+  font-size: 1.14rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
 .buddy-label {
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--accent-deep);
   font-weight: 600;
+  opacity: 0.9;
 }
 
 @keyframes softIn {
@@ -281,10 +308,11 @@
 }
 
 .block {
-  background: var(--card-solid);
-  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--card-solid) 96%, var(--bg1));
+  border: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
   border-radius: var(--radius);
   padding: 1rem 1.05rem 1.1rem;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--ink) 3.5%, transparent);
 }
 
 .block--work {
@@ -2306,11 +2334,11 @@
   }
 
   .buddy-card {
-    padding: 1.15rem 1.25rem;
+    padding: 1.15rem 1.35rem 1.25rem;
   }
 
   .buddy-card p {
-    font-size: 1.12rem;
+    font-size: 1.2rem;
   }
 
   .block {
@@ -2745,7 +2773,28 @@
 }
 
 .drawer-buddy {
-  margin: 0.5rem 0 0.75rem;
+  margin: 0.15rem 0 1rem;
+}
+
+/* Schublade: kühleres Blau-Grau — sofort anderer Ort als der grüne Anker */
+.schublade-shell {
+  --bg0: #e4eef5;
+  --bg1: #d2e1ec;
+  --bg2: #f3f6f9;
+  --ink: #1a2833;
+  --ink-soft: #4a5d6b;
+  --line: rgba(26, 40, 51, 0.13);
+  --card: rgba(250, 253, 255, 0.84);
+  --card-solid: #f7fafc;
+  --accent: #3d6680;
+  --accent-deep: #2a4a5e;
+  --shadow: 0 18px 40px rgba(26, 40, 51, 0.09);
+  --work: #355f7a;
+  --life: #5c6570;
+}
+
+.schublade-shell .brand-mark {
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
 .drawer-stale-card {
