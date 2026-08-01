@@ -165,6 +165,11 @@ export type Prefs = {
   drawerAiChopOptIn: boolean
   /** Soft-Cap Bereit-Häppchen (15–40, Default 25) */
   drawerReadyCap: number
+  /**
+   * Erweiterte Schublade (Aufschub/Eingefroren/Radar-Fläche, Alle-Tab).
+   * Default aus — einfache Ansicht: Ablegen, Eingang, Bereit, Holen.
+   */
+  drawerAdvanced: boolean
 }
 
 export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
@@ -186,6 +191,7 @@ function defaultPrefs(): Prefs {
     drawerEnabled: false,
     drawerAiChopOptIn: false,
     drawerReadyCap: DRAWER_READY_CAP_DEFAULT,
+    drawerAdvanced: false,
   }
 }
 
@@ -248,6 +254,7 @@ export function loadPrefs(): Prefs {
       drawerReadyCap: clampReadyCap(
         data.drawerReadyCap ?? DRAWER_READY_CAP_DEFAULT,
       ),
+      drawerAdvanced: data.drawerAdvanced ?? false,
     }
   } catch {
     return defaultPrefs()

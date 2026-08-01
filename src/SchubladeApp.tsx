@@ -20,6 +20,7 @@ import type { DrawerState } from './drawer/types'
 import { DrawerWorkspace } from './components/DrawerWorkspace'
 import { ProductNav } from './components/ProductNav'
 import { PwaGuide } from './components/PwaGuide'
+import { SettingsGear } from './components/SettingsGear'
 import { SyncSettings } from './components/SyncSettings'
 import { RegulateButton, RegulateDown } from './components/RegulateDown'
 import {
@@ -55,6 +56,9 @@ export function SchubladeApp() {
   )
   const [readyCap, setReadyCap] = useState(
     () => loadPrefs().drawerReadyCap,
+  )
+  const [drawerAdvanced, setDrawerAdvanced] = useState(
+    () => loadPrefs().drawerAdvanced,
   )
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
@@ -170,7 +174,13 @@ export function SchubladeApp() {
             <span className="brand-name">{t('drawer.title')}</span>
           </div>
           {!regulateOpen && (
-            <RegulateButton onClick={() => setRegulateOpen(true)} />
+            <div className="topbar-actions">
+              <SettingsGear
+                open={settingsOpen}
+                onClick={() => setSettingsOpen((v) => !v)}
+              />
+              <RegulateButton onClick={() => setRegulateOpen(true)} />
+            </div>
           )}
         </div>
         <p className="brand-tag">{t('drawer.appTag')}</p>
@@ -181,6 +191,7 @@ export function SchubladeApp() {
         <section className="block drawer-app-block">
           <DrawerWorkspace
             variant="page"
+            advanced={drawerAdvanced}
             drawer={drawer}
             setDrawer={updateDrawer}
             day={day}
@@ -192,19 +203,34 @@ export function SchubladeApp() {
 
         <div className="plan-footer">
           <details
-            className="settings-panel"
+            className="settings-panel settings-panel--from-gear"
             open={settingsOpen}
             onToggle={(e) =>
               setSettingsOpen((e.target as HTMLDetailsElement).open)
             }
           >
-            <summary>{t('settings.summary')}</summary>
+            <summary className="settings-panel-summary">
+              {t('settings.summary')}
+            </summary>
             <p className="block-hint">{t('drawer.appBridgeHint')}</p>
             <p>
               <Link to="/app" className="secondary sm">
                 {t('productNav.openAnker')}
               </Link>
             </p>
+            <label className="intro-hide-check settings-check">
+              <input
+                type="checkbox"
+                checked={drawerAdvanced}
+                onChange={(e) => {
+                  const on = e.target.checked
+                  setDrawerAdvanced(on)
+                  savePrefs({ ...loadPrefs(), drawerAdvanced: on })
+                }}
+              />
+              {t('settings.drawerAdvanced')}
+            </label>
+            <p className="block-hint">{t('settings.drawerAdvancedHint')}</p>
             <label className="intro-hide-check settings-check">
               <input
                 type="checkbox"

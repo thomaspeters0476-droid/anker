@@ -79,6 +79,8 @@ type Props = {
   onSyncVaultReady?: () => void
   drawerEnabled?: boolean
   onDrawerEnabledChange?: (on: boolean) => void
+  settingsOpen?: boolean
+  onSettingsOpenChange?: (open: boolean) => void
 }
 
 function uid() {
@@ -101,6 +103,8 @@ export function PlanScreen({
   onSyncVaultReady,
   drawerEnabled = false,
   onDrawerEnabledChange,
+  settingsOpen: settingsOpenProp,
+  onSettingsOpenChange,
 }: Props) {
   const { t, i18n } = useTranslation()
   const [locale, setLocale] = useState<AppLocale>(() => loadPrefs().locale)
@@ -108,7 +112,12 @@ export function PlanScreen({
   const [workDraft, setWorkDraft] = useState('')
   const [lifeDraft, setLifeDraft] = useState('')
   const [workSize, setWorkSize] = useState<TaskSize>('medium')
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settingsLocal, setSettingsLocal] = useState(false)
+  const settingsOpen = settingsOpenProp ?? settingsLocal
+  const setSettingsOpen = onSettingsOpenChange ?? setSettingsLocal
+  const [drawerAdvanced, setDrawerAdvanced] = useState(
+    () => loadPrefs().drawerAdvanced,
+  )
   const [handbookOpen, setHandbookOpen] = useState(false)
   const [carry, setCarry] = useState<CarryItem[]>(() => loadCarryOver())
   const [selectedCarry, setSelectedCarry] = useState<Set<number>>(
@@ -788,50 +797,53 @@ export function PlanScreen({
 
       {!day.started && (
         <div className="morning-quick-links">
-          {compactMorning ? (
-            <button
-              type="button"
-              className="ghost sm"
-              onClick={() => persistShortMorning(false)}
-            >
-              {t('plan.switchToFull')}
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="ghost sm"
-              onClick={() => persistShortMorning(true)}
-            >
-              {t('plan.switchToShort')}
-            </button>
-          )}
-          {onShowIntro && (
-            <button type="button" className="ghost sm" onClick={onShowIntro}>
-              {t('plan.introSurface.show')}
-            </button>
-          )}
-          <button
-            type="button"
-            className="ghost sm"
-            onClick={() => setSettingsOpen(true)}
-          >
-            {t('settings.summary')}
-          </button>
           {drawerEnabled && (
-            <>
+            <button
+              type="button"
+              className="ghost sm morning-drawer-link"
+              onClick={() => setDrawerOpen(true)}
+            >
+              {t('drawer.quickDrop')}
+            </button>
+          )}
+          <details className="morning-overflow">
+            <summary>{t('plan.morningMenu')}</summary>
+            <div className="morning-overflow-body">
+              {compactMorning ? (
+                <button
+                  type="button"
+                  className="ghost sm"
+                  onClick={() => persistShortMorning(false)}
+                >
+                  {t('plan.switchToFull')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="ghost sm"
+                  onClick={() => persistShortMorning(true)}
+                >
+                  {t('plan.switchToShort')}
+                </button>
+              )}
+              {onShowIntro && (
+                <button
+                  type="button"
+                  className="ghost sm"
+                  onClick={onShowIntro}
+                >
+                  {t('plan.introSurface.show')}
+                </button>
+              )}
               <button
                 type="button"
-                className="ghost sm morning-drawer-link"
-                onClick={() => setDrawerOpen(true)}
+                className="ghost sm"
+                onClick={() => setSettingsOpen(true)}
               >
-                {t('drawer.open')}
-                {drawer.items.length > 0 ? ` · ${drawer.items.length}` : ''}
+                {t('settings.summary')}
               </button>
-              <Link to="/schublade" className="ghost sm morning-drawer-link">
-                {t('productNav.openSchublade')}
-              </Link>
-            </>
-          )}
+            </div>
+          </details>
         </div>
       )}
 
@@ -1076,13 +1088,15 @@ export function PlanScreen({
         )}
 
         <details
-          className={`settings-panel${compactMorning ? ' settings-panel--quiet' : ''}`}
+          className={`settings-panel${compactMorning ? ' settings-panel--quiet' : ''}${settingsOpenProp !== undefined ? ' settings-panel--from-gear' : ''}`}
           open={settingsOpen}
-          onToggle={(e) =>
+          onToggle={(e) => {
             setSettingsOpen((e.target as HTMLDetailsElement).open)
-          }
+          }}
         >
-          <summary>{t('settings.summary')}</summary>
+          <summary className="settings-panel-summary">
+            {t('settings.summary')}
+          </summary>
 
           <label className="intro-hide-check settings-check">
             <input
@@ -1110,6 +1124,19 @@ export function PlanScreen({
                   {t('productNav.openSchublade')}
                 </Link>
               </p>
+              <label className="intro-hide-check settings-check">
+                <input
+                  type="checkbox"
+                  checked={drawerAdvanced}
+                  onChange={(e) => {
+                    const on = e.target.checked
+                    setDrawerAdvanced(on)
+                    savePrefs({ ...loadPrefs(), drawerAdvanced: on })
+                  }}
+                />
+                {t('settings.drawerAdvanced')}
+              </label>
+              <p className="block-hint">{t('settings.drawerAdvancedHint')}</p>
               <label className="intro-hide-check settings-check">
                 <input
                   type="checkbox"
