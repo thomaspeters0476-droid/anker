@@ -37,6 +37,13 @@ export interface DayState {
   tasks: Task[]
   sparks: Spark[]
   started: boolean
+  /**
+   * Aktuelle Runde (nur mit Schublade sinnvoll). Unbegrenzt; Start = 1.
+   * „Noch eine Runde“ erhöht; Feierabend setzt den Tag zurück.
+   */
+  round: number
+  /** Erledigte Aufgaben früherer Runden heute (Anzeige / Feierabend) */
+  priorRoundDone: Task[]
   checkInEveryMin: number
   buddyTone: 'warm' | 'kurz' | 'klar'
   capacity: CapacitySettings

@@ -778,6 +778,11 @@ export function PlanScreen({
         <p>
           {planBuddy(ctxFromDay(day, { carryCount: carry.length }))}
         </p>
+        {drawerEnabled && (
+          <p className="block-hint plan-round-line">
+            {t('plan.roundLabel', { round: Math.max(1, day.round ?? 1) })}
+          </p>
+        )}
       </div>
 
       {!day.started && (

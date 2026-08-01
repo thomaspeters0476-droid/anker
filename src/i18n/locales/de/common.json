@@ -143,7 +143,8 @@
       "medium": "M {{used}}/{{max}}",
       "small": "K {{used}}/{{max}}"
     },
-    "sparkMailNoticeLabel": "Geistesblitze"
+    "sparkMailNoticeLabel": "Geistesblitze",
+    "roundLabel": "Runde {{round}} — kleines Kontingent, nicht die ganze Schublade."
   },
   "productNav": {
     "label": "Apps",
@@ -471,6 +472,12 @@
   },
   "done": {
     "doneTitle": "Geschafft",
+    "doneTitleRound": "Runde {{round}} — geschafft",
+    "roundDone": "Du hast erledigt, was du dir für diese Runde vorgenommen hast. Toll.",
+    "anotherRound": "Noch eine Runde ({{next}})",
+    "feierabend": "Feierabend",
+    "roundChoiceHint": "Noch eine Runde = neu planen (Stimmung erneut). Feierabend = Tag abschließen.",
+    "earlierRounds": "Früher heute ({{count}})",
     "empty": "Noch nichts abgehakt — okay für heute.",
     "skippedTitle": "Offen gelassen",
     "viewSparks": "Geistesblitze ansehen ({{count}})",

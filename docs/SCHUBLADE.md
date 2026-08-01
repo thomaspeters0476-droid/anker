@@ -396,6 +396,7 @@ Ja, möglich — z. B. App „Tagesanker“ und App „Die Schublade“, und i
 | Aug 2026 | Schublade **kostet** (allein); Bundle Beides **günstiger als Summe** — Beträge später |
 | Aug 2026 | Schublade **allein als PWA installierbar** (eigenes Manifest / scope) |
 | Aug 2026 | KI-Häppchen: Azure OpenAI wie Schwundbuch (`AZURE_OPENAI_*`), Opt-in, manuell Fallback |
+| Aug 2026 | Runden: bei Schublade am Runden-Ende Feierabend oder „Noch eine Runde“ (unbegrenzt) |
 
 ---
 

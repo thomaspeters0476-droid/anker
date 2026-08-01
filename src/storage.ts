@@ -315,9 +315,19 @@ function normalizeDay(data: DayState, prefs: Prefs, sparks: Spark[]): DayState {
       : { ...baselineCapacity }
   }
   const baselineLifeMax = data.baselineLifeMax ?? data.lifeMax ?? prefs.lifeMax
+  const round = Math.max(1, Math.round(Number(data.round) || 1))
+  const priorRoundDone = Array.isArray(data.priorRoundDone)
+    ? data.priorRoundDone.map((t) => ({
+        ...t,
+        size: t.size ?? ('medium' as const),
+        minutes: t.minutes ?? 25,
+      }))
+    : []
   return {
     ...data,
     mood: data.mood ?? null,
+    round,
+    priorRoundDone,
     baselineCapacity,
     baselineLifeMax,
     capacity,
@@ -346,6 +356,26 @@ function normalizeDay(data: DayState, prefs: Prefs, sparks: Spark[]): DayState {
       minutes: t.minutes ?? 25,
     })),
     sparks,
+  }
+}
+
+/**
+ * Nächste Runde (Schublade): erledigte Runde archivieren, Plan neu —
+ * Stimmung/Kapazität für diese Runde erneut wählen. Kein Carry, kein Tageswechsel.
+ */
+export function startNextRound(day: DayState): DayState {
+  const done = (day.tasks ?? []).filter((t) => t.status === 'done')
+  const baseline = day.baselineCapacity ?? day.capacity
+  const baselineLife = day.baselineLifeMax ?? day.lifeMax
+  return {
+    ...day,
+    round: Math.max(1, day.round ?? 1) + 1,
+    priorRoundDone: [...(day.priorRoundDone ?? []), ...done],
+    tasks: [],
+    started: false,
+    mood: null,
+    capacity: { ...baseline },
+    lifeMax: baselineLife,
   }
 }
 
@@ -462,6 +492,8 @@ export function emptyDay(): DayState {
     tasks: [],
     sparks: loadSparksVault(),
     started: false,
+    round: 1,
+    priorRoundDone: [],
     checkInEveryMin: prefs.checkInEveryMin,
     buddyTone: prefs.buddyTone,
     capacity: { ...prefs.capacity },

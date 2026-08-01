@@ -2398,6 +2398,18 @@
   gap: 0.45rem;
 }
 
+.plan-round-line,
+.done-round-hint {
+  margin: 0.45rem 0 0;
+}
+
+.done-round-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
+
 .drawer-chop-parent {
   margin: 0 0 0.35rem;
   font-size: 0.95rem;
