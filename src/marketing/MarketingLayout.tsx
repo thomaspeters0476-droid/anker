@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
-import { SITE } from './site'
+import { SCHUBLADE, SITE } from './site'
 import './marketing.css'
 
 export function MarketingLayout() {
@@ -11,6 +11,7 @@ export function MarketingLayout() {
           <span className="mkt-logo-text">{SITE.name}</span>
         </Link>
         <nav className="mkt-nav" aria-label="Hauptnavigation">
+          <NavLink to={SCHUBLADE.path}>Schublade</NavLink>
           <NavLink to="/blog">Blog</NavLink>
           <NavLink to="/preise">Preise</NavLink>
           <Link to="/app" className="mkt-nav-cta">
@@ -25,7 +26,9 @@ export function MarketingLayout() {
           <p>{SITE.tagline}</p>
         </div>
         <div className="mkt-footer-links">
-          <Link to="/app">App</Link>
+          <Link to="/app">Tagesanker</Link>
+          <Link to={SCHUBLADE.path}>{SCHUBLADE.name}</Link>
+          <Link to={SCHUBLADE.appPath}>Schublade-App</Link>
           <Link to="/blog">Blog</Link>
           <Link to="/preise">Preise</Link>
           <Link to="/impressum">Impressum</Link>

@@ -7,6 +7,16 @@ export const SITE = {
     'Tagesanker hilft dir, den Tag mit einer Sache nach der anderen zu halten — ohne Scores, ohne Streaks, ohne Druck.',
 } as const
 
+/** Marketing-Produkt „Die Schublade“ — App unter /schublade, Landing unter /die-schublade */
+export const SCHUBLADE = {
+  name: 'Die Schublade',
+  path: '/die-schublade',
+  appPath: '/schublade',
+  tagline: 'Sicher weg, nicht weg.',
+  description:
+    'Die Schublade: ablegen, in Schritte zerlegen, später einen greifen — Vorrat ohne Chaos, einzeln nutzbar neben dem Tagesanker.',
+} as const
+
 export const PROVIDER = {
   name: 'Karina Peters',
   legalForm: 'Einzelunternehmen',

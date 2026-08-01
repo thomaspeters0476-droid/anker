@@ -17,6 +17,7 @@ import { LandingPage } from './marketing/LandingPage'
 import { BlogIndexPage } from './marketing/BlogIndexPage'
 import { BlogPostPage } from './marketing/BlogPostPage'
 import { PreisePage } from './marketing/PreisePage'
+import { SchubladeLandingPage } from './marketing/SchubladeLandingPage'
 import {
   AgbPage,
   DatenschutzPage,
@@ -94,6 +95,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="blog" element={<BlogIndexPage />} />
           <Route path="blog/:slug" element={<BlogPostPage />} />
           <Route path="preise" element={<PreisePage />} />
+          <Route path="die-schublade" element={<SchubladeLandingPage />} />
           <Route path="impressum" element={<ImpressumPage />} />
           <Route path="datenschutz" element={<DatenschutzPage />} />
           <Route path="agb" element={<AgbPage />} />

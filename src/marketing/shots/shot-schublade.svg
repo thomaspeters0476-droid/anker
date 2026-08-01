@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="780" viewBox="0 0 390 780" role="img" aria-label="Die Schublade: Ablegen und Schritte holen">
+  <defs>
+    <linearGradient id="drawerBg" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0%" stop-color="#dce9e3"/>
+      <stop offset="45%" stop-color="#e8f0ec"/>
+      <stop offset="100%" stop-color="#c5d9d0"/>
+    </linearGradient>
+  </defs>
+  <rect width="390" height="780" fill="url(#drawerBg)"/>
+  <circle cx="320" cy="90" r="110" fill="#2f6f5e" opacity="0.12"/>
+  <circle cx="40" cy="640" r="140" fill="#1f4d41" opacity="0.08"/>
+
+  <g font-family="Georgia, 'Times New Roman', serif">
+    <circle cx="36" cy="48" r="6" fill="#2f6f5e"/>
+    <circle cx="36" cy="48" r="12" fill="#2f6f5e" opacity="0.18"/>
+    <text x="52" y="55" font-size="26" font-weight="700" fill="#1f4d41">Die Schublade</text>
+  </g>
+  <text x="28" y="86" font-family="system-ui, sans-serif" font-size="14" fill="#4a5c52">Ablegen &amp; vorbereiten</text>
+
+  <rect x="22" y="108" width="346" height="78" rx="18" fill="#f4faf7" stroke="rgba(28,43,36,0.1)"/>
+  <text x="40" y="134" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2" fill="#1f4d41">BUDDY</text>
+  <text x="40" y="158" font-family="system-ui, sans-serif" font-size="15" fill="#1c2b24">Alles sicher hier. Nichts muss sofort.</text>
+  <text x="40" y="178" font-family="system-ui, sans-serif" font-size="13" fill="#4a5c52">Reinwerfen. Zerlegen. Einen Schritt holen.</text>
+
+  <text x="28" y="228" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#1c2b24">Eingang</text>
+  <rect x="22" y="242" width="346" height="64" rx="14" fill="#f4faf7" stroke="rgba(28,43,36,0.1)"/>
+  <text x="40" y="270" font-family="system-ui, sans-serif" font-size="15" fill="#1c2b24">Nebenkosten vorbereiten</text>
+  <text x="40" y="292" font-family="system-ui, sans-serif" font-size="12" fill="#5c6b63">Zu zerlegen</text>
+
+  <text x="28" y="348" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#1c2b24">Zum Holen</text>
+  <g font-family="system-ui, sans-serif">
+    <rect x="22" y="362" width="346" height="72" rx="14" fill="#fff" stroke="rgba(47,111,94,0.28)"/>
+    <text x="40" y="390" font-size="15" fill="#1c2b24">Ordner mit Belegen holen</text>
+    <text x="40" y="414" font-size="12" fill="#2f6f5e">Schritt · Mini</text>
+    <rect x="268" y="384" width="78" height="32" rx="10" fill="#2f6f5e"/>
+    <text x="286" y="405" font-size="13" font-weight="600" fill="#f7fbf9">Holen</text>
+
+    <rect x="22" y="446" width="346" height="64" rx="14" fill="#f4faf7" stroke="rgba(28,43,36,0.08)"/>
+    <text x="40" y="474" font-size="15" fill="#1c2b24">Zahlen eintippen</text>
+    <text x="40" y="496" font-size="12" fill="#5c6b63">Schritt · Normal · spaeter</text>
+  </g>
+
+  <rect x="22" y="540" width="346" height="56" rx="14" fill="rgba(47,111,94,0.1)"/>
+  <text x="40" y="574" font-family="system-ui, sans-serif" font-size="14" fill="#1f4d41">3 von 25 zum Holen  klar bleiben.</text>
+
+  <text x="28" y="648" font-family="system-ui, sans-serif" font-size="13" fill="#4a5c52">Sicher weg, nicht weg.</text>
+</svg>
