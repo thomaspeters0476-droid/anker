@@ -126,7 +126,7 @@ export function PlanScreen({
   const [notifMsg, setNotifMsg] = useState<string | null>(null)
   const [moodNudge, setMoodNudge] = useState(false)
   const [adoptTip, setAdoptTip] = useState(false)
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [drawerMode, setDrawerMode] = useState<'drop' | 'pull' | null>(null)
   const [drawer, setDrawer] = useState<DrawerState>(() => loadDrawer())
   const [shortMorning, setShortMorning] = useState(
     () => loadPrefs().shortMorning,
@@ -537,7 +537,7 @@ export function PlanScreen({
   function setDrawerEnabledPref(value: boolean) {
     savePrefs({ ...loadPrefs(), drawerEnabled: value })
     onDrawerEnabledChange?.(value)
-    if (!value) setDrawerOpen(false)
+    if (!value) setDrawerMode(null)
   }
 
   function setAiChopOptInPref(value: boolean) {
@@ -808,13 +808,22 @@ export function PlanScreen({
       {!day.started && (
         <div className="morning-quick-links">
           {drawerEnabled && (
-            <button
-              type="button"
-              className="ghost sm morning-drawer-link"
-              onClick={() => setDrawerOpen(true)}
-            >
-              {t('drawer.quickDrop')}
-            </button>
+            <>
+              <button
+                type="button"
+                className="ghost sm morning-drawer-link"
+                onClick={() => setDrawerMode('drop')}
+              >
+                {t('drawer.quickDrop')}
+              </button>
+              <button
+                type="button"
+                className="ghost sm morning-drawer-link"
+                onClick={() => setDrawerMode('pull')}
+              >
+                {t('drawer.quickPull')}
+              </button>
+            </>
           )}
           <details className="morning-overflow">
             <summary>{t('plan.morningMenu')}</summary>
@@ -1619,10 +1628,11 @@ export function PlanScreen({
       </div>
 
       {handbookOpen && <Handbook onClose={() => setHandbookOpen(false)} />}
-      {drawerEnabled && (
+      {drawerEnabled && drawerMode && (
         <DrawerPanel
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
+          open
+          mode={drawerMode}
+          onClose={() => setDrawerMode(null)}
           drawer={drawer}
           setDrawer={updateDrawer}
           day={day}

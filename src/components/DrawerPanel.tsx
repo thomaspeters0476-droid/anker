@@ -5,6 +5,7 @@ import { DrawerWorkspace } from './DrawerWorkspace'
 type Props = {
   open: boolean
   onClose: () => void
+  mode?: 'drop' | 'pull'
   drawer: DrawerState
   setDrawer: React.Dispatch<React.SetStateAction<DrawerState>>
   day: DayState
@@ -13,10 +14,11 @@ type Props = {
   readyCap?: number
 }
 
-/** Overlay aus dem Tagesanker — nur schnell ablegen; Pflege in /schublade */
+/** Overlay aus dem Tagesanker — ablegen oder holen; Pflege in /schublade */
 export function DrawerPanel({
   open,
   onClose,
+  mode = 'drop',
   drawer,
   setDrawer,
   day,
@@ -28,10 +30,12 @@ export function DrawerPanel({
 
   return (
     <div className="spark-overlay drawer-overlay" role="dialog" aria-modal>
-      <div className="spark-panel drawer-panel drawer-panel--drop">
+      <div
+        className={`spark-panel drawer-panel drawer-panel--drop${mode === 'pull' ? ' drawer-panel--pull' : ''}`}
+      >
         <DrawerWorkspace
           variant="overlay"
-          mode="drop"
+          mode={mode}
           onClose={onClose}
           drawer={drawer}
           setDrawer={setDrawer}

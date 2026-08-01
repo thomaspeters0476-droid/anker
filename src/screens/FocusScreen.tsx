@@ -24,11 +24,15 @@ import { SparkVault } from '../components/SparkVault'
 import { notify, notifyIfHidden } from '../notifications'
 import { lifeTemplateLabel } from '../i18n/lifeLabels'
 import { deleteSparkRemote, pushSparkNow } from '../sync'
+import { addInboxItem } from '../drawer/logic'
+import { scheduleSaveDrawer } from '../persist'
+import { loadDrawer } from '../storage'
 
 type Props = {
   day: DayState
   setDay: React.Dispatch<React.SetStateAction<DayState>>
   regulateOpen?: boolean
+  drawerEnabled?: boolean
 }
 
 function formatTime(sec: number) {
@@ -54,7 +58,12 @@ function activateNext(fromTasks: Task[]): Task[] {
   )
 }
 
-export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
+export function FocusScreen({
+  day,
+  setDay,
+  regulateOpen = false,
+  drawerEnabled = false,
+}: Props) {
   const { t } = useTranslation()
   const sizeLabel = (size: TaskSize) => t(`common.size.${size}`)
   const active = day.tasks.find((task) => task.status === 'active')
@@ -491,6 +500,20 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
     setVaultVisible(true)
   }
 
+  function sendSparkToDrawer(id: string) {
+    const spark = day.sparks.find((s) => s.id === id)
+    const title = spark?.text?.trim()
+    if (!title) return
+    const clipped = title.slice(0, 120)
+    scheduleSaveDrawer(addInboxItem(loadDrawer(), clipped))
+    void deleteSparkRemote(id)
+    setDay((d) => ({
+      ...d,
+      sparks: d.sparks.filter((s) => s.id !== id),
+    }))
+    setBuddyMsg(t('sparkVault.toDrawerFlash', { title: clipped }))
+  }
+
   const feierabendLine =
     lifeLeft > 0
       ? t('focus.feierabend.lineWithLife', { count: lifeLeft })
@@ -607,6 +630,9 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
                 sparks: d.sparks.filter((s) => s.id !== id),
               }))
             }}
+            onSendToDrawer={
+              drawerEnabled ? sendSparkToDrawer : undefined
+            }
           />
         )}
       </section>
@@ -801,6 +827,7 @@ export function FocusScreen({ day, setDay, regulateOpen = false }: Props) {
               sparks: d.sparks.filter((s) => s.id !== id),
             }))
           }}
+          onSendToDrawer={drawerEnabled ? sendSparkToDrawer : undefined}
         />
       )}
     </section>

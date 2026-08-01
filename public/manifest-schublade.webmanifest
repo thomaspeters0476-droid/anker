@@ -2,7 +2,7 @@
   "id": "/schublade",
   "name": "Die Schublade",
   "short_name": "Schublade",
-  "description": "Vorrat & Häppchen — sicher weg, nicht weg.",
+  "description": "Ablegen, zerlegen, Schritte holen — sicher weg, nicht weg.",
   "start_url": "/schublade",
   "scope": "/schublade",
   "display": "standalone",

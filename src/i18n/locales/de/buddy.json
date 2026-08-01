@@ -267,6 +267,11 @@
     }
   },
   "drawer": {
+    "welcome": {
+      "warm": "Alles sicher hier. Nichts muss sofort — reinwerfen, zerlegen, einen Schritt holen, wenn du magst.",
+      "kurz": "Alles sicher. Nichts muss sofort.",
+      "klar": "Vorrat sicher. Kein Druck — ablegen, zerlegen oder holen."
+    },
     "capBlocked": {
       "warm": "Du hast schon genug kleine Schritte zum Holen. Hol erst einen auf den Tag — oder leg Dinge in Ruhe. Dann zerlegen wir wieder.",
       "kurz": "Genug zum Holen. Erst holen oder in Ruhe legen.",

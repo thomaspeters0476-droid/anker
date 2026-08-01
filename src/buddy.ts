@@ -281,5 +281,5 @@ export function drawerBuddy(
   if ((opts.radarCount ?? 0) > 0) {
     return pick(tone, 'drawer.radar', { count: opts.radarCount! })
   }
-  return null
+  return pick(tone, 'drawer.welcome')
 }

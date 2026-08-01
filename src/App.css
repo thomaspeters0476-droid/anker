@@ -151,6 +151,30 @@
   gap: 0.65rem;
 }
 
+.drawer-pull-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.drawer-item--pull {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.45rem;
+  padding: 0.55rem 0.15rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.drawer-item--pull .drawer-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
 .drawer-drop-footer {
   margin: 0.35rem 0 0;
 }
@@ -1147,6 +1171,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+}
+
+.vault-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: flex-end;
 }
 
 .vault-delete {

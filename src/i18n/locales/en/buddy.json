@@ -267,6 +267,11 @@
     }
   },
   "drawer": {
+    "welcome": {
+      "warm": "Everything’s safe here. Nothing has to be now — drop, break down, or pull one step when you like.",
+      "kurz": "All safe. Nothing has to be now.",
+      "klar": "Stock safe. No pressure — drop, break down, or pull."
+    },
     "capBlocked": {
       "warm": "You already have enough small steps ready to pull. Pull one onto today first — or put things to rest. Then we break things down again.",
       "kurz": "Enough ready to pull. Pull or rest first.",

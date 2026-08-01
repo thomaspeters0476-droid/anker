@@ -291,6 +291,7 @@ function App() {
                 day={day}
                 setDay={setDay}
                 regulateOpen={regulateOpen}
+                drawerEnabled={drawerEnabled}
               />
             )}
             {screen === 'done' && (

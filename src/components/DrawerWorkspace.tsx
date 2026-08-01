@@ -68,8 +68,8 @@ type Props = {
   day: DayState
   setDay: React.Dispatch<React.SetStateAction<DayState>>
   variant?: 'overlay' | 'page'
-  /** full = Pflege · drop = nur schnell ablegen (Anker-Overlay) */
-  mode?: 'full' | 'drop'
+  /** full = Pflege · drop = ablegen · pull = auf den Tag holen (Anker-Overlay) */
+  mode?: 'full' | 'drop' | 'pull'
   /** Aufschub/Eingefroren/Radar-Fläche — sonst nur Eingang + Bereit */
   advanced?: boolean
   onClose?: () => void
@@ -1009,6 +1009,118 @@ export function DrawerWorkspace({
         {inboxCount > 0 && (
           <p className="block-hint">
             {t('drawer.dropInboxHint', { count: inboxCount })}
+          </p>
+        )}
+        <p className="drawer-drop-footer">
+          <Link to="/schublade" className="secondary sm" onClick={onClose}>
+            {t('productNav.openSchublade')}
+          </Link>
+        </p>
+      </div>
+    )
+  }
+
+  if (mode === 'pull') {
+    const canPull = canAddSize(day.capacity, day.tasks, 'small')
+    const focus = pullable.slice(0, DRAWER_PULL_FOCUS)
+    return (
+      <div className="drawer-workspace drawer-workspace--overlay drawer-workspace--drop drawer-workspace--pull">
+        <div className="drawer-panel-head">
+          <h2>{t('drawer.pullTitle')}</h2>
+          {onClose && (
+            <button type="button" className="ghost sm" onClick={onClose}>
+              {t('common.ok')}
+            </button>
+          )}
+        </div>
+        <p className="block-hint">{t('drawer.pullLead')}</p>
+        {actionFlash && (
+          <div className="buddy-card drawer-flash" role="status">
+            <span className="buddy-label">{t('common.buddy')}</span>
+            <p>{actionFlash}</p>
+          </div>
+        )}
+        {buddyLine && (
+          <div className="buddy-card drawer-buddy" role="status">
+            <span className="buddy-label">{t('common.buddy')}</span>
+            <p>{buddyLine}</p>
+          </div>
+        )}
+        {!canPull && (
+          <p className="block-hint">{t('drawer.pullCapFull')}</p>
+        )}
+        {focus.length === 0 ? (
+          <p className="empty">{t('drawer.pullEmpty')}</p>
+        ) : (
+          <ul className="drawer-item-list drawer-pull-list">
+            {focus.map((item) => {
+              const parent = parentOf(drawer.items, item)
+              const confirming = pullConfirmId === item.id
+              return (
+                <li key={item.id} className="drawer-item drawer-item--pull">
+                  <div className="drawer-item-main">
+                    <strong>{item.title}</strong>
+                    {parent && (
+                      <p className="task-parent-line">
+                        {t('drawer.parentLine', { title: parent.title })}
+                      </p>
+                    )}
+                    {chainPullRole(drawer.items, item) === 'later' && (
+                      <span className="drawer-chip">
+                        {t('drawer.pullLaterChip')}
+                      </span>
+                    )}
+                  </div>
+                  {confirming ? (
+                    <div className="drawer-item-actions">
+                      <p className="block-hint">{t('drawer.pullAheadHint')}</p>
+                      <button
+                        type="button"
+                        className="primary sm"
+                        disabled={!canPull}
+                        onClick={() => {
+                          pullItem(item, { force: true })
+                          onClose?.()
+                        }}
+                      >
+                        {t('drawer.pullAheadConfirm')}
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost sm"
+                        onClick={() => setPullConfirmId(null)}
+                      >
+                        {t('drawer.pullAheadCancel')}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="primary sm"
+                      disabled={!canPull}
+                      onClick={() => {
+                        const role = chainPullRole(drawer.items, item)
+                        if (role === 'later') {
+                          pullItem(item)
+                          return
+                        }
+                        pullItem(item)
+                        onClose?.()
+                      }}
+                    >
+                      {t('drawer.pull')}
+                    </button>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+        {pullable.length > focus.length && (
+          <p className="block-hint">
+            {t('drawer.moreInLevel.ready', {
+              count: pullable.length - focus.length,
+            })}
           </p>
         )}
         <p className="drawer-drop-footer">

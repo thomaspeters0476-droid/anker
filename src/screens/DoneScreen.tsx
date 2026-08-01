@@ -7,6 +7,9 @@ import { emptyDay, rollDayForward, startNextRound } from '../storage'
 import { SparkVault } from '../components/SparkVault'
 import { lifeTemplateLabel } from '../i18n/lifeLabels'
 import { deleteSparkRemote } from '../sync'
+import { addInboxItem } from '../drawer/logic'
+import { scheduleSaveDrawer } from '../persist'
+import { loadDrawer } from '../storage'
 
 type Props = {
   day: DayState
@@ -32,6 +35,18 @@ export function DoneScreen({ day, setDay, drawerEnabled = false }: Props) {
 
   function anotherRound() {
     setDay(startNextRound(day))
+  }
+
+  function sendSparkToDrawer(id: string) {
+    const spark = day.sparks.find((s) => s.id === id)
+    const title = spark?.text?.trim()
+    if (!title) return
+    scheduleSaveDrawer(addInboxItem(loadDrawer(), title.slice(0, 120)))
+    void deleteSparkRemote(id)
+    setDay((d) => ({
+      ...d,
+      sparks: d.sparks.filter((s) => s.id !== id),
+    }))
   }
 
   return (
@@ -143,6 +158,7 @@ export function DoneScreen({ day, setDay, drawerEnabled = false }: Props) {
               sparks: d.sparks.filter((s) => s.id !== id),
             }))
           }}
+          onSendToDrawer={drawerOn ? sendSparkToDrawer : undefined}
         />
       )}
     </section>

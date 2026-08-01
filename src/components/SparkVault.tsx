@@ -14,9 +14,17 @@ type Props = {
   unlocked: boolean
   onClose: () => void
   onDelete?: (id: string) => void
+  /** Geistesblitz in Schubladen-Eingang legen (Text nötig) */
+  onSendToDrawer?: (id: string) => void
 }
 
-export function SparkVault({ sparks, unlocked, onClose, onDelete }: Props) {
+export function SparkVault({
+  sparks,
+  unlocked,
+  onClose,
+  onDelete,
+  onSendToDrawer,
+}: Props) {
   const { t, i18n } = useTranslation()
   const [copyMsg, setCopyMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -94,16 +102,29 @@ export function SparkVault({ sparks, unlocked, onClose, onDelete }: Props) {
                       minute: '2-digit',
                     })}
                   </span>
-                  {onDelete && (
-                    <button
-                      type="button"
-                      className="ghost sm vault-delete"
-                      onClick={() => removeSpark(s.id)}
-                      aria-label={t('sparkVault.deleteAria')}
-                    >
-                      {t('sparkVault.delete')}
-                    </button>
-                  )}
+                  <div className="vault-item-actions">
+                    {onSendToDrawer &&
+                      unlocked &&
+                      Boolean(s.text?.trim()) && (
+                        <button
+                          type="button"
+                          className="ghost sm"
+                          onClick={() => onSendToDrawer(s.id)}
+                        >
+                          {t('sparkVault.toDrawer')}
+                        </button>
+                      )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        className="ghost sm vault-delete"
+                        onClick={() => removeSpark(s.id)}
+                        aria-label={t('sparkVault.deleteAria')}
+                      >
+                        {t('sparkVault.delete')}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 {s.text && <p>{s.text}</p>}
                 {s.drawingDataUrl && (

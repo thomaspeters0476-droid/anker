@@ -42,7 +42,7 @@ export function applyProductShell(shell: ProductShell): void {
     : '/manifest.webmanifest'
   const title = isDrawer ? 'Die Schublade' : 'Tagesanker'
   const description = isDrawer
-    ? 'Vorrat & Häppchen — sicher weg, nicht weg.'
+    ? 'Ablegen, zerlegen, Schritte holen — sicher weg, nicht weg.'
     : 'Tagesanker hilft dir, den Tag mit einer Sache nach der anderen zu halten — ohne Scores, ohne Streaks, ohne Druck.'
 
   let link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')
@@ -64,6 +64,6 @@ export function applyProductShell(shell: ProductShell): void {
   if (desc) desc.setAttribute('content', description)
 
   document.title = isDrawer
-    ? 'Die Schublade — Vorrat & Häppchen'
+    ? 'Die Schublade — Ablegen & vorbereiten'
     : 'Tagesanker — Eine Sache. Realistisch. Zurückfinden.'
 }
