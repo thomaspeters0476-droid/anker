@@ -283,9 +283,9 @@
       "klar": "Too micro. Only a few steps that stand alone."
     },
     "tooMany": {
-      "warm": "Too many sub-steps at once. When splitting further, only a few — or the drawer overflows.",
-      "kurz": "Too many steps. Split less.",
-      "klar": "Further split: only a few bites. Shorten."
+      "warm": "Too many parts at once. First cut about 3–5 bites — if one is still coarse, split that one later.",
+      "kurz": "Max 3–5 parts. Finer later.",
+      "klar": "First cut: 3–5. More only via split further."
     },
     "emergency": {
       "warm": "{{count}} item(s) with a near deadline — at the top of the drawer. No panic fire, just visibility.",

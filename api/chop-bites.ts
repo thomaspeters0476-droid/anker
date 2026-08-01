@@ -11,8 +11,10 @@ type Body = {
 
 const MAX_TITLE = 200
 const MIN_BITES = 2
-const MAX_BITES_FIRST = 6
-const MAX_BITES_FURTHER = 4
+/** Erste Zerlegung: grob 3–5 — Feineres später per Weiterzerteilen */
+const MIN_BITES_FIRST = 3
+const MAX_BITES_FIRST = 5
+const MAX_BITES_FURTHER = 3
 
 function azureConfigured(): boolean {
   return Boolean(
@@ -34,25 +36,34 @@ function systemPrompt(
   locale: 'de' | 'en',
   mode: 'first' | 'further',
 ): string {
-  const max = mode === 'further' ? MAX_BITES_FURTHER : MAX_BITES_FIRST
   // Kurz halten — gpt-5-mini Reasoning kostet Tokens + Zeit
   if (locale === 'en') {
+    if (mode === 'further') {
+      return [
+        'Split one step further. JSON only: {"bites":["..."]}.',
+        `Exactly 2-${MAX_BITES_FURTHER} clearer substeps inside the parent chunk.`,
+        'Each ~5–25 min, <80 chars. No micro-actions. Never more than 3.',
+      ].join(' ')
+    }
     return [
-      'Split a task into ADHD-friendly next actions. JSON only: {"bites":["..."]}.',
-      `${MIN_BITES}-${max} steps, each ~5–25 min, <80 chars, no numbering.`,
+      'Split a chunk into ADHD-friendly bites. JSON only: {"bites":["..."]}.',
+      `Aim for ${MIN_BITES_FIRST}-${MAX_BITES_FIRST} steps — never more than ${MAX_BITES_FIRST}.`,
+      'Coarse first cut only; finer splits come later. Each ~5–25 min, <80 chars.',
       'No micro-actions (open file, click, sit down).',
-      mode === 'further'
-        ? 'Stay inside the parent chunk. Prefer 2–3 clearer substeps.'
-        : 'Prefer 2–5 pullable steps.',
+    ].join(' ')
+  }
+  if (mode === 'further') {
+    return [
+      'Einen Schritt weiter zerlegen. Nur JSON: {"bites":["..."]}.',
+      `Genau 2-${MAX_BITES_FURTHER} klarere Teilschritte im Brocken.`,
+      'Je ca. 5–25 Min., <80 Zeichen. Keine Mikro-Handlungen. Nie mehr als 3.',
     ].join(' ')
   }
   return [
-    'Zerlege ein Vorhaben in ADHS-taugliche nächste Schritte. Nur JSON: {"bites":["..."]}.',
-    `${MIN_BITES}-${max} Schritte, je ca. 5–25 Min., <80 Zeichen, ohne Nummerierung.`,
-    'Keine Mikro-Handlungen (Datei öffnen, klicken, hinsetzen).',
-    mode === 'further'
-      ? 'Im Brocken bleiben. Lieber 2–3 klarere Teilschritte.'
-      : 'Lieber 2–5 holbare Schritte.',
+    'Brocken in ADHS-taugliche Häppchen schneiden. Nur JSON: {"bites":["..."]}.',
+    `Ziel: ${MIN_BITES_FIRST}-${MAX_BITES_FIRST} Teile — niemals mehr als ${MAX_BITES_FIRST}.`,
+    'Nur der grobe erste Schnitt; Feineres kommt später per Weiterzerteilen.',
+    'Je ca. 5–25 Min., <80 Zeichen. Keine Mikro-Handlungen (Datei öffnen, klicken).',
   ].join(' ')
 }
 
@@ -75,7 +86,10 @@ function userPrompt(
       `Schritt, der weiter zerlegt wird (im Brocken bleiben):\n${title}`,
     ].join('\n\n')
   }
-  return `Reply as JSON. Vorhaben / Brocken:\n${title}`
+  if (locale === 'en') {
+    return `Reply as JSON with 3-5 bites (max 5). Chunk:\n${title}`
+  }
+  return `Reply as JSON mit 3–5 Häppchen (max. 5). Brocken:\n${title}`
 }
 
 function parseBites(raw: string, maxBites: number): string[] {

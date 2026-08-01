@@ -3,9 +3,9 @@
  * nicht „Stift nehmen / Datei öffnen“.
  */
 
-export const CHOP_FURTHER_MAX = 4
-/** Erste Zerlegung: lieber wenige greifbare Schritte als viele Mikro-Aktionen */
-export const CHOP_FIRST_PREFERRED_MAX = 6
+export const CHOP_FURTHER_MAX = 3
+/** Erste Zerlegung eines Brockens: grob 3–5, nie ein Dutzend */
+export const CHOP_FIRST_PREFERRED_MAX = 5
 
 const MICRO_RE =
   /^(stift|maus|klick|öffnen|aufmachen|hinsetzen|aufstehen|atmen|trinken|speichern|scrollen)\b/i
@@ -21,10 +21,9 @@ export function looksAlreadySmall(title: string): boolean {
   return false
 }
 
-/** Vorschlag/Eingabe ist zu fein zerschnitten */
+/** Vorschlag/Eingabe ist zu fein zerschnitten (Mikro-Schritte) — Anzahl separat prüfen */
 export function bitesTooFine(lines: string[]): boolean {
   if (lines.length === 0) return false
-  if (lines.length > CHOP_FURTHER_MAX) return true
   const tiny = lines.filter((line) => {
     const t = line.trim()
     const words = t.split(/\s+/).filter(Boolean)

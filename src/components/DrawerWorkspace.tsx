@@ -245,9 +245,17 @@ export function DrawerWorkspace({
       setChopErr(msg === key ? t('drawer.chopAiError.generic') : msg)
       return
     }
-    setChopText(result.bites.join('\n'))
-    if (bitesTooFine(result.bites) || result.bites.length > CHOP_FURTHER_MAX) {
+    const capped = further
+      ? result.bites.slice(0, CHOP_FURTHER_MAX)
+      : result.bites.slice(0, CHOP_FIRST_PREFERRED_MAX)
+    setChopText(capped.join('\n'))
+    if (
+      bitesTooFine(capped) ||
+      (further && capped.length > CHOP_FURTHER_MAX)
+    ) {
       setChopSteer('too_fine')
+    } else if (!further && result.bites.length > CHOP_FIRST_PREFERRED_MAX) {
+      setChopSteer('too_many')
     }
   }
 

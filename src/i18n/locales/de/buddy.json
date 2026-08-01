@@ -283,9 +283,9 @@
       "klar": "Zu mikro. Maximal wenige Schritte, die allein Sinn ergeben."
     },
     "tooMany": {
-      "warm": "Zu viele Teilschritte auf einmal. Beim Weiterzerlegen höchstens ein paar — sonst quillt die Schublade über.",
-      "kurz": "Zu viele Schritte. Weniger zerlegen.",
-      "klar": "Weiterzerlegen: max. wenige Häppchen. Kürzen."
+      "warm": "Zu viele Teile auf einmal. Erst grob in ca. 3–5 Häppchen — was noch zu groß ist, später einzeln weiterzerteilen.",
+      "kurz": "Max. 3–5 Teile. Feineres später.",
+      "klar": "Erster Schnitt: 3–5. Mehr erst per Weiterzerteilen."
     },
     "emergency": {
       "warm": "{{count}} Sache(n) mit naher Frist — oben in der Schublade. Kein Panikfeuer, nur sichtbar machen.",
