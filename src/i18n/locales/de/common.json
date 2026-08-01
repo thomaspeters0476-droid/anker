@@ -193,6 +193,13 @@
     "restedFlash": "{{n}} in Ruhe gelegt — die Liste wird wieder klarer.",
     "choppedFlash": "Zerlegt — die Schritte liegen unter „Zum Holen“.",
     "choppedMovedFlash": "„{{title}}“ ist zerlegt und aus dem Eingang gewandert. Schritte unter „Zum Holen“.",
+    "energy": {
+      "mini": "Mini",
+      "normal": "Normal",
+      "focus": "Fokus"
+    },
+    "energyHint": "Energie tippen: Mini → Normal → Fokus. Passt zum Tagesgefühl beim Holen.",
+    "sparkParked": "Geistesblitz geparkt — sicher, ohne die Schublade zu vermischen.",
     "pullLaterChip": "später dran",
     "pullAheadConfirm": "Ja, trotzdem jetzt",
     "pullAheadCancel": "Nein, Reihenfolge lassen",

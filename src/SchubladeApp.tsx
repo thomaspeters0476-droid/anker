@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { setAppLocale } from './i18n'
 import { normalizeLocale } from './i18n/locales'
-import type { DayState } from './types'
+import type { DayState, Spark } from './types'
 import {
   emptyDay,
   loadDay,
@@ -21,12 +21,14 @@ import { DrawerWorkspace } from './components/DrawerWorkspace'
 import { ProductNav } from './components/ProductNav'
 import { PwaGuide } from './components/PwaGuide'
 import { SettingsGear } from './components/SettingsGear'
+import { SparkCapture } from './components/SparkCapture'
 import { SyncSettings } from './components/SyncSettings'
 import { RegulateButton, RegulateDown } from './components/RegulateDown'
 import {
   getSession,
   isSyncConfigured,
   onAuthChange,
+  pushSparkNow,
   resolveKeepLocal,
   resolveUseCloud,
   schedulePush,
@@ -60,8 +62,27 @@ export function SchubladeApp() {
   const [drawerAdvanced, setDrawerAdvanced] = useState(
     () => loadPrefs().drawerAdvanced,
   )
+  const [captureOpen, setCaptureOpen] = useState(false)
+  const [sparkFlash, setSparkFlash] = useState<string | null>(null)
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
+
+  useEffect(() => {
+    if (!sparkFlash) return
+    const id = window.setTimeout(() => setSparkFlash(null), 4000)
+    return () => window.clearTimeout(id)
+  }, [sparkFlash])
+
+  function saveSpark(partial: Omit<Spark, 'id' | 'createdAt'>) {
+    const spark: Spark = {
+      ...partial,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      createdAt: new Date().toISOString(),
+    }
+    setDay((d) => ({ ...d, sparks: [...d.sparks, spark] }))
+    setSparkFlash(t('drawer.sparkParked'))
+    void pushSparkNow(spark)
+  }
 
   const applySyncedDay = useCallback((next: DayState) => {
     skipPersistRef.current = true
@@ -189,6 +210,12 @@ export function SchubladeApp() {
 
       <main className="main">
         <section className="block drawer-app-block">
+          {sparkFlash && (
+            <div className="buddy-card drawer-flash" role="status">
+              <span className="buddy-label">{t('common.buddy')}</span>
+              <p>{sparkFlash}</p>
+            </div>
+          )}
           <DrawerWorkspace
             variant="page"
             advanced={drawerAdvanced}
@@ -200,6 +227,22 @@ export function SchubladeApp() {
             readyCap={readyCap}
           />
         </section>
+
+        {!regulateOpen && (
+          <button
+            type="button"
+            className="spark-btn drawer-spark-fab"
+            onClick={() => setCaptureOpen(true)}
+          >
+            {t('focus.sparkBar.capture')}
+          </button>
+        )}
+
+        <SparkCapture
+          open={captureOpen}
+          onClose={() => setCaptureOpen(false)}
+          onSave={saveSpark}
+        />
 
         <div className="plan-footer">
           <details

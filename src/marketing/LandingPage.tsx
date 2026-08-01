@@ -113,6 +113,19 @@ export function LandingPage() {
         </p>
       </section>
 
+      <section className="mkt-section mkt-drawer-teaser">
+        <h2>Die Schublade</h2>
+        <p className="mkt-section-lead">
+          Was nicht für jetzt ist: ablegen, in Schritte zerlegen, später einen greifen. Eigenes Modul —
+          gemeinsame Daten mit dem Tagesanker.
+        </p>
+        <div className="mkt-hero-actions mkt-drawer-teaser-actions">
+          <Link to="/schublade" className="mkt-btn mkt-btn-ghost">
+            Schublade öffnen
+          </Link>
+        </div>
+      </section>
+
       <section className="mkt-section mkt-blog-teaser">
         <div className="mkt-section-head">
           <h2>Aus dem Blog</h2>

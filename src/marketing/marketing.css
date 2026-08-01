@@ -369,6 +369,10 @@
   line-height: 1.55;
 }
 
+.mkt-drawer-teaser-actions {
+  margin-top: 1.15rem;
+}
+
 .mkt-section-head {
   display: flex;
   align-items: baseline;

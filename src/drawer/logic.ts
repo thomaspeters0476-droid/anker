@@ -11,6 +11,7 @@ import {
   DRAWER_STALE_DAYS,
   DRAWER_STALE_QUIET_DAYS,
   type DeadlinePhase,
+  type DrawerEnergy,
   type DrawerItem,
   type DrawerActiveLevel,
   type DrawerLevel,
@@ -537,10 +538,45 @@ export function earlierChainStep(
   return siblings[0] ?? null
 }
 
+/** Tagesgefühl → passende Energie (hard=nur Mini, ok=Mini/Normal, good=alles) */
+export function energyFitsMood(
+  energy: DrawerEnergy | undefined,
+  mood: DayMood | null | undefined,
+): boolean {
+  const e = energy ?? 'normal'
+  const m = mood ?? 'good'
+  if (m === 'hard') return e === 'mini'
+  if (m === 'ok') return e === 'mini' || e === 'normal'
+  return true
+}
+
+export function setItemEnergy(
+  state: DrawerState,
+  id: string,
+  energy: DrawerEnergy,
+): DrawerState {
+  const t = nowIso()
+  return {
+    ...state,
+    items: state.items.map((i) =>
+      i.id === id ? { ...i, energy, updatedAt: t, touchedAt: t } : i,
+    ),
+  }
+}
+
+const ENERGY_CYCLE: DrawerEnergy[] = ['mini', 'normal', 'focus']
+
+export function nextEnergy(current: DrawerEnergy | undefined): DrawerEnergy {
+  const e = current ?? 'normal'
+  const idx = ENERGY_CYCLE.indexOf(e)
+  return ENERGY_CYCLE[(idx + 1) % ENERGY_CYCLE.length]!
+}
+
 /** Nächstes holbares Häppchen einer Kette (oder Einzel-ready); Notfall-Fristen zuerst */
 export function nextPullable(
   items: DrawerItem[],
   today = todayKey(),
+  mood?: DayMood | null,
 ): DrawerItem[] {
   const ready = items.filter(
     (i) => i.level === 'ready' && !i.isChunk && isVisibleInDrawer(i, today),
@@ -550,13 +586,19 @@ export function nextPullable(
     const role = chainPullRole(items, i, today)
     return role === 'free' || role === 'next'
   })
-  return pullable.sort((a, b) => {
+  const matched = pullable.filter((i) => energyFitsMood(i.energy, mood))
+  // Wenn nichts passt: nicht blockieren — ganze holbare Liste (Notfall & Alltag)
+  const pool = matched.length > 0 ? matched : pullable
+  return pool.sort((a, b) => {
     const pa = deadlinePhase(a, today)
     const pb = deadlinePhase(b, today)
     const rank = (p: DeadlinePhase) =>
       p === 'emergency' ? 0 : p === 'radar' ? 1 : 2
     const r = rank(pa) - rank(pb)
     if (r !== 0) return r
+    const fitA = energyFitsMood(a.energy, mood) ? 0 : 1
+    const fitB = energyFitsMood(b.energy, mood) ? 0 : 1
+    if (fitA !== fitB) return fitA - fitB
     const da = daysUntilDeadline(a.deadline, today) ?? 99
     const db = daysUntilDeadline(b.deadline, today) ?? 99
     return da - db

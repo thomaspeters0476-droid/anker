@@ -2837,6 +2837,22 @@
   font-style: italic;
 }
 
+.drawer-chip--energy {
+  cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent-deep, #2f6f5e);
+}
+
+.drawer-spark-fab {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 4;
+  width: 100%;
+  margin: 0.75rem 0 0;
+  flex: none;
+}
+
 .drawer-buddy {
   margin: 0.15rem 0 1rem;
 }

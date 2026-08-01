@@ -193,6 +193,13 @@
     "restedFlash": "Put {{n}} to rest — the list is clearer again.",
     "choppedFlash": "Broken down — the steps are under “Ready to pull”.",
     "choppedMovedFlash": "“{{title}}” is broken down and left the inbox. Steps are under “Ready to pull”.",
+    "energy": {
+      "mini": "Mini",
+      "normal": "Normal",
+      "focus": "Focus"
+    },
+    "energyHint": "Tap energy: Mini → Normal → Focus. Matches today’s mood when pulling.",
+    "sparkParked": "Spark parked — safe, without mixing into the drawer list.",
     "pullLaterChip": "later",
     "pullAheadConfirm": "Yes, do it now",
     "pullAheadCancel": "No, keep the order",

@@ -25,10 +25,12 @@ import {
   emptyTrash,
   moveItem,
   moveItems,
+  nextEnergy,
   nextPullable,
   nextStaleAsk,
   parentOf,
   pullToTask,
+  setItemEnergy,
   readyRestCandidates,
   refreshReadyCapLatch,
   removeItem,
@@ -138,7 +140,10 @@ export function DrawerWorkspace({
 
   const readyCount = countReady(drawer.items)
   const chopOk = canChop(drawer, readyCap)
-  const pullable = useMemo(() => nextPullable(drawer.items), [drawer.items])
+  const pullable = useMemo(
+    () => nextPullable(drawer.items, undefined, day.mood),
+    [drawer.items, day.mood],
+  )
   const restCandidates = useMemo(
     () => readyRestCandidates(drawer.items, DRAWER_READY_FOCUS),
     [drawer.items],
@@ -591,6 +596,20 @@ export function DrawerWorkspace({
                 <span className="drawer-chip drawer-chip--later">
                   {t('drawer.pullLaterChip')}
                 </span>
+              )}
+              {itemLevel === 'ready' && (
+                <button
+                  type="button"
+                  className="drawer-chip drawer-chip--energy"
+                  title={t('drawer.energyHint')}
+                  onClick={() =>
+                    patchDrawer((d) =>
+                      setItemEnergy(d, item.id, nextEnergy(item.energy)),
+                    )
+                  }
+                >
+                  {t(`drawer.energy.${item.energy ?? 'normal'}`)}
+                </button>
               )}
             </>
           )}
@@ -1070,6 +1089,9 @@ export function DrawerWorkspace({
                         {t('drawer.pullLaterChip')}
                       </span>
                     )}
+                    <span className="drawer-chip drawer-chip--energy">
+                      {t(`drawer.energy.${item.energy ?? 'normal'}`)}
+                    </span>
                   </div>
                   {confirming ? (
                     <div className="drawer-item-actions">
