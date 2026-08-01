@@ -2677,6 +2677,10 @@
   font-weight: 600;
 }
 
+.drawer-item-remove {
+  color: var(--warn);
+}
+
 .app-route-fallback {
   min-height: 40vh;
   background:

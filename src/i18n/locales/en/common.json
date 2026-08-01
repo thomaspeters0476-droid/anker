@@ -248,7 +248,12 @@
       "ai_failed": "AI unavailable right now — manual or later.",
       "network": "No connection — manual or later."
     },
+    "remove": "Remove",
     "deleteChainWarn": "This belongs to a project or has steps. Really remove?",
+    "deleteItemWarn": "Remove “{{title}}”? Only if it’s done or no longer needed.",
+    "deleteProjectWarn": "Remove “{{title}}” entirely? That also removes {{count}} related steps.",
+    "deletedItemFlash": "“{{title}}” is gone.",
+    "deletedProjectFlash": "“{{title}}” and {{count}} steps are gone.",
     "deadlineSet": "Deadline",
     "deadlineLabel": "Hard deadline",
     "deadlineClear": "Clear deadline",

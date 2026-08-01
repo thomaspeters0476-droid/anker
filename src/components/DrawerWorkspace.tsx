@@ -720,18 +720,36 @@ export function DrawerWorkspace({
             ))}
             <button
               type="button"
-              className="ghost sm"
+              className="ghost sm drawer-item-remove"
               onClick={() => {
-                if (
-                  item.parentId ||
-                  drawer.items.some((x) => x.parentId === item.id)
-                ) {
-                  if (!window.confirm(t('drawer.deleteChainWarn'))) return
-                }
+                const childCount = drawer.items.filter(
+                  (x) => x.parentId === item.id,
+                ).length
+                const ok =
+                  item.isChunk || childCount > 0
+                    ? window.confirm(
+                        t('drawer.deleteProjectWarn', {
+                          title: item.title,
+                          count: childCount,
+                        }),
+                      )
+                    : window.confirm(
+                        t('drawer.deleteItemWarn', { title: item.title }),
+                      )
+                if (!ok) return
                 patchDrawer((d) => removeItem(d, item.id))
+                setMoreOpenId(null)
+                setActionFlash(
+                  childCount > 0 || item.isChunk
+                    ? t('drawer.deletedProjectFlash', {
+                        title: item.title,
+                        count: childCount,
+                      })
+                    : t('drawer.deletedItemFlash', { title: item.title }),
+                )
               }}
             >
-              ✕
+              {t('drawer.remove')}
             </button>
           </div>
         )}

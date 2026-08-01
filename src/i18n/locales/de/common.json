@@ -248,7 +248,12 @@
       "ai_failed": "KI gerade nicht erreichbar — bitte manuell oder später.",
       "network": "Keine Verbindung — bitte manuell oder später."
     },
+    "remove": "Entfernen",
     "deleteChainWarn": "Das gehört zu einem Vorhaben oder hat Schritte. Wirklich entfernen?",
+    "deleteItemWarn": "„{{title}}“ entfernen? Nur wenn’s erledigt ist oder nicht mehr braucht.",
+    "deleteProjectWarn": "„{{title}}“ komplett entfernen? Dabei gehen auch {{count}} zugehörige Schritte mit weg.",
+    "deletedItemFlash": "„{{title}}“ ist weg.",
+    "deletedProjectFlash": "„{{title}}“ und {{count}} Schritte sind weg.",
     "deadlineSet": "Frist",
     "deadlineLabel": "Harte Frist",
     "deadlineClear": "Frist entfernen",
