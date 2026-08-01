@@ -75,6 +75,19 @@ Ohne diese Vars: App läuft lokal weiter; Sync-UI zeigt „nicht konfiguriert“
 
 Siehe [`STRIPE.md`](./STRIPE.md). Kurz: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_MONTHLY` / `_YEARLY`, **`STRIPE_CHECKOUT_ENABLED=false`** bis Preise live gehen. Optional `STRIPE_CHECKOUT_PREVIEW_TOKEN` für interne Tests.
 
+### Env-Vars (Schublade — KI-Häppchen)
+
+Gleiche Azure-OpenAI-Ressource wie Schwundbuch. API: `POST /api/chop-bites` (nur mit Opt-in in der App).
+
+| Variable | Beispiel | Pflicht |
+|----------|----------|---------|
+| `AZURE_OPENAI_ENDPOINT` | `https://….openai.azure.com` | ja für KI |
+| `AZURE_OPENAI_KEY` | Azure-Key | ja für KI |
+| `AZURE_OPENAI_DEPLOYMENT` | z. B. `gpt-5-mini` | ja für KI |
+| `AZURE_OPENAI_API_VERSION` | `2025-04-01-preview` | nein (Default wie Schwundbuch) |
+
+Ohne diese Vars: App und manuelles Schneiden laufen; Button „Mit KI vorschlagen“ meldet „nicht eingerichtet“. Lokal: `npx vercel dev` (reine Vite-API nicht). Secrets nicht committen.
+
 Siehe auch `.env.example`.
 
 ---

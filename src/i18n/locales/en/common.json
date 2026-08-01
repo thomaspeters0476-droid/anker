@@ -187,6 +187,17 @@
     "chopPlaceholder": "Get folder\nType numbers\nSend mail",
     "chopSave": "Cut",
     "chopCancel": "Cancel",
+    "chopAiSuggest": "Suggest with AI",
+    "chopAiBusy": "AI thinking…",
+    "chopAiOptInHint": "AI help is off. Turn it on in Settings — or type the steps yourself.",
+    "chopAiError": {
+      "generic": "Suggestion failed — type steps yourself or try later.",
+      "not_configured": "AI is not set up on the server yet — please cut manually.",
+      "invalid_title": "Title too short for a suggestion.",
+      "bad_ai_response": "AI reply was unusable — edit manually or try again.",
+      "ai_failed": "AI unavailable right now — manual or later.",
+      "network": "No connection — manual or later."
+    },
     "deleteChainWarn": "This is part of a chain or has steps. Really remove?"
   },
   "settings": {
@@ -195,6 +206,8 @@
     "shortMorningHint": "Off = previous full plan view. You can switch back anytime.",
     "drawerEnabled": "Enable the drawer",
     "drawerEnabledHint": "Optional. Unlocks the bridge to the drawer app (/schublade). Default: off.",
+    "drawerAiChop": "AI help when cutting into bites",
+    "drawerAiChopHint": "When on: the chunk title is sent to Azure (same setup as Schwundbuch) for step suggestions. You can still edit. Default: off.",
     "capacity": {
       "summary": "Day capacity",
       "meta": "Work & life",

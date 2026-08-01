@@ -9,6 +9,7 @@ type Props = {
   setDrawer: React.Dispatch<React.SetStateAction<DrawerState>>
   day: DayState
   setDay: React.Dispatch<React.SetStateAction<DayState>>
+  aiChopOptIn?: boolean
 }
 
 /** Overlay aus dem Tagesanker heraus — gleiche Oberfläche wie die Schublade-App */
@@ -19,6 +20,7 @@ export function DrawerPanel({
   setDrawer,
   day,
   setDay,
+  aiChopOptIn,
 }: Props) {
   if (!open) return null
 
@@ -32,6 +34,7 @@ export function DrawerPanel({
           setDrawer={setDrawer}
           day={day}
           setDay={setDay}
+          aiChopOptIn={aiChopOptIn}
         />
       </div>
     </div>

@@ -109,8 +109,9 @@ Zerkleinerung ist **zentral**, nicht optional für den Weg auf den Anker.
 | **KI: „In Häppchen schneiden“** | **Zentrales Merkmal** der Schublade — Primärweg zum Zerlegen |
 | **Manuell** | Fallback (offline, Ablehnung, Nachjustieren); gleiche Regeln |
 
-Ohne brauchbare KI-Zerkleinerung ist das Modul unvollständig. Manuell allein reicht nicht als Zielbild.  
-Opt-in / Datenschutz / Anbieter bei Anbindung klären; die Produktregel gilt unabhängig davon.
+Ohne brauchbare KI-Zerkleinerung ist das Modul unvollständig. Manuell allein reicht nicht als Zielbild.
+
+**Anbindung (live):** Azure OpenAI — **gleiche Env-Namen wie Schwundbuch** (`AZURE_OPENAI_*`). In der App: Opt-in „KI-Hilfe beim Zerlegen“ (default aus); nur der Brocken-Titel geht an den Server. Vorschlag ist bearbeitbar; ohne Opt-in/Key bleibt manuell. Siehe [DEPLOY.md](./DEPLOY.md).
 
 Beispiel: „Nebenkostenabrechnung vorbereiten“ → Ordner holen (2 Min) → Zahlen tippen (15 Min) → Ausdrucken & Mail (5 Min).
 
@@ -394,6 +395,7 @@ Ja, möglich — z. B. App „Tagesanker“ und App „Die Schublade“, und i
 | Aug 2026 | Web: **zwei Einstiege** `/app` + `/schublade`, **ein** Vercel/Repo; `drawerEnabled` default aus |
 | Aug 2026 | Schublade **kostet** (allein); Bundle Beides **günstiger als Summe** — Beträge später |
 | Aug 2026 | Schublade **allein als PWA installierbar** (eigenes Manifest / scope) |
+| Aug 2026 | KI-Häppchen: Azure OpenAI wie Schwundbuch (`AZURE_OPENAI_*`), Opt-in, manuell Fallback |
 
 ---
 

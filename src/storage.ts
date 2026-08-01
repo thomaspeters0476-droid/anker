@@ -160,6 +160,8 @@ export type Prefs = {
    * Besuch von /schublade schaltet an (Brücke).
    */
   drawerEnabled: boolean
+  /** KI-Vorschläge beim Zerlegen — Opt-in (Titel geht an Azure) */
+  drawerAiChopOptIn: boolean
 }
 
 export type CarryItem = Pick<Task, 'title' | 'kind' | 'size' | 'minutes'>
@@ -179,6 +181,7 @@ function defaultPrefs(): Prefs {
     locale: 'de',
     shortMorning: true,
     drawerEnabled: false,
+    drawerAiChopOptIn: false,
   }
 }
 
@@ -237,6 +240,7 @@ export function loadPrefs(): Prefs {
       locale: data.locale ? normalizeLocale(data.locale) : 'de',
       shortMorning: data.shortMorning ?? true,
       drawerEnabled: data.drawerEnabled ?? false,
+      drawerAiChopOptIn: data.drawerAiChopOptIn ?? false,
     }
   } catch {
     return defaultPrefs()

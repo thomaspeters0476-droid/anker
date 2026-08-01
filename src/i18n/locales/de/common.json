@@ -187,6 +187,17 @@
     "chopPlaceholder": "Ordner holen\nZahlen tippen\nMail schicken",
     "chopSave": "Schneiden",
     "chopCancel": "Abbrechen",
+    "chopAiSuggest": "Mit KI vorschlagen",
+    "chopAiBusy": "KI denkt …",
+    "chopAiOptInHint": "KI-Hilfe ist aus. Unter Einstellungen einschalten — oder die Schritte selbst eintragen.",
+    "chopAiError": {
+      "generic": "Vorschlag hat nicht geklappt — bitte selbst eintragen oder später nochmal.",
+      "not_configured": "KI ist auf dem Server noch nicht eingerichtet — bitte manuell schneiden.",
+      "invalid_title": "Titel zu kurz für einen Vorschlag.",
+      "bad_ai_response": "Die KI-Antwort war unbrauchbar — bitte manuell oder erneut versuchen.",
+      "ai_failed": "KI gerade nicht erreichbar — bitte manuell oder später.",
+      "network": "Keine Verbindung — bitte manuell oder später."
+    },
     "deleteChainWarn": "Das gehört zu einer Kette oder hat Schritte. Wirklich entfernen?"
   },
   "settings": {
@@ -195,6 +206,8 @@
     "shortMorningHint": "Aus = bisherige volle Plan-Ansicht. Du kannst jederzeit zurückschalten.",
     "drawerEnabled": "Die Schublade aktivieren",
     "drawerEnabledHint": "Optional. Öffnet die Brücke zur Schublade-App (/schublade). Standard: aus.",
+    "drawerAiChop": "KI-Hilfe beim Zerlegen",
+    "drawerAiChopHint": "Wenn an: Der Titel des Brockens geht an Azure (wie bei Schwundbuch), für Schritt-Vorschläge. Du kannst alles noch ändern. Standard: aus.",
     "capacity": {
       "summary": "Tagesmenge",
       "meta": "Arbeit & Alltag",

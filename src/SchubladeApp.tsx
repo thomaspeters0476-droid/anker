@@ -45,6 +45,9 @@ export function SchubladeApp() {
   const [syncNotice, setSyncNotice] = useState<string | null>(null)
   const [syncConflict, setSyncConflict] = useState<SyncConflict | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [aiChopOptIn, setAiChopOptIn] = useState(
+    () => loadPrefs().drawerAiChopOptIn,
+  )
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
 
@@ -189,6 +192,19 @@ export function SchubladeApp() {
                 {t('productNav.openAnker')}
               </Link>
             </p>
+            <label className="intro-hide-check settings-check">
+              <input
+                type="checkbox"
+                checked={aiChopOptIn}
+                onChange={(e) => {
+                  const on = e.target.checked
+                  setAiChopOptIn(on)
+                  savePrefs({ ...loadPrefs(), drawerAiChopOptIn: on })
+                }}
+              />
+              {t('settings.drawerAiChop')}
+            </label>
+            <p className="block-hint">{t('settings.drawerAiChopHint')}</p>
             <details className="settings-section">
               <summary>{t('drawer.installSummary')}</summary>
               <PwaGuide product="schublade" compact />
@@ -232,6 +248,7 @@ export function SchubladeApp() {
             setDrawer={updateDrawer}
             day={day}
             setDay={setDay}
+            aiChopOptIn={aiChopOptIn}
           />
         </section>
       </main>

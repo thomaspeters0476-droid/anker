@@ -2398,6 +2398,19 @@
   gap: 0.45rem;
 }
 
+.drawer-chop-parent {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.drawer-chop-ai-row {
+  margin-bottom: 0.5rem;
+}
+
+.drawer-chop-err {
+  color: var(--warn, #a65b3a);
+}
+
 .drawer-chop-sheet textarea {
   width: 100%;
   border: 1px solid var(--line);

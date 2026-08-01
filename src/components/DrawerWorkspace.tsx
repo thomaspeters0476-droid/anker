@@ -12,6 +12,7 @@ import {
   pullToTask,
   removeItem,
 } from '../drawer/logic'
+import { suggestChopBites } from '../drawer/chopAi'
 import {
   DRAWER_READY_CAP_DEFAULT,
   type DrawerItem,
@@ -19,6 +20,7 @@ import {
   type DrawerState,
 } from '../drawer/types'
 import { canAddSize } from '../capacity'
+import { loadPrefs } from '../storage'
 
 type Props = {
   drawer: DrawerState
@@ -28,6 +30,8 @@ type Props = {
   /** Overlay: Schließen-Knopf; page: freistehende App */
   variant?: 'overlay' | 'page'
   onClose?: () => void
+  /** KI-Opt-in; wenn gesetzt, steuert Parent (sonst Prefs) */
+  aiChopOptIn?: boolean
 }
 
 const LEVELS: DrawerLevel[] = ['inbox', 'ready', 'defer', 'frozen']
@@ -39,16 +43,23 @@ export function DrawerWorkspace({
   setDay,
   variant = 'page',
   onClose,
+  aiChopOptIn,
 }: Props) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [draft, setDraft] = useState('')
   const [chopId, setChopId] = useState<string | null>(null)
   const [chopText, setChopText] = useState('')
+  const [chopBusy, setChopBusy] = useState(false)
+  const [chopErr, setChopErr] = useState<string | null>(null)
   const [openLevel, setOpenLevel] = useState<DrawerLevel | 'all'>('inbox')
+  const aiOptIn = aiChopOptIn ?? loadPrefs().drawerAiChopOptIn
 
   const readyCount = countReady(drawer.items)
   const chopOk = canChop(drawer.items)
   const pullable = useMemo(() => nextPullable(drawer.items), [drawer.items])
+  const chopParent = chopId
+    ? drawer.items.find((i) => i.id === chopId)
+    : undefined
 
   function addDrop() {
     setDrawer((d) => addInboxItem(d, draft))
@@ -74,7 +85,26 @@ export function DrawerWorkspace({
     setDrawer((d) => chopIntoBites(d, chopId, lines))
     setChopId(null)
     setChopText('')
+    setChopErr(null)
     setOpenLevel('ready')
+  }
+
+  async function runAiSuggest() {
+    if (!chopParent || chopBusy) return
+    setChopBusy(true)
+    setChopErr(null)
+    const result = await suggestChopBites(
+      chopParent.title,
+      i18n.language.startsWith('en') ? 'en' : 'de',
+    )
+    setChopBusy(false)
+    if (!result.ok) {
+      const key = `drawer.chopAiError.${result.error}`
+      const msg = t(key)
+      setChopErr(msg === key ? t('drawer.chopAiError.generic') : msg)
+      return
+    }
+    setChopText(result.bites.join('\n'))
   }
 
   return (
@@ -183,13 +213,14 @@ export function DrawerWorkspace({
                             className="secondary sm"
                             disabled={!chopOk}
                             title={chopOk ? undefined : t('drawer.capBlocked')}
-                            onClick={() => {
-                              setChopId(item.id)
-                              setChopText('')
-                            }}
-                          >
-                            {t('drawer.chop')}
-                          </button>
+                              onClick={() => {
+                                setChopId(item.id)
+                                setChopText('')
+                                setChopErr(null)
+                              }}
+                            >
+                              {t('drawer.chop')}
+                            </button>
                         )}
                         {LEVELS.filter((l) => l !== level).map((l) => (
                           <button
@@ -235,23 +266,55 @@ export function DrawerWorkspace({
       {chopId && (
         <div className="drawer-chop-sheet">
           <h3>{t('drawer.chopTitle')}</h3>
+          {chopParent && (
+            <p className="drawer-chop-parent">
+              <strong>{chopParent.title}</strong>
+            </p>
+          )}
           <p className="block-hint">{t('drawer.chopHint')}</p>
+          {aiOptIn ? (
+            <div className="carry-actions drawer-chop-ai-row">
+              <button
+                type="button"
+                className="secondary"
+                disabled={chopBusy || !chopParent}
+                onClick={() => void runAiSuggest()}
+              >
+                {chopBusy ? t('drawer.chopAiBusy') : t('drawer.chopAiSuggest')}
+              </button>
+            </div>
+          ) : (
+            <p className="block-hint">{t('drawer.chopAiOptInHint')}</p>
+          )}
+          {chopErr && (
+            <p className="block-hint drawer-chop-err" role="alert">
+              {chopErr}
+            </p>
+          )}
           <textarea
             rows={4}
             value={chopText}
             onChange={(e) => setChopText(e.target.value)}
             placeholder={t('drawer.chopPlaceholder')}
+            disabled={chopBusy}
           />
           <div className="carry-actions">
-            <button type="button" className="primary" onClick={submitChop}>
+            <button
+              type="button"
+              className="primary"
+              disabled={chopBusy || !chopText.trim()}
+              onClick={submitChop}
+            >
               {t('drawer.chopSave')}
             </button>
             <button
               type="button"
               className="ghost"
+              disabled={chopBusy}
               onClick={() => {
                 setChopId(null)
                 setChopText('')
+                setChopErr(null)
               }}
             >
               {t('drawer.chopCancel')}

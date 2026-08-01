@@ -122,6 +122,9 @@ export function PlanScreen({
   const [shortMorning, setShortMorning] = useState(
     () => loadPrefs().shortMorning,
   )
+  const [aiChopOptIn, setAiChopOptIn] = useState(
+    () => loadPrefs().drawerAiChopOptIn,
+  )
   const [planMoreOpen, setPlanMoreOpen] = useState(false)
 
   function updateDrawer(next: SetStateAction<DrawerState>) {
@@ -517,6 +520,11 @@ export function PlanScreen({
     savePrefs({ ...loadPrefs(), drawerEnabled: value })
     onDrawerEnabledChange?.(value)
     if (!value) setDrawerOpen(false)
+  }
+
+  function setAiChopOptInPref(value: boolean) {
+    setAiChopOptIn(value)
+    savePrefs({ ...loadPrefs(), drawerAiChopOptIn: value })
   }
 
   async function enableNotifications() {
@@ -1090,11 +1098,22 @@ export function PlanScreen({
           </label>
           <p className="block-hint">{t('settings.drawerEnabledHint')}</p>
           {drawerEnabled && (
-            <p>
-              <Link to="/schublade" className="secondary sm">
-                {t('productNav.openSchublade')}
-              </Link>
-            </p>
+            <>
+              <p>
+                <Link to="/schublade" className="secondary sm">
+                  {t('productNav.openSchublade')}
+                </Link>
+              </p>
+              <label className="intro-hide-check settings-check">
+                <input
+                  type="checkbox"
+                  checked={aiChopOptIn}
+                  onChange={(e) => setAiChopOptInPref(e.target.checked)}
+                />
+                {t('settings.drawerAiChop')}
+              </label>
+              <p className="block-hint">{t('settings.drawerAiChopHint')}</p>
+            </>
           )}
 
           <details className="settings-section">
@@ -1530,6 +1549,7 @@ export function PlanScreen({
           setDrawer={updateDrawer}
           day={day}
           setDay={setDay}
+          aiChopOptIn={aiChopOptIn}
         />
       )}
     </section>
