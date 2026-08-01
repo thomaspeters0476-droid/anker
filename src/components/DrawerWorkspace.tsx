@@ -17,6 +17,7 @@ import {
   groupItemsByParent,
   isChainMember,
   itemsByLevel,
+  itemsByLevelTop,
   itemsWithDeadlinePhase,
   keepStaleItem,
   markStaleAsked,
@@ -98,6 +99,7 @@ export function DrawerWorkspace({
   const [readyMoreOpen, setReadyMoreOpen] = useState(false)
   const [inboxMoreOpen, setInboxMoreOpen] = useState(false)
   const [tidyDismissed, setTidyDismissed] = useState(false)
+  const [actionFlash, setActionFlash] = useState<string | null>(null)
   const [deadlineEditId, setDeadlineEditId] = useState<string | null>(null)
   const [snoozeId, setSnoozeId] = useState<string | null>(null)
   const [waitId, setWaitId] = useState<string | null>(null)
@@ -153,6 +155,12 @@ export function DrawerWorkspace({
   useEffect(() => {
     if (readyCount < DRAWER_TIDY_AT && chopOk) setTidyDismissed(false)
   }, [readyCount, chopOk])
+
+  useEffect(() => {
+    if (!actionFlash) return
+    const id = window.setTimeout(() => setActionFlash(null), 4500)
+    return () => window.clearTimeout(id)
+  }, [actionFlash])
   /** Angezeigte Frage — bleibt bis Antwort, auch nach Quiet-Markierung */
   const [activeStaleId, setActiveStaleId] = useState<string | null>(null)
   const markedStaleRef = useRef<string | null>(null)
@@ -254,6 +262,7 @@ export function DrawerWorkspace({
     setDay((d) => ({ ...d, tasks: [...d.tasks, task] }))
     patchDrawer((d) => removeItem(d, item.id))
     setPullConfirmId(null)
+    setActionFlash(t('drawer.pulledFlash', { title: item.title }))
   }
 
   function tidyPullOne() {
@@ -267,6 +276,7 @@ export function DrawerWorkspace({
     if (ids.length === 0) return
     patchDrawer((d) => moveItems(d, ids, 'frozen'))
     setTidyDismissed(true)
+    setActionFlash(t('drawer.restedFlash', { n: ids.length }))
   }
 
   function renderGroupedItems(
@@ -409,10 +419,16 @@ export function DrawerWorkspace({
       setChopErr(t('drawer.capBlocked'))
       return
     }
+    const fromInbox = chopParent?.level === 'inbox'
     patchDrawer((d) => chopIntoBites(d, chopId, lines))
     closeChop()
     setChopSteer(null)
     setOpenLevel('ready')
+    setActionFlash(
+      fromInbox
+        ? t('drawer.choppedMovedFlash', { title: chopParent.title })
+        : t('drawer.choppedFlash'),
+    )
   }
 
   async function runAiSuggest() {
@@ -1004,6 +1020,12 @@ export function DrawerWorkspace({
       <p className="block-hint">
         {advanced ? t('drawer.lead') : t('drawer.leadSimple')}
       </p>
+      {actionFlash && (
+        <div className="buddy-card drawer-flash" role="status">
+          <span className="buddy-label">{t('common.buddy')}</span>
+          <p>{actionFlash}</p>
+        </div>
+      )}
       {buddyLine && (
         <div className="buddy-card drawer-buddy" role="status">
           <span className="buddy-label">{t('common.buddy')}</span>
@@ -1175,7 +1197,7 @@ export function DrawerWorkspace({
       </div>
 
       {visibleLevels.map((level) => {
-        const items = itemsByLevel(drawer, level)
+        const items = itemsByLevelTop(drawer, level)
         if (openLevel === 'all' && items.length === 0) return null
         const emptyHint = t(`drawer.emptyLevelBy.${level}`, {
           defaultValue: t('drawer.emptyLevel'),

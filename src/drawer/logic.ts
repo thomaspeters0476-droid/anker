@@ -376,9 +376,11 @@ export function chopIntoBites(
     touchedAt: t,
   }))
 
+  // Nach dem Zerlegen: raus aus dem Eingang → unter „Zum Holen“ als Vorhaben
   const nextParent: DrawerItem = {
     ...parent,
     isChunk: true,
+    level: parent.level === 'inbox' ? 'ready' : parent.level,
     updatedAt: t,
     touchedAt: t,
   }
@@ -492,6 +494,22 @@ export function itemsByLevel(
   return state.items
     .filter((i) => i.level === level && isVisibleInDrawer(i, today))
     .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+}
+
+/**
+ * Listenansicht: Schritte mit noch vorhandenem Vorhaben nur über Aufklappen,
+ * nicht nochmal als eigene Zeile (sonst Doppelung nach Zerlegen).
+ */
+export function itemsByLevelTop(
+  state: DrawerState,
+  level: DrawerLevel,
+  today = todayKey(),
+): DrawerItem[] {
+  return itemsByLevel(state, level, today).filter((i) => {
+    if (!i.parentId || i.isChunk) return true
+    const parent = state.items.find((p) => p.id === i.parentId)
+    return !(parent && parent.isChunk)
+  })
 }
 
 /** Parent-Brocken eines Häppchens (falls noch vorhanden) */

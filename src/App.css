@@ -2776,6 +2776,15 @@
   margin: 0.15rem 0 1rem;
 }
 
+.drawer-flash {
+  margin: 0.15rem 0 0.85rem;
+  animation: softIn 0.35s ease both;
+}
+
+.drawer-flash p {
+  color: var(--accent-deep);
+}
+
 .drawer-tidy-actions {
   display: flex;
   flex-wrap: wrap;
