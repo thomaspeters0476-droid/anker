@@ -272,6 +272,21 @@
       "kurz": "Enough ready. Pull or rest first.",
       "klar": "Ready cap full. Pull or snooze/freeze — then cut again."
     },
+    "alreadySmall": {
+      "warm": "That bite is already small enough for one focus block. Better pull it — splitting further often creates micro-steps and stress.",
+      "kurz": "Already small enough. Pull instead of splitting.",
+      "klar": "Step is doable. Don’t split further — pull onto today."
+    },
+    "tooFine": {
+      "warm": "That’s too fine (pen/open/click…). Prefer 2–3 doable steps of a few minutes — or you lose the thread.",
+      "kurz": "Too fine. 2–3 doable steps is enough.",
+      "klar": "Too micro. Only a few steps that stand alone."
+    },
+    "tooMany": {
+      "warm": "Too many sub-steps at once. When splitting further, only a few — or the drawer overflows.",
+      "kurz": "Too many steps. Split less.",
+      "klar": "Further split: only a few bites. Shorten."
+    },
     "emergency": {
       "warm": "{{count}} item(s) with a near deadline — at the top of the drawer. No panic fire, just visibility.",
       "kurz": "{{count}}× due soon — check top.",

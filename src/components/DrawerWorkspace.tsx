@@ -29,6 +29,13 @@ import {
 } from '../drawer/logic'
 import { suggestChopBites } from '../drawer/chopAi'
 import {
+  bitesTooFine,
+  CHOP_FIRST_PREFERRED_MAX,
+  CHOP_FURTHER_MAX,
+  looksAlreadySmall,
+  parseChopLines,
+} from '../drawer/chopGuards'
+import {
   DRAWER_READY_CAP_DEFAULT,
   type DrawerItem,
   type DrawerLevel,
@@ -75,6 +82,9 @@ export function DrawerWorkspace({
   const [moreOpenId, setMoreOpenId] = useState<string | null>(null)
   /** Aufgeklappte Brocken → Häppchen darunter */
   const [expandedChunkId, setExpandedChunkId] = useState<string | null>(null)
+  const [chopSteer, setChopSteer] = useState<
+    'already_small' | 'too_fine' | 'too_many' | null
+  >(null)
   const aiOptIn = aiChopOptIn ?? loadPrefs().drawerAiChopOptIn
   const readyCap =
     readyCapProp ?? loadPrefs().drawerReadyCap ?? DRAWER_READY_CAP_DEFAULT
@@ -104,6 +114,7 @@ export function DrawerWorkspace({
 
   const buddyLine = drawerBuddy(day.buddyTone, {
     chopBlocked: !chopOk,
+    chopSteer,
     emergencyCount: emergency.length,
     radarCount: radar.length,
   })
@@ -181,32 +192,51 @@ export function DrawerWorkspace({
   }
 
   function submitChop() {
-    if (!chopId) return
-    const lines = chopText
-      .split(/\n|;/)
-      .map((s) => s.trim())
-      .filter(Boolean)
+    if (!chopId || !chopParent) return
+    const lines = parseChopLines(chopText)
     if (lines.length === 0) return
+    const further = chopParent.isChunk === false
+    if (further && lines.length > CHOP_FURTHER_MAX) {
+      setChopSteer('too_many')
+      setChopErr(t('drawer.chopSteerTooMany', { max: CHOP_FURTHER_MAX }))
+      return
+    }
+    if (!further && lines.length > CHOP_FIRST_PREFERRED_MAX) {
+      setChopSteer('too_many')
+      setChopErr(t('drawer.chopSteerTooMany', { max: CHOP_FIRST_PREFERRED_MAX }))
+      return
+    }
+    if (bitesTooFine(lines)) {
+      setChopSteer('too_fine')
+      setChopErr(t('drawer.chopSteerTooFine'))
+      return
+    }
     if (!chopRoomFor(lines.length)) {
       setChopErr(t('drawer.capBlocked'))
       return
     }
     patchDrawer((d) => chopIntoBites(d, chopId, lines))
     closeChop()
+    setChopSteer(null)
     setOpenLevel('ready')
   }
 
   async function runAiSuggest() {
     if (!chopParent || chopBusy) return
+    if (chopParent.isChunk === false && looksAlreadySmall(chopParent.title)) {
+      setChopSteer('already_small')
+      return
+    }
     setChopBusy(true)
     setChopErr(null)
+    setChopSteer(null)
     const parent = parentOf(drawer.items, chopParent)
+    const further = chopParent.isChunk === false
     const result = await suggestChopBites({
       title: chopParent.title,
       locale: i18n.language.startsWith('en') ? 'en' : 'de',
-      // Beim Weiterzerteilen: Brocken mitgeben, sonst driftet die KI am Häppchen-Titel
-      parentTitle:
-        chopParent.isChunk === false ? (parent?.title ?? null) : null,
+      parentTitle: further ? (parent?.title ?? null) : null,
+      mode: further ? 'further' : 'first',
     })
     setChopBusy(false)
     if (!result.ok) {
@@ -216,6 +246,9 @@ export function DrawerWorkspace({
       return
     }
     setChopText(result.bites.join('\n'))
+    if (bitesTooFine(result.bites) || result.bites.length > CHOP_FURTHER_MAX) {
+      setChopSteer('too_fine')
+    }
   }
 
   function openChop(item: DrawerItem) {
@@ -223,6 +256,13 @@ export function DrawerWorkspace({
     setSnoozeId(null)
     setWaitId(null)
     setDeadlineEditId(null)
+    // Schon greifbar → Buddy steuert: eher holen als Mikro-Zerlegen
+    if (item.isChunk === false && looksAlreadySmall(item.title)) {
+      setChopSteer('already_small')
+      closeChop()
+      return
+    }
+    setChopSteer(null)
     // Tab auf die Ebene des Eintrags, sonst wirkt der Klick „tot“
     if (item.level && openLevel !== 'all' && openLevel !== item.level) {
       setOpenLevel(item.level)

@@ -4,12 +4,15 @@ type Body = {
   title?: string
   /** Übergeordnetes Vorhaben (Brocken), wenn ein Häppchen weiter zerlegt wird */
   parentTitle?: string
+  /** further = Häppchen weiter zerteilen — strengere Größenregeln */
+  mode?: 'first' | 'further'
   locale?: string
 }
 
 const MAX_TITLE = 200
 const MIN_BITES = 2
-const MAX_BITES = 8
+const MAX_BITES_FIRST = 6
+const MAX_BITES_FURTHER = 4
 
 function azureConfigured(): boolean {
   return Boolean(
@@ -27,33 +30,35 @@ function apiVersion(): string {
   return process.env.AZURE_OPENAI_API_VERSION?.trim() || '2025-04-01-preview'
 }
 
-function systemPrompt(locale: 'de' | 'en', hasParent: boolean): string {
+function systemPrompt(
+  locale: 'de' | 'en',
+  mode: 'first' | 'further',
+): string {
+  const max = mode === 'further' ? MAX_BITES_FURTHER : MAX_BITES_FIRST
   if (locale === 'en') {
     return [
-      'You break one messy task into tiny concrete next actions for an ADHD-friendly drawer app.',
+      'You break one messy task into concrete next actions for an ADHD-friendly drawer app.',
       'Reply ONLY as JSON: { "bites": ["...", "..."] }',
-      `Write ${MIN_BITES}-${MAX_BITES} short steps in English.`,
-      'Each bite: one doable action, under ~80 characters, no numbering, no moralizing.',
-      'Order by natural sequence. Prefer minutes-scale steps over vague goals.',
-      hasParent
-        ? 'A parent chunk (overall goal) is given plus the step to split further. Stay strictly inside that goal — do not invent a different project from the step title alone.'
-        : '',
-    ]
-      .filter(Boolean)
-      .join(' ')
+      `Write ${MIN_BITES}-${max} steps in English — prefer fewer if the work is already clear.`,
+      'Each bite: one doable focus block of roughly 5–25 minutes, under ~80 characters, no numbering, no moralizing.',
+      'Do NOT invent micro-actions (pick up pen, open file, click, sit down, breathe). Those are too small.',
+      'Order by natural sequence. Prefer meaningful steps over vague goals AND over atomized clicks.',
+      mode === 'further'
+        ? 'Parent chunk (overall goal) plus a step to split further are given. Stay inside the parent. If the step is already one clear focus block, return only 2 slightly clearer substeps — never a ritual of tiny actions.'
+        : 'Prefer 2–5 bites for a first cut. Stop when steps are pullable onto a day plan.',
+    ].join(' ')
   }
   return [
-    'Du zerlegst ein unübersichtliches Vorhaben in kleine, konkrete nächste Schritte für eine ADHS-freundliche Schubladen-App.',
+    'Du zerlegst ein Vorhaben in konkrete nächste Schritte für eine ADHS-freundliche Schubladen-App.',
     'Antworte NUR als JSON: { "bites": ["...", "..."] }',
-    `Schreibe ${MIN_BITES}-${MAX_BITES} kurze Schritte auf Deutsch.`,
-    'Jedes Häppchen: eine machbare Handlung, unter ca. 80 Zeichen, ohne Nummerierung, ohne Moralisieren.',
-    'Reihenfolge wie man es natürlich macht. Lieber Minuten-Schritte als vage Ziele.',
-    hasParent
-      ? 'Es gibt einen Brocken (Gesamtvorhaben) und den Schritt, der weiter zerlegt wird. Bleib strikt im Brocken — erfinde kein anderes Projekt nur aus dem Häppchen-Titel.'
-      : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
+    `Schreibe ${MIN_BITES}-${max} Schritte auf Deutsch — lieber weniger, wenn es schon klar ist.`,
+    'Jedes Häppchen: ein greifbarer Fokusblock ca. 5–25 Minuten, unter ca. 80 Zeichen, ohne Nummerierung, ohne Moralisieren.',
+    'KEINE Mikro-Handlungen (Stift nehmen, Datei öffnen, klicken, hinsetzen, atmen). Das ist zu klein.',
+    'Reihenfolge natürlich. Greifbare Schritte — weder vage Ziele noch atomisierte Klicks.',
+    mode === 'further'
+      ? 'Brocken (Gesamtvorhaben) plus Schritt zum Weiterzerlegen sind gegeben. Im Brocken bleiben. Ist der Schritt schon ein klarer Fokusblock: nur 2 etwas klarere Teilschritte — kein Ritual aus Mikro-Aktionen.'
+      : 'Erste Zerlegung: oft 2–5 Häppchen. Aufhören, wenn Schritte auf den Tag holbar sind.',
+  ].join(' ')
 }
 
 function userPrompt(
@@ -78,7 +83,7 @@ function userPrompt(
   return `Reply as JSON. Vorhaben / Brocken:\n${title}`
 }
 
-function parseBites(raw: string): string[] {
+function parseBites(raw: string, maxBites: number): string[] {
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
@@ -97,7 +102,7 @@ function parseBites(raw: string): string[] {
   return bites
     .map((b) => (typeof b === 'string' ? b.trim() : ''))
     .filter((b) => b.length > 0 && b.length <= 120)
-    .slice(0, MAX_BITES)
+    .slice(0, maxBites)
 }
 
 function parseResponsesText(payload: {
@@ -217,13 +222,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     parentRaw.length >= 2 && parentRaw.toLowerCase() !== title.toLowerCase()
       ? parentRaw
       : null
+  const mode: 'first' | 'further' =
+    body.mode === 'further' || parentTitle ? 'further' : 'first'
+  const maxBites = mode === 'further' ? MAX_BITES_FURTHER : MAX_BITES_FIRST
 
   const locale = String(body.locale ?? 'de').toLowerCase() === 'en' ? 'en' : 'de'
   const endpoint = normalizeEndpoint(process.env.AZURE_OPENAI_ENDPOINT!.trim())
   const key = process.env.AZURE_OPENAI_KEY!.trim()
   const deployment = process.env.AZURE_OPENAI_DEPLOYMENT!.trim()
   const version = apiVersion()
-  const system = systemPrompt(locale, Boolean(parentTitle))
+  const system = systemPrompt(locale, mode)
   const user = userPrompt(title, parentTitle, locale)
 
   try {
@@ -264,7 +272,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       throw lastErr instanceof Error ? lastErr : new Error('empty_response')
     }
 
-    const bites = parseBites(content)
+    const bites = parseBites(content, maxBites)
     if (bites.length < MIN_BITES) {
       return res.status(502).json({ ok: false, error: 'bad_ai_response' })
     }

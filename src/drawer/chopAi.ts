@@ -7,6 +7,7 @@ export type ChopAiInput = {
   locale: string
   /** Brocken / Gesamtvorhaben — bei Weiterzerteilen mitgeben */
   parentTitle?: string | null
+  mode?: 'first' | 'further'
 }
 
 export async function suggestChopBites(
@@ -18,6 +19,10 @@ export async function suggestChopBites(
       ? { title: titleOrInput, locale: locale ?? 'de' }
       : titleOrInput
 
+  const mode =
+    input.mode ??
+    (input.parentTitle?.trim() ? 'further' : 'first')
+
   try {
     const res = await fetch('/api/chop-bites', {
       method: 'POST',
@@ -25,6 +30,7 @@ export async function suggestChopBites(
       body: JSON.stringify({
         title: input.title,
         locale: input.locale,
+        mode,
         ...(input.parentTitle?.trim()
           ? { parentTitle: input.parentTitle.trim() }
           : {}),
