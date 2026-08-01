@@ -269,13 +269,14 @@ export function DrawerWorkspace({
 
   async function runAiSuggest() {
     if (!chopParent || chopBusy) return
-    if (chopParent.isChunk === false && looksAlreadySmall(chopParent.title)) {
-      setChopSteer('already_small')
-      return
-    }
     setChopBusy(true)
     setChopErr(null)
-    setChopSteer(null)
+    // Bei schon kleinen Häppchen nur Hinweis — Vorschlag trotzdem erlauben
+    setChopSteer(
+      chopParent.isChunk === false && looksAlreadySmall(chopParent.title)
+        ? 'already_small'
+        : null,
+    )
     const parent = parentOf(drawer.items, chopParent)
     const further = chopParent.isChunk === false
     const result = await suggestChopBites({
@@ -305,18 +306,28 @@ export function DrawerWorkspace({
     if (bitesTooFine(result.bites)) setChopSteer('too_fine')
   }
 
-  function openChop(item: DrawerItem) {
+  function openChop(item: DrawerItem, opts?: { force?: boolean }) {
     setMoreOpenId(null)
     setSnoozeId(null)
     setWaitId(null)
     setDeadlineEditId(null)
-    // Schon greifbar → Buddy steuert: eher holen als Mikro-Zerlegen
-    if (item.isChunk === false && looksAlreadySmall(item.title)) {
+    // Schon greifbar → Buddy rät eher Holen; „Weiter zerteilen“ (force) geht trotzdem
+    if (
+      !opts?.force &&
+      item.isChunk === false &&
+      looksAlreadySmall(item.title)
+    ) {
       setChopSteer('already_small')
       closeChop()
       return
     }
-    setChopSteer(null)
+    setChopSteer(
+      opts?.force &&
+        item.isChunk === false &&
+        looksAlreadySmall(item.title)
+        ? 'already_small'
+        : null,
+    )
     // Tab auf die Ebene des Eintrags, sonst wirkt der Klick „tot“
     if (item.level && openLevel !== 'all' && openLevel !== item.level) {
       setOpenLevel(item.level)
@@ -489,14 +500,12 @@ export function DrawerWorkspace({
         </div>
         {moreOpenId === item.id && (
           <div className="drawer-item-actions drawer-item-actions--more">
-            {itemLevel === 'ready' && !item.isChunk && (
+            {!item.isChunk &&
+              (itemLevel === 'ready' || itemLevel === 'inbox') && (
               <button
                 type="button"
                 className="ghost sm"
-                onClick={() => {
-                  setMoreOpenId(null)
-                  openChop(item)
-                }}
+                onClick={() => openChop(item, { force: true })}
               >
                 {t('drawer.chopAgain')}
               </button>
@@ -504,9 +513,12 @@ export function DrawerWorkspace({
             <button
               type="button"
               className="ghost sm"
-              onClick={() =>
+              onClick={() => {
+                setMoreOpenId(item.id)
+                setWaitId(null)
+                setDeadlineEditId(null)
                 setSnoozeId((id) => (id === item.id ? null : item.id))
-              }
+              }}
             >
               {t('drawer.snooze')}
             </button>
@@ -514,6 +526,9 @@ export function DrawerWorkspace({
               type="button"
               className="ghost sm"
               onClick={() => {
+                setMoreOpenId(item.id)
+                setSnoozeId(null)
+                setDeadlineEditId(null)
                 setWaitId((id) => (id === item.id ? null : item.id))
                 setWaitDraft(item.waitingOn ?? '')
               }}
