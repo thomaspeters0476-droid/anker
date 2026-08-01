@@ -6,6 +6,8 @@ import type { DayState } from './types'
 import { emptyDay, loadDay, loadPrefs } from './storage'
 import { bindPersistFlush, scheduleSaveDay } from './persist'
 import { ProductNav } from './components/ProductNav'
+import { SettingsGear } from './components/SettingsGear'
+import { ShellSettings } from './components/ShellSettings'
 import { reconcileExpiredSparks } from './sparkExpiry'
 import { PlanScreen } from './screens/PlanScreen'
 import { FocusScreen } from './screens/FocusScreen'
@@ -61,6 +63,7 @@ function App() {
   const [drawerEnabled, setDrawerEnabled] = useState(
     () => loadPrefs().drawerEnabled,
   )
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const reconciledRef = useRef(false)
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
@@ -224,7 +227,13 @@ function App() {
             <span className="brand-name">{t('app.brandName')}</span>
           </div>
           {!showIntro && !regulateOpen && (
-            <RegulateButton onClick={openRegulate} />
+            <div className="topbar-actions">
+              <SettingsGear
+                open={settingsOpen}
+                onClick={() => setSettingsOpen((v) => !v)}
+              />
+              <RegulateButton onClick={openRegulate} />
+            </div>
           )}
         </div>
         <p className="brand-tag">{t('app.brandTag')}</p>
@@ -273,6 +282,8 @@ function App() {
                 onSyncVaultReady={() => void runSync()}
                 drawerEnabled={drawerEnabled}
                 onDrawerEnabledChange={setDrawerEnabled}
+                settingsOpen={settingsOpen}
+                onSettingsOpenChange={setSettingsOpen}
               />
             )}
             {screen === 'focus' && (
@@ -295,6 +306,24 @@ function App() {
 
       {regulateOpen && (
         <RegulateDown onClose={() => setRegulateOpen(false)} />
+      )}
+      {settingsOpen && screen !== 'plan' && !showIntro && (
+        <ShellSettings
+          onClose={() => setSettingsOpen(false)}
+          syncEmail={syncEmail}
+          syncNotice={syncNotice}
+          syncConflict={syncConflict}
+          onSyncNotice={setSyncNotice}
+          onSyncKeepLocal={() => void keepLocalConflict()}
+          onSyncUseCloud={() => void useCloudConflict()}
+          onSyncSignedOut={() => {
+            setSyncEmail(null)
+            setSyncConflict(null)
+          }}
+          onSyncVaultReady={() => void runSync()}
+          drawerEnabled={drawerEnabled}
+          onDrawerEnabledChange={setDrawerEnabled}
+        />
       )}
     </div>
   )

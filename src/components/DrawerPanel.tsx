@@ -13,7 +13,7 @@ type Props = {
   readyCap?: number
 }
 
-/** Overlay aus dem Tagesanker heraus — gleiche Oberfläche wie die Schublade-App */
+/** Overlay aus dem Tagesanker — nur schnell ablegen; Pflege in /schublade */
 export function DrawerPanel({
   open,
   onClose,
@@ -28,9 +28,10 @@ export function DrawerPanel({
 
   return (
     <div className="spark-overlay drawer-overlay" role="dialog" aria-modal>
-      <div className="spark-panel drawer-panel">
+      <div className="spark-panel drawer-panel drawer-panel--drop">
         <DrawerWorkspace
           variant="overlay"
+          mode="drop"
           onClose={onClose}
           drawer={drawer}
           setDrawer={setDrawer}

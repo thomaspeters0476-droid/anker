@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { DayState } from '../types'
 import { drawerBuddy } from '../buddy'
@@ -52,12 +53,17 @@ type Props = {
   day: DayState
   setDay: React.Dispatch<React.SetStateAction<DayState>>
   variant?: 'overlay' | 'page'
+  /** full = Pflege · drop = nur schnell ablegen (Anker-Overlay) */
+  mode?: 'full' | 'drop'
+  /** Aufschub/Eingefroren/Radar-Fläche — sonst nur Eingang + Bereit */
+  advanced?: boolean
   onClose?: () => void
   aiChopOptIn?: boolean
   readyCap?: number
 }
 
 const LEVELS: DrawerLevel[] = ['inbox', 'ready', 'defer', 'frozen']
+const SIMPLE_LEVELS: DrawerLevel[] = ['inbox', 'ready']
 
 export function DrawerWorkspace({
   drawer,
@@ -65,6 +71,8 @@ export function DrawerWorkspace({
   day,
   setDay,
   variant = 'page',
+  mode = 'full',
+  advanced: advancedProp,
   onClose,
   aiChopOptIn,
   readyCap: readyCapProp,
@@ -92,6 +100,21 @@ export function DrawerWorkspace({
   const aiOptIn = aiChopOptIn ?? loadPrefs().drawerAiChopOptIn
   const readyCap =
     readyCapProp ?? loadPrefs().drawerReadyCap ?? DRAWER_READY_CAP_DEFAULT
+  const advanced = advancedProp ?? loadPrefs().drawerAdvanced
+  const levelTabs: readonly (DrawerLevel | 'all')[] = advanced
+    ? variant === 'page'
+      ? (['all', ...LEVELS] as const)
+      : LEVELS
+    : SIMPLE_LEVELS
+
+  useEffect(() => {
+    if (
+      !advanced &&
+      (openLevel === 'all' || openLevel === 'defer' || openLevel === 'frozen')
+    ) {
+      setOpenLevel('inbox')
+    }
+  }, [advanced, openLevel])
 
   const readyCount = countReady(drawer.items)
   const chopOk = canChop(drawer, readyCap)
@@ -409,6 +432,7 @@ export function DrawerWorkspace({
           )}
         </div>
         <div className="drawer-item-actions">
+          {/* Eine Primäraktion: Bereit→Holen, Eingang/Brocken→Zerlegen */}
           {itemLevel === 'ready' && !item.isChunk && !confirmingPull && (
             <button
               type="button"
@@ -419,26 +443,24 @@ export function DrawerWorkspace({
               {t('drawer.pull')}
             </button>
           )}
-          {(itemLevel === 'inbox' ||
-            itemLevel === 'ready' ||
-            Boolean(item.isChunk)) && (
-            <button
-              type="button"
-              className={`secondary sm${chopId === item.id ? ' on' : ''}`}
-              aria-expanded={chopId === item.id}
-              onClick={() =>
-                chopId === item.id ? closeChop() : openChop(item)
-              }
-            >
-              {item.isChunk === false
-                ? t('drawer.chopAgain')
-                : t('drawer.chop')}
-            </button>
-          )}
+          {(itemLevel === 'inbox' || Boolean(item.isChunk)) && (
+              <button
+                type="button"
+                className={`primary sm${chopId === item.id ? ' on' : ''}`}
+                aria-expanded={chopId === item.id}
+                onClick={() =>
+                  chopId === item.id ? closeChop() : openChop(item)
+                }
+              >
+                {item.isChunk && itemLevel === 'ready'
+                  ? t('drawer.chopAgain')
+                  : t('drawer.chop')}
+              </button>
+            )}
           {itemLevel === 'defer' && (
             <button
               type="button"
-              className="secondary sm"
+              className="primary sm"
               onClick={() => patchDrawer((d) => moveItem(d, item.id, 'inbox'))}
             >
               {t('drawer.backToInbox')}
@@ -447,7 +469,7 @@ export function DrawerWorkspace({
           {itemLevel === 'frozen' && (
             <button
               type="button"
-              className="secondary sm"
+              className="primary sm"
               onClick={() => patchDrawer((d) => moveItem(d, item.id, 'ready'))}
             >
               {t('drawer.thaw')}
@@ -467,6 +489,18 @@ export function DrawerWorkspace({
         </div>
         {moreOpenId === item.id && (
           <div className="drawer-item-actions drawer-item-actions--more">
+            {itemLevel === 'ready' && !item.isChunk && (
+              <button
+                type="button"
+                className="ghost sm"
+                onClick={() => {
+                  setMoreOpenId(null)
+                  openChop(item)
+                }}
+              >
+                {t('drawer.chopAgain')}
+              </button>
+            )}
             <button
               type="button"
               className="ghost sm"
@@ -737,8 +771,63 @@ export function DrawerWorkspace({
     )
   }
 
+  if (mode === 'drop') {
+    const inboxCount = itemsByLevel(drawer, 'inbox').length
+    return (
+      <div className="drawer-workspace drawer-workspace--overlay drawer-workspace--drop">
+        <div className="drawer-panel-head">
+          <h2>{t('drawer.dropTitle')}</h2>
+          {onClose && (
+            <button type="button" className="ghost sm" onClick={onClose}>
+              {t('common.ok')}
+            </button>
+          )}
+        </div>
+        <p className="block-hint">{t('drawer.dropLead')}</p>
+        <form
+          className="add-row"
+          onSubmit={(e) => {
+            e.preventDefault()
+            addDrop()
+            onClose?.()
+          }}
+        >
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={t('drawer.dropPlaceholder')}
+            maxLength={120}
+            autoFocus
+          />
+          <button type="submit" className="primary sm" disabled={!draft.trim()}>
+            {t('drawer.drop')}
+          </button>
+        </form>
+        {inboxCount > 0 && (
+          <p className="block-hint">
+            {t('drawer.dropInboxHint', { count: inboxCount })}
+          </p>
+        )}
+        <p className="drawer-drop-footer">
+          <Link to="/schublade" className="secondary sm" onClick={onClose}>
+            {t('productNav.openSchublade')}
+          </Link>
+        </p>
+      </div>
+    )
+  }
+
+  const showCap = advanced || !chopOk || readyCount >= Math.max(1, readyCap - 5)
+  const visibleLevels = LEVELS.filter(
+    (lv) =>
+      (advanced || SIMPLE_LEVELS.includes(lv)) &&
+      (openLevel === 'all' || openLevel === lv),
+  )
+
   return (
-    <div className={`drawer-workspace drawer-workspace--${variant}`}>
+    <div
+      className={`drawer-workspace drawer-workspace--${variant}${advanced ? '' : ' drawer-workspace--simple'}`}
+    >
       {variant === 'overlay' ? (
         <div className="drawer-panel-head">
           <h2>{t('drawer.title')}</h2>
@@ -750,7 +839,7 @@ export function DrawerWorkspace({
         </div>
       ) : null}
       <p className="block-hint">
-        {variant === 'overlay' ? t('drawer.leadShort') : t('drawer.lead')}
+        {advanced ? t('drawer.lead') : t('drawer.leadSimple')}
       </p>
       {buddyLine && (
         <div className="buddy-card drawer-buddy" role="status">
@@ -758,7 +847,7 @@ export function DrawerWorkspace({
           <p>{buddyLine}</p>
         </div>
       )}
-      {(variant === 'page' || readyCount > 0 || !chopOk) && (
+      {showCap && (
         <p className="drawer-cap-line">
           {t('drawer.readyCap', {
             used: readyCount,
@@ -826,26 +915,17 @@ export function DrawerWorkspace({
         </div>
       )}
 
-      {radar.length > 0 &&
-        (variant === 'page' ? (
-          <div className="drawer-deadline-block drawer-deadline-block--radar">
-            <h3>{t('drawer.deadlineRadarTitle')}</h3>
-            <p className="block-hint">{t('drawer.deadlineRadarHint')}</p>
-            <ul className="drawer-item-list">
-              {radar.map((item) => renderItem(item, 'deadline'))}
-            </ul>
-          </div>
-        ) : (
-          <details className="drawer-deadline-block drawer-deadline-block--radar">
-            <summary>
-              {t('drawer.deadlineRadarTitle')} ({radar.length})
-            </summary>
-            <p className="block-hint">{t('drawer.deadlineRadarHint')}</p>
-            <ul className="drawer-item-list">
-              {radar.map((item) => renderItem(item, 'deadline'))}
-            </ul>
-          </details>
-        ))}
+      {radar.length > 0 && advanced && (
+        <details className="drawer-deadline-block drawer-deadline-block--radar">
+          <summary>
+            {t('drawer.deadlineRadarTitle')} ({radar.length})
+          </summary>
+          <p className="block-hint">{t('drawer.deadlineRadarHint')}</p>
+          <ul className="drawer-item-list">
+            {radar.map((item) => renderItem(item, 'deadline'))}
+          </ul>
+        </details>
+      )}
 
       {pullable.length > 0 && (
         <div className="drawer-pull-block">
@@ -884,11 +964,7 @@ export function DrawerWorkspace({
       )}
 
       <div className="drawer-level-tabs" role="tablist">
-        {(
-          (variant === 'overlay'
-            ? LEVELS
-            : (['all', ...LEVELS] as const)) as readonly (DrawerLevel | 'all')[]
-        ).map((lv) => (
+        {levelTabs.map((lv) => (
           <button
             key={lv}
             type="button"
@@ -901,39 +977,25 @@ export function DrawerWorkspace({
         ))}
       </div>
 
-      {LEVELS.filter((lv) => openLevel === 'all' || openLevel === lv).map(
-        (level) => {
-          const items = itemsByLevel(drawer, level)
-          if (openLevel === 'all' && items.length === 0) return null
-          const emptyHint = t(`drawer.emptyLevelBy.${level}`, {
-            defaultValue: t('drawer.emptyLevel'),
-          })
-          if (level === 'frozen' && openLevel === 'all') {
-            return (
-              <details
-                key={level}
-                className="drawer-level-block drawer-frozen-fold"
-                open={frozenOpen}
-                onToggle={(e) =>
-                  setFrozenOpen((e.target as HTMLDetailsElement).open)
-                }
-              >
-                <summary>
-                  {t(`drawer.level.${level}`)} ({items.length})
-                </summary>
-                {items.length === 0 ? (
-                  <p className="block-hint">{emptyHint}</p>
-                ) : (
-                  <ul className="drawer-item-list">
-                    {items.map((item) => renderItem(item, level))}
-                  </ul>
-                )}
-              </details>
-            )
-          }
+      {visibleLevels.map((level) => {
+        const items = itemsByLevel(drawer, level)
+        if (openLevel === 'all' && items.length === 0) return null
+        const emptyHint = t(`drawer.emptyLevelBy.${level}`, {
+          defaultValue: t('drawer.emptyLevel'),
+        })
+        if (level === 'frozen' && openLevel === 'all') {
           return (
-            <div key={level} className="drawer-level-block">
-              {openLevel === 'all' && <h3>{t(`drawer.level.${level}`)}</h3>}
+            <details
+              key={level}
+              className="drawer-level-block drawer-frozen-fold"
+              open={frozenOpen}
+              onToggle={(e) =>
+                setFrozenOpen((e.target as HTMLDetailsElement).open)
+              }
+            >
+              <summary>
+                {t(`drawer.level.${level}`)} ({items.length})
+              </summary>
               {items.length === 0 ? (
                 <p className="block-hint">{emptyHint}</p>
               ) : (
@@ -941,11 +1003,22 @@ export function DrawerWorkspace({
                   {items.map((item) => renderItem(item, level))}
                 </ul>
               )}
-            </div>
+            </details>
           )
-        },
-      )}
-
+        }
+        return (
+          <div key={level} className="drawer-level-block">
+            {openLevel === 'all' && <h3>{t(`drawer.level.${level}`)}</h3>}
+            {items.length === 0 ? (
+              <p className="block-hint">{emptyHint}</p>
+            ) : (
+              <ul className="drawer-item-list">
+                {items.map((item) => renderItem(item, level))}
+              </ul>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
