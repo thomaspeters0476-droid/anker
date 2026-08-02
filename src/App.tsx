@@ -27,6 +27,7 @@ import {
   subscribeUserState,
   type SyncConflict,
 } from './sync'
+import { useOnline } from './online'
 import './App.css'
 
 const REGULATE_TIP_KEY = 'anker-regulate-tip-seen'
@@ -64,6 +65,7 @@ function App() {
     () => loadPrefs().drawerEnabled,
   )
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const online = useOnline()
   const reconciledRef = useRef(false)
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
@@ -237,6 +239,11 @@ function App() {
           )}
         </div>
         <p className="brand-tag">{t('app.brandTag')}</p>
+        {!online && (
+          <p className="offline-banner" role="status">
+            {t('app.offlineBanner')}
+          </p>
+        )}
         {!showIntro && drawerEnabled && <ProductNav active="anker" />}
         {!showIntro && !regulateOpen && showRegulateTip && (
           <div className="regulate-tip" role="status">

@@ -1,3 +1,9 @@
+import {
+  canUseChopAi,
+  recordChopAiUse,
+  refreshChopWallet,
+} from './chopAiQuota'
+
 export type ChopAiResult =
   | { ok: true; bites: string[] }
   | { ok: false; error: string }
@@ -5,7 +11,7 @@ export type ChopAiResult =
 export type ChopAiInput = {
   title: string
   locale: string
-  /** Brocken / Gesamtvorhaben — bei Weiterzerteilen mitgeben */
+  /** Übergeordnetes Vorhaben (Brocken), wenn ein Häppchen weiter zerlegt wird */
   parentTitle?: string | null
   mode?: 'first' | 'further'
 }
@@ -18,6 +24,11 @@ export async function suggestChopBites(
     typeof titleOrInput === 'string'
       ? { title: titleOrInput, locale: locale ?? 'de' }
       : titleOrInput
+
+  await refreshChopWallet()
+  if (!canUseChopAi()) {
+    return { ok: false, error: 'daily_limit' }
+  }
 
   const mode =
     input.mode ??
@@ -43,10 +54,11 @@ export async function suggestChopBites(
     } | null
 
     if (!res.ok || !data?.ok || !Array.isArray(data.bites)) {
-      return {
-        ok: false,
-        error: data?.error || `http_${res.status}`,
+      const err = data?.error || `http_${res.status}`
+      if (res.status === 429 || err === 'rate_limited') {
+        return { ok: false, error: 'daily_limit' }
       }
+      return { ok: false, error: err }
     }
 
     const bites = data.bites
@@ -55,6 +67,7 @@ export async function suggestChopBites(
     if (bites.length < 3) {
       return { ok: false, error: 'bad_ai_response' }
     }
+    await recordChopAiUse()
     return { ok: true, bites }
   } catch {
     return { ok: false, error: 'network' }

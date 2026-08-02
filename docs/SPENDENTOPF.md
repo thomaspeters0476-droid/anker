@@ -2,7 +2,7 @@
 
 **Stand:** 30.07.2026  
 **Status:** interne Selbstverpflichtung / Konzept — noch **nicht** in Checkout oder Preise-UI live  
-**Preisanker (Ziel):** **3,99 €/Monat** · **39 €/Jahr** · 7 Tage Trial (mit Zahlungsmittel)
+**Preisanker (Ziel):** Tagesanker **3,49 €/Monat** · **34,90 €/Jahr** · Schublade **4,99 / 49,90** · Bundle **7,49 / 74,90** · 7 Tage Trial (mit Zahlungsmittel)
 
 ---
 
@@ -44,7 +44,7 @@ Das ist eine **Selbstverpflichtung**, kein Rechtsanspruch Dritter auf Auszahlung
 - Kein weiterer 5 %-Schnitt auf Mehrzahlungen.
 - Mehrzahlung ist **Unterstützung des Topfs**, **keine** steuerliche Spendenbescheinigung an Kund:innen (Aufwand zu hoch; im Checkout klar kommunizieren).
 
-**Beispiel (Orientierung):** 3,99 €/Mo. → ~0,20 € Topf; 39 €/Jahr → ~1,95 € Topf — zuzüglich Mehrzahlungen.
+**Beispiel (Orientierung):** 3,49 €/Mo. → ~0,17 € Topf; 34,90 €/Jahr → ~1,75 € Topf — zuzüglich Mehrzahlungen.
 
 ---
 

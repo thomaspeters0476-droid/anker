@@ -16,6 +16,41 @@ const MAX_BITES = 5
 /** Parse-Obergrenze nur zum Erkennen von „zu viele“, nicht zum Kürzen */
 const PARSE_DETECT_CAP = 20
 
+/** Server-Backstop (pro IP/Tag) — Client-Limit liegt darunter */
+const RATE_LIMIT_PER_DAY = Number(
+  process.env.CHOP_AI_IP_DAILY_LIMIT?.trim() || 40,
+)
+type RateBucket = { day: string; count: number }
+const rateByIp = new Map<string, RateBucket>()
+
+function clientIp(req: VercelRequest): string {
+  const xf = req.headers['x-forwarded-for']
+  if (typeof xf === 'string' && xf.trim()) {
+    return xf.split(',')[0]?.trim() || 'unknown'
+  }
+  if (Array.isArray(xf) && xf[0]) return String(xf[0]).trim()
+  return req.socket?.remoteAddress || 'unknown'
+}
+
+function todayUtc(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function checkRateLimit(ip: string): boolean {
+  if (!Number.isFinite(RATE_LIMIT_PER_DAY) || RATE_LIMIT_PER_DAY <= 0) {
+    return true
+  }
+  const day = todayUtc()
+  const cur = rateByIp.get(ip)
+  if (!cur || cur.day !== day) {
+    rateByIp.set(ip, { day, count: 1 })
+    return true
+  }
+  if (cur.count >= RATE_LIMIT_PER_DAY) return false
+  cur.count += 1
+  return true
+}
+
 function azureConfigured(): boolean {
   return Boolean(
     process.env.AZURE_OPENAI_ENDPOINT?.trim() &&
@@ -278,6 +313,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!azureConfigured()) {
     return res.status(503).json({ ok: false, error: 'not_configured' })
+  }
+
+  if (!checkRateLimit(clientIp(req))) {
+    return res.status(429).json({ ok: false, error: 'rate_limited' })
   }
 
   const body = (req.body ?? {}) as Body

@@ -30,4 +30,10 @@ dist-ssr
 # Vercel
 .vercel
 
-.vercel
+# Android TWA local build
+android/local.properties
+android/app/build/
+android/build/
+android/.gradle/
+android/*.apk
+android/*.aab

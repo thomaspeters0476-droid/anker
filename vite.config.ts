@@ -58,23 +58,51 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,ico,png,woff2}'],
-        // Kein Precache-only NavigationRoute — der hält sonst alte index.html
-        // und leitet neue Marketing-Routen (z. B. /die-schublade) auf / um.
-        navigateFallback: null,
+        // Offline nur für die Apps — Marketing bleibt Network-first ohne Shell-Fallback
+        navigateFallback: 'index.html',
+        navigateFallbackAllowlist: [/^\/app/, /^\/schublade/],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
         importScripts: ['/sw-notify.js'],
         runtimeCaching: [
           {
-            urlPattern: ({ request }) => request.mode === 'navigate',
+            urlPattern: ({ request, url }) =>
+              request.mode === 'navigate' &&
+              (url.pathname.startsWith('/app') ||
+                url.pathname.startsWith('/schublade')),
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'pages-network-first',
-              networkTimeoutSeconds: 4,
+              cacheName: 'app-shell-network-first',
+              networkTimeoutSeconds: 3,
               expiration: {
-                maxEntries: 32,
-                maxAgeSeconds: 60 * 60 * 24,
+                maxEntries: 16,
+                maxAgeSeconds: 60 * 60 * 24 * 7,
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+              expiration: {
+                maxEntries: 8,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 16,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
               },
             },
           },

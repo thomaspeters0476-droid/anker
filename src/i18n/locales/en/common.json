@@ -12,7 +12,8 @@
       "keptLocal": "This device wins — cloud updated.",
       "usedCloud": "Cloud state applied.",
       "pending": "{{count}} sync job waiting for a connection."
-    }
+    },
+    "offlineBanner": "Offline — everything stays on this device. Sync and AI need the internet again."
   },
   "common": {
     "buddy": "Buddy",
@@ -255,6 +256,19 @@
     "chopCancel": "Cancel",
     "chopAiSuggest": "Suggest with AI",
     "chopAiBusy": "AI thinking…",
+    "chopAiOffline": "AI suggestions need the internet. You can still type steps offline.",
+    "chopAiQuotaHintFree": "Free/trial: today {{dayLeft}}/{{dayLimit}}, month {{monthLeft}}/{{monthLimit}} · balance {{wallet}}. Further splits count. Manual always works.",
+    "chopAiQuotaHintWallet": "Subscription/pack balance: {{wallet}}. Further splits count. Manual always works.",
+    "chopAiLimitReached": "AI allowance used up (free/trial or balance). Top up below — or type the steps yourself.",
+    "chopAiPackLead": "Buy an AI pack (one-time). Subscriptions already include calls.",
+    "chopAiPackSettingsLead": "Extra AI suggestions — larger packs cost less per call.",
+    "chopAiPackButton": "{{size}} · {{credits}}× · {{price}}",
+    "chopAiPackBusy": "Continue…",
+    "chopAiPackNeedLogin": "Sign in under Sync to buy (same account on all devices).",
+    "chopAiPackSoon": "Top-up is ready, checkout not public yet — soon.",
+    "chopAiPackError": "Checkout failed. Try again in a moment.",
+    "chopAiPackSuccess": "AI pack purchased — balance updated.",
+    "chopAiPackCancel": "Purchase cancelled — nothing changed.",
     "chopAiOptInHint": "AI help is off. Turn it on in Settings — or type the steps yourself.",
     "chopAiError": {
       "generic": "Suggestion failed — type steps yourself or try later.",
@@ -263,7 +277,8 @@
       "bad_ai_response": "AI reply was unusable — edit manually or try again.",
       "too_many_bites": "AI wanted too many parts. Try again — goal is 3–5 that cover everything.",
       "ai_failed": "AI unavailable right now — manual or later.",
-      "network": "No connection — manual or later."
+      "network": "No connection — manual or later.",
+      "daily_limit": "AI allowance used up — top up or split manually."
     },
     "remove": "Move to trash",
     "deleteChainWarn": "This belongs to a project or has steps. Really remove?",
@@ -327,7 +342,7 @@
     "drawerAdvanced": "Advanced drawer",
     "drawerAdvancedHint": "Snooze, rest, and “Coming up”. Off = drop, inbox, ready to pull only.",
     "drawerAiChop": "AI help when breaking down",
-    "drawerAiChopHint": "When on: the title is sent to our AI server for step suggestions. You can still edit. Default: off.",
+    "drawerAiChopHint": "When on: title goes to our AI server. Free/trial: 10/day, max 50/month. Schublade/Bundle plans include extra calls; top-up available. Manual always. Default: off.",
     "drawerReadyCap": "Max ready to pull: {{n}}",
     "drawerReadyCapHint": "At most this many doable steps under “Ready to pull” (15–40). When full: pull or rest first.",
     "capacity": {
@@ -433,10 +448,11 @@
     },
     "conflict": {
       "ariaLabel": "Sync conflict",
-      "body": "Cloud and this device have different states with the same timestamp. Keep which?",
+      "body": "Cloud and this device both changed — e.g. offline here and in parallel elsewhere. Keep which? (No automatic merge.)",
       "keepLocal": "This device",
       "useCloud": "Cloud"
     },
+    "offlineHint": "You’re offline — sync is paused. Changes stay here and sync when you’re back online (or you choose if there’s a conflict).",
     "errors": {
       "notConfigured": "Sync isn’t configured yet.",
       "invalidEmail": "Please enter a valid email.",

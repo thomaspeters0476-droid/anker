@@ -7,7 +7,7 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     {
-      "source": "/((?!api/|robots\\.txt|sitemap\\.xml|marketing/).*)",
+      "source": "/((?!api/|robots\\.txt|sitemap\\.xml|marketing/|\\.well-known/).*)",
       "destination": "/index.html"
     }
   ],
@@ -54,6 +54,15 @@
         {
           "key": "Content-Type",
           "value": "text/plain; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
         }
       ]
     }

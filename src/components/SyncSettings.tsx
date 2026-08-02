@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getSyncSnapshot, hasMeaningfulLocalData } from '../storage'
+import { useOnline } from '../online'
 import {
   isSyncConfigured,
   signInWithMagicLink,
@@ -82,6 +83,7 @@ export function SyncSettings({
   embedded = false,
 }: Props) {
   const { t } = useTranslation()
+  const online = useOnline()
   const configured = isSyncConfigured()
   const [draft, setDraft] = useState(() => readPendingEmail())
   const [otp, setOtp] = useState('')
@@ -483,6 +485,11 @@ export function SyncSettings({
   return (
     <div className={`sync-settings${embedded ? ' sync-settings-embedded' : ''}`}>
       {!embedded && <h3 className="sync-title">{t('sync.title')}</h3>}
+      {!online && (
+        <p className="block-hint" role="status">
+          {t('sync.offlineHint')}
+        </p>
+      )}
       <p className="block-hint">{t('sync.hint')}</p>
       <p className="block-hint">{t('sync.vault.trust')}</p>
       <button

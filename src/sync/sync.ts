@@ -1,9 +1,10 @@
 import {
   applySyncSnapshot,
+  getLastSyncedAt,
   getLocalUpdatedAt,
   getSyncSnapshot,
   hasMeaningfulLocalData,
-  setLocalUpdatedAt,
+  markSynced,
   type SyncSnapshot,
   type CarryItem,
   type Prefs,
@@ -165,7 +166,7 @@ export async function writeEnvelope(
       : syncMsg('generic')
     return { ok: false, message: msg }
   }
-  setLocalUpdatedAt(updatedAt)
+  markSynced(updatedAt)
   return { ok: true }
 }
 
@@ -295,7 +296,7 @@ export async function applyRemote(remote: RemoteState): Promise<DayState> {
     ? { ...remote.payload.day, sparks }
     : null
 
-  return applySyncSnapshot({
+  const day = applySyncSnapshot({
     updatedAt: remote.updatedAt,
     day: dayPatch,
     prefs: remote.payload.prefs,
@@ -303,6 +304,8 @@ export async function applyRemote(remote: RemoteState): Promise<DayState> {
     sparks,
     drawer: remote.payload.drawer ?? emptyDrawer(),
   })
+  markSynced(remote.updatedAt)
+  return day
 }
 
 export async function resolveKeepLocal(
@@ -331,6 +334,7 @@ function payloadsEqual(a: SyncSnapshotPayload, b: SyncSnapshotPayload): boolean 
 export async function syncNow(options?: {
   preferConflictPrompt?: boolean
 }): Promise<SyncResult> {
+  if (isProbablyOffline()) return { status: 'skipped' }
   const sb = getSupabase()
   const session = await getSession()
   if (!sb || !session) return { status: 'skipped' }
@@ -389,6 +393,7 @@ export async function syncNow(options?: {
 
   const localMs = Date.parse(local.updatedAt) || 0
   const remoteMs = Date.parse(remote.updatedAt) || 0
+  const baselineMs = Date.parse(getLastSyncedAt()) || 0
 
   // Compare without hydrating full media for equality check
   const localCloudish: SyncSnapshotPayload = {
@@ -407,18 +412,37 @@ export async function syncNow(options?: {
     drawer: local.drawer ?? emptyDrawer(),
   }
 
-  if (remoteMs > localMs) {
+  if (payloadsEqual(localCloudish, remote.payload)) {
+    markSynced(remote.updatedAt)
+    return { status: 'idle' }
+  }
+
+  // Variante 1: beide Seiten seit letztem Sync geändert → nachfragen
+  const localDiverged = baselineMs > 0 ? localMs > baselineMs : true
+  const remoteDiverged = baselineMs > 0 ? remoteMs > baselineMs : true
+
+  if (
+    localDiverged &&
+    remoteDiverged &&
+    options?.preferConflictPrompt !== false
+  ) {
+    return {
+      status: 'conflict',
+      conflict: { local, remote },
+    }
+  }
+
+  if (remoteDiverged && !localDiverged) {
     const day = await applyRemote(remote)
     return { status: 'applied_remote', day }
   }
-  if (localMs > remoteMs) {
+  if (localDiverged && !remoteDiverged) {
     const pushed = await pushSnapshot(local)
     if (!pushed.ok) return { status: 'error', message: pushed.message }
     return { status: 'pushed_local' }
   }
 
-  if (payloadsEqual(localCloudish, remote.payload)) return { status: 'idle' }
-
+  // Keine Baseline / unklar — lieber fragen als still überschreiben
   if (options?.preferConflictPrompt !== false) {
     return {
       status: 'conflict',
@@ -426,6 +450,10 @@ export async function syncNow(options?: {
     }
   }
 
+  if (remoteMs > localMs) {
+    const day = await applyRemote(remote)
+    return { status: 'applied_remote', day }
+  }
   const pushed = await pushSnapshot(local)
   if (!pushed.ok) return { status: 'error', message: pushed.message }
   return { status: 'pushed_local' }

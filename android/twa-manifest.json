@@ -1,0 +1,47 @@
+{
+  "packageId": "de.tagesanker.app",
+  "host": "tagesanker.de",
+  "name": "Tagesanker",
+  "launcherName": "Tagesanker",
+  "display": "standalone",
+  "themeColor": "#2F6F5E",
+  "themeColorDark": "#1C2B24",
+  "navigationColor": "#1C2B24",
+  "navigationColorDark": "#1C2B24",
+  "navigationDividerColor": "#1C2B24",
+  "navigationDividerColorDark": "#1C2B24",
+  "backgroundColor": "#E8F0EC",
+  "enableNotifications": true,
+  "startUrl": "/app",
+  "iconUrl": "https://tagesanker.de/icon-512.png",
+  "maskableIconUrl": "https://tagesanker.de/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "C:/Users/thoma/.android/debug.keystore",
+    "alias": "androiddebugkey"
+  },
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://tagesanker.de/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://tagesanker.de/app",
+  "minSdkVersion": 21,
+  "orientation": "portrait-primary",
+  "fingerprints": [
+    {
+      "name": "android-debug",
+      "value": "0A:98:DD:D5:ED:94:D0:3B:64:29:E1:F8:D3:5C:0F:69:F1:29:E7:8B:97:A9:62:2D:B0:7E:3A:48:13:3F:81:24"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}

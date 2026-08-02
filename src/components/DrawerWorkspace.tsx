@@ -48,6 +48,18 @@ import {
 } from '../drawer/logic'
 import { suggestChopBites } from '../drawer/chopAi'
 import {
+  CHOP_AI_DAILY_LIMIT,
+  CHOP_AI_MONTHLY_LIMIT,
+  canUseChopAi,
+  freeDayRemaining,
+  freeMonthRemaining,
+  refreshChopWallet,
+  usesFreeQuota,
+  walletBalanceCached,
+} from '../drawer/chopAiQuota'
+import { ChopAiPackBuy } from './ChopAiPackBuy'
+import { useOnline } from '../online'
+import {
   bitesTooFine,
   CHOP_MAX,
   CHOP_MIN,
@@ -124,6 +136,14 @@ export function DrawerWorkspace({
   /** Ketten-Vorziehen: Buddy fragt nach Bestätigung */
   const [pullConfirmId, setPullConfirmId] = useState<string | null>(null)
   const aiOptIn = aiChopOptIn ?? loadPrefs().drawerAiChopOptIn
+  const online = useOnline()
+  const [aiQuotaTick, setAiQuotaTick] = useState(0)
+  useEffect(() => {
+    void refreshChopWallet().then(() => setAiQuotaTick((n) => n + 1))
+  }, [])
+  const walletLeft = aiQuotaTick >= 0 ? walletBalanceCached() : 0
+  const aiQuotaOk = aiQuotaTick >= 0 ? canUseChopAi() : false
+  const showFree = aiQuotaTick >= 0 ? usesFreeQuota() : true
   const readyCap =
     readyCapProp ?? loadPrefs().drawerReadyCap ?? DRAWER_READY_CAP_DEFAULT
   const advanced = advancedProp ?? loadPrefs().drawerAdvanced
@@ -458,6 +478,16 @@ export function DrawerWorkspace({
 
   async function runAiSuggest() {
     if (!chopParent || chopBusy) return
+    if (!online) {
+      setChopErr(t('drawer.chopAiOffline'))
+      return
+    }
+    await refreshChopWallet()
+    setAiQuotaTick((n) => n + 1)
+    if (!canUseChopAi()) {
+      setChopErr(t('drawer.chopAiLimitReached'))
+      return
+    }
     setChopBusy(true)
     setChopErr(null)
     // Bei schon kleinen Häppchen nur Hinweis — Vorschlag trotzdem erlauben
@@ -475,11 +505,21 @@ export function DrawerWorkspace({
       mode: further ? 'further' : 'first',
     })
     setChopBusy(false)
+    setAiQuotaTick((n) => n + 1)
     if (!result.ok) {
       if (result.error === 'too_many_bites') setChopSteer('too_many')
       const key = `drawer.chopAiError.${result.error}`
-      const msg = t(key)
-      setChopErr(msg === key ? t('drawer.chopAiError.generic') : msg)
+      const msg = t(key, {
+        day: CHOP_AI_DAILY_LIMIT,
+        month: CHOP_AI_MONTHLY_LIMIT,
+      })
+      setChopErr(
+        result.error === 'daily_limit'
+          ? t('drawer.chopAiLimitReached')
+          : msg === key
+            ? t('drawer.chopAiError.generic')
+            : msg,
+      )
       return
     }
     // Nie still abschneiden — API liefert nur gültige 3–5
@@ -958,15 +998,39 @@ export function DrawerWorkspace({
               </p>
             )}
             {aiOptIn ? (
-              <div className="carry-actions drawer-chop-ai-row">
-                <button
-                  type="button"
-                  className="secondary"
-                  disabled={chopBusy}
-                  onClick={() => void runAiSuggest()}
-                >
-                  {chopBusy ? t('drawer.chopAiBusy') : t('drawer.chopAiSuggest')}
-                </button>
+              <div className="drawer-chop-ai-block">
+                <div className="carry-actions drawer-chop-ai-row">
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={chopBusy || !online || !aiQuotaOk}
+                    onClick={() => void runAiSuggest()}
+                  >
+                    {chopBusy
+                      ? t('drawer.chopAiBusy')
+                      : t('drawer.chopAiSuggest')}
+                  </button>
+                </div>
+                {!online ? (
+                  <p className="block-hint" role="status">
+                    {t('drawer.chopAiOffline')}
+                  </p>
+                ) : (
+                  <p className="block-hint" role="status">
+                    {showFree
+                      ? t('drawer.chopAiQuotaHintFree', {
+                          dayLeft: freeDayRemaining(),
+                          dayLimit: CHOP_AI_DAILY_LIMIT,
+                          monthLeft: freeMonthRemaining(),
+                          monthLimit: CHOP_AI_MONTHLY_LIMIT,
+                          wallet: walletLeft,
+                        })
+                      : t('drawer.chopAiQuotaHintWallet', {
+                          wallet: walletLeft,
+                        })}
+                  </p>
+                )}
+                {!aiQuotaOk && online && <ChopAiPackBuy compact />}
               </div>
             ) : (
               <p className="block-hint">{t('drawer.chopAiOptInHint')}</p>

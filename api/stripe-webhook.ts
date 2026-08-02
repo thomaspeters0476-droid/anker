@@ -1,6 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
+import {
+  creditWallet,
+  getAdminSupabase,
+  getWallet,
+  PACK_CREDITS,
+  tierFromPriceId,
+  type ChopTier,
+} from './_chopWallet'
 
 export const config = {
   api: {
@@ -152,6 +160,132 @@ async function recordSpendPotFromInvoice(invoice: Stripe.Invoice) {
   }
 }
 
+async function creditChopPackFromSession(session: Stripe.Checkout.Session) {
+  if (session.metadata?.product !== 'chop_pack') return
+  if (session.payment_status && session.payment_status !== 'paid') return
+
+  const userId =
+    session.metadata.user_id?.trim() ||
+    session.client_reference_id?.trim() ||
+    ''
+  if (!userId) {
+    console.error('chop pack: missing user_id')
+    return
+  }
+
+  const pack = String(session.metadata.pack || '').toLowerCase()
+  const credits =
+    Number(session.metadata.credits) ||
+    PACK_CREDITS[pack] ||
+    0
+  if (credits < 1) {
+    console.error('chop pack: bad credits', pack)
+    return
+  }
+
+  const result = await creditWallet({
+    userId,
+    delta: credits,
+    reason: 'purchase',
+    stripeSessionId: session.id,
+    note: `pack:${pack}`,
+  })
+  if (!result.ok) console.error('chop pack credit', result.error)
+}
+
+async function creditChopAboFromInvoice(
+  stripe: Stripe,
+  invoice: Stripe.Invoice,
+) {
+  const invoiceId = invoice.id
+  if (!invoiceId) return
+
+  let userId =
+    (invoice.subscription_details?.metadata?.user_id as string | undefined)?.trim() ||
+    invoice.metadata?.user_id?.trim() ||
+    ''
+
+  if (!userId && invoice.customer && typeof invoice.customer === 'string') {
+    try {
+      const customer = await stripe.customers.retrieve(invoice.customer)
+      if (!customer.deleted) {
+        userId = customer.metadata?.supabase_user_id?.trim() || ''
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  // Subscription metadata
+  const subRef = invoice.subscription
+  const subId = typeof subRef === 'string' ? subRef : subRef?.id
+  let metaTier = ''
+  let metaCredits = 0
+  if (subId) {
+    try {
+      const sub = await stripe.subscriptions.retrieve(subId)
+      userId = userId || sub.metadata?.user_id?.trim() || ''
+      metaTier = sub.metadata?.tier || sub.metadata?.product || ''
+      metaCredits = Number(sub.metadata?.chop_monthly_credits) || 0
+    } catch {
+      /* ignore */
+    }
+  }
+
+  if (!userId) return
+
+  let tier: ChopTier | null = null
+  let credits = 0
+
+  if (metaTier === 'schublade' || metaTier === 'bundle' || metaTier === 'tagesanker') {
+    tier = metaTier
+    credits =
+      metaCredits ||
+      (tier === 'schublade' ? 100 : tier === 'bundle' ? 150 : 0)
+  } else {
+    for (const line of invoice.lines?.data ?? []) {
+      const priceId =
+        (line as { price?: { id?: string } }).price?.id ||
+        (line as { pricing?: { price_details?: { price?: string } } }).pricing
+          ?.price_details?.price
+      const hit = tierFromPriceId(priceId)
+      if (hit) {
+        tier = hit.tier
+        credits = hit.credits
+        break
+      }
+    }
+  }
+
+  if (!tier) return
+
+  // Auch bei 0 Credits Tier setzen (Tagesanker), ohne Ledger-Spam bei 0
+  if (credits > 0) {
+    const result = await creditWallet({
+      userId,
+      delta: credits,
+      reason: 'abo_grant',
+      stripeInvoiceId: invoiceId,
+      tier,
+      note: `abo:${tier}`,
+    })
+    if (!result.ok) console.error('chop abo credit', result.error)
+  } else {
+    const sb = getAdminSupabase()
+    if (!sb) return
+    const current = await getWallet(sb, userId)
+    await sb.from('chop_ai_wallets').upsert(
+      {
+        user_id: userId,
+        balance: current.balance,
+        tier,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id' },
+    )
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
@@ -189,10 +323,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice
         await recordSpendPotFromInvoice(invoice)
+        await creditChopAboFromInvoice(stripe, invoice)
         break
       }
-      case 'checkout.session.completed':
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session
+        await creditChopPackFromSession(session)
         break
+      }
       default:
         break
     }

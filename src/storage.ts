@@ -20,37 +20,68 @@ const SPARKS_KEY = 'anker-sparks'
 const DRAWER_KEY = 'anker-drawer'
 const SYNC_META_KEY = 'anker-sync-meta'
 
+type SyncMeta = {
+  updatedAt: string
+  /** Gemeinsamer Stand nach erfolgreichem Sync — für Konflikt-Erkennung */
+  lastSyncedAt?: string
+}
+
 let suppressSyncTouch = false
 
-function touchLocalUpdatedAt(): void {
-  if (suppressSyncTouch) return
+function readSyncMeta(): SyncMeta {
   try {
+    const raw = localStorage.getItem(SYNC_META_KEY)
+    if (!raw) return { updatedAt: '' }
+    const data = JSON.parse(raw) as Partial<SyncMeta>
+    return {
+      updatedAt: typeof data.updatedAt === 'string' ? data.updatedAt : '',
+      lastSyncedAt:
+        typeof data.lastSyncedAt === 'string' ? data.lastSyncedAt : undefined,
+    }
+  } catch {
+    return { updatedAt: '' }
+  }
+}
+
+function writeSyncMeta(patch: Partial<SyncMeta>): void {
+  try {
+    const cur = readSyncMeta()
     localStorage.setItem(
       SYNC_META_KEY,
-      JSON.stringify({ updatedAt: new Date().toISOString() }),
+      JSON.stringify({
+        updatedAt: patch.updatedAt ?? cur.updatedAt,
+        ...(patch.lastSyncedAt !== undefined
+          ? { lastSyncedAt: patch.lastSyncedAt }
+          : cur.lastSyncedAt
+            ? { lastSyncedAt: cur.lastSyncedAt }
+            : {}),
+      }),
     )
   } catch {
     /* ignore */
   }
 }
 
+function touchLocalUpdatedAt(): void {
+  if (suppressSyncTouch) return
+  writeSyncMeta({ updatedAt: new Date().toISOString() })
+}
+
 export function getLocalUpdatedAt(): string {
-  try {
-    const raw = localStorage.getItem(SYNC_META_KEY)
-    if (!raw) return ''
-    const data = JSON.parse(raw) as { updatedAt?: string }
-    return typeof data.updatedAt === 'string' ? data.updatedAt : ''
-  } catch {
-    return ''
-  }
+  return readSyncMeta().updatedAt
+}
+
+export function getLastSyncedAt(): string {
+  return readSyncMeta().lastSyncedAt ?? ''
 }
 
 export function setLocalUpdatedAt(iso: string): void {
-  try {
-    localStorage.setItem(SYNC_META_KEY, JSON.stringify({ updatedAt: iso }))
-  } catch {
-    /* ignore */
-  }
+  writeSyncMeta({ updatedAt: iso })
+}
+
+/** Nach Push/Pull: lokaler Stempel und Sync-Baseline angleichen */
+export function markSynced(iso: string): void {
+  writeSyncMeta({ updatedAt: iso, lastSyncedAt: iso })
 }
 
 export type SyncSnapshot = {

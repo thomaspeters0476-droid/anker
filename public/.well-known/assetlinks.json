@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "de.tagesanker.app",
+      "sha256_cert_fingerprints": [
+        "0A:98:DD:D5:ED:94:D0:3B:64:29:E1:F8:D3:5C:0F:69:F1:29:E7:8B:97:A9:62:2D:B0:7E:3A:48:13:3F:81:24"
+      ]
+    }
+  }
+]

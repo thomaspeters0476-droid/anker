@@ -23,6 +23,17 @@
   text-align: left;
 }
 
+.offline-banner {
+  margin: 0.4rem 0 0;
+  padding: 0.45rem 0.65rem;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  color: var(--muted, #5a6b63);
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
 .topbar-row {
   display: flex;
   align-items: center;
@@ -2885,6 +2896,24 @@
 
 .drawer-buddy {
   margin: 0.15rem 0 1rem;
+}
+
+.chop-pack-buy {
+  margin-top: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.chop-pack-buy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.chop-pack-settings {
+  margin: 0.35rem 0 0.75rem;
+  padding-top: 0.25rem;
 }
 
 .drawer-flash {

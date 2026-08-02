@@ -12,7 +12,8 @@
       "keptLocal": "Dieses Gerät gilt — Cloud aktualisiert.",
       "usedCloud": "Cloud-Stand übernommen.",
       "pending": "{{count}} Sync-Auftrag wartet auf Verbindung."
-    }
+    },
+    "offlineBanner": "Offline — alles bleibt auf diesem Gerät. Sync und KI brauchen wieder Internet."
   },
   "common": {
     "buddy": "Buddy",
@@ -255,6 +256,19 @@
     "chopCancel": "Abbrechen",
     "chopAiSuggest": "Mit KI vorschlagen",
     "chopAiBusy": "KI denkt …",
+    "chopAiOffline": "KI-Vorschläge nur mit Internet. Schritte kannst du offline selbst eintragen.",
+    "chopAiQuotaHintFree": "Free/Trial: heute {{dayLeft}}/{{dayLimit}}, Monat {{monthLeft}}/{{monthLimit}} · Guthaben {{wallet}}. Weiterzerlegen zählt. Manuell geht immer.",
+    "chopAiQuotaHintWallet": "Abo/Paket-Guthaben: {{wallet}}. Weiterzerlegen zählt. Manuell geht immer.",
+    "chopAiLimitReached": "KI-Kontingent aufgebraucht (Free/Trial oder Guthaben). Nachkauf unten — oder Schritte selbst eintragen.",
+    "chopAiPackLead": "KI-Paket nachkaufen (einmalig). Im Abo sind Calls bereits enthalten.",
+    "chopAiPackSettingsLead": "Zusätzliche KI-Vorschläge — günstiger pro Call im größeren Paket.",
+    "chopAiPackButton": "{{size}} · {{credits}}× · {{price}}",
+    "chopAiPackBusy": "Weiter …",
+    "chopAiPackNeedLogin": "Zum Nachkauf unter Sync anmelden (gleicher Account auf allen Geräten).",
+    "chopAiPackSoon": "Nachkauf ist vorbereitet, Checkout noch nicht öffentlich — bald.",
+    "chopAiPackError": "Checkout hat nicht geklappt. Kurz später nochmal.",
+    "chopAiPackSuccess": "KI-Paket gebucht — Guthaben ist aktualisiert.",
+    "chopAiPackCancel": "Kauf abgebrochen — nichts passiert.",
     "chopAiOptInHint": "KI-Hilfe ist aus. Unter Einstellungen einschalten — oder die Schritte selbst eintragen.",
     "chopAiError": {
       "generic": "Vorschlag hat nicht geklappt — bitte selbst eintragen oder später nochmal.",
@@ -263,7 +277,8 @@
       "bad_ai_response": "Die KI-Antwort war unbrauchbar — bitte manuell oder erneut versuchen.",
       "too_many_bites": "Die KI wollte zu viele Teile. Nochmal versuchen — Ziel sind 3–5, die alles abdecken.",
       "ai_failed": "KI gerade nicht erreichbar — bitte manuell oder später.",
-      "network": "Keine Verbindung — bitte manuell oder später."
+      "network": "Keine Verbindung — bitte manuell oder später.",
+      "daily_limit": "KI-Kontingent aufgebraucht — Nachkauf oder manuell zerlegen."
     },
     "remove": "In den Papierkorb",
     "deleteChainWarn": "Das gehört zu einem Vorhaben oder hat Schritte. Wirklich entfernen?",
@@ -327,7 +342,7 @@
     "drawerAdvanced": "Erweiterte Schublade",
     "drawerAdvancedHint": "Aufschub, Ruhe und „Demnächst“. Aus = nur Ablegen, Eingang, Zum Holen.",
     "drawerAiChop": "KI-Hilfe beim Zerlegen",
-    "drawerAiChopHint": "Wenn an: Der Titel geht an unseren KI-Server für Schritt-Vorschläge. Du kannst alles noch ändern. Standard: aus.",
+    "drawerAiChopHint": "Wenn an: Titel geht an unseren KI-Server. Free/Trial: 10/Tag, max. 50/Monat. Im Schublade-/Bundle-Abo sind Extra-Calls enthalten; Nachkauf möglich. Manuell immer. Standard: aus.",
     "drawerReadyCap": "Max. zum Holen: {{n}}",
     "drawerReadyCapHint": "Höchstens so viele greifbare Schritte unter „Zum Holen“ (15–40). Wenn voll: erst holen oder in Ruhe legen.",
     "capacity": {
@@ -433,10 +448,11 @@
     },
     "conflict": {
       "ariaLabel": "Sync-Konflikt",
-      "body": "Cloud und dieses Gerät haben unterschiedliche Stände mit gleichem Zeitstempel. Was behalten?",
+      "body": "Cloud und dieses Gerät wurden beide geändert — z. B. offline hier und parallel woanders. Was behalten? (Kein automatisches Zusammenführen.)",
       "keepLocal": "Dieses Gerät",
       "useCloud": "Cloud"
     },
+    "offlineHint": "Gerade offline — Sync pausiert. Änderungen bleiben hier und gehen online wieder in die Cloud (oder du wählst bei Konflikt).",
     "errors": {
       "notConfigured": "Sync ist noch nicht konfiguriert.",
       "invalidEmail": "Bitte eine gültige E-Mail eingeben.",

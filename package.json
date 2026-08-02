@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "android:update": "cd android && npx --yes @bubblewrap/cli update --skipVersionUpgrade",
+    "android:apk": "cd android && gradlew.bat assembleDebug"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

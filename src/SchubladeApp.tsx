@@ -39,6 +39,9 @@ import {
   subscribeUserState,
   type SyncConflict,
 } from './sync'
+import { useOnline } from './online'
+import { ChopAiPackBuy } from './components/ChopAiPackBuy'
+import { refreshChopWallet } from './drawer/chopAiQuota'
 import './App.css'
 
 /**
@@ -65,6 +68,7 @@ export function SchubladeApp() {
   )
   const [captureOpen, setCaptureOpen] = useState(false)
   const [sparkFlash, setSparkFlash] = useState<string | null>(null)
+  const online = useOnline()
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
 
@@ -73,6 +77,22 @@ export function SchubladeApp() {
     const id = window.setTimeout(() => setSparkFlash(null), 4000)
     return () => window.clearTimeout(id)
   }, [sparkFlash])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const checkout = params.get('chop_checkout')
+    if (!checkout) return
+    if (checkout === 'success') {
+      void refreshChopWallet().then(() => {
+        setSparkFlash(t('drawer.chopAiPackSuccess'))
+      })
+    } else if (checkout === 'cancel') {
+      setSparkFlash(t('drawer.chopAiPackCancel'))
+    }
+    params.delete('chop_checkout')
+    const next = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`
+    window.history.replaceState({}, '', next)
+  }, [t])
 
   function saveSpark(partial: Omit<Spark, 'id' | 'createdAt'>) {
     const spark: Spark = {
@@ -220,6 +240,11 @@ export function SchubladeApp() {
           )}
         </div>
         <p className="brand-tag">{t('drawer.appTag')}</p>
+        {!online && (
+          <p className="offline-banner" role="status">
+            {t('app.offlineBanner')}
+          </p>
+        )}
         {!regulateOpen && <ProductNav active="schublade" />}
       </header>
 
@@ -335,6 +360,12 @@ export function SchubladeApp() {
               {t('settings.drawerAiChop')}
             </label>
             <p className="block-hint">{t('settings.drawerAiChopHint')}</p>
+            {aiChopOptIn && (
+              <div className="settings-section chop-pack-settings">
+                <p className="block-hint">{t('drawer.chopAiPackSettingsLead')}</p>
+                <ChopAiPackBuy />
+              </div>
+            )}
             <div className="settings-row">
               <span>{t('settings.drawerReadyCap', { n: readyCap })}</span>
               <button
