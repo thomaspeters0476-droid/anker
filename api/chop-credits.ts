@@ -33,13 +33,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ ok: false, error: 'bad_action' })
     }
     const result = await consumeWalletCredit(userId)
-    if (result.ok) {
+    if (result.ok === true) {
       return res.status(200).json({ ok: true, balance: result.balance })
     }
-    if (result.error === 'empty') {
+    const err = result.ok === false ? result.error : 'unknown'
+    if (err === 'empty') {
       return res.status(402).json({ ok: false, error: 'empty_balance' })
     }
-    return res.status(503).json({ ok: false, error: result.error })
+    return res.status(503).json({ ok: false, error: err })
   }
 
   res.setHeader('Allow', 'GET, POST')

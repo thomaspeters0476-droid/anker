@@ -209,7 +209,8 @@ async function creditChopAboFromInvoice(
     try {
       const customer = await stripe.customers.retrieve(inv.customer)
       if (!customer.deleted) {
-        userId = customer.metadata?.supabase_user_id?.trim() || ''
+        userId =
+          (customer as Stripe.Customer).metadata?.supabase_user_id?.trim() || ''
       }
     } catch {
       /* ignore */
