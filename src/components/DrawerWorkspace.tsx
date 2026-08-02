@@ -276,6 +276,14 @@ export function DrawerWorkspace({
     setActionFlash(t('drawer.pulledFlash', { title: item.title }))
   }
 
+  /** Ohne Tagesanker: Schritt hier abhaken (aus der Schublade nehmen) */
+  function completeReadyItem(item: DrawerItem) {
+    patchDrawer((d) => removeItem(d, item.id))
+    setPullConfirmId(null)
+    setMoreOpenId(null)
+    setActionFlash(t('drawer.doneFlash', { title: item.title }))
+  }
+
   function tidyPullOne() {
     const next = pullable[0]
     if (!next) return
@@ -632,16 +640,31 @@ export function DrawerWorkspace({
           )}
         </div>
         <div className="drawer-item-actions">
-          {/* Eine Primäraktion: Bereit→Holen, Eingang/Brocken→Zerlegen */}
+          {/* Bereit: Holen (+ in der Schublade-App auch Abhaken ohne Tagesanker) */}
           {itemLevel === 'ready' && !item.isChunk && !confirmingPull && (
-            <button
-              type="button"
-              className={pullRole === 'later' ? 'secondary sm' : 'primary sm'}
-              disabled={!canAddSize(day.capacity, day.tasks, 'small')}
-              onClick={() => pullItem(item)}
-            >
-              {t('drawer.pull')}
-            </button>
+            <>
+              {variant === 'page' && (
+                <button
+                  type="button"
+                  className="primary sm"
+                  onClick={() => completeReadyItem(item)}
+                >
+                  {t('drawer.markDone')}
+                </button>
+              )}
+              <button
+                type="button"
+                className={
+                  variant === 'page' || pullRole === 'later'
+                    ? 'secondary sm'
+                    : 'primary sm'
+                }
+                disabled={!canAddSize(day.capacity, day.tasks, 'small')}
+                onClick={() => pullItem(item)}
+              >
+                {t('drawer.pull')}
+              </button>
+            </>
           )}
           {(itemLevel === 'inbox' || Boolean(item.isChunk)) && (
               <button

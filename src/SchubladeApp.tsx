@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { setAppLocale } from './i18n'
 import { normalizeLocale } from './i18n/locales'
-import type { DayState, Spark } from './types'
+import type { DayState, Spark, Task } from './types'
+import { lifeTemplateLabel } from './i18n/lifeLabels'
 import {
   emptyDay,
   loadDay,
@@ -82,6 +83,20 @@ export function SchubladeApp() {
     setDay((d) => ({ ...d, sparks: [...d.sparks, spark] }))
     setSparkFlash(t('drawer.sparkParked'))
     void pushSparkNow(spark)
+  }
+
+  const nowTasks = day.tasks.filter(
+    (task) => task.status === 'planned' || task.status === 'active',
+  )
+
+  function completeTodayTask(task: Task) {
+    setDay((d) => ({
+      ...d,
+      tasks: d.tasks.map((item) =>
+        item.id === task.id ? { ...item, status: 'done' as const } : item,
+      ),
+    }))
+    setSparkFlash(t('drawer.todayDoneFlash', { title: task.title }))
   }
 
   const applySyncedDay = useCallback((next: DayState) => {
@@ -216,6 +231,39 @@ export function SchubladeApp() {
               <p>{sparkFlash}</p>
             </div>
           )}
+
+          <div className="drawer-today">
+            <h2 className="drawer-today-title">{t('drawer.todayTitle')}</h2>
+            <p className="block-hint">{t('drawer.todayLead')}</p>
+            {nowTasks.length === 0 ? (
+              <p className="block-hint">{t('drawer.todayEmptyHint')}</p>
+            ) : (
+              <ul className="drawer-today-list">
+                {nowTasks.map((task) => (
+                  <li key={task.id} className="drawer-today-item">
+                    <div className="drawer-today-main">
+                      <strong>
+                        {lifeTemplateLabel(task.title, t)}
+                      </strong>
+                      {task.parentTitle && (
+                        <p className="task-parent-line">
+                          {t('drawer.parentLine', { title: task.parentTitle })}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="primary sm"
+                      onClick={() => completeTodayTask(task)}
+                    >
+                      {t('drawer.markDone')}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
           <DrawerWorkspace
             variant="page"
             advanced={drawerAdvanced}
