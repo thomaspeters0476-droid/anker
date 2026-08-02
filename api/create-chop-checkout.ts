@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import Stripe from 'stripe'
-import { PACK_CREDITS, userIdFromAuthHeader } from './_chopWallet'
+import { PACK_CREDITS, userIdFromAuthHeader } from './_chopWallet.js'
 
 type PackId = 's' | 'm' | 'l'
 

@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import {
   creditWallet,
@@ -8,7 +7,16 @@ import {
   PACK_CREDITS,
   tierFromPriceId,
   type ChopTier,
-} from './_chopWallet'
+} from './_chopWallet.js'
+
+/** Stripe SDK typings lag API fields we still receive at runtime. */
+type InvoiceLoose = Stripe.Invoice & {
+  subscription?: string | Stripe.Subscription | null
+  subscription_details?: { metadata?: Record<string, string> } | null
+}
+type InvoiceLineLoose = Stripe.InvoiceLineItem & {
+  type?: string
+}
 
 export const config = {
   api: {
@@ -20,15 +28,6 @@ function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY?.trim()
   if (!key) return null
   return new Stripe(key)
-}
-
-function getAdminSupabase() {
-  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) return null
-  return createClient(url, key, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
 }
 
 async function readRawBody(req: VercelRequest): Promise<Buffer> {
@@ -98,7 +97,7 @@ async function recordSpendPotFromInvoice(invoice: Stripe.Invoice) {
   let pctCents = 0
   let topupCents = 0
 
-  for (const line of invoice.lines?.data ?? []) {
+  for (const line of (invoice.lines?.data ?? []) as InvoiceLineLoose[]) {
     const amount = line.amount ?? 0
     if (amount <= 0) continue
     const meta =
@@ -197,18 +196,19 @@ async function creditChopAboFromInvoice(
   stripe: Stripe,
   invoice: Stripe.Invoice,
 ) {
-  const invoiceId = invoice.id
+  const inv = invoice as InvoiceLoose
+  const invoiceId = inv.id
   if (!invoiceId) return
 
   let userId =
-    (invoice.subscription_details?.metadata?.user_id as string | undefined)?.trim() ||
-    invoice.metadata?.user_id?.trim() ||
+    inv.subscription_details?.metadata?.user_id?.trim() ||
+    inv.metadata?.user_id?.trim() ||
     ''
 
-  if (!userId && invoice.customer && typeof invoice.customer === 'string') {
+  if (!userId && inv.customer && typeof inv.customer === 'string') {
     try {
-      const customer = await stripe.customers.retrieve(invoice.customer)
-      if (!customer.deleted) {
+      const customer = await stripe.customers.retrieve(inv.customer)
+      if (!('deleted' in customer && customer.deleted)) {
         userId = customer.metadata?.supabase_user_id?.trim() || ''
       }
     } catch {
@@ -217,7 +217,7 @@ async function creditChopAboFromInvoice(
   }
 
   // Subscription metadata
-  const subRef = invoice.subscription
+  const subRef = inv.subscription
   const subId = typeof subRef === 'string' ? subRef : subRef?.id
   let metaTier = ''
   let metaCredits = 0

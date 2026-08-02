@@ -5,7 +5,7 @@ import {
   getWallet,
   useFreeQuota,
   userIdFromAuthHeader,
-} from './_chopWallet'
+} from './_chopWallet.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const userId = await userIdFromAuthHeader(req)
