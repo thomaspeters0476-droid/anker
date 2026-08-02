@@ -385,6 +385,42 @@
   font-size: clamp(2.6rem, 7.5vw, 4.4rem);
 }
 
+/* Phone-Mockup: Rotation behalten, Bild nicht verzerren */
+.mkt-drawer-landing .mkt-phone-hero {
+  width: min(100%, 17rem);
+  margin: 0 auto;
+  transform: rotate(-1.5deg);
+  animation: mkt-phone-in-drawer 0.9s ease both;
+}
+
+.mkt-drawer-landing .mkt-phone img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 390 / 780;
+  object-fit: cover;
+  object-position: top center;
+  background: #e8f0ec;
+}
+
+@media (min-width: 900px) {
+  .mkt-drawer-landing .mkt-phone-hero {
+    width: 16rem;
+    margin-right: 1.5rem;
+    margin-left: auto;
+  }
+}
+
+@keyframes mkt-phone-in-drawer {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotate(-1.5deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-1.5deg);
+  }
+}
+
 .mkt-price-slots {
   display: grid;
   gap: 1.15rem;
