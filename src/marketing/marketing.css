@@ -373,6 +373,19 @@
   margin-top: 1.15rem;
 }
 
+.mkt-drawer-blog-list {
+  margin-top: 1.1rem;
+  max-width: 28rem;
+}
+
+.mkt-drawer-blog-list a {
+  text-decoration: none;
+}
+
+.mkt-drawer-blog-list a:hover strong {
+  color: var(--mkt-accent);
+}
+
 .mkt-hero-glow--drawer {
   background:
     radial-gradient(ellipse 52% 58% at 82% 16%, rgba(47, 111, 94, 0.42), transparent 62%),
