@@ -189,7 +189,7 @@ async function creditChopPackFromSession(session: Stripe.Checkout.Session) {
     stripeSessionId: session.id,
     note: `pack:${pack}`,
   })
-  if (!result.ok) console.error('chop pack credit', result.error)
+  if (result.ok === false) console.error('chop pack credit', result.error)
 }
 
 async function creditChopAboFromInvoice(
@@ -208,7 +208,7 @@ async function creditChopAboFromInvoice(
   if (!userId && inv.customer && typeof inv.customer === 'string') {
     try {
       const customer = await stripe.customers.retrieve(inv.customer)
-      if (!('deleted' in customer && customer.deleted)) {
+      if (!customer.deleted) {
         userId = customer.metadata?.supabase_user_id?.trim() || ''
       }
     } catch {
@@ -269,7 +269,7 @@ async function creditChopAboFromInvoice(
       tier,
       note: `abo:${tier}`,
     })
-    if (!result.ok) console.error('chop abo credit', result.error)
+    if (result.ok === false) console.error('chop abo credit', result.error)
   } else {
     const sb = getAdminSupabase()
     if (!sb) return
