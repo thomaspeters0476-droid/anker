@@ -4,6 +4,7 @@ import { SCHUBLADE, SITE, setPageMeta } from './site'
 
 /** public/-Pfad: nicht als data-URL inlinen (url(#…) bricht sonst im Browser) */
 const shotSchublade = '/marketing/shot-schublade.svg'
+const blogSlug = 'schublade-statt-zweiter-liste'
 
 export function SchubladeLandingPage() {
   useEffect(() => {
@@ -83,6 +84,19 @@ export function SchubladeLandingPage() {
         <div className="mkt-hero-actions mkt-drawer-teaser-actions">
           <Link to="/" className="mkt-btn mkt-btn-ghost">
             Zum Tagesanker
+          </Link>
+        </div>
+      </section>
+
+      <section className="mkt-section">
+        <h2>Im Blog</h2>
+        <p className="mkt-section-lead">
+          Warum der Vorrat nicht auf dem Tagesplan liegen sollte — und was Zerlegen mit Überforderung
+          macht.
+        </p>
+        <div className="mkt-hero-actions mkt-drawer-teaser-actions">
+          <Link to={`/blog/${blogSlug}`} className="mkt-btn mkt-btn-ghost">
+            Artikel lesen
           </Link>
         </div>
       </section>
