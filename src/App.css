@@ -3171,3 +3171,46 @@
 .morning-drawer-link {
   font-weight: 600 !important;
 }
+
+.paywall-gate {
+  margin: 2rem auto;
+  max-width: 26rem;
+  padding: 1.5rem 0.25rem 2rem;
+  text-align: left;
+}
+
+.paywall-gate-title {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.45rem;
+  font-weight: 650;
+  color: var(--ink, #1a2e28);
+}
+
+.paywall-gate-body,
+.paywall-gate-hint {
+  margin: 0 0 0.85rem;
+  line-height: 1.45;
+  color: var(--muted, #4a5c56);
+}
+
+.paywall-gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.1rem;
+}
+
+.paywall-gate-actions a.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.sync-billing {
+  margin: 0.75rem 0 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}

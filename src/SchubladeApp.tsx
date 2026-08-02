@@ -41,7 +41,14 @@ import {
 } from './sync'
 import { useOnline } from './online'
 import { ChopAiPackBuy } from './components/ChopAiPackBuy'
+import { PaywallGate } from './components/PaywallGate'
 import { refreshChopWallet } from './drawer/chopAiQuota'
+import {
+  clearEntitlementsCache,
+  getCachedEntitlements,
+  refreshEntitlements,
+  type EntitlementsState,
+} from './billing/entitlements'
 import './App.css'
 
 /**
@@ -68,9 +75,14 @@ export function SchubladeApp() {
   )
   const [captureOpen, setCaptureOpen] = useState(false)
   const [sparkFlash, setSparkFlash] = useState<string | null>(null)
+  const [entitlements, setEntitlements] = useState<EntitlementsState>(() =>
+    getCachedEntitlements(),
+  )
   const online = useOnline()
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
+  const paywallBlocked =
+    entitlements.enforced && !entitlements.canUseSchublade
 
   useEffect(() => {
     if (!sparkFlash) return
@@ -177,11 +189,20 @@ export function SchubladeApp() {
 
   useEffect(() => {
     if (!isSyncConfigured()) return
-    void getSession().then((s) => setSyncEmail(s?.user?.email ?? null))
+    void getSession().then((s) => {
+      setSyncEmail(s?.user?.email ?? null)
+      if (s) void refreshEntitlements().then(setEntitlements)
+    })
     return onAuthChange((session) => {
       setSyncEmail(session?.user?.email ?? null)
-      if (session) void runSync()
-      else setSyncConflict(null)
+      if (session) {
+        void runSync()
+        void refreshEntitlements().then(setEntitlements)
+      } else {
+        setSyncConflict(null)
+        clearEntitlementsCache()
+        setEntitlements(getCachedEntitlements())
+      }
     })
   }, [runSync])
 
@@ -249,6 +270,13 @@ export function SchubladeApp() {
       </header>
 
       <main className="main">
+        {paywallBlocked ? (
+          <PaywallGate
+            product="schublade"
+            signedIn={Boolean(syncEmail)}
+            onOpenSettings={() => setSettingsOpen(true)}
+          />
+        ) : (
         <section className="block drawer-app-block">
           {sparkFlash && (
             <div className="buddy-card drawer-flash" role="status">
@@ -300,8 +328,9 @@ export function SchubladeApp() {
             readyCap={readyCap}
           />
         </section>
+        )}
 
-        {!regulateOpen && (
+        {!paywallBlocked && !regulateOpen && (
           <button
             type="button"
             className="spark-btn drawer-spark-fab"
@@ -311,11 +340,13 @@ export function SchubladeApp() {
           </button>
         )}
 
+        {!paywallBlocked && (
         <SparkCapture
           open={captureOpen}
           onClose={() => setCaptureOpen(false)}
           onSave={saveSpark}
         />
+        )}
 
         <div className="plan-footer">
           <details

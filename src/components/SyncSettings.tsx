@@ -31,6 +31,11 @@ import {
   unlockWithRecovery,
   type SyncEnvelopeV1,
 } from '../sync/vault'
+import {
+  getCachedEntitlements,
+  refreshEntitlements,
+  startPortalSession,
+} from '../billing/entitlements'
 
 const PENDING_EMAIL_KEY = 'anker-sync-pending-email'
 const MIN_PASS = 8
@@ -96,6 +101,10 @@ export function SyncSettings({
   const [showRecovery, setShowRecovery] = useState(false)
   const [recoveryCode, setRecoveryCode] = useState<string | null>(null)
   const [envelope, setEnvelope] = useState<SyncEnvelopeV1 | null>(null)
+  const [hasPortal, setHasPortal] = useState(
+    () => getCachedEntitlements().hasPortal,
+  )
+  const [portalBusy, setPortalBusy] = useState(false)
 
   const emailOk = looksLikeEmail(draft)
   const otpOk = otp.length === 6
@@ -106,8 +115,10 @@ export function SyncSettings({
       setUserId(null)
       setVaultMode('unlock')
       setEnvelope(null)
+      setHasPortal(false)
       return
     }
+    void refreshEntitlements().then((e) => setHasPortal(e.hasPortal))
     void (async () => {
       const session = await getSession()
       const uid = session?.user.id ?? null
@@ -852,6 +863,39 @@ export function SyncSettings({
               )}
             </div>
           )}
+
+          <div className="sync-billing">
+            {hasPortal ? (
+              <button
+                type="button"
+                className="secondary"
+                disabled={localBusy || portalBusy}
+                onClick={() => {
+                  void (async () => {
+                    setPortalBusy(true)
+                    const path = window.location.pathname.startsWith(
+                      '/schublade',
+                    )
+                      ? '/schublade'
+                      : '/app'
+                    const result = await startPortalSession(path)
+                    setPortalBusy(false)
+                    if (result.ok) {
+                      window.location.href = result.url
+                      return
+                    }
+                    onNotice?.(t('billing.portal.error'))
+                  })()
+                }}
+              >
+                {portalBusy
+                  ? t('billing.portal.busy')
+                  : t('billing.portal.manage')}
+              </button>
+            ) : (
+              <p className="block-hint">{t('billing.portal.none')}</p>
+            )}
+          </div>
 
           <button
             type="button"

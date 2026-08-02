@@ -408,6 +408,23 @@
     },
     "syncStatusBar": "Sync an · {{email}}"
   },
+  "billing": {
+    "paywall": {
+      "tagesankerTitle": "Tagesanker mit Abo",
+      "tagesankerBody": "Für den Tagesanker brauchst du ein Tagesanker- oder Bundle-Abo. Probezeit zählt mit.",
+      "schubladeTitle": "Schublade mit Abo",
+      "schubladeBody": "Für die Schublade brauchst du ein Schublade- oder Bundle-Abo. Probezeit zählt mit.",
+      "needSignIn": "Zum Freischalten zuerst unter Sync anmelden — dann kannst du kaufen oder ein bestehendes Abo nutzen.",
+      "signInCta": "Zur Anmeldung",
+      "pricesCta": "Zu den Preisen"
+    },
+    "portal": {
+      "manage": "Abo verwalten",
+      "busy": "Weiter …",
+      "error": "Abo-Verwaltung gerade nicht erreichbar. Später nochmal.",
+      "none": "Noch kein Abo an diesem Konto — erst nach dem Kauf erscheint hier die Verwaltung."
+    }
+  },
   "sync": {
     "title": "Geräte-Sync",
     "notConfigured": "Sync ist auf diesem Build noch nicht konfiguriert (Supabase-Env fehlt).",

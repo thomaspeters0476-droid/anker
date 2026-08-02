@@ -11,10 +11,11 @@
 
 | Teil | Pfad |
 |------|------|
-| Checkout-Session (gated) | [`api/create-checkout-session.ts`](../api/create-checkout-session.ts) |
-| Webhook (Signatur + Spendentopf-Ledger) | [`api/stripe-webhook.ts`](../api/stripe-webhook.ts) |
-| Stripe-Helfer | in den API-Dateien (kein Import außerhalb `api/`) |
-| DB | Migration `20260730200000_stripe_spend_pot.sql` → `stripe_webhook_events`, `spend_pot_ledger` |
+| Checkout-Session (gated, Login nötig) | [`api/create-checkout-session.ts`](../api/create-checkout-session.ts) |
+| Customer Portal | [`api/create-portal-session.ts`](../api/create-portal-session.ts) |
+| Abo-Status lesen | [`api/entitlements.ts`](../api/entitlements.ts) |
+| Webhook (Spendentopf, KI, Abo-Status) | [`api/stripe-webhook.ts`](../api/stripe-webhook.ts) |
+| DB | `stripe_webhook_events`, `spend_pot_ledger`, `chop_ai_*`, `user_entitlements` |
 
 ---
 
@@ -34,13 +35,20 @@
 
 Subscription-Metadata empfohlen: `tier=tagesanker|schublade|bundle`, `user_id=<supabase uuid>`, `chop_monthly_credits=0|100|150`.
 
-3. Customer Portal optional später.
+3. Customer Portal im Dashboard aktivieren (Kündigen / Plan wechseln).
 4. Webhook-Endpoint: `https://tagesanker.de/api/stripe-webhook`  
-   Events mindestens: `invoice.paid`, `checkout.session.completed`  
+   Events: `invoice.paid`, `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`  
    Signing secret → `STRIPE_WEBHOOK_SECRET`  
-   → Abo-Invoice: KI-Monatsgutschrift · Pack-Checkout: Wallet +Credits
+   → Abo: Status in `user_entitlements` · KI-Monatsgutschrift · Pack: Wallet +Credits
 
 Testmode zuerst (`sk_test_…` / `whsec_…`).
+
+### Abo-Status & Paywall
+
+- Tabelle `user_entitlements` (Tier, Status, Stripe-Kunden-/Abo-ID).
+- Paywall in `/app` und `/schublade` greift **nur** wenn `STRIPE_CHECKOUT_ENABLED=true`.
+- Ohne Flag: Testphase weiter gratis.
+- Einstellungen → Sync → „Abo verwalten“ (Portal), sobald ein Stripe-Kunde existiert.
 
 ---
 
@@ -76,11 +84,13 @@ Migration: `supabase/migrations/20260802190000_chop_ai_credits.sql`.
 ```bash
 curl -sS -X POST https://tagesanker.de/api/create-checkout-session \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <SUPABASE_ACCESS_TOKEN>" \
   -H "x-tagesanker-checkout-preview: <PREVIEW_TOKEN>" \
-  -d "{\"interval\":\"month\",\"topupCents\":500,\"customerEmail\":\"du@example.com\"}"
+  -d "{\"product\":\"tagesanker\",\"interval\":\"month\",\"topupCents\":500}"
 ```
 
-Ohne Preview-Header und mit `STRIPE_CHECKOUT_ENABLED≠true` → **503** `checkout_disabled`.
+Ohne Preview-Header und mit `STRIPE_CHECKOUT_ENABLED≠true` → **503** `checkout_disabled`.  
+Ohne Login → **401** `not_signed_in`.
 
 Antwort enthält `url` → Stripe Checkout (Testmode).
 
@@ -104,9 +114,7 @@ curl -sS "https://tagesanker.de/api/spend-pot-report?period=month&format=md" \
 
 ## Noch nicht
 
-- Preise-Seite mit Beträgen / Buy-Buttons
-- Paywall in `/app`
-- Entitlements (wer hat aktives Abo) in der App
-- Customer Portal / Kündigung UI
+- Preise-Seite mit Beträgen / Buy-Buttons öffentlich
+- Verkaufsschalter: `STRIPE_CHECKOUT_ENABLED=true` (aktiviert auch die Paywall)
 
-Wenn Preise live gehen: `STRIPE_CHECKOUT_ENABLED=true`, Preise-Seite + AGB anbinden, Live-Keys.
+Wenn Preise live gehen: Flag auf `true`, Preise-Seite + AGB anbinden.

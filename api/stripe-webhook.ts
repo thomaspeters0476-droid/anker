@@ -8,6 +8,7 @@ import {
   tierFromPriceId,
   type ChopTier,
 } from './_chopWallet.js'
+import { syncEntitlementFromSubscription } from './_entitlements.js'
 
 /** Stripe SDK typings lag API fields we still receive at runtime. */
 type InvoiceLoose = Stripe.Invoice & {
@@ -325,11 +326,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const invoice = event.data.object as Stripe.Invoice
         await recordSpendPotFromInvoice(invoice)
         await creditChopAboFromInvoice(stripe, invoice)
+        const inv = invoice as InvoiceLoose
+        const subRef = inv.subscription
+        const subId = typeof subRef === 'string' ? subRef : subRef?.id
+        if (subId) {
+          try {
+            const sub = await stripe.subscriptions.retrieve(subId)
+            await syncEntitlementFromSubscription(stripe, sub)
+          } catch (err) {
+            console.error('entitlement from invoice', err)
+          }
+        }
         break
       }
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         await creditChopPackFromSession(session)
+        if (session.mode === 'subscription' && session.subscription) {
+          const subId =
+            typeof session.subscription === 'string'
+              ? session.subscription
+              : session.subscription.id
+          try {
+            const sub = await stripe.subscriptions.retrieve(subId)
+            await syncEntitlementFromSubscription(stripe, sub)
+          } catch (err) {
+            console.error('entitlement from checkout', err)
+          }
+        }
+        break
+      }
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted': {
+        const sub = event.data.object as Stripe.Subscription
+        await syncEntitlementFromSubscription(stripe, sub)
         break
       }
       default:

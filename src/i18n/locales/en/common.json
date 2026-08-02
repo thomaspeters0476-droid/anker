@@ -408,6 +408,23 @@
     },
     "syncStatusBar": "Sync on · {{email}}"
   },
+  "billing": {
+    "paywall": {
+      "tagesankerTitle": "Tagesanker with a subscription",
+      "tagesankerBody": "Tagesanker needs a Tagesanker or Bundle plan. Trials count.",
+      "schubladeTitle": "Schublade with a subscription",
+      "schubladeBody": "Schublade needs a Schublade or Bundle plan. Trials count.",
+      "needSignIn": "Sign in under Sync first to unlock — then you can buy or use an existing plan.",
+      "signInCta": "Sign in",
+      "pricesCta": "See pricing"
+    },
+    "portal": {
+      "manage": "Manage subscription",
+      "busy": "One moment…",
+      "error": "Billing portal isn’t available right now. Try again later.",
+      "none": "No subscription on this account yet — manage appears after purchase."
+    }
+  },
   "sync": {
     "title": "Device sync",
     "notConfigured": "Sync isn’t configured in this build yet (Supabase env missing).",

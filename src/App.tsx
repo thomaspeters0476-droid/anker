@@ -28,6 +28,13 @@ import {
   type SyncConflict,
 } from './sync'
 import { useOnline } from './online'
+import { PaywallGate } from './components/PaywallGate'
+import {
+  clearEntitlementsCache,
+  getCachedEntitlements,
+  refreshEntitlements,
+  type EntitlementsState,
+} from './billing/entitlements'
 import './App.css'
 
 const REGULATE_TIP_KEY = 'anker-regulate-tip-seen'
@@ -65,10 +72,15 @@ function App() {
     () => loadPrefs().drawerEnabled,
   )
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [entitlements, setEntitlements] = useState<EntitlementsState>(() =>
+    getCachedEntitlements(),
+  )
   const online = useOnline()
   const reconciledRef = useRef(false)
   const skipPersistRef = useRef(false)
   const syncingRef = useRef(false)
+  const paywallBlocked =
+    entitlements.enforced && !entitlements.canUseTagesanker
 
   const applySyncedDay = useCallback((next: DayState) => {
     skipPersistRef.current = true
@@ -120,11 +132,20 @@ function App() {
 
   useEffect(() => {
     if (!isSyncConfigured()) return
-    void getSession().then((s) => setSyncEmail(s?.user?.email ?? null))
+    void getSession().then((s) => {
+      setSyncEmail(s?.user?.email ?? null)
+      if (s) void refreshEntitlements().then(setEntitlements)
+    })
     return onAuthChange((session) => {
       setSyncEmail(session?.user?.email ?? null)
-      if (session) void runSync()
-      else setSyncConflict(null)
+      if (session) {
+        void runSync()
+        void refreshEntitlements().then(setEntitlements)
+      } else {
+        setSyncConflict(null)
+        clearEntitlementsCache()
+        setEntitlements(getCachedEntitlements())
+      }
     })
   }, [runSync])
 
@@ -267,6 +288,12 @@ function App() {
       <main className="main">
         {showIntro ? (
           <Intro key={introKey} onDone={finishIntro} />
+        ) : paywallBlocked ? (
+          <PaywallGate
+            product="tagesanker"
+            signedIn={Boolean(syncEmail)}
+            onOpenSettings={() => setSettingsOpen(true)}
+          />
         ) : (
           <>
             {screen === 'plan' && (
@@ -315,7 +342,9 @@ function App() {
       {regulateOpen && (
         <RegulateDown onClose={() => setRegulateOpen(false)} />
       )}
-      {settingsOpen && screen !== 'plan' && !showIntro && (
+      {settingsOpen &&
+        !showIntro &&
+        (paywallBlocked || screen !== 'plan') && (
         <ShellSettings
           onClose={() => setSettingsOpen(false)}
           syncEmail={syncEmail}

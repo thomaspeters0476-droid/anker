@@ -1,5 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import Stripe from 'stripe'
+import {
+  userIdFromAuthHeader,
+  type ChopTier,
+} from './_chopWallet.js'
+import {
+  chopCreditsMeta,
+  ensureStripeCustomer,
+  priceIdForProduct,
+} from './_entitlements.js'
 
 type Interval = 'month' | 'year'
 
@@ -27,11 +36,10 @@ function siteOrigin(): string {
   return 'https://tagesanker.de'
 }
 
-function priceIdFor(interval: Interval): string | null {
-  if (interval === 'year') {
-    return process.env.STRIPE_PRICE_YEARLY?.trim() || null
-  }
-  return process.env.STRIPE_PRICE_MONTHLY?.trim() || null
+function parseProduct(raw: unknown): ChopTier {
+  const v = String(raw ?? 'tagesanker').toLowerCase()
+  if (v === 'schublade' || v === 'bundle') return v
+  return 'tagesanker'
 }
 
 /**
@@ -39,7 +47,12 @@ function priceIdFor(interval: Interval): string | null {
  * Publicly disabled until STRIPE_CHECKOUT_ENABLED=true.
  * Internal test: header x-tagesanker-checkout-preview + STRIPE_CHECKOUT_PREVIEW_TOKEN.
  *
- * Body: { interval: 'month'|'year', topupCents?: number, customerEmail?: string }
+ * Body: {
+ *   product?: 'tagesanker'|'schublade'|'bundle',
+ *   interval: 'month'|'year',
+ *   topupCents?: number
+ * }
+ * Requires Authorization Bearer (Sync login).
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -58,27 +71,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   }
 
+  const userId = await userIdFromAuthHeader(req)
+  if (!userId) {
+    return res.status(401).json({ ok: false, error: 'not_signed_in' })
+  }
+
   const stripe = getStripe()
   if (!stripe) {
     return res.status(503).json({ ok: false, error: 'stripe_not_configured' })
   }
 
+  const product = parseProduct(req.body?.product)
   const intervalRaw = String(req.body?.interval ?? 'month')
   const interval: Interval = intervalRaw === 'year' ? 'year' : 'month'
-  const priceId = priceIdFor(interval)
+  const priceId = priceIdForProduct(product, interval)
   if (!priceId) {
     return res.status(503).json({
       ok: false,
       error: 'stripe_prices_missing',
-      message: 'Set STRIPE_PRICE_MONTHLY / STRIPE_PRICE_YEARLY in env.',
+      message: 'Set STRIPE_PRICE_* for this product in env.',
     })
   }
 
   const topupCents = Math.round(Number(req.body?.topupCents ?? 0))
-  const email = String(req.body?.customerEmail ?? '')
-    .trim()
-    .toLowerCase()
-
   const origin = siteOrigin()
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
     { price: priceId, quantity: 1 },
@@ -99,21 +114,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const customerId = await ensureStripeCustomer(stripe, userId)
+    if (!customerId) {
+      return res.status(503).json({ ok: false, error: 'customer_failed' })
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
+      customer: customerId,
+      client_reference_id: userId,
       line_items: lineItems,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
-      customer_email: email || undefined,
       subscription_data: {
         trial_period_days: 7,
         metadata: {
-          product: 'tagesanker',
+          product,
+          tier: product,
+          user_id: userId,
+          chop_monthly_credits: chopCreditsMeta(product),
           interval,
         },
       },
       metadata: {
-        product: 'tagesanker',
+        product,
+        tier: product,
+        user_id: userId,
         interval,
         topup_cents: topupCents >= 100 ? String(topupCents) : '0',
       },
