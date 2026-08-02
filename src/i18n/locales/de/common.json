@@ -425,6 +425,29 @@
       "none": "Noch kein Abo an diesem Konto — erst nach dem Kauf erscheint hier die Verwaltung."
     }
   },
+  "backup": {
+    "title": "Sichern & Wiederherstellen",
+    "hint": "Als Markdown-Datei: Tag, Schublade und Geistesblitze. Gut vor dem Löschen oder beim Gerätewechsel.",
+    "export": "Backup speichern (.md)",
+    "import": "Backup laden (.md)",
+    "importConfirm": "Backup laden und lokale Daten ersetzen? (Tag, Schublade, Geistesblitze, passende Einstellungen)",
+    "exportOk": "Backup gespeichert.",
+    "importOk": "Backup geladen: {{tasks}} Aufgaben, {{drawer}} in der Schublade, {{sparks}} Geistesblitze.",
+    "importInvalid": "Das ist kein gültiges Tagesanker-Backup (Datenblock fehlt oder beschädigt).",
+    "importEmpty": "Im Backup war nichts Sinnvolles zum Laden.",
+    "importError": "Datei konnte nicht gelesen werden."
+  },
+  "privacy": {
+    "deleteCloud": "Konto und Cloud-Daten löschen",
+    "deleteCloudHint": "Löscht Sync-Konto, verschlüsselte Cloud-Kopie, Abo-Stammdaten und KI-Guthaben. Laufende Abos werden beendet. Zahlungsbelege bei Stripe können gesetzlich bleiben. Danach sind die Daten auf diesem Gerät auch weg.",
+    "deleteCloudConfirm": "Wirklich Konto und Cloud-Daten unwiderruflich löschen? Abos enden. Das lässt sich nicht rückgängig machen.",
+    "deleteLocal": "Nur dieses Gerät leeren",
+    "deleteLocalHint": "Löscht Pläne und Einstellungen nur hier. Cloud-Konto bleibt, bis du es oben löschst.",
+    "deleteLocalConfirm": "Lokale Daten auf diesem Gerät wirklich löschen?",
+    "deleteBusy": "Lösche …",
+    "deleteOk": "Daten gelöscht.",
+    "deleteError": "Löschen hat nicht geklappt. Später nochmal oder per E-Mail an info@tagesanker.de."
+  },
   "sync": {
     "title": "Geräte-Sync",
     "notConfigured": "Sync ist auf diesem Build noch nicht konfiguriert (Supabase-Env fehlt).",

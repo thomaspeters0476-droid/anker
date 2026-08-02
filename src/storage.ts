@@ -20,6 +20,29 @@ const SPARKS_KEY = 'anker-sparks'
 const DRAWER_KEY = 'anker-drawer'
 const SYNC_META_KEY = 'anker-sync-meta'
 
+/** Lokale App-Daten dieses Geräts entfernen (DSGVO / Konto löschen). */
+export function clearLocalAppData() {
+  const keys: string[] = []
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i)
+    if (!k) continue
+    if (
+      k === DAY_KEY ||
+      k.startsWith('anker-') ||
+      k.startsWith('fokus-buddy')
+    ) {
+      keys.push(k)
+    }
+  }
+  for (const k of keys) {
+    try {
+      localStorage.removeItem(k)
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
 type SyncMeta = {
   updatedAt: string
   /** Gemeinsamer Stand nach erfolgreichem Sync — für Konflikt-Erkennung */

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getSyncSnapshot, hasMeaningfulLocalData } from '../storage'
 import { useOnline } from '../online'
@@ -36,6 +36,14 @@ import {
   refreshEntitlements,
   startPortalSession,
 } from '../billing/entitlements'
+import {
+  deleteAccountAndLocalData,
+  wipeLocalDeviceData,
+} from '../sync/deleteAccount'
+import {
+  downloadMarkdownBackup,
+  importMarkdownBackupFile,
+} from '../backup/markdownBackup'
 
 const PENDING_EMAIL_KEY = 'anker-sync-pending-email'
 const MIN_PASS = 8
@@ -105,6 +113,7 @@ export function SyncSettings({
     () => getCachedEntitlements().hasPortal,
   )
   const [portalBusy, setPortalBusy] = useState(false)
+  const backupFileRef = useRef<HTMLInputElement>(null)
 
   const emailOk = looksLikeEmail(draft)
   const otpOk = otp.length === 6
@@ -897,6 +906,34 @@ export function SyncSettings({
             )}
           </div>
 
+          <div className="sync-privacy">
+            <p className="block-hint">{t('privacy.deleteCloudHint')}</p>
+            <button
+              type="button"
+              className="ghost"
+              disabled={localBusy}
+              onClick={() => {
+                if (!window.confirm(t('privacy.deleteCloudConfirm'))) return
+                void (async () => {
+                  setLocalBusy(true)
+                  const result = await deleteAccountAndLocalData()
+                  setLocalBusy(false)
+                  if (!result.ok) {
+                    onNotice?.(t('privacy.deleteError'))
+                    return
+                  }
+                  onSignedOut?.()
+                  onNotice?.(t('privacy.deleteOk'))
+                  window.location.reload()
+                })()
+              }}
+            >
+              {localBusy
+                ? t('privacy.deleteBusy')
+                : t('privacy.deleteCloud')}
+            </button>
+          </div>
+
           <button
             type="button"
             className="ghost"
@@ -964,6 +1001,87 @@ export function SyncSettings({
           </button>
         </div>
       )}
+
+      <div className="sync-backup">
+        <h4>{t('backup.title')}</h4>
+        <p className="block-hint">{t('backup.hint')}</p>
+        <div className="sync-backup-actions">
+          <button
+            type="button"
+            className="secondary"
+            disabled={localBusy}
+            onClick={() => {
+              downloadMarkdownBackup()
+              onNotice?.(t('backup.exportOk'))
+            }}
+          >
+            {t('backup.export')}
+          </button>
+          <button
+            type="button"
+            className="ghost"
+            disabled={localBusy}
+            onClick={() => backupFileRef.current?.click()}
+          >
+            {t('backup.import')}
+          </button>
+          <input
+            ref={backupFileRef}
+            type="file"
+            accept=".md,text/markdown,text/plain"
+            hidden
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              e.target.value = ''
+              if (!file) return
+              if (!window.confirm(t('backup.importConfirm'))) return
+              void (async () => {
+                setLocalBusy(true)
+                try {
+                  const result = await importMarkdownBackupFile(file)
+                  if (!result.ok) {
+                    onNotice?.(
+                      result.error === 'empty'
+                        ? t('backup.importEmpty')
+                        : t('backup.importInvalid'),
+                    )
+                    setLocalBusy(false)
+                    return
+                  }
+                  onNotice?.(
+                    t('backup.importOk', {
+                      tasks: result.counts.tasks,
+                      drawer: result.counts.drawer,
+                      sparks: result.counts.sparks,
+                    }),
+                  )
+                  window.location.reload()
+                } catch {
+                  onNotice?.(t('backup.importError'))
+                  setLocalBusy(false)
+                }
+              })()
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="sync-privacy sync-privacy--local">
+        <p className="block-hint">{t('privacy.deleteLocalHint')}</p>
+        <button
+          type="button"
+          className="ghost"
+          disabled={localBusy}
+          onClick={() => {
+            if (!window.confirm(t('privacy.deleteLocalConfirm'))) return
+            wipeLocalDeviceData()
+            onNotice?.(t('privacy.deleteOk'))
+            window.location.reload()
+          }}
+        >
+          {t('privacy.deleteLocal')}
+        </button>
+      </div>
 
       {conflict && (
         <div

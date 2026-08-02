@@ -425,6 +425,29 @@
       "none": "No subscription on this account yet — manage appears after purchase."
     }
   },
+  "backup": {
+    "title": "Backup & restore",
+    "hint": "As a Markdown file: today, Schublade, and sparks. Useful before deleting or switching devices.",
+    "export": "Save backup (.md)",
+    "import": "Load backup (.md)",
+    "importConfirm": "Load backup and replace local data? (day, Schublade, sparks, matching settings)",
+    "exportOk": "Backup saved.",
+    "importOk": "Backup loaded: {{tasks}} tasks, {{drawer}} in Schublade, {{sparks}} sparks.",
+    "importInvalid": "Not a valid Tagesanker backup (data block missing or damaged).",
+    "importEmpty": "Nothing useful to restore in that backup.",
+    "importError": "Could not read the file."
+  },
+  "privacy": {
+    "deleteCloud": "Delete account and cloud data",
+    "deleteCloudHint": "Deletes your sync account, encrypted cloud copy, subscription records, and AI credit balance. Active subscriptions end. Stripe may keep invoices where the law requires. Data on this device is cleared too.",
+    "deleteCloudConfirm": "Really delete your account and cloud data permanently? Subscriptions end. This cannot be undone.",
+    "deleteLocal": "Clear this device only",
+    "deleteLocalHint": "Removes plans and settings here only. Your cloud account stays until you delete it above.",
+    "deleteLocalConfirm": "Really clear local data on this device?",
+    "deleteBusy": "Deleting…",
+    "deleteOk": "Data deleted.",
+    "deleteError": "Deletion failed. Try again later or email info@tagesanker.de."
+  },
   "sync": {
     "title": "Device sync",
     "notConfigured": "Sync isn’t configured in this build yet (Supabase env missing).",

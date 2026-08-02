@@ -3214,3 +3214,34 @@
   flex-direction: column;
   gap: 0.4rem;
 }
+
+.sync-backup {
+  margin: 1rem 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sync-backup h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.sync-backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sync-privacy {
+  margin: 0.85rem 0 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sync-privacy--local {
+  margin-top: 1.1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink, #1a2e28) 12%, transparent);
+}

@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { PROVIDER, setPageMeta, SITE } from './site'
+import { PROVIDER, SCHUBLADE, setPageMeta, SITE } from './site'
 
 function LegalShell({
   title,
@@ -20,7 +20,7 @@ function LegalShell({
       <article className="mkt-legal">
         <header className="mkt-page-head">
           <h1>{title}</h1>
-          <p className="mkt-legal-stand">Stand: 31. Juli 2026</p>
+          <p className="mkt-legal-stand">Stand: 2. August 2026</p>
         </header>
         <div className="mkt-prose mkt-prose-legal">{children}</div>
         <p className="mkt-legal-nav">
@@ -87,11 +87,11 @@ export function DatenschutzPage() {
   return (
     <LegalShell
       title="Datenschutz"
-      description={`Datenschutzerklärung für Website und App ${SITE.name}.`}
+      description={`Datenschutzerklärung für Website und Apps ${SITE.name} / ${SCHUBLADE.name}.`}
     >
       <p>
         Hinweise der Anbieterin zur Verarbeitung personenbezogener Daten bei Nutzung der Website und
-        der Anwendung „{SITE.name}“.
+        der Anwendungen „{SITE.name}“ und „{SCHUBLADE.name}“.
       </p>
 
       <h2>1. Verantwortliche</h2>
@@ -105,9 +105,10 @@ export function DatenschutzPage() {
 
       <h2>2. Geltungsbereich</h2>
       <p>
-        Diese Erklärung gilt für die öffentlich erreichbare Website unter {SITE.url} sowie die
-        browserbasierte Progressive Web App (PWA) „{SITE.name}“ für Endnutzerinnen und Endnutzer
-        (Verbraucher).
+        Diese Erklärung gilt für die Website unter {SITE.url} sowie die browserbasierten Progressive
+        Web Apps (PWA) „{SITE.name}“ (z.&nbsp;B. unter /app) und „{SCHUBLADE.name}“ (z.&nbsp;B.
+        unter /schublade) für Endnutzerinnen und Endnutzer (Verbraucher). Beide Apps gehören zum
+        selben Angebot der Anbieterin und können gemeinsam oder getrennt genutzt werden.
       </p>
 
       <h2>3. Welche Daten wir verarbeiten</h2>
@@ -117,34 +118,36 @@ export function DatenschutzPage() {
         (z.&nbsp;B. IP-Adresse in gekürzter/technischer Form, Zeitpunkt, angeforderte Ressource,
         User-Agent), soweit dies für Betrieb und Sicherheit erforderlich ist. Wir setzen{' '}
         <strong>keine Werbe-Cookies</strong> und kein nutzerübergreifendes Tracking-Profil ein.
+        Rechtsgrundlage: berechtigtes Interesse an sicherem Betrieb (Art.&nbsp;6 Abs.&nbsp;1
+        lit.&nbsp;f DSGVO).
       </p>
 
       <h3>b) App-Nutzung (lokal auf Ihrem Gerät)</h3>
       <p>
-        Tagesanker speichert Tagespläne, Einstellungen, Geistesblitze und ähnliche Inhalte
-        vorrangig <strong>lokal</strong> im Speicher Ihres Browsers bzw. Geräts (z.&nbsp;B.
-        localStorage). Ohne Sync-Anmeldung werden diese Daten in der Regel nicht auf unseren
-        Servern abgelegt. Wer Zugriff auf Ihr Gerät hat, kann auf diese lokalen Daten zugreifen.
+        Die Apps speichern Tagespläne, Schubladen-Inhalte, Einstellungen, Geistesblitze und ähnliche
+        Inhalte vorrangig <strong>lokal</strong> im Speicher Ihres Browsers bzw. Geräts (z.&nbsp;B.
+        localStorage). Ohne Sync-Anmeldung und ohne Zahlungs-/KI-Cloudfunktionen werden diese Inhalte
+        in der Regel nicht auf unseren Servern abgelegt. Wer Zugriff auf Ihr Gerät hat, kann auf
+        diese lokalen Daten zugreifen.
       </p>
 
-      <h3>c) Optionaler Geräte-Sync (Konto per Magic Link)</h3>
+      <h3>c) Optionaler Geräte-Sync (Konto per E-Mail-Code)</h3>
       <p>
-        Wenn Sie in der App den Geräte-Sync aktivieren, melden Sie sich per E-Mail-Code
-        an und legen ein Sync-Passwort fest. Tagesstand, Einstellungen und Geistesblitze
-        werden <strong>auf Ihrem Gerät Ende-zu-Ende verschlüsselt</strong> und erst dann
-        an unseren Sync-Dienst (Supabase) übertragen. Wir (Tagesanker) können den Inhalt
-        nicht mitlesen — nur Ciphertext liegt in der Cloud. Geistesblitz-Medien werden
-        einzeln verschlüsselt gespeichert und möglichst sofort synchronisiert.
-        Rechtsgrundlage: Einwilligung bzw. Vertragserfüllung auf Ihre Anforderung
-        (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a bzw. lit.&nbsp;b DSGVO). Ohne Anmeldung findet kein
-        Sync statt; die App startet weiter ohne Anmeldebildschirm. Abmelden beendet die
-        Cloud-Synchronisation; lokale Daten bleiben auf dem Gerät.
+        Wenn Sie den Geräte-Sync aktivieren, melden Sie sich per E-Mail-Code an und legen ein
+        Sync-Passwort fest. Für den Login-Code werden E-Mail-Adresse und der Code über unseren
+        Mail-Dienstleister zugestellt. Tagesstand, Schublade, Einstellungen und Geistesblitze werden{' '}
+        <strong>auf Ihrem Gerät Ende-zu-Ende verschlüsselt</strong> und erst dann an unseren
+        Sync-Dienst (Supabase) übertragen. Wir (Tagesanker) können den Inhalt nicht mitlesen — nur
+        Ciphertext liegt in der Cloud. Geistesblitz-Medien werden einzeln verschlüsselt gespeichert
+        und möglichst sofort synchronisiert. Rechtsgrundlage: Einwilligung bzw. Vertragserfüllung auf
+        Ihre Anforderung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a bzw. lit.&nbsp;b DSGVO). Ohne Anmeldung
+        findet kein Sync statt. Abmelden beendet die Cloud-Synchronisation; lokale Daten bleiben auf
+        dem Gerät.
       </p>
       <p>
-        Wiederherstellung bei vergessenem Sync-Passwort erfolgt nur über Mittel auf Ihrem
-        Gerät (entsperrter Tresor, lokale Kopie oder Recovery-Code). Ein Recovery-Code kann
-        auf Wunsch über die Mail-App Ihres Geräts an Sie geschickt werden — nicht über
-        unsere Server.
+        Wiederherstellung bei vergessenem Sync-Passwort erfolgt nur über Mittel auf Ihrem Gerät
+        (entsperrter Tresor, lokale Kopie oder Recovery-Code). Ein Recovery-Code kann auf Wunsch über
+        die Mail-App Ihres Geräts an Sie geschickt werden — nicht über unsere Server.
       </p>
 
       <h3>d) Optionale E-Mail bei ablaufenden Geistesblitzen</h3>
@@ -156,6 +159,31 @@ export function DatenschutzPage() {
         bzw. lit.&nbsp;b DSGVO).
       </p>
 
+      <h3>e) Zahlung, Abo und Kundenportal (Stripe)</h3>
+      <p>
+        Wenn Sie ein Abo (Tagesanker, Schublade oder Bundle), eine freiwillige Mehrzahlung
+        (Spendentopf) oder ein KI-Paket kaufen bzw. das Kundenportal nutzen, werden Zahlungs- und
+        Vertragsdaten über den Zahlungsdienstleister <strong>Stripe</strong> verarbeitet (z.&nbsp;B.
+        E-Mail, Zahlungsdaten, Rechnungs-/Kundenkennung, Abo-Status). Wir speichern zu Ihrem
+        Sync-Konto die für Freischaltung und Abrechnung nötigen Stammdaten (z.&nbsp;B.
+        Stripe-Kunden- und Abo-Kennung, Produkt/Tier, Status, Periodenende) in unserer Datenbank
+        (Supabase). Kartendaten liegen bei Stripe, nicht bei uns. Rechtsgrundlage: Vertragserfüllung
+        und vorvertragliche Maßnahmen (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO) sowie gesetzliche
+        Aufbewahrungspflichten (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;c DSGVO), soweit einschlägig.
+      </p>
+
+      <h3>f) Optionale KI-Hilfe in der Schublade</h3>
+      <p>
+        Wenn Sie die KI-Zerlegung (Häppchen) nutzen, werden die dafür erforderlichen Eingaben
+        (z.&nbsp;B. Aufgabentitel und ggf. kurzer Kontext) an unseren KI-Anbieter{' '}
+        <strong>Microsoft Azure OpenAI</strong> übermittelt, um Vorschläge zu erzeugen. Die Nutzung
+        ist optional und kann in den Einstellungen ausgeschaltet werden. Für Kontingente (Free/Trial,
+        Abo-Guthaben, Nachkauf) speichern wir Guthabenstand und Buchungen an Ihrem Sync-Konto
+        (Supabase). Rechtsgrundlage: Vertragserfüllung bzw. Einwilligung durch Nutzung der Funktion
+        (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b bzw. lit.&nbsp;a DSGVO). Bitte keine besonders
+        sensiblen Gesundheits- oder Geheimnisdaten in KI-Eingaben eingeben.
+      </p>
+
       <h2>4. Empfänger / Auftragsverarbeitung</h2>
       <ul>
         <li>
@@ -163,29 +191,41 @@ export function DatenschutzPage() {
           EU, u.&nbsp;a. Frankfurt), soweit technisch für die Auslieferung erforderlich.
         </li>
         <li>
-          <strong>Resend</strong> — Versand optionaler E-Mails (z.&nbsp;B. Geistesblitze), nur wenn
-          Sie diese Funktion nutzen.
+          <strong>Resend</strong> — Versand von E-Mails (Sync-Code, optionale Geistesblitz-Mails),
+          nur soweit die jeweilige Funktion genutzt wird.
         </li>
         <li>
-          <strong>Supabase</strong> — Authentifizierung (Magic Link) und Speicherung Ihres
-          App-Stands in der Cloud, <strong>nur wenn</strong> Sie den optionalen Geräte-Sync
-          aktivieren.
+          <strong>Supabase</strong> — Authentifizierung, verschlüsselter Sync-Stand sowie
+          abrechnungsbezogene Stammdaten (Abo-Status, KI-Guthaben), soweit Sie Sync bzw. Kauf-/KI-
+          Cloudfunktionen nutzen.
+        </li>
+        <li>
+          <strong>Stripe Payments Europe / Stripe</strong> — Zahlungsabwicklung, Abo-Verwaltung und
+          Kundenportal bei entgeltlichen Angeboten.
+        </li>
+        <li>
+          <strong>Microsoft Azure OpenAI</strong> — optionale KI-Vorschläge in der Schublade, nur bei
+          Nutzung der KI-Funktion.
         </li>
       </ul>
       <p>
         Mit den eingesetzten Dienstleistern bestehen soweit erforderlich Vereinbarungen zur
-        Auftragsverarbeitung.
+        Auftragsverarbeitung bzw. passende Garantien für Drittlandtransfers (z.&nbsp;B.
+        EU-Standardvertragsklauseln / Data Privacy Framework, soweit anwendbar).
       </p>
 
       <h2>5. Speicherdauer</h2>
       <p>
         Lokale App-Daten bleiben, bis Sie sie in der App löschen oder den Browser-/App-Speicher
         leeren. Bei aktivem Geräte-Sync bleiben Cloud-Kopien, bis Sie sie löschen bzw. das Konto
-        entfernen oder den Sync beenden und Daten beim Anbieter löschen lassen. Server-Logs werden
-        nach den üblichen Fristen des Hosters gelöscht oder anonymisiert. E-Mail-Inhalte beim
-        optionalen Versand werden beim Dienstleister nach dessen Betriebsprozessen und gesetzlichen
-        Pflichten behandelt; die App löscht abgelaufene Geistesblitze nach dem dokumentierten Ablauf
-        (derzeit typischerweise sieben Tage), sofern nicht anders angegeben.
+        entfernen oder den Sync beenden und Daten beim Anbieter löschen lassen. Abo- und
+        Zahlungsstammdaten sowie KI-Guthabenbuchungen speichern wir, solange das Konto bzw. der
+        Vertrag besteht und darüber hinaus nach gesetzlichen Aufbewahrungsfristen (z.&nbsp;B.
+        handels-/steuerrechtlich). Server-Logs werden nach den üblichen Fristen des Hosters gelöscht
+        oder anonymisiert. E-Mail-Inhalte beim optionalen Versand werden beim Dienstleister nach
+        dessen Betriebsprozessen und gesetzlichen Pflichten behandelt; die App löscht abgelaufene
+        Geistesblitze nach dem dokumentierten Ablauf (derzeit typischerweise sieben Tage), sofern
+        nicht anders angegeben.
       </p>
 
       <h2>6. Ihre Rechte</h2>
@@ -194,26 +234,50 @@ export function DatenschutzPage() {
         Einschränkung der Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen Verarbeitungen
         auf Grundlage von Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO. Einwilligungen können Sie mit
         Wirkung für die Zukunft widerrufen. Außerdem besteht ein Beschwerderecht bei einer
-        Datenschutzaufsichtsbehörde.
+        Datenschutzaufsichtsbehörde (für NRW u.&nbsp;a. die Landesbeauftragte für Datenschutz und
+        Informationsfreiheit Nordrhein-Westfalen).
+      </p>
+
+      <h3>Sicherung und Datenmitnahme</h3>
+      <p>
+        In den App-Einstellungen (Sync) können Sie Tag, Schublade und Geistesblitze als
+        Markdown-Datei (.md) exportieren und wieder importieren (Datenübertragbarkeit,
+        Art.&nbsp;20 DSGVO).
+      </p>
+
+      <h3>Löschung Ihrer Daten</h3>
+      <p>
+        <strong>Lokal:</strong> In den App-Einstellungen (Sync) können Sie die Daten{' '}
+        <em>nur auf diesem Gerät</em> leeren.
       </p>
       <p>
-        Kontakt: <a href={`mailto:${PROVIDER.email}`}>{PROVIDER.email}</a>
+        <strong>Konto / Cloud:</strong> Wenn Sie angemeldet sind, können Sie unter Sync „Konto und
+        Cloud-Daten löschen“ wählen. Dabei werden Sync-Konto, verschlüsselte Cloud-Kopie,
+        Abo-Stammdaten und KI-Guthaben entfernt; laufende Abos werden beendet. Alternativ genügt eine
+        formlose E-Mail an{' '}
+        <a href={`mailto:${PROVIDER.email}`}>{PROVIDER.email}</a> mit dem Betreff „Datenlöschung“ und
+        der Sync-E-Mail-Adresse. Gesetzlich aufzubewahrende Zahlungs-/Rechnungsdaten bei Stripe bzw.
+        der Anbieterin können nach Ablauf der Fristen gelöscht oder eingeschränkt werden.
+      </p>
+      <p>
+        Kontakt zu allen Betroffenenrechten:{' '}
+        <a href={`mailto:${PROVIDER.email}`}>{PROVIDER.email}</a>
       </p>
 
       <h2>7. Sicherheit</h2>
       <p>
-        Die Übertragung erfolgt über HTTPS. Bei aktivem Geräte-Sync werden Inhalte
-        zusätzlich clientseitig Ende-zu-Ende verschlüsselt, bevor sie den Sync-Dienst
-        erreichen. Dennoch kann keine absolute Sicherheit bei der Übertragung und Speicherung
-        in Browsern gewährleistet werden. Schützen Sie Ihr Gerät und führen Sie Backups
-        wichtiger Inhalte selbst durch, soweit Sie das möchten. Die optionale Ablauf-Mail
-        für Geistesblitze ist kein Ende-zu-Ende-Pfad (Inhalt für den Versand lesbar).
+        Die Übertragung erfolgt über HTTPS. Bei aktivem Geräte-Sync werden App-Inhalte zusätzlich
+        clientseitig Ende-zu-Ende verschlüsselt, bevor sie den Sync-Dienst erreichen. Zahlungs-,
+        Abo- und KI-Kontingentdaten in der Cloud sowie KI-Eingaben sind kein Ende-zu-Ende-Pfad
+        gegenüber uns bzw. den jeweiligen Dienstleistern. Absolute Sicherheit bei Browsern und
+        Netzen kann nicht gewährleistet werden. Schützen Sie Ihr Gerät und führen Sie Backups
+        wichtiger Inhalte selbst durch, soweit Sie das möchten.
       </p>
 
       <h2>8. Keine medizinische oder therapeutische Leistung</h2>
       <p>
-        Tagesanker ist ein digitales Alltagswerkzeug und ersetzt keine ärztliche, psychotherapeutische
-        oder sonstige fachliche Beratung.
+        Tagesanker und Die Schublade sind digitale Alltagswerkzeuge und ersetzen keine ärztliche,
+        psychotherapeutische oder sonstige fachliche Beratung.
       </p>
     </LegalShell>
   )
@@ -223,11 +287,11 @@ export function AgbPage() {
   return (
     <LegalShell
       title="Allgemeine Geschäftsbedingungen (AGB)"
-      description={`AGB für die Nutzung von ${SITE.name} (B2C).`}
+      description={`AGB für ${SITE.name} und ${SCHUBLADE.name} (B2C).`}
     >
       <p>
-        für die Nutzung der digitalen Anwendung „{SITE.name}“ gegenüber Verbraucherinnen und
-        Verbrauchern (§&nbsp;13 BGB)
+        für die Nutzung der digitalen Anwendungen „{SITE.name}“ und „{SCHUBLADE.name}“ gegenüber
+        Verbraucherinnen und Verbrauchern (§&nbsp;13 BGB)
       </p>
 
       <h2>Anbieterin und Vertragspartnerin</h2>
@@ -243,9 +307,9 @@ export function AgbPage() {
 
       <h2>§ 1 Geltungsbereich und Vertragsgegenstand</h2>
       <p>
-        (1) Diese AGB gelten für die Nutzung der Website und der browserbasierten Anwendung
-        „{SITE.name}“ (PWA) sowie für entgeltliche Digitale-Dienste- und Abo-Verträge zwischen der
-        Anbieterin und Verbraucherinnen/Verbrauchern.
+        (1) Diese AGB gelten für die Nutzung der Website und der browserbasierten Anwendungen
+        „{SITE.name}“ und „{SCHUBLADE.name}“ (PWA) sowie für entgeltliche Digitale-Dienste-, Abo- und
+        Einmalkäufe zwischen der Anbieterin und Verbraucherinnen/Verbrauchern.
       </p>
       <p>
         (2) Abweichende Bedingungen der Nutzerin/des Nutzers werden nicht Vertragsbestandteil, es sei
@@ -259,73 +323,83 @@ export function AgbPage() {
         freigeschaltet ist, kommt kein entgeltlicher Vertrag über die bloße Darstellung zustande.
       </p>
       <p>
-        (2) Die Anwendung kann ohne Entgelt und ohne Kaufvertrag genutzt werden (lokal auf dem Gerät).
-        Daraus entsteht kein Anspruch auf unbegrenzte oder unveränderte Weiterführung einzelner
-        Funktionen. Optionale Cloud-Funktionen (z.&nbsp;B. Geräte-Sync) können eine Anmeldung
-        erfordern und bleiben – soweit nicht anders vereinbart – Zusatzleistungen zum Abo bzw. zur
-        kostenlosen Nutzung.
+        (2) Die Anwendungen können ohne Entgelt und ohne Kaufvertrag genutzt werden (lokal auf dem
+        Gerät), solange die Anbieterin dies anbietet (Testphase). Daraus entsteht kein Anspruch auf
+        unbegrenzte oder unveränderte Weiterführung. Sobald entgeltliche Angebote freigeschaltet
+        sind, kann der Zugang zu einzelnen Modulen an ein gültiges Abo gebunden sein. Optionale
+        Cloud-Funktionen (z.&nbsp;B. Geräte-Sync, KI-Hilfe) können eine Anmeldung erfordern.
       </p>
 
       <h2>§ 3 Vertragsschluss bei entgeltlichen Angeboten</h2>
       <p>
-        (1) Entgeltliche Abos werden über den von der Anbieterin bereitgestellten Bestellprozess
-        (Checkout, derzeit über den Zahlungsdienstleister Stripe) geschlossen. Der Vertrag kommt
-        zustande, indem die Nutzerin/der Nutzer den Bestellprozess durchläuft, diese AGB sowie die
-        Widerrufsbelehrung zur Kenntnis nimmt bzw. akzeptiert und den Kauf durch die vorgesehene
-        Schaltfläche verbindlich abschließt. Die Anbieterin nimmt das Angebot durch Freischaltung
-        und/oder Bestätigung (z.&nbsp;B. E-Mail / Zahlungsbestätigung) an.
+        (1) Entgeltliche Abos und Einmalkäufe (z.&nbsp;B. KI-Pakete) werden über den Bestellprozess
+        (Checkout über Stripe) geschlossen. Voraussetzung ist in der Regel eine Sync-Anmeldung, damit
+        der Kauf dem Konto zugeordnet werden kann. Der Vertrag kommt zustande, indem die
+        Nutzerin/der Nutzer den Bestellprozess durchläuft, diese AGB sowie die Widerrufsbelehrung
+        zur Kenntnis nimmt bzw. akzeptiert und den Kauf durch die vorgesehene Schaltfläche verbindlich
+        abschließt. Die Anbieterin nimmt das Angebot durch Freischaltung und/oder Bestätigung
+        (z.&nbsp;B. E-Mail / Zahlungsbestätigung) an.
       </p>
       <p>
-        (2) Zahlungsabwicklung und – soweit angeboten – Kundenportal erfolgen über Stripe. Die
+        (2) Zahlungsabwicklung und Kundenportal (Abo verwalten / kündigen) erfolgen über Stripe. Die
         Anbieterin erhält die zur Vertragserfüllung und Abrechnung erforderlichen Daten vom
         Zahlungsdienstleister.
       </p>
 
       <h2>§ 4 Leistungen</h2>
       <p>
-        (1) Gegenstand ist die Bereitstellung der Anwendung „{SITE.name}“ zur Unterstützung bei
-        Alltagsplanung und Fokus. Die Speicherung erfolgt vorrangig lokal auf dem Gerät; optional
-        kann ein Ende-zu-Ende verschlüsselter Geräte-Sync genutzt werden.
+        (1) Gegenstand ist die Bereitstellung von „{SITE.name}“ (Alltagsplanung und Fokus) und/oder
+        „{SCHUBLADE.name}“ (Ablegen und Zerlegen von Vorhaben) sowie optional dem Bundle beider
+        Module. Die Speicherung erfolgt vorrangig lokal; optional gibt es Ende-zu-Ende verschlüsselten
+        Geräte-Sync. In der Schublade kann optional eine KI-Hilfe zur Zerlegung genutzt werden;
+        enthaltene KI-Kontingente und Nachkauf-Pakete richten sich nach der Darstellung im Checkout
+        bzw. in der App.
       </p>
       <p>
-        (2) Die Anwendung ersetzt keine medizinische, therapeutische oder sonstige fachliche
+        (2) Die Anwendungen ersetzen keine medizinische, therapeutische oder sonstige fachliche
         Behandlung oder Beratung. Es wird keine bestimmte therapeutische Wirkung zugesichert.
       </p>
       <p>
-        (3) Die Anbieterin finanziert den Betrieb und die Weiterentwicklung der Anwendung über das
-        Abo und verzichtet bewusst auf Werbung sowie auf den Verkauf oder die Weitergabe von
-        Nutzungsdaten an Werbe- oder Datenhändler.
+        (3) Die Anbieterin finanziert Betrieb und Weiterentwicklung über Abos und optionale Käufe und
+        verzichtet bewusst auf Werbung sowie auf den Verkauf oder die Weitergabe von Nutzungsdaten an
+        Werbe- oder Datenhändler.
       </p>
       <p>
-        (4) Die Anbieterin strebt eine angemessene Verfügbarkeit der Website an. Wartung, Störungen
-        Dritter (Netz, Gerät, Browser) und höhere Gewalt können die Nutzung beeinträchtigen.
+        (4) Die Anbieterin strebt eine angemessene Verfügbarkeit an. Wartung, Störungen Dritter
+        (Netz, Gerät, Browser, KI-/Zahlungsdienste) und höhere Gewalt können die Nutzung
+        beeinträchtigen.
       </p>
 
       <h2>§ 5 Nutzungsrechte</h2>
       <p>
         Die Nutzerin/der Nutzer erhält ein einfaches, nicht übertragbares Recht zur bestimmungsgemäßen
-        Nutzung der Anwendung für eigene, nicht-gewerbliche Zwecke im Rahmen dieser AGB. Reverse
+        Nutzung der Anwendungen für eigene, nicht-gewerbliche Zwecke im Rahmen dieser AGB. Reverse
         Engineering ist nur erlaubt, soweit gesetzlich zwingend gestattet.
       </p>
 
-      <h2>§ 6 Vergütung, Abo und Trial</h2>
+      <h2>§ 6 Vergütung, Abo, Trial und Einmalkäufe</h2>
       <p>
         (1) Entgeltliche Leistungen werden mit den zum Bestellzeitpunkt im Checkout ausgewiesenen
         Preisen berechnet. Preise verstehen sich — sofern nicht anders angegeben — inklusive der
         gesetzlichen Umsatzsteuer.
       </p>
       <p>
-        (2) Angeboten werden insbesondere ein Monats- und ein Jahresabo. Soweit im Checkout ausgewiesen,
-        beginnt das Abo mit einer Testphase (Trial) von sieben Tagen; in dieser Zeit kann nach den
-        dort genannten Bedingungen gekündigt werden, ohne dass die erste volle Abo-Periode berechnet
-        wird (maßgeblich ist die Darstellung im Checkout / bei Stripe).
+        (2) Angeboten werden insbesondere Abos für Tagesanker, Die Schublade und Bundle (Monat/Jahr).
+        Soweit im Checkout ausgewiesen, beginnt das Abo mit einer Testphase (Trial) von sieben Tagen;
+        in dieser Zeit kann nach den dort genannten Bedingungen gekündigt werden, ohne dass die erste
+        volle Abo-Periode berechnet wird (maßgeblich ist die Darstellung im Checkout / bei Stripe).
       </p>
       <p>
         (3) Abos verlängern sich automatisch um die gewählte Periode, wenn sie nicht rechtzeitig zum
-        Periodenende gekündigt werden. Die Kündigung ist über den bereitgestellten Kundenweg (z.&nbsp;B.
-        Stripe-Kundenportal, sobald freigeschaltet) oder in Textform an{' '}
+        Periodenende gekündigt werden. Die Kündigung ist über das Stripe-Kundenportal in den
+        App-Einstellungen („Abo verwalten“) oder in Textform an{' '}
         <a href={`mailto:${PROVIDER.email}`}>{PROVIDER.email}</a> möglich. Das Recht zur
         außerordentlichen Kündigung bleibt unberührt.
+      </p>
+      <p>
+        (4) KI-Pakete sind Einmalkäufe von Nutzungsguthaben. Sie verlängern sich nicht automatisch.
+        Nicht verbrauchtes Guthaben verfällt nicht allein durch Zeitablauf, soweit nicht im Checkout
+        anders ausgewiesen; bei Kontolöschung entfällt der Anspruch auf Restguthaben.
       </p>
 
       <h2>§ 7 Freiwillige Mehrzahlung (Spendentopf)</h2>
@@ -387,7 +461,7 @@ export function WiderrufPage() {
   return (
     <LegalShell
       title="Widerrufsbelehrung"
-      description={`Widerrufsbelehrung und Muster-Widerrufsformular für ${SITE.name}.`}
+      description={`Widerrufsbelehrung und Muster-Widerrufsformular für ${SITE.name} / ${SCHUBLADE.name}.`}
     >
       <h2>Widerrufsrecht</h2>
       <p>
@@ -400,7 +474,8 @@ export function WiderrufPage() {
         <a href={`mailto:${PROVIDER.email}`}>{PROVIDER.email}</a>) mittels einer eindeutigen Erklärung
         (z.&nbsp;B. Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.
         Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht
-        vorgeschrieben ist.
+        vorgeschrieben ist. Bei Abos können Sie ergänzend über das Stripe-Kundenportal in der App
+        kündigen; das ersetzt nicht zwingend die Widerrufserklärung innerhalb der Frist.
       </p>
       <p>
         Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des
@@ -417,12 +492,12 @@ export function WiderrufPage() {
         werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.
       </p>
 
-      <h2>Geltung für Abos und Mehrzahlungen</h2>
+      <h2>Geltung für Abos, KI-Pakete und Mehrzahlungen</h2>
       <p>
-        Dieses Widerrufsrecht gilt für entgeltliche Verträge über die Nutzung von „{SITE.name}“
-        (insbesondere Monats- und Jahresabo) sowie für eine im selben Bestellvorgang geleistete
-        freiwillige Mehrzahlung zugunsten des Spendentopfs, soweit ein entgeltlicher Vertrag
-        zustande gekommen ist.
+        Dieses Widerrufsrecht gilt für entgeltliche Verträge über „{SITE.name}“ und „
+        {SCHUBLADE.name}“ — insbesondere Abos (Tagesanker, Schublade, Bundle), Einmalkäufe von
+        KI-Paketen sowie eine im selben Bestellvorgang geleistete freiwillige Mehrzahlung zugunsten
+        des Spendentopfs, soweit ein entgeltlicher Vertrag zustande gekommen ist.
       </p>
       <p>
         Solange kein entgeltlicher Vertrag geschlossen wurde (reine kostenlose Testnutzung ohne
@@ -461,7 +536,8 @@ export function WiderrufPage() {
           Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über den Kauf
           der folgenden Waren (*)/die Erbringung der folgenden Dienstleistung (*)
           <br />
-          (z.&nbsp;B. {SITE.name}-Abo Monat/Jahr und ggf. freiwillige Mehrzahlung Spendentopf)
+          (z.&nbsp;B. {SITE.name}-/{SCHUBLADE.name}-Abo Monat/Jahr, Bundle, KI-Paket und ggf.
+          freiwillige Mehrzahlung Spendentopf)
         </p>
         <p>Bestellt am (*)/erhalten am (*)</p>
         <p>Name des/der Verbraucher(s)</p>

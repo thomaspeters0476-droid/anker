@@ -8,6 +8,10 @@ export {
   onAuthChange,
 } from './auth'
 export {
+  deleteAccountAndLocalData,
+  wipeLocalDeviceData,
+} from './deleteAccount'
+export {
   syncNow,
   schedulePush,
   pushSnapshot,
