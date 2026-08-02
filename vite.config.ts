@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // SVGs mit url(#id) nicht als data: inlinen — # zerlegt die Data-URL
+  build: {
+    assetsInlineLimit: 1024,
+  },
   plugins: [
     react(),
     VitePWA({

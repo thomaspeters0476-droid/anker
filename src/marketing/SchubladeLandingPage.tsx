@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { SCHUBLADE, SITE, setPageMeta } from './site'
-import shotSchublade from './shots/shot-schublade.svg'
+
+/** public/-Pfad: nicht als data-URL inlinen (url(#…) bricht sonst im Browser) */
+const shotSchublade = '/marketing/shot-schublade.svg'
 
 export function SchubladeLandingPage() {
   useEffect(() => {
