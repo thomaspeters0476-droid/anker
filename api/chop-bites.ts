@@ -33,17 +33,20 @@ function apiVersion(): string {
 }
 
 function systemPrompt(locale: 'de' | 'en', mode: 'first' | 'further'): string {
-  // Kurz halten — gpt-5-mini Reasoning kostet Tokens + Zeit
+  // Kurz + 1 Beispiel — gpt-5-mini Reasoning kostet Tokens; Prefer-4 reduziert Recounts
   if (locale === 'en') {
     return [
       mode === 'further'
         ? 'Split one step further inside its parent chunk. JSON only: {"bites":["..."]}.'
         : 'Split a chunk into ADHD-friendly bites. JSON only: {"bites":["..."]}.',
-      `Return ${MIN_BITES}-${MAX_BITES} steps — never fewer than ${MIN_BITES}, never more than ${MAX_BITES}.`,
-      'The set must cover the COMPLETE work of the given title (merge if needed; do not drop work).',
-      'Each ~5–25 min, <80 chars. No micro-actions (open file, click, sit down).',
+      `Return ${MIN_BITES}-${MAX_BITES} steps; prefer exactly 4 when unsure.`,
+      'Cover the COMPLETE work (merge; never drop work).',
+      'Each bite: verb-first, doable alone, ~5–25 min, <80 chars.',
+      'No micro-actions (open/click/sit). No vague-only titles (just “clarify”/“prepare”).',
+      'Good: ["Fetch binder with receipts","Enter numbers in sheet","Print and send"].',
+      'Bad: ["Open laptop","Click Excel","Sit down"].',
       mode === 'first'
-        ? 'Coarse cut; finer detail comes from later further-splits of single bites.'
+        ? 'Coarse cut; finer detail via later further-splits.'
         : 'Stay inside the parent goal.',
     ].join(' ')
   }
@@ -51,11 +54,14 @@ function systemPrompt(locale: 'de' | 'en', mode: 'first' | 'further'): string {
     mode === 'further'
       ? 'Einen Schritt weiter zerlegen (im Brocken bleiben). Nur JSON: {"bites":["..."]}.'
       : 'Brocken in ADHS-taugliche Häppchen schneiden. Nur JSON: {"bites":["..."]}.',
-    `Genau ${MIN_BITES}-${MAX_BITES} Schritte — nie weniger als ${MIN_BITES}, nie mehr als ${MAX_BITES}.`,
-    'Die Menge muss die KOMPLETTE Arbeit des Titels abdecken (zusammenfassen statt weglassen).',
-    'Je ca. 5–25 Min., <80 Zeichen. Keine Mikro-Handlungen (Datei öffnen, klicken).',
+    `Genau ${MIN_BITES}–${MAX_BITES} Schritte; im Zweifel genau 4.`,
+    'KOMPLETTE Arbeit abdecken (zusammenfassen, nichts weglassen).',
+    'Jeder Schritt: mit Verb beginnen, allein machbar, ca. 5–25 Min., <80 Zeichen.',
+    'Keine Mikro-Handlungen (öffnen/klicken). Keine nur vagen Titel („klären“/„vorbereiten“ allein).',
+    'Gut: ["Ordner mit Belegen holen","Zahlen in Tabelle tippen","Ausdrucken und absenden"].',
+    'Schlecht: ["Laptop aufklappen","Excel klicken","Hinsetzen"].',
     mode === 'first'
-      ? 'Grober Schnitt; Feineres später durch Weiterzerteilen einzelner Häppchen.'
+      ? 'Grober Schnitt; Feineres später durch Weiterzerteilen.'
       : 'Im Gesamtvorhaben bleiben.',
   ].join(' ')
 }

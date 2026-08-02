@@ -311,6 +311,31 @@
       "warm": "{{count}} liegen zum Holen. Eins auf den Tag reicht oft — oder {{rest}} in Ruhe legen, dann wird’s wieder klar.",
       "kurz": "{{count}} zum Holen. Eins holen oder {{rest}} in Ruhe.",
       "klar": "Zum Holen: {{count}}. Holen (1) oder {{rest}} → Ruhe."
+    },
+    "staleAsk": {
+      "warm": "„{{title}}“ liegt schon eine Weile hier. Brauchst du’s noch — oder dürfen wir’s gemeinsam weglegen?",
+      "kurz": "„{{title}}“ lange hier. Behalten, Ruhe oder weg?",
+      "klar": "Lange ohne Interaktion: „{{title}}“. Behalten · Ruhe · Verwerfen."
+    },
+    "choppedOk": {
+      "warm": "Gut zerlegt: „{{title}}“. Als Nächstes reicht oft ein Schritt — der Rest wartet.",
+      "kurz": "Zerlegt. Eins holen reicht oft.",
+      "klar": "Zerlegung gespeichert. Holen (1) oder liegen lassen."
+    },
+    "pulledOk": {
+      "warm": "Auf dem Tag: „{{title}}“. Der Rest bleibt sicher in der Schublade.",
+      "kurz": "Geholt: {{title}}.",
+      "klar": "Geholt auf den Tag: „{{title}}“."
+    },
+    "waitingOn": {
+      "warm": "Wartet auf {{who}} — kein Druck. Du kannst’s liegen lassen, bis sich was tut.",
+      "kurz": "Wartet auf {{who}}.",
+      "klar": "Blockiert durch {{who}}. Später fortsetzen."
+    },
+    "emptyInbox": {
+      "warm": "Eingang leer. Schön. Bei Bedarf etwas reinwerfen — oder einen Schritt holen.",
+      "kurz": "Eingang leer.",
+      "klar": "Eingang leer. Ablegen oder holen."
     }
   }
 }

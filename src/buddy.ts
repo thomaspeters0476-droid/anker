@@ -247,6 +247,12 @@ export function drawerBuddy(
     chopSteer?: 'already_small' | 'too_fine' | 'too_many' | null
     /** Ketten-Vorziehen: Titel des eigentlich nächsten Schritts */
     pullAheadEarlier?: string | null
+    /** Lange-liegen-Frage aktiv */
+    staleTitle?: string | null
+    /** Wartet-auf sichtbar */
+    waitingOn?: string | null
+    /** Eingang leer (andere Ebenen können voll sein) */
+    emptyInbox?: boolean
     emergencyCount?: number
     radarCount?: number
     /** Viele Bereit-Häppchen — Aufräumen vorschlagen */
@@ -268,6 +274,9 @@ export function drawerBuddy(
   if (opts.chopSteer === 'too_many') {
     return pick(tone, 'drawer.tooMany')
   }
+  if (opts.staleTitle) {
+    return pick(tone, 'drawer.staleAsk', { title: opts.staleTitle })
+  }
   if ((opts.emergencyCount ?? 0) > 0) {
     return pick(tone, 'drawer.emergency', { count: opts.emergencyCount! })
   }
@@ -281,5 +290,19 @@ export function drawerBuddy(
   if ((opts.radarCount ?? 0) > 0) {
     return pick(tone, 'drawer.radar', { count: opts.radarCount! })
   }
+  if (opts.waitingOn) {
+    return pick(tone, 'drawer.waitingOn', { who: opts.waitingOn })
+  }
+  if (opts.emptyInbox) {
+    return pick(tone, 'drawer.emptyInbox')
+  }
   return pick(tone, 'drawer.welcome')
+}
+
+export function drawerChoppedOk(tone: BuddyTone, title: string): string {
+  return pick(tone, 'drawer.choppedOk', { title })
+}
+
+export function drawerPulledOk(tone: BuddyTone, title: string): string {
+  return pick(tone, 'drawer.pulledOk', { title })
 }

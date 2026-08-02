@@ -14,7 +14,7 @@ export const CHOP_FURTHER_MAX = CHOP_MAX
 export const CHOP_FIRST_PREFERRED_MAX = CHOP_MAX
 
 const MICRO_RE =
-  /^(stift|maus|klick|öffnen|aufmachen|hinsetzen|aufstehen|atmen|trinken|speichern|scrollen)\b/i
+  /^(stift|maus|klick|öffnen|aufmachen|hinsetzen|aufstehen|atmen|trinken|speichern|scrollen|open|click|sit|stand|save|scroll|breathe|drink)\b/i
 
 /** Häppchen wirkt schon klein genug — eher holen als weiter zerteilen */
 export function looksAlreadySmall(title: string): boolean {

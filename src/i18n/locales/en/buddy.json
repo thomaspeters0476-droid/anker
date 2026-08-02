@@ -311,6 +311,31 @@
       "warm": "{{count}} are ready to pull. Pulling one onto today is often enough — or put {{rest}} to rest so it clears again.",
       "kurz": "{{count}} ready to pull. Pull one or rest {{rest}}.",
       "klar": "Ready to pull: {{count}}. Pull 1 or {{rest}} → rest."
+    },
+    "staleAsk": {
+      "warm": "“{{title}}” has been sitting here a while. Still need it — or shall we put it away together?",
+      "kurz": "“{{title}}” been here long. Keep, rest, or drop?",
+      "klar": "Long idle: “{{title}}”. Keep · Rest · Discard."
+    },
+    "choppedOk": {
+      "warm": "Nicely broken down: “{{title}}”. Next, one step is often enough — the rest can wait.",
+      "kurz": "Broken down. Pulling one is often enough.",
+      "klar": "Split saved. Pull (1) or leave it."
+    },
+    "pulledOk": {
+      "warm": "On today: “{{title}}”. The rest stays safe in the drawer.",
+      "kurz": "Pulled: {{title}}.",
+      "klar": "Pulled onto today: “{{title}}”."
+    },
+    "waitingOn": {
+      "warm": "Waiting on {{who}} — no pressure. You can leave it until something moves.",
+      "kurz": "Waiting on {{who}}.",
+      "klar": "Blocked by {{who}}. Resume later."
+    },
+    "emptyInbox": {
+      "warm": "Inbox empty. Nice. Drop something if you need — or pull a step.",
+      "kurz": "Inbox empty.",
+      "klar": "Inbox empty. Drop or pull."
     }
   }
 }

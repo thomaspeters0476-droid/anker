@@ -52,7 +52,7 @@ export async function suggestChopBites(
     const bites = data.bites
       .map((b) => (typeof b === 'string' ? b.trim() : ''))
       .filter(Boolean)
-    if (bites.length < 2) {
+    if (bites.length < 3) {
       return { ok: false, error: 'bad_ai_response' }
     }
     return { ok: true, bites }

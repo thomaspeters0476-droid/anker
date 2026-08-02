@@ -18,10 +18,11 @@ import {
   sparkVaultLocked,
   startFocus,
   timeboxOver,
+  welcomeBack,
 } from '../buddy'
 import { SparkCapture } from '../components/SparkCapture'
 import { SparkVault } from '../components/SparkVault'
-import { notify, notifyIfHidden } from '../notifications'
+import { notifyAsync, notifyIfHidden } from '../notifications'
 import { lifeTemplateLabel } from '../i18n/lifeLabels'
 import { deleteSparkRemote, pushSparkNow } from '../sync'
 import { addInboxItem } from '../drawer/logic'
@@ -103,6 +104,7 @@ export function FocusScreen({
   const feierabendShownRef = useRef(false)
   const awayNudgeCountRef = useRef(0)
   const awayNudgeTimerRef = useRef<number | null>(null)
+  const wasAwayRef = useRef(false)
   const regulateWasOpenRef = useRef(false)
   /** Wall-clock: läuft auch im Hintergrund weiter (andere Tabs/Apps) */
   const endsAtRef = useRef<number | null>(null)
@@ -178,6 +180,7 @@ export function FocusScreen({
         const current = day.tasks.find((task) => task.status === 'active')
         if (!current) return
 
+        wasAwayRef.current = true
         clearAwayNudges()
 
         const canNudge =
@@ -189,10 +192,10 @@ export function FocusScreen({
         if (canNudge) {
           const title = current.title
           const send = () =>
-            notify(
+            void notifyAsync(
               t('focus.notify.awayTitle'),
               t('focus.notify.awayBody', { title }),
-              'anker-away',
+              { tag: 'anker-away', renotify: true },
             )
 
           awayNudgeCountRef.current = 1
@@ -219,6 +222,13 @@ export function FocusScreen({
       }
 
       clearAwayNudges()
+      if (wasAwayRef.current) {
+        wasAwayRef.current = false
+        const current = day.tasks.find((task) => task.status === 'active')
+        if (current) {
+          setBuddyMsg(welcomeBack(current, ctxFromDay(day)))
+        }
+      }
     }
 
     document.addEventListener('visibilitychange', onVisibility)
@@ -234,6 +244,8 @@ export function FocusScreen({
     day.awayNudgeEveryMin,
     day.awayNudgeMax,
     day.tasks,
+    day.buddyTone,
+    day.mood,
     t,
   ])
 

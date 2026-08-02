@@ -991,7 +991,14 @@
   display: grid;
   place-items: end center;
   padding: 1rem;
-  animation: fadeIn 0.2s ease both;
+  animation: fadeIn 0.22s ease both;
+  backdrop-filter: blur(2px);
+}
+
+.spark-overlay.drawer-overlay {
+  place-items: center;
+  padding: 1.1rem;
+  animation: fadeIn 0.24s ease both;
 }
 
 @keyframes fadeIn {
@@ -1015,7 +1022,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  animation: sheetUp 0.28s ease both;
+  animation: sheetUp 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.spark-panel.drawer-panel {
+  animation: drawerSheetIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes sheetUp {
@@ -1026,6 +1037,25 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes drawerSheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spark-overlay,
+  .spark-panel,
+  .spark-panel.drawer-panel {
+    animation: none;
   }
 }
 
@@ -2859,11 +2889,28 @@
 
 .drawer-flash {
   margin: 0.15rem 0 0.85rem;
-  animation: softIn 0.35s ease both;
+  animation: flashPop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes flashPop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .drawer-flash p {
   color: var(--accent-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer-flash {
+    animation: none;
+  }
 }
 
 .drawer-tidy-actions {

@@ -2,7 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { DayState } from '../types'
-import { drawerBuddy } from '../buddy'
+import {
+  drawerBuddy,
+  drawerChoppedOk,
+  drawerPulledOk,
+} from '../buddy'
 import {
   addDaysToToday,
   addInboxItem,
@@ -189,10 +193,17 @@ export function DrawerWorkspace({
   const chopSheetRef = useRef<HTMLDivElement | null>(null)
   const chopTextRef = useRef<HTMLTextAreaElement | null>(null)
 
+  const inboxEmpty = itemsByLevel(drawer, 'inbox').length === 0
+  const waitingSample =
+    drawer.items.find((i) => Boolean(i.waitingOn?.trim()))?.waitingOn ?? null
+
   const buddyLine = drawerBuddy(day.buddyTone, {
     chopBlocked: !chopOk,
     chopSteer: pullConfirmId ? null : chopSteer,
     pullAheadEarlier: pullAheadEarlier?.title ?? null,
+    staleTitle: staleItem?.title ?? null,
+    waitingOn: waitingSample,
+    emptyInbox: inboxEmpty && !showTidy && emergency.length === 0,
     emergencyCount: emergency.length,
     radarCount: showTidy ? 0 : radar.length,
     readyCount: showTidy ? readyCount : 0,
@@ -273,7 +284,7 @@ export function DrawerWorkspace({
     setDay((d) => ({ ...d, tasks: [...d.tasks, task] }))
     patchDrawer((d) => removeItem(d, item.id))
     setPullConfirmId(null)
-    setActionFlash(t('drawer.pulledFlash', { title: item.title }))
+    setActionFlash(drawerPulledOk(day.buddyTone, item.title))
   }
 
   /** Ohne Tagesanker: Schritt hier abhaken (aus der Schublade nehmen) */
@@ -438,16 +449,11 @@ export function DrawerWorkspace({
       setChopErr(t('drawer.capBlocked'))
       return
     }
-    const fromInbox = chopParent?.level === 'inbox'
     patchDrawer((d) => chopIntoBites(d, chopId, lines))
     closeChop()
     setChopSteer(null)
     setOpenLevel('ready')
-    setActionFlash(
-      fromInbox
-        ? t('drawer.choppedMovedFlash', { title: chopParent.title })
-        : t('drawer.choppedFlash'),
-    )
+    setActionFlash(drawerChoppedOk(day.buddyTone, chopParent.title))
   }
 
   async function runAiSuggest() {

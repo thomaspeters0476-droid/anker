@@ -34,13 +34,15 @@ import {
 import { scheduleSaveDrawer } from '../persist'
 import {
   notificationPermission,
+  notificationsReadyToEnable,
+  notifyTestPing,
   requestNotificationPermission,
 } from '../notifications'
 import { PwaGuide } from '../components/PwaGuide'
 import { Handbook } from '../components/Handbook'
 import { SyncSettings } from '../components/SyncSettings'
 import { DrawerPanel } from '../components/DrawerPanel'
-import { isStandaloneApp } from '../pwa'
+import { isLikelyIos, isStandaloneApp } from '../pwa'
 import {
   MOOD_OPTIONS,
   capacityForMood,
@@ -546,10 +548,22 @@ export function PlanScreen({
   }
 
   async function enableNotifications() {
+    if (!notificationsReadyToEnable()) {
+      setNotifMsg(
+        isLikelyIos()
+          ? t('settings.reminders.iosInstallFirst')
+          : t('settings.reminders.saveFirstHint'),
+      )
+      return
+    }
     const result = await requestNotificationPermission()
     if (result === 'granted') {
       setDay((d) => ({ ...d, notificationsEnabled: true }))
       setNotifMsg(t('settings.reminders.notifGranted'))
+      notifyTestPing(
+        t('settings.reminders.testTitle'),
+        t('settings.reminders.testBody'),
+      )
     } else if (result === 'denied') {
       setDay((d) => ({ ...d, notificationsEnabled: false }))
       setNotifMsg(t('settings.reminders.notifDenied'))
@@ -581,7 +595,17 @@ export function PlanScreen({
   }
 
   const sizes: TaskSize[] = ['small', 'medium', 'large']
-  const perm = notificationPermission()
+  const [perm, setPerm] = useState(notificationPermission)
+  useEffect(() => {
+    const refresh = () => setPerm(notificationPermission())
+    refresh()
+    document.addEventListener('visibilitychange', refresh)
+    window.addEventListener('focus', refresh)
+    return () => {
+      document.removeEventListener('visibilitychange', refresh)
+      window.removeEventListener('focus', refresh)
+    }
+  }, [])
   const compactMorning = shortMorning && !day.started
   const canSuggestLife =
     life.length < day.lifeMax &&
@@ -1368,6 +1392,11 @@ export function PlanScreen({
                 <input
                   type="checkbox"
                   checked={day.notificationsEnabled && perm === 'granted'}
+                  disabled={
+                    perm === 'denied' ||
+                    perm === 'unsupported' ||
+                    !notificationsReadyToEnable()
+                  }
                   onChange={(e) => {
                     if (e.target.checked) void enableNotifications()
                     else
@@ -1376,9 +1405,19 @@ export function PlanScreen({
                 />
                 {t('settings.reminders.enableNotifications')}
               </label>
-              {!isStandaloneApp() && (
+              {isLikelyIos() && !isStandaloneApp() && (
+                <p className="block-hint">
+                  {t('settings.reminders.iosInstallFirst')}
+                </p>
+              )}
+              {!isLikelyIos() && !isStandaloneApp() && (
                 <p className="block-hint">
                   {t('settings.reminders.saveFirstHint')}
+                </p>
+              )}
+              {isStandaloneApp() && perm === 'granted' && (
+                <p className="block-hint">
+                  {t('settings.reminders.bestEffortHint')}
                 </p>
               )}
               {perm === 'denied' && (
