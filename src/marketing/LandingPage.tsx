@@ -1,6 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { blogPosts, formatPostDate } from './blog'
+import {
+  formatPostDate,
+  loadBlogIndex,
+  type BlogPostMeta,
+} from './blog'
 import { setPageMeta, SITE } from './site'
 import shotPlan from './shots/shot-plan.svg'
 import shotFocus from './shots/shot-focus.svg'
@@ -25,11 +29,12 @@ const SHOTS = [
 ] as const
 
 export function LandingPage() {
+  const [teaser, setTeaser] = useState<BlogPostMeta[]>([])
+
   useEffect(() => {
     setPageMeta(`${SITE.name} — ${SITE.tagline}`, SITE.description)
+    void loadBlogIndex().then((posts) => setTeaser(posts.slice(0, 3)))
   }, [])
-
-  const teaser = blogPosts.slice(0, 3)
 
   return (
     <main className="mkt-main">
@@ -45,7 +50,7 @@ export function LandingPage() {
             </p>
             <div className="mkt-hero-actions">
               <Link to="/app" className="mkt-btn mkt-btn-primary">
-                Kostenlos starten
+                In der Beta starten
               </Link>
               <Link to="/blog" className="mkt-btn mkt-btn-ghost">
                 Blog lesen
@@ -149,7 +154,10 @@ export function LandingPage() {
 
       <section className="mkt-section mkt-cta-band">
         <h2>Bereit für einen ruhigeren Start?</h2>
-        <p>Die App ist in der Testphase kostenlos nutzbar.</p>
+        <p>
+          Offene Beta — gerade kostenlos. Später: 7 Tage Trial (ohne Zahlungsdaten
+          kein Trial), dann Abo — auch ohne Sync. Kein Free.
+        </p>
         <Link to="/app" className="mkt-btn mkt-btn-primary">
           App öffnen
         </Link>

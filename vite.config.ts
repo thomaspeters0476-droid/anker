@@ -6,6 +6,8 @@ export default defineConfig({
   // SVGs mit url(#id) nicht als data: inlinen — # zerlegt die Data-URL
   build: {
     assetsInlineLimit: 1024,
+    // Kein manualChunks: shared __vitePreload würde sonst in große Vendor-Chunks
+    // rutschen und per modulepreload jede Route blockieren (PDF/Supabase).
   },
   plugins: [
     react(),
@@ -58,6 +60,14 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,ico,png,woff2}'],
+        // PDF-Export selten — nicht offline vorladen (~600KB+)
+        globIgnores: [
+          '**/jspdf*.js',
+          '**/html2canvas*.js',
+          '**/purify*.js',
+          '**/index.es*.js',
+          '**/typeof-*.js',
+        ],
         // Offline nur für die Apps — Marketing bleibt Network-first ohne Shell-Fallback
         navigateFallback: 'index.html',
         navigateFallbackAllowlist: [/^\/app/, /^\/schublade/],

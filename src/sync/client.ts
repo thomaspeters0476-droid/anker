@@ -1,17 +1,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { isSyncConfigured, syncEnv } from './config'
 
-const url = import.meta.env.VITE_SUPABASE_URL?.trim() ?? ''
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() ?? ''
+export { isSyncConfigured } from './config'
 
 let client: SupabaseClient | null = null
-
-export function isSyncConfigured(): boolean {
-  return Boolean(url && anonKey)
-}
 
 export function getSupabase(): SupabaseClient | null {
   if (!isSyncConfigured()) return null
   if (!client) {
+    const { url, anonKey } = syncEnv()
     client = createClient(url, anonKey, {
       auth: {
         persistSession: true,

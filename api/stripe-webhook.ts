@@ -9,6 +9,10 @@ import {
   type ChopTier,
 } from './_chopWallet.js'
 import { syncEntitlementFromSubscription } from './_entitlements.js'
+import {
+  effectiveEntitlementStatus,
+  isEntitlementActive,
+} from './_entitlementRules.js'
 
 /** Stripe SDK typings lag API fields we still receive at runtime. */
 type InvoiceLoose = Stripe.Invoice & {
@@ -39,19 +43,26 @@ async function readRawBody(req: VercelRequest): Promise<Buffer> {
   return Buffer.concat(chunks)
 }
 
+const STALE_PROCESSING_MS = 5 * 60 * 1000
+
 async function claimEvent(
   eventId: string,
   type: string,
-): Promise<'new' | 'done' | 'skip'> {
+): Promise<'new' | 'done' | 'busy'> {
   const sb = getAdminSupabase()
   if (!sb) return 'new'
   const { data: existing } = await sb
     .from('stripe_webhook_events')
-    .select('status')
+    .select('status, received_at')
     .eq('id', eventId)
     .maybeSingle()
   if (existing?.status === 'processed') return 'done'
-  if (existing?.status === 'processing') return 'skip'
+  if (existing?.status === 'processing') {
+    const started = Date.parse(String(existing.received_at || ''))
+    const age = Number.isNaN(started) ? 0 : Date.now() - started
+    if (age < STALE_PROCESSING_MS) return 'busy'
+    // Stuck — reclaim for retry
+  }
 
   const { error } = await sb.from('stripe_webhook_events').upsert(
     {
@@ -174,10 +185,8 @@ async function creditChopPackFromSession(session: Stripe.Checkout.Session) {
   }
 
   const pack = String(session.metadata.pack || '').toLowerCase()
-  const credits =
-    Number(session.metadata.credits) ||
-    PACK_CREDITS[pack] ||
-    0
+  // Nur Server-Map — niemals metadata.credits vertrauen
+  const credits = PACK_CREDITS[pack] || 0
   if (credits < 1) {
     console.error('chop pack: bad credits', pack)
     return
@@ -218,17 +227,18 @@ async function creditChopAboFromInvoice(
     }
   }
 
-  // Subscription metadata
+  // Subscription metadata + PM-Regel (wie Entitlement-Sync)
   const subRef = inv.subscription
   const subId = typeof subRef === 'string' ? subRef : subRef?.id
   let metaTier = ''
-  let metaCredits = 0
+  let subForGate: Stripe.Subscription | null = null
   if (subId) {
     try {
-      const sub = await stripe.subscriptions.retrieve(subId)
-      userId = userId || sub.metadata?.user_id?.trim() || ''
-      metaTier = sub.metadata?.tier || sub.metadata?.product || ''
-      metaCredits = Number(sub.metadata?.chop_monthly_credits) || 0
+      subForGate = await stripe.subscriptions.retrieve(subId, {
+        expand: ['default_payment_method'],
+      })
+      userId = userId || subForGate.metadata?.user_id?.trim() || ''
+      metaTier = subForGate.metadata?.tier || subForGate.metadata?.product || ''
     } catch {
       /* ignore */
     }
@@ -236,27 +246,46 @@ async function creditChopAboFromInvoice(
 
   if (!userId) return
 
+  // Ohne ladbare Subscription kein Abo-Grant (sonst PM-Gate umgehbar)
+  if (!subForGate) {
+    console.warn('chop abo credit skipped: no subscription', invoiceId)
+    return
+  }
+
+  const status = effectiveEntitlementStatus(subForGate.status, subForGate)
+  if (!isEntitlementActive(status)) {
+    console.warn(
+      'chop abo credit skipped: entitlement inactive',
+      invoiceId,
+      subForGate.id,
+      status,
+    )
+    return
+  }
+
   let tier: ChopTier | null = null
   let credits = 0
 
-  if (metaTier === 'schublade' || metaTier === 'bundle' || metaTier === 'tagesanker') {
+  // Credits nur aus Price-ID-Map (Env) — metadata.credits ignorieren
+  for (const line of invoice.lines?.data ?? []) {
+    const priceId =
+      (line as { price?: { id?: string } }).price?.id ||
+      (line as { pricing?: { price_details?: { price?: string } } }).pricing
+        ?.price_details?.price
+    const hit = tierFromPriceId(priceId)
+    if (hit) {
+      tier = hit.tier
+      credits = hit.credits
+      break
+    }
+  }
+  if (
+    !tier &&
+    (metaTier === 'schublade' || metaTier === 'bundle' || metaTier === 'tagesanker')
+  ) {
     tier = metaTier
     credits =
-      metaCredits ||
-      (tier === 'schublade' ? 100 : tier === 'bundle' ? 150 : 0)
-  } else {
-    for (const line of invoice.lines?.data ?? []) {
-      const priceId =
-        (line as { price?: { id?: string } }).price?.id ||
-        (line as { pricing?: { price_details?: { price?: string } } }).pricing
-          ?.price_details?.price
-      const hit = tierFromPriceId(priceId)
-      if (hit) {
-        tier = hit.tier
-        credits = hit.credits
-        break
-      }
-    }
+      tier === 'schublade' ? 100 : tier === 'bundle' ? 150 : 0
   }
 
   if (!tier) return
@@ -312,12 +341,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'verify_failed'
     console.error('stripe webhook verify', message)
-    return res.status(400).send(`webhook_error: ${message}`)
+    return res.status(400).send('webhook_verify_failed')
   }
 
   const claim = await claimEvent(event.id, event.type)
-  if (claim === 'done' || claim === 'skip') {
+  if (claim === 'done') {
     return res.status(200).json({ ok: true, duplicate: true })
+  }
+  if (claim === 'busy') {
+    // Stripe erneut versuchen lassen (nicht 200 — sonst lost grants)
+    return res.status(503).send('still_processing')
   }
 
   try {

@@ -1,4 +1,5 @@
-export { isSyncConfigured, getSupabase, syncRedirectTo } from './client'
+export { isSyncConfigured } from './config'
+export { getSupabase, syncRedirectTo } from './client'
 export {
   getSession,
   getUser,

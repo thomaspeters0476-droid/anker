@@ -42,29 +42,17 @@
     "next": "Next",
     "start": "Get started",
     "steps": {
-      "planLess": {
-        "title": "Short morning",
-        "text": "Default: bring along what’s still open from yesterday, start the day (mood optional — otherwise “pretty good”). Work and life sit under “Plan a little more” — less at once, less freeze."
-      },
-      "morningSwitch": {
-        "title": "Or the full plan",
-        "text": "The full plan shows work, life, and sizes right away — good when you want everything at a glance. Switch anytime: Settings → “Short morning” on or off. Short = calmer start. Full = more overview and control."
-      },
       "oneThing": {
         "title": "One thing",
-        "text": "In focus you only see the current task. The rest waits — on purpose."
+        "text": "In focus you only see the current task. The rest waits — on purpose. Plan less, stay realistic."
       },
-      "findBack": {
-        "title": "Find your way back",
-        "text": "Buddy checks in along the way. Sparks you can park briefly. On your phone: add the app to the home screen — then reminders work better."
+      "park": {
+        "title": "Park instead of losing",
+        "text": "Thoughts and big projects belong in sparks or the drawer — not on today’s pile."
       },
-      "softFreeze": {
-        "title": "Soft freeze",
-        "text": "The timer keeps running while you work elsewhere — that’s often needed. Optionally, notifications gently nudge you back to focus. Adjust or turn off: below under Settings."
-      },
-      "regulate": {
-        "title": "Calm button",
-        "text": "Top right says “Calm”. When it gets too much: tap. Then only breath, senses, body — no timer, no plan. Return with “I’m back”."
+      "calm": {
+        "title": "Without pressure",
+        "text": "No points, no streaks. When it’s too much: Calm button. Open beta for now — later 7-day trial, then a subscription (even without sync)."
       }
     }
   },
@@ -152,13 +140,65 @@
     "label": "Apps",
     "heute": "Today",
     "schublade": "Drawer",
-    "openSchublade": "Open drawer app",
+    "openSchublade": "Open drawer",
     "openAnker": "Open Tagesanker"
   },
+  "bridgeTip": {
+    "dismiss": "Got it",
+    "anker": {
+      "title": "Drawer connected.",
+      "body": "Same data, two apps. The full drawer intro runs there — not again here.",
+      "cta": "Open drawer"
+    },
+    "schublade": {
+      "title": "Tagesanker is optional.",
+      "body": "Switch above for one-thing focus. Same data. The Tagesanker intro only there.",
+      "cta": "Open Tagesanker"
+    }
+  },
+
   "drawer": {
     "title": "The drawer",
     "appTag": "Park & prepare — own app, shared data",
     "appBridgeHint": "Tagesanker and the drawer share sync and local state. Two entries, one care place.",
+    "bridgeEnabledFlash": "The drawer is now linked in Tagesanker too — same state on both sides.",
+    "intro": {
+      "aria": "Drawer introduction",
+      "start": "Get started",
+      "showAgain": "Show introduction again",
+      "surfaceButton": "Introduction",
+      "hideSurfaceButton": "Hide button",
+      "steps": {
+        "alone": {
+          "title": "Its own app",
+          "text": "The drawer works on its own — without Tagesanker. Park projects, break them down, pull doable steps onto today. Tagesanker is optional if you want one-thing focus."
+        },
+        "park": {
+          "title": "Park it",
+          "text": "What isn’t for right now: drop it quickly — safe, not gone. The spark button below also parks thoughts without mixing them into the drawer."
+        },
+        "chop": {
+          "title": "Break it down",
+          "text": "Split big inbox items into small, doable steps. Manual always. Optional AI (Settings) — limited in beta/trial, more with a Schublade plan."
+        },
+        "ready": {
+          "title": "Ready to pull",
+          "text": "Only doable steps sit ready. There’s a cap so no mountain grows. Too many? Pull one or put something to rest."
+        },
+        "today": {
+          "title": "Up now",
+          "text": "At the top you see what’s already on today’s plan — complete it here. Pull a step from “ready” when there’s room. Without Tagesanker, the day still shows here."
+        },
+        "calmSparks": {
+          "title": "Calm & more",
+          "text": "Top right: Calm — breath, senses, body, no timer. Under Settings: advanced shelves (snooze, rest), AI, ready cap, install as app."
+        },
+        "syncSettings": {
+          "title": "Sync & settings",
+          "text": "Sync is optional — multiple devices, encrypted. After beta the app always needs a trial (with payment details) then a plan, even local-only. Restart this intro anytime in Settings."
+        }
+      }
+    },
     "installSummary": "Install as app",
     "open": "Drawer",
     "quickDrop": "Quick drop",
@@ -257,9 +297,9 @@
     "chopAiSuggest": "Suggest with AI",
     "chopAiBusy": "AI thinking…",
     "chopAiOffline": "AI suggestions need the internet. You can still type steps offline.",
-    "chopAiQuotaHintFree": "Free/trial: today {{dayLeft}}/{{dayLimit}}, month {{monthLeft}}/{{monthLimit}} · balance {{wallet}}. Further splits count. Manual always works.",
+    "chopAiQuotaHintFree": "Without a plan (beta/trial): today {{dayLeft}}/{{dayLimit}}, month {{monthLeft}}/{{monthLimit}} · balance {{wallet}}. Further splits count. Manual always works.",
     "chopAiQuotaHintWallet": "Subscription/pack balance: {{wallet}}. Further splits count. Manual always works.",
-    "chopAiLimitReached": "AI allowance used up (free/trial or balance). Top up below — or type the steps yourself.",
+    "chopAiLimitReached": "AI allowance used up (beta/trial or balance). Top up below — or type the steps yourself.",
     "chopAiPackLead": "Buy an AI pack (one-time). Subscriptions already include calls.",
     "chopAiPackSettingsLead": "Extra AI suggestions — larger packs cost less per call.",
     "chopAiPackButton": "{{size}} · {{credits}}× · {{price}}",
@@ -338,11 +378,11 @@
     "shortMorning": "Short morning (less at once)",
     "shortMorningHint": "Off = previous full plan view. You can switch back anytime.",
     "drawerEnabled": "Enable the drawer",
-    "drawerEnabledHint": "Optional. Unlocks the bridge to the drawer app (/schublade). Default: off.",
+    "drawerEnabledHint": "Shows the switch to the drawer. Visiting the drawer turns this on automatically.",
     "drawerAdvanced": "Advanced drawer",
     "drawerAdvancedHint": "Snooze, rest, and “Coming up”. Off = drop, inbox, ready to pull only.",
     "drawerAiChop": "AI help when breaking down",
-    "drawerAiChopHint": "When on: title goes to our AI server. Free/trial: 10/day, max 50/month. Schublade/Bundle plans include extra calls; top-up available. Manual always. Default: off.",
+    "drawerAiChopHint": "When on: title goes to our AI server. Without a plan (beta/trial): 10/day, max 50/month. Schublade/Bundle plans include extra calls; top-up available. Manual always. Default: off.",
     "drawerReadyCap": "Max ready to pull: {{n}}",
     "drawerReadyCapHint": "At most this many doable steps under “Ready to pull” (15–40). When full: pull or rest first.",
     "capacity": {
@@ -411,11 +451,11 @@
   "billing": {
     "paywall": {
       "tagesankerTitle": "Tagesanker with a subscription",
-      "tagesankerBody": "Tagesanker needs a Tagesanker or Bundle plan. Trials count.",
+      "tagesankerBody": "After open beta: 7-day trial, then a Tagesanker or Bundle plan — even local-only, without sync. No free tier.",
       "schubladeTitle": "Schublade with a subscription",
-      "schubladeBody": "Schublade needs a Schublade or Bundle plan. Trials count.",
-      "needSignIn": "Sign in under Sync first to unlock — then you can buy or use an existing plan.",
-      "signInCta": "Sign in",
+      "schubladeBody": "After open beta: 7-day trial, then a Schublade or Bundle plan — even local-only, without sync. No free tier.",
+      "needSignIn": "Sign in first (account for trial/plan) — device sync is optional.",
+      "signInCta": "Account / sign in",
       "pricesCta": "See pricing"
     },
     "portal": {
@@ -427,7 +467,8 @@
   },
   "backup": {
     "title": "Backup & restore",
-    "hint": "As a Markdown file: today, Schublade, and sparks. Useful before deleting or switching devices.",
+    "sectionTitle": "Local backup (no cloud)",
+    "hint": "As a Markdown file on this device: today, Schublade, and sparks. Independent of sync — useful before deleting or switching devices.",
     "export": "Save backup (.md)",
     "import": "Load backup (.md)",
     "importConfirm": "Load backup and replace local data? (day, Schublade, sparks, matching settings)",
@@ -451,7 +492,7 @@
   "sync": {
     "title": "Device sync",
     "notConfigured": "Sync isn’t configured in this build yet (Supabase env missing).",
-    "hint": "Optional. Without sign-in, everything stays on this device only — nothing changes. With sync: end-to-end encrypted; Tagesanker cannot read it.",
+    "hint": "Optional for multiple devices. After beta the app always needs a trial/plan — even local-only. With sync: end-to-end encrypted; Tagesanker cannot read it.",
     "connectedAs": "Connected as {{email}}",
     "signOut": "Sign out",
     "emailLabel": "1. Your email (not the code)",
@@ -482,10 +523,11 @@
       "vaultText": "Protected storage for your cloud copy. Readable only with your password — Tagesanker cannot read it either.",
       "passTerm": "Sync password",
       "passText": "Your key to the vault. Best saved in a password manager.",
-      "recoveryTerm": "Recovery code",
-      "recoveryText": "Emergency backup if you lose the password. Keep it somewhere safe.",
-      "outro": "Without sync, everything stays on this device only, as before."
+      "recoveryTerm": "Emergency code",
+      "recoveryText": "Backup if you lose the password. Keep it somewhere safe.",
+      "outro": "Without sync, data stays on this device only — after beta the app still needs a trial/plan."
     },
+    "openSettings": "Open sync",
     "conflict": {
       "ariaLabel": "Sync conflict",
       "body": "Cloud and this device both changed — e.g. offline here and in parallel elsewhere. Keep which? (No automatic merge.)",
@@ -511,13 +553,16 @@
       "badCode": "Code doesn’t match. Check again.",
       "sessionFailed": "Sign-in failed after the code check.",
       "generic": "Something went wrong. Try again in a moment.",
-      "vaultLocked": "Sync vault locked — enter password or recovery code.",
+      "vaultLocked": "Sync vault locked — enter password or emergency code.",
       "vaultSetupRequired": "Please set a sync password first.",
       "decryptFailed": "Decryption failed. Check your password.",
       "passphraseMismatch": "Passwords don’t match.",
-      "passphraseShort": "At least 8 characters.",
+      "passphraseShort": "At least 12 characters.",
       "wrongPassphrase": "Password doesn’t match.",
-      "wrongRecovery": "Recovery code doesn’t match."
+      "wrongRecovery": "Emergency code doesn’t match.",
+      "legacyBlocked": "Old unencrypted cloud data — please set up the sync vault again (keep local data).",
+      "cloudStale": "Cloud changed — try sync again.",
+      "rateLimited": "Too many codes requested. Wait a moment, then try again."
     },
     "vault": {
       "trust": "Only you can read the contents — not Tagesanker. Without sync, everything stays local as before.",
@@ -527,11 +572,11 @@
       "passphraseConfirm": "Repeat password",
       "setupSubmit": "Create vault",
       "unlockTitle": "Unlock sync vault",
-      "unlockHint": "Once per device. Then it stays unlocked on this device.",
+      "unlockHint": "Per browser session. After reloading the app, enter it again — the key is not stored.",
       "unlockSubmit": "Unlock",
       "forgot": "Forgot password?",
-      "recoveryTitle": "Use recovery code",
-      "recoveryLabel": "Recovery code",
+      "recoveryTitle": "Use emergency code",
+      "recoveryLabel": "Emergency code",
       "recoveryNewPass": "New sync password",
       "recoverySubmit": "Unlock with code",
       "restoreLocalTitle": "Restore from this device",
@@ -539,23 +584,24 @@
       "restoreLocalSubmit": "Re-secure from here",
       "changeTitle": "Change password",
       "changeSubmit": "Save password",
-      "recoveryShow": "Show recovery code",
+      "recoveryShow": "Show emergency code",
       "recoveryHide": "Hide",
       "recoveryCopy": "Copy",
       "recoveryMail": "Email to me",
       "recoveryRegen": "Generate new code",
       "recoverySaved": "I’ve saved the code",
       "recoveryOnce": "Keep this code. It brings sync back if you lose the password.",
-      "mailSubject": "Tagesanker — sync recovery code",
-      "mailBody": "Your Tagesanker sync recovery code (for you only):\n\n{{code}}\n\nTagesanker cannot read this code — the email is sent from your device.",
+      "mailSubject": "Tagesanker — sync emergency code",
+      "mailBody": "Your Tagesanker sync emergency code (for you only):\n\n{{code}}\n\nTagesanker cannot read this code — the email is sent from your device.",
       "unlocked": "Vault open — sync on.",
-      "noticeSetupOk": "Vault created. Please save the recovery code.",
+      "noticeSetupOk": "Vault created. Please save the emergency code.",
       "noticeUnlocked": "Vault unlocked.",
+      "noticeRecoveryRotated": "Vault unlocked — new emergency code (old one invalid). Please save it.",
       "noticeRestored": "Re-secured from this device.",
       "noticeChanged": "Password changed.",
       "noticeCopied": "Copied.",
       "noticeMailed": "Mail app opened — key does not go through Tagesanker.",
-      "noticeRegen": "New recovery code — please save it again."
+      "noticeRegen": "New emergency code — please save it again."
     }
   },
   "pwa": {

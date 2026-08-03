@@ -97,9 +97,15 @@ async function postExpiredSparks(
     sparks: expired.map(toMailPayload),
   }
   try {
+    const { getSession } = await import('./sync/auth')
+    const session = await getSession()
+    if (!session?.access_token) return false
     const res = await fetch('/api/send-expired-sparks', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
       body: JSON.stringify(payload),
     })
     if (!res.ok) return false

@@ -1,15 +1,17 @@
-import { createHash, randomInt } from 'node:crypto'
+import { randomInt } from 'node:crypto'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import {
+  allowOtpSend,
+  clientIp,
+  emailSendCooldownActive,
+  hashOtpCode,
+  otpPepper,
+} from './_syncOtp.js'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const OTP_TTL_MS = 10 * 60 * 1000
-
-function hashCode(email: string, code: string): string {
-  const pepper = process.env.SYNC_OTP_PEPPER || process.env.SUPABASE_SERVICE_ROLE_KEY || 'anker'
-  return createHash('sha256').update(`${email}:${code}:${pepper}`).digest('hex')
-}
 
 function adminClient() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
@@ -26,11 +28,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ ok: false, error: 'method_not_allowed' })
   }
 
+  const pepper = otpPepper()
+  if (!pepper) {
+    return res.status(503).json({ ok: false, error: 'sync_otp_not_configured' })
+  }
+
   const email = String(req.body?.email ?? '')
     .trim()
     .toLowerCase()
   if (!EMAIL_RE.test(email)) {
     return res.status(400).json({ ok: false, error: 'invalid_email' })
+  }
+
+  const ip = clientIp(req)
+  const allowed = await allowOtpSend(ip, email)
+  if (!allowed.ok) {
+    return res.status(429).json({ ok: false, error: 'rate_limited' })
   }
 
   const resendKey = process.env.RESEND_API_KEY
@@ -40,13 +53,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(503).json({ ok: false, error: 'sync_otp_not_configured' })
   }
 
+  const { data: existing } = await sb
+    .from('sync_otp')
+    .select('created_at')
+    .eq('email', email)
+    .maybeSingle()
+  if (emailSendCooldownActive(existing?.created_at)) {
+    return res.status(429).json({ ok: false, error: 'rate_limited' })
+  }
+
   const code = String(randomInt(100000, 999999))
   const expiresAt = new Date(Date.now() + OTP_TTL_MS).toISOString()
 
   const { error: upsertError } = await sb.from('sync_otp').upsert(
     {
       email,
-      code_hash: hashCode(email, code),
+      code_hash: hashOtpCode(email, code, pepper),
       expires_at: expiresAt,
       attempts: 0,
       created_at: new Date().toISOString(),
@@ -54,14 +76,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     { onConflict: 'email' },
   )
   if (upsertError) {
-    return res.status(500).json({ ok: false, error: upsertError.message })
+    console.error('sync-request-otp upsert', upsertError.message)
+    return res.status(500).json({ ok: false, error: 'store_failed' })
   }
 
   const locale = String(req.body?.locale ?? 'de').toLowerCase() === 'en' ? 'en' : 'de'
   const copy =
     locale === 'en'
       ? {
-          subject: `Tagesanker: sync code ${code}`,
+          subject: 'Tagesanker: your sync code',
           kicker: 'Tagesanker · device sync',
           title: 'Your sync code',
           body: 'Enter this code in the app under Settings → Device sync. No link needed.',
@@ -69,7 +92,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           text: `Tagesanker sync code: ${code}\n\nEnter it in the app under Settings → Device sync. Valid ~10 minutes.`,
         }
       : {
-          subject: `Tagesanker: Sync-Code ${code}`,
+          subject: 'Tagesanker: dein Sync-Code',
           kicker: 'Tagesanker · Geräte-Sync',
           title: 'Dein Sync-Code',
           body: 'Tippe diesen Code in der App unter Einstellungen → Geräte-Sync ein. Kein Link nötig.',
@@ -95,21 +118,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (mailError) {
     const raw = String(mailError.message || mailError.name || 'mail_failed')
     const lower = raw.toLowerCase()
-    let code = 'mail_failed'
+    let errCode = 'mail_failed'
     if (
       lower.includes('not authorized') ||
       lower.includes('not verified') ||
       lower.includes('from domain') ||
       lower.includes('tagesanker.de')
     ) {
-      code = 'mail_domain'
+      errCode = 'mail_domain'
     } else if (lower.includes('testing email') || lower.includes('example.com')) {
-      code = 'mail_rejected'
+      errCode = 'mail_rejected'
     } else if (lower.includes('api key') || lower.includes('invalid')) {
-      code = 'mail_not_configured'
+      errCode = 'mail_not_configured'
     }
     console.error('sync-request-otp mail failed', raw)
-    return res.status(502).json({ ok: false, error: code })
+    return res.status(502).json({ ok: false, error: errCode })
   }
 
   return res.status(200).json({ ok: true })

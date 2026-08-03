@@ -1,5 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Resend } from 'resend'
+import {
+  consumeRateBucket,
+  userIdFromAuthHeader,
+} from './_chopWallet.js'
 
 type MailSpark = {
   id: string
@@ -20,6 +24,9 @@ type Body = {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const MAX_SPARKS = 40
+const MAX_ATTACHMENT_BYTES = 1_500_000
+const MAX_TOTAL_ATTACH_BYTES = 4_000_000
 
 function parseDataUrl(dataUrl: string): { mime: string; base64: string } | null {
   const m = /^data:([^;]+);base64,(.+)$/i.exec(dataUrl)
@@ -77,17 +84,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ ok: false, error: 'method_not_allowed' })
   }
 
+  const userId = await userIdFromAuthHeader(req)
+  if (!userId) {
+    return res.status(401).json({ ok: false, error: 'not_signed_in' })
+  }
+
+  const mailOk = await consumeRateBucket({
+    key: `expired-sparks:user:${userId}`,
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+  })
+  if (!mailOk) {
+    return res.status(429).json({ ok: false, error: 'rate_limited' })
+  }
+
   const apiKey = process.env.RESEND_API_KEY
   const from = process.env.RESEND_FROM || process.env.ANKER_RESEND_FROM
   if (!apiKey || !from) {
     return res.status(503).json({
       ok: false,
       error: 'mail_not_configured',
-      message: 'RESEND_API_KEY / RESEND_FROM fehlen auf Vercel.',
     })
   }
 
-  const body = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body) as Body
+  let body: Body
+  try {
+    body = (
+      typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+    ) as Body
+  } catch {
+    return res.status(400).json({ ok: false, error: 'invalid_body' })
+  }
+
   const email = String(body.email ?? '')
     .trim()
     .toLowerCase()
@@ -102,7 +130,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (sparks.length === 0) {
     return res.status(400).json({ ok: false, error: 'no_sparks' })
   }
-  if (sparks.length > 40) {
+  if (sparks.length > MAX_SPARKS) {
     return res.status(400).json({ ok: false, error: 'too_many_sparks' })
   }
 
@@ -111,6 +139,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     content: Buffer
     contentType?: string
   }> = []
+  let totalAttach = 0
 
   const lines: string[] = [copy.header, '', copy.intro1, copy.intro2, '']
 
@@ -120,7 +149,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ? s.createdAt
       : when.toLocaleString(copy.dateLocale)
     lines.push(`— ${i + 1}. ${copy.mode[s.mode]} · ${whenLabel}`)
-    if (s.text?.trim()) lines.push(s.text.trim())
+    if (s.text?.trim()) lines.push(s.text.trim().slice(0, 4000))
     if (s.omitted?.includes('drawing')) {
       lines.push(copy.omittedDraw)
     }
@@ -128,33 +157,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       lines.push(copy.omittedAudio)
     }
 
-    if (s.drawingDataUrl) {
-      const parsed = parseDataUrl(s.drawingDataUrl)
-      if (parsed) {
-        const ext = extForMime(parsed.mime, 'png')
-        const filename = `${copy.fileSketch}-${i + 1}.${ext}`
-        attachments.push({
-          filename,
-          content: Buffer.from(parsed.base64, 'base64'),
-          contentType: parsed.mime,
-        })
-        lines.push(`${copy.attach} ${filename}`)
+    const pushAttach = (dataUrl: string, kind: 'draw' | 'audio', mimeHint?: string) => {
+      const parsed = parseDataUrl(dataUrl)
+      if (!parsed) return
+      const buf = Buffer.from(parsed.base64, 'base64')
+      if (buf.length > MAX_ATTACHMENT_BYTES) {
+        lines.push(kind === 'draw' ? copy.omittedDraw : copy.omittedAudio)
+        return
       }
-    }
-    if (s.audioDataUrl) {
-      const parsed = parseDataUrl(s.audioDataUrl)
-      if (parsed) {
-        const mime = s.audioMimeType || parsed.mime
-        const ext = extForMime(mime, 'webm')
-        const filename = `${copy.fileAudio}-${i + 1}.${ext}`
-        attachments.push({
-          filename,
-          content: Buffer.from(parsed.base64, 'base64'),
-          contentType: mime,
-        })
-        lines.push(`${copy.attach} ${filename}`)
+      if (totalAttach + buf.length > MAX_TOTAL_ATTACH_BYTES) {
+        lines.push(kind === 'draw' ? copy.omittedDraw : copy.omittedAudio)
+        return
       }
+      totalAttach += buf.length
+      const mime = mimeHint || parsed.mime
+      const ext = extForMime(mime, kind === 'draw' ? 'png' : 'webm')
+      const filename = `${kind === 'draw' ? copy.fileSketch : copy.fileAudio}-${i + 1}.${ext}`
+      attachments.push({ filename, content: buf, contentType: mime })
+      lines.push(`${copy.attach} ${filename}`)
     }
+
+    if (s.drawingDataUrl) pushAttach(s.drawingDataUrl, 'draw')
+    if (s.audioDataUrl) pushAttach(s.audioDataUrl, 'audio', s.audioMimeType)
     lines.push('')
   })
 

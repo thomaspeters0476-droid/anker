@@ -34,6 +34,26 @@
   line-height: 1.35;
 }
 
+.sync-top-banner {
+  margin: 0.5rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent, #2f6f5e) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, #2f6f5e) 28%, transparent);
+}
+
+.sync-top-banner p {
+  margin: 0 0 0.55rem;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.sync-top-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
 .topbar-row {
   display: flex;
   align-items: center;
@@ -2152,7 +2172,8 @@
   line-height: 1;
 }
 
-.regulate-tip {
+.regulate-tip,
+.bridge-tip {
   margin-top: 0.75rem;
   padding: 0.75rem 0.85rem;
   border-radius: 14px;
@@ -2164,14 +2185,22 @@
   align-items: flex-start;
 }
 
-.regulate-tip p {
+.bridge-tip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.regulate-tip p,
+.bridge-tip p {
   margin: 0;
   font-size: 0.92rem;
   color: var(--ink-soft);
   line-height: 1.35;
 }
 
-.regulate-tip strong {
+.regulate-tip strong,
+.bridge-tip strong {
   color: var(--accent);
 }
 

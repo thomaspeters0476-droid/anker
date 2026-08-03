@@ -3,14 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 const INTRO_KEY = 'anker-intro-seen'
 
-const STEP_KEYS = [
-  'planLess',
-  'morningSwitch',
-  'oneThing',
-  'findBack',
-  'softFreeze',
-  'regulate',
-] as const
+/** Kurz: Nutzen zuerst — Details später in Einstellungen. */
+const STEP_KEYS = ['oneThing', 'park', 'calm'] as const
 
 type Props = {
   onDone: () => void

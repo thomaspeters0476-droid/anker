@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type SetStateAction } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  type SetStateAction,
+} from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { DayState, Task, TaskKind, TaskSize } from '../types'
@@ -39,10 +46,19 @@ import {
   requestNotificationPermission,
 } from '../notifications'
 import { PwaGuide } from '../components/PwaGuide'
-import { Handbook } from '../components/Handbook'
-import { SyncSettings } from '../components/SyncSettings'
-import { DrawerPanel } from '../components/DrawerPanel'
 import { isLikelyIos, isStandaloneApp } from '../pwa'
+
+const Handbook = lazy(() =>
+  import('../components/Handbook').then((m) => ({ default: m.Handbook })),
+)
+const SyncSettings = lazy(() =>
+  import('../components/SyncSettings').then((m) => ({
+    default: m.SyncSettings,
+  })),
+)
+const DrawerPanel = lazy(() =>
+  import('../components/DrawerPanel').then((m) => ({ default: m.DrawerPanel })),
+)
 import {
   MOOD_OPTIONS,
   capacityForMood,
@@ -83,6 +99,8 @@ type Props = {
   onDrawerEnabledChange?: (on: boolean) => void
   settingsOpen?: boolean
   onSettingsOpenChange?: (open: boolean) => void
+  forceOpenSync?: boolean
+  onForceOpenSyncConsumed?: () => void
 }
 
 function uid() {
@@ -107,6 +125,8 @@ export function PlanScreen({
   onDrawerEnabledChange,
   settingsOpen: settingsOpenProp,
   onSettingsOpenChange,
+  forceOpenSync = false,
+  onForceOpenSyncConsumed,
 }: Props) {
   const { t, i18n } = useTranslation()
   const [locale, setLocale] = useState<AppLocale>(() => loadPrefs().locale)
@@ -117,6 +137,7 @@ export function PlanScreen({
   const [settingsLocal, setSettingsLocal] = useState(false)
   const settingsOpen = settingsOpenProp ?? settingsLocal
   const setSettingsOpen = onSettingsOpenChange ?? setSettingsLocal
+  const [syncSectionOpen, setSyncSectionOpen] = useState(Boolean(syncEmail))
   const [drawerAdvanced, setDrawerAdvanced] = useState(
     () => loadPrefs().drawerAdvanced,
   )
@@ -161,6 +182,12 @@ export function PlanScreen({
       void setAppLocale(pref)
     }
   }, [i18n.language])
+
+  useEffect(() => {
+    if (!forceOpenSync) return
+    setSyncSectionOpen(true)
+    onForceOpenSyncConsumed?.()
+  }, [forceOpenSync, onForceOpenSyncConsumed])
 
   useEffect(() => {
     const items = loadCarryOver()
@@ -1634,7 +1661,13 @@ export function PlanScreen({
             <p className="block-hint">{t('language.hint')}</p>
           </details>
 
-          <details className="settings-section" open={Boolean(syncEmail)}>
+          <details
+            className="settings-section"
+            open={syncSectionOpen || Boolean(syncEmail) || forceOpenSync}
+            onToggle={(e) =>
+              setSyncSectionOpen((e.target as HTMLDetailsElement).open)
+            }
+          >
             <summary>
               {t('settings.sync.summary')}
               <span className="settings-section-meta">
@@ -1644,17 +1677,19 @@ export function PlanScreen({
               </span>
             </summary>
             {settingsOpen && (
-              <SyncSettings
-                email={syncEmail}
-                notice={syncNotice}
-                conflict={syncConflict}
-                onKeepLocal={onSyncKeepLocal}
-                onUseCloud={onSyncUseCloud}
-                onSignedOut={onSyncSignedOut}
-                onNotice={onSyncNotice}
-                onVaultReady={onSyncVaultReady}
-                embedded
-              />
+              <Suspense fallback={null}>
+                <SyncSettings
+                  email={syncEmail}
+                  notice={syncNotice}
+                  conflict={syncConflict}
+                  onKeepLocal={onSyncKeepLocal}
+                  onUseCloud={onSyncUseCloud}
+                  onSignedOut={onSyncSignedOut}
+                  onNotice={onSyncNotice}
+                  onVaultReady={onSyncVaultReady}
+                  embedded
+                />
+              </Suspense>
             )}
           </details>
         </details>
@@ -1666,19 +1701,25 @@ export function PlanScreen({
         ) : null}
       </div>
 
-      {handbookOpen && <Handbook onClose={() => setHandbookOpen(false)} />}
+      {handbookOpen && (
+        <Suspense fallback={null}>
+          <Handbook onClose={() => setHandbookOpen(false)} />
+        </Suspense>
+      )}
       {drawerEnabled && drawerMode && (
-        <DrawerPanel
-          open
-          mode={drawerMode}
-          onClose={() => setDrawerMode(null)}
-          drawer={drawer}
-          setDrawer={updateDrawer}
-          day={day}
-          setDay={setDay}
-          aiChopOptIn={aiChopOptIn}
-          readyCap={readyCap}
-        />
+        <Suspense fallback={null}>
+          <DrawerPanel
+            open
+            mode={drawerMode}
+            onClose={() => setDrawerMode(null)}
+            drawer={drawer}
+            setDrawer={updateDrawer}
+            day={day}
+            setDay={setDay}
+            aiChopOptIn={aiChopOptIn}
+            readyCap={readyCap}
+          />
+        </Suspense>
       )}
     </section>
   )

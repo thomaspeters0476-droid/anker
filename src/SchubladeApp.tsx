@@ -1,6 +1,16 @@
-import { useCallback, useEffect, useRef, useState, type SetStateAction } from 'react'
+import {
+  lazy,
+  startTransition,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type SetStateAction,
+} from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { afterPaint } from './afterPaint'
 import { setAppLocale } from './i18n'
 import { normalizeLocale } from './i18n/locales'
 import type { DayState, Spark, Task } from './types'
@@ -18,38 +28,53 @@ import {
   scheduleSaveDrawer,
 } from './persist'
 import type { DrawerState } from './drawer/types'
-import { DrawerWorkspace } from './components/DrawerWorkspace'
 import { ProductNav } from './components/ProductNav'
 import { PwaGuide } from './components/PwaGuide'
 import { SettingsGear } from './components/SettingsGear'
-import { SparkCapture } from './components/SparkCapture'
-import { SyncSettings } from './components/SyncSettings'
-import { RegulateButton, RegulateDown } from './components/RegulateDown'
-import {
-  getSession,
-  isSyncConfigured,
-  onAuthChange,
-  pushSparkNow,
-  resolveKeepLocal,
-  resolveUseCloud,
-  schedulePush,
-  syncNow,
-  flushSyncOutbox,
-  outboxPendingCount,
-  subscribeUserState,
-  type SyncConflict,
-} from './sync'
+import { RegulateButton } from './components/RegulateDown'
+import { isSyncConfigured, loadSync, schedulePushLazy } from './sync/load'
+import type { SyncConflict } from './sync/sync'
 import { useOnline } from './online'
-import { ChopAiPackBuy } from './components/ChopAiPackBuy'
 import { PaywallGate } from './components/PaywallGate'
-import { refreshChopWallet } from './drawer/chopAiQuota'
+import { SyncConflictBanner } from './components/SyncConflictBanner'
+import {
+  SchubladeIntro,
+  hasSeenSchubladeIntro,
+} from './components/SchubladeIntro'
+import { BridgeTip } from './components/BridgeTip'
+import { hasSeenBridgeTip } from './bridge/bridgeTip'
 import {
   clearEntitlementsCache,
   getCachedEntitlements,
-  refreshEntitlements,
   type EntitlementsState,
-} from './billing/entitlements'
+} from './billing/entitlementsCache'
 import './App.css'
+
+const DrawerWorkspace = lazy(() =>
+  import('./components/DrawerWorkspace').then((m) => ({
+    default: m.DrawerWorkspace,
+  })),
+)
+const SyncSettings = lazy(() =>
+  import('./components/SyncSettings').then((m) => ({
+    default: m.SyncSettings,
+  })),
+)
+const ChopAiPackBuy = lazy(() =>
+  import('./components/ChopAiPackBuy').then((m) => ({
+    default: m.ChopAiPackBuy,
+  })),
+)
+const SparkCapture = lazy(() =>
+  import('./components/SparkCapture').then((m) => ({
+    default: m.SparkCapture,
+  })),
+)
+const RegulateDown = lazy(() =>
+  import('./components/RegulateDown').then((m) => ({
+    default: m.RegulateDown,
+  })),
+)
 
 /**
  * Eigenständige Schublade-App (/schublade).
@@ -63,6 +88,10 @@ export function SchubladeApp() {
   const [syncNotice, setSyncNotice] = useState<string | null>(null)
   const [syncConflict, setSyncConflict] = useState<SyncConflict | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [forceOpenSync, setForceOpenSync] = useState(false)
+  const [showIntro, setShowIntro] = useState(() => !hasSeenSchubladeIntro())
+  const [introKey, setIntroKey] = useState(0)
+  const [showBridgeTip, setShowBridgeTip] = useState(false)
   const [regulateOpen, setRegulateOpen] = useState(false)
   const [aiChopOptIn, setAiChopOptIn] = useState(
     () => loadPrefs().drawerAiChopOptIn,
@@ -95,9 +124,11 @@ export function SchubladeApp() {
     const checkout = params.get('chop_checkout')
     if (!checkout) return
     if (checkout === 'success') {
-      void refreshChopWallet().then(() => {
-        setSparkFlash(t('drawer.chopAiPackSuccess'))
-      })
+      void import('./drawer/chopAiQuota').then(({ refreshChopWallet }) =>
+        refreshChopWallet().then(() => {
+          setSparkFlash(t('drawer.chopAiPackSuccess'))
+        }),
+      )
     } else if (checkout === 'cancel') {
       setSparkFlash(t('drawer.chopAiPackCancel'))
     }
@@ -114,7 +145,9 @@ export function SchubladeApp() {
     }
     setDay((d) => ({ ...d, sparks: [...d.sparks, spark] }))
     setSparkFlash(t('drawer.sparkParked'))
-    void pushSparkNow(spark)
+    if (isSyncConfigured()) {
+      void loadSync().then((m) => m.pushSparkNow(spark))
+    }
   }
 
   const nowTasks = day.tasks.filter(
@@ -133,16 +166,19 @@ export function SchubladeApp() {
 
   const applySyncedDay = useCallback((next: DayState) => {
     skipPersistRef.current = true
-    setDay(next)
-    setDrawer(loadDrawer())
+    startTransition(() => {
+      setDay(next)
+      setDrawer(loadDrawer())
+    })
   }, [])
 
   const runSync = useCallback(async () => {
     if (!isSyncConfigured() || syncingRef.current) return
     syncingRef.current = true
     try {
-      const pendingBefore = await flushSyncOutbox()
-      const result = await syncNow()
+      const sync = await loadSync()
+      const pendingBefore = await sync.flushSyncOutbox()
+      const result = await sync.syncNow()
       if (result.status === 'applied_remote') {
         applySyncedDay(result.day)
         setSyncConflict(null)
@@ -159,7 +195,7 @@ export function SchubladeApp() {
       } else if (result.status === 'error') {
         setSyncNotice(result.message)
       }
-      const pending = outboxPendingCount()
+      const pending = sync.outboxPendingCount()
       if (pending > 0 && pendingBefore > 0) {
         setSyncNotice(t('app.syncNotice.pending', { count: pending }))
       }
@@ -169,12 +205,18 @@ export function SchubladeApp() {
   }, [applySyncedDay, t])
 
   useEffect(() => {
-    // Besuch der Schublade-App = Modul aktiv → Brücke im Tagesanker zeigen
+    // Besuch der Schublade = Modul aktiv → Brücke im Tagesanker
     const prefs = loadPrefs()
     if (!prefs.drawerEnabled) {
       savePrefs({ ...prefs, drawerEnabled: true })
     }
   }, [])
+
+  function maybeShowSchubladeBridgeTip() {
+    if (!hasSeenBridgeTip('schublade')) {
+      setShowBridgeTip(true)
+    }
+  }
 
   useEffect(() => bindPersistFlush(), [])
 
@@ -184,47 +226,77 @@ export function SchubladeApp() {
       return
     }
     scheduleSaveDay(day)
-    if (isSyncConfigured() && syncEmail) schedulePush()
+    if (syncEmail) schedulePushLazy()
   }, [day, syncEmail])
 
   useEffect(() => {
     if (!isSyncConfigured()) return
-    void getSession().then((s) => {
-      setSyncEmail(s?.user?.email ?? null)
-      if (s) void refreshEntitlements().then(setEntitlements)
+    let unsubAuth = () => {}
+    const cancel = afterPaint(() => {
+      void Promise.all([
+        loadSync(),
+        import('./billing/entitlements'),
+      ]).then(([sync, billing]) => {
+        void billing.refreshEntitlements().then(setEntitlements)
+        void sync.getSession().then((s) => {
+          setSyncEmail(s?.user?.email ?? null)
+        })
+        unsubAuth = sync.onAuthChange((session) => {
+          setSyncEmail(session?.user?.email ?? null)
+          if (session) {
+            void runSync()
+            void billing.refreshEntitlements().then(setEntitlements)
+          } else {
+            setSyncConflict(null)
+            clearEntitlementsCache()
+            void billing.refreshEntitlements().then(setEntitlements)
+          }
+        })
+      })
     })
-    return onAuthChange((session) => {
-      setSyncEmail(session?.user?.email ?? null)
-      if (session) {
-        void runSync()
-        void refreshEntitlements().then(setEntitlements)
-      } else {
-        setSyncConflict(null)
-        clearEntitlementsCache()
-        setEntitlements(getCachedEntitlements())
-      }
-    })
+    return () => {
+      cancel()
+      unsubAuth()
+    }
   }, [runSync])
 
   useEffect(() => {
     if (!isSyncConfigured() || !syncEmail) return
-    return subscribeUserState(() => {
-      void runSync()
+    let unsubRt = () => {}
+    const onVis = () => {
+      if (document.visibilityState === 'visible') void runSync()
+    }
+    const onOnline = () => void runSync()
+    const cancel = afterPaint(() => {
+      document.addEventListener('visibilitychange', onVis)
+      window.addEventListener('online', onOnline)
+      void loadSync().then((sync) => {
+        unsubRt = sync.subscribeUserState(() => {
+          void runSync()
+        })
+      })
     })
+    return () => {
+      cancel()
+      document.removeEventListener('visibilitychange', onVis)
+      window.removeEventListener('online', onOnline)
+      unsubRt()
+    }
   }, [syncEmail, runSync])
 
   function updateDrawer(next: SetStateAction<DrawerState>) {
     setDrawer((prev) => {
       const value = typeof next === 'function' ? next(prev) : next
       scheduleSaveDrawer(value)
-      if (isSyncConfigured() && syncEmail) schedulePush()
+      if (syncEmail) schedulePushLazy()
       return value
     })
   }
 
   async function keepLocalConflict() {
     if (!syncConflict) return
-    const result = await resolveKeepLocal(syncConflict)
+    const sync = await loadSync()
+    const result = await sync.resolveKeepLocal(syncConflict)
     setSyncConflict(null)
     if (result.status === 'error') setSyncNotice(result.message)
     else setSyncNotice(t('app.syncNotice.keptLocal'))
@@ -232,7 +304,8 @@ export function SchubladeApp() {
 
   async function useCloudConflict() {
     if (!syncConflict) return
-    const result = await resolveUseCloud(syncConflict)
+    const sync = await loadSync()
+    const result = await sync.resolveUseCloud(syncConflict)
     setSyncConflict(null)
     if (result.status === 'applied_remote') {
       applySyncedDay(result.day)
@@ -242,6 +315,25 @@ export function SchubladeApp() {
     }
   }
 
+  function openIntro() {
+    setIntroKey((k) => k + 1)
+    setShowIntro(true)
+    setSettingsOpen(false)
+  }
+
+  function finishIntro() {
+    setShowIntro(false)
+    maybeShowSchubladeBridgeTip()
+  }
+
+  // Nach erster Session ohne Intro-Tour: Brücken-Hinweis einmalig
+  useEffect(() => {
+    if (showIntro || paywallBlocked) return
+    maybeShowSchubladeBridgeTip()
+    // nur beim ersten Mount nach Intro-Skip/bereits gesehen
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className="app-shell schublade-shell">
       <header className="topbar">
@@ -250,7 +342,7 @@ export function SchubladeApp() {
             <span className="brand-mark" aria-hidden />
             <span className="brand-name">{t('drawer.title')}</span>
           </div>
-          {!regulateOpen && (
+          {!showIntro && !regulateOpen && (
             <div className="topbar-actions">
               <SettingsGear
                 open={settingsOpen}
@@ -266,15 +358,46 @@ export function SchubladeApp() {
             {t('app.offlineBanner')}
           </p>
         )}
-        {!regulateOpen && <ProductNav active="schublade" />}
+        {!showIntro && (
+          <SyncConflictBanner
+            conflict={syncConflict}
+            notice={
+              syncConflict
+                ? null
+                : syncNotice === t('sync.errors.vaultLocked') ||
+                    syncNotice === t('sync.errors.vaultSetupRequired')
+                  ? syncNotice
+                  : null
+            }
+            onKeepLocal={() => void keepLocalConflict()}
+            onUseCloud={() => void useCloudConflict()}
+            onOpenSync={() => {
+              setForceOpenSync(true)
+              setSettingsOpen(true)
+            }}
+            onDismissNotice={() => setSyncNotice(null)}
+          />
+        )}
+        {!showIntro && !regulateOpen && <ProductNav active="schublade" />}
+        {!showIntro && !regulateOpen && showBridgeTip && (
+          <BridgeTip
+            side="schublade"
+            onDismiss={() => setShowBridgeTip(false)}
+          />
+        )}
       </header>
 
       <main className="main">
-        {paywallBlocked ? (
+        {showIntro ? (
+          <SchubladeIntro key={introKey} onDone={finishIntro} />
+        ) : paywallBlocked ? (
           <PaywallGate
             product="schublade"
             signedIn={Boolean(syncEmail)}
-            onOpenSettings={() => setSettingsOpen(true)}
+            onOpenSettings={() => {
+              setForceOpenSync(true)
+              setSettingsOpen(true)
+            }}
           />
         ) : (
         <section className="block drawer-app-block">
@@ -288,6 +411,32 @@ export function SchubladeApp() {
           <div className="drawer-today">
             <h2 className="drawer-today-title">{t('drawer.todayTitle')}</h2>
             <p className="block-hint">{t('drawer.todayLead')}</p>
+            {day.introButtonOnSurface && (
+              <div className="intro-surface">
+                <button
+                  type="button"
+                  className="secondary lg"
+                  onClick={openIntro}
+                >
+                  {t('drawer.intro.surfaceButton')}
+                </button>
+                <label className="intro-hide-check">
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setDay((d) => ({
+                          ...d,
+                          introButtonOnSurface: false,
+                        }))
+                      }
+                    }}
+                  />
+                  {t('drawer.intro.hideSurfaceButton')}
+                </label>
+              </div>
+            )}
             {nowTasks.length === 0 ? (
               <p className="block-hint">{t('drawer.todayEmptyHint')}</p>
             ) : (
@@ -317,20 +466,22 @@ export function SchubladeApp() {
             )}
           </div>
 
-          <DrawerWorkspace
-            variant="page"
-            advanced={drawerAdvanced}
-            drawer={drawer}
-            setDrawer={updateDrawer}
-            day={day}
-            setDay={setDay}
-            aiChopOptIn={aiChopOptIn}
-            readyCap={readyCap}
-          />
+          <Suspense fallback={<div className="app-route-fallback" aria-busy />}>
+            <DrawerWorkspace
+              variant="page"
+              advanced={drawerAdvanced}
+              drawer={drawer}
+              setDrawer={updateDrawer}
+              day={day}
+              setDay={setDay}
+              aiChopOptIn={aiChopOptIn}
+              readyCap={readyCap}
+            />
+          </Suspense>
         </section>
         )}
 
-        {!paywallBlocked && !regulateOpen && (
+        {!showIntro && !paywallBlocked && !regulateOpen && (
           <button
             type="button"
             className="spark-btn drawer-spark-fab"
@@ -340,14 +491,17 @@ export function SchubladeApp() {
           </button>
         )}
 
-        {!paywallBlocked && (
-        <SparkCapture
-          open={captureOpen}
-          onClose={() => setCaptureOpen(false)}
-          onSave={saveSpark}
-        />
+        {!showIntro && !paywallBlocked && captureOpen && (
+          <Suspense fallback={null}>
+            <SparkCapture
+              open={captureOpen}
+              onClose={() => setCaptureOpen(false)}
+              onSave={saveSpark}
+            />
+          </Suspense>
         )}
 
+        {!showIntro && (
         <div className="plan-footer">
           <details
             className="settings-panel settings-panel--from-gear"
@@ -365,6 +519,31 @@ export function SchubladeApp() {
                 {t('productNav.openAnker')}
               </Link>
             </p>
+
+            <details className="settings-section" open>
+              <summary>{t('settings.help.summary')}</summary>
+              <label className="intro-hide-check settings-check">
+                <input
+                  type="checkbox"
+                  checked={day.introButtonOnSurface}
+                  onChange={(e) =>
+                    setDay((d) => ({
+                      ...d,
+                      introButtonOnSurface: e.target.checked,
+                    }))
+                  }
+                />
+                {t('settings.help.introButton')}
+              </label>
+              <button
+                type="button"
+                className="secondary sm"
+                onClick={openIntro}
+              >
+                {t('drawer.intro.showAgain')}
+              </button>
+            </details>
+
             <label className="intro-hide-check settings-check">
               <input
                 type="checkbox"
@@ -394,7 +573,9 @@ export function SchubladeApp() {
             {aiChopOptIn && (
               <div className="settings-section chop-pack-settings">
                 <p className="block-hint">{t('drawer.chopAiPackSettingsLead')}</p>
-                <ChopAiPackBuy />
+                <Suspense fallback={null}>
+                  <ChopAiPackBuy />
+                </Suspense>
               </div>
             )}
             <div className="settings-row">
@@ -429,7 +610,15 @@ export function SchubladeApp() {
               <summary>{t('drawer.installSummary')}</summary>
               <PwaGuide product="schublade" compact />
             </details>
-            <details className="settings-section" open={Boolean(syncEmail)}>
+            <details
+              className="settings-section"
+              open={Boolean(syncEmail) || forceOpenSync}
+              onToggle={(e) => {
+                if (!(e.target as HTMLDetailsElement).open) {
+                  setForceOpenSync(false)
+                }
+              }}
+            >
               <summary>
                 {t('settings.sync.summary')}
                 <span className="settings-section-meta">
@@ -439,20 +628,22 @@ export function SchubladeApp() {
                 </span>
               </summary>
               {settingsOpen && (
-                <SyncSettings
-                  email={syncEmail}
-                  notice={syncNotice}
-                  conflict={syncConflict}
-                  onNotice={setSyncNotice}
-                  onKeepLocal={() => void keepLocalConflict()}
-                  onUseCloud={() => void useCloudConflict()}
-                  onSignedOut={() => {
-                    setSyncEmail(null)
-                    setSyncConflict(null)
-                  }}
-                  onVaultReady={() => void runSync()}
-                  embedded
-                />
+                <Suspense fallback={null}>
+                  <SyncSettings
+                    email={syncEmail}
+                    notice={syncNotice}
+                    conflict={syncConflict}
+                    onNotice={setSyncNotice}
+                    onKeepLocal={() => void keepLocalConflict()}
+                    onUseCloud={() => void useCloudConflict()}
+                    onSignedOut={() => {
+                      setSyncEmail(null)
+                      setSyncConflict(null)
+                    }}
+                    onVaultReady={() => void runSync()}
+                    embedded
+                  />
+                </Suspense>
               )}
             </details>
             {syncEmail ? (
@@ -462,10 +653,13 @@ export function SchubladeApp() {
             ) : null}
           </details>
         </div>
+        )}
       </main>
 
       {regulateOpen && (
-        <RegulateDown onClose={() => setRegulateOpen(false)} />
+        <Suspense fallback={null}>
+          <RegulateDown onClose={() => setRegulateOpen(false)} />
+        </Suspense>
       )}
     </div>
   )

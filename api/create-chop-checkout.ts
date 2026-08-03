@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import Stripe from 'stripe'
 import { PACK_CREDITS, userIdFromAuthHeader } from './_chopWallet.js'
+import { secretsEqual } from './_timingSafe.js'
 
 type PackId = 's' | 'm' | 'l'
 
@@ -17,7 +18,7 @@ function packsEnabled(): boolean {
 function previewTokenOk(reqToken: string | undefined): boolean {
   const expected = process.env.STRIPE_CHECKOUT_PREVIEW_TOKEN?.trim()
   if (!expected) return false
-  return Boolean(reqToken && reqToken === expected)
+  return secretsEqual(reqToken, expected)
 }
 
 function siteOrigin(): string {

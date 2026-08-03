@@ -1,4 +1,4 @@
-/** Free/Trial: 10/Tag + max. 50/Monat; Wallet (Abo/Nachkauf) vom Server */
+/** Beta/Trial ohne Abo: 10/Tag + max. 50/Monat; Wallet (Abo/Nachkauf) vom Server */
 
 import { getSession } from '../sync/auth'
 
@@ -173,55 +173,18 @@ export async function refreshChopWallet(): Promise<WalletCache> {
   }
 }
 
-async function consumeWalletRemote(): Promise<boolean> {
-  const session = await getSession()
-  if (!session?.access_token) return false
-  try {
-    const res = await fetch('/api/chop-credits', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ action: 'consume' }),
-    })
-    const data = (await res.json().catch(() => null)) as {
-      ok?: boolean
-      balance?: number
-    } | null
-    if (!res.ok || !data?.ok) return false
-    const cur = readWalletCache()
-    writeWalletCache({
-      ...cur,
-      balance: typeof data.balance === 'number' ? data.balance : Math.max(0, cur.balance - 1),
-      at: new Date().toISOString(),
-    })
-    return true
-  } catch {
-    return false
-  }
+/** Lokaler Free-Zähler für UI — Server verbucht verbindlich in chop-bites. */
+export function noteFreeUseLocally(): void {
+  if (usesFreeQuota()) recordFreeUse()
 }
 
 /**
- * Nach erfolgreichem KI-Call: Free zuerst (wenn aktiv), sonst Wallet.
- * Gibt false wenn nichts abgezogen werden konnte (sollte vorher canUse prüfen).
+ * @deprecated Verbrauch läuft serverseitig in /api/chop-bites.
  */
 export async function recordChopAiUse(): Promise<boolean> {
-  if (freeQuotaRemaining() > 0) {
-    recordFreeUse()
-    return true
-  }
-  if (walletBalanceCached() > 0) {
-    return consumeWalletRemote()
-  }
-  // Cache leer — einmal vom Server holen
-  const w = await refreshChopWallet()
-  if (w.useFreeQuota && freeQuotaRemaining() > 0) {
-    recordFreeUse()
-    return true
-  }
-  if (w.balance > 0) return consumeWalletRemote()
-  return false
+  noteFreeUseLocally()
+  await refreshChopWallet()
+  return true
 }
 
 export async function startChopPackCheckout(

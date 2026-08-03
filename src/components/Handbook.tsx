@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ensureNs } from '../i18n'
 
 type Section = {
   id: string
@@ -150,7 +152,13 @@ type Props = {
 
 export function Handbook({ onClose }: Props) {
   const { t } = useTranslation('handbook')
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    void ensureNs('handbook').then(() => setReady(true))
+  }, [])
   const sections = useHandbookSections()
+
+  if (!ready) return null
 
   return (
     <div

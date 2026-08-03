@@ -42,29 +42,17 @@
     "next": "Weiter",
     "start": "Loslegen",
     "steps": {
-      "planLess": {
-        "title": "Kurzer Morgen",
-        "text": "Standard: Offenes von gestern mitnehmen, Tag starten (Stimmung optional — sonst „gut“). Arbeit und Alltag stecken unter „Noch etwas planen“ — weniger auf einmal, weniger Freeze."
-      },
-      "morningSwitch": {
-        "title": "Oder der volle Plan",
-        "text": "Der volle Plan zeigt Arbeit, Alltag und Größen sofort — gut, wenn du alles auf einen Blick willst. Wechsel jederzeit: Einstellungen → „Kurzer Morgen“ an oder aus. Kurz = ruhiger Start. Voll = mehr Überblick und Kontrolle."
-      },
       "oneThing": {
         "title": "Eine Sache",
-        "text": "Im Fokus siehst du nur die aktuelle Aufgabe. Der Rest wartet — absichtlich."
+        "text": "Im Fokus siehst du nur die aktuelle Aufgabe. Der Rest wartet — absichtlich. Wenig planen, realistisch bleiben."
       },
-      "findBack": {
-        "title": "Zurückfinden",
-        "text": "Der Buddy fragt zwischendurch nach. Geistesblitze kannst du kurz parken. Am Handy: App auf den Startbildschirm legen — dann kommen Erinnerungen besser an."
+      "park": {
+        "title": "Parken statt verlieren",
+        "text": "Gedanken und große Vorhaben gehören in Geistesblitze oder die Schublade — nicht auf den heutigen Berg."
       },
-      "softFreeze": {
-        "title": "Weicher Freeze",
-        "text": "Der Timer läuft weiter, wenn du woanders arbeitest — das ist oft nötig. Optional erinnern dich Mitteilungen sanft an den Fokus. Anpassen oder ausstellen: unten unter Einstellungen."
-      },
-      "regulate": {
-        "title": "Ruhe-Button",
-        "text": "Oben rechts steht „Ruhe“. Wenn es zu viel wird: tippen. Dann nur Atmen, Sinne, Körper — kein Timer, kein Plan. Zurück mit „Ich bin wieder da“."
+      "calm": {
+        "title": "Ohne Druck",
+        "text": "Keine Punkte, keine Streaks. Wenn’s zu viel wird: Ruhe-Button. Gerade offene Beta — später 7 Tage Trial, dann Abo (auch ohne Sync)."
       }
     }
   },
@@ -152,13 +140,65 @@
     "label": "Apps",
     "heute": "Heute",
     "schublade": "Schublade",
-    "openSchublade": "Zur Schublade-App",
+    "openSchublade": "Zur Schublade",
     "openAnker": "Zum Tagesanker"
   },
+  "bridgeTip": {
+    "dismiss": "Verstanden",
+    "anker": {
+      "title": "Schublade verbunden.",
+      "body": "Gleiche Daten, zwei Apps. Die ausführliche Schublade-Einführung läuft dort — nicht hier nochmal.",
+      "cta": "Zur Schublade"
+    },
+    "schublade": {
+      "title": "Tagesanker optional.",
+      "body": "Oben wechseln, wenn du Fokus für eine Sache willst. Gleiche Daten. Die Tagesanker-Einführung nur dort.",
+      "cta": "Zum Tagesanker"
+    }
+  },
+
   "drawer": {
     "title": "Die Schublade",
     "appTag": "Ablegen & vorbereiten — eigene App, gemeinsame Daten",
     "appBridgeHint": "Tagesanker und Schublade teilen Sync und lokalen Stand. Zwei Einstiege, eine Pflege.",
+    "bridgeEnabledFlash": "Schublade ist jetzt auch im Tagesanker verlinkt — gleicher Stand auf beiden Seiten.",
+    "intro": {
+      "aria": "Einführung Schublade",
+      "start": "Loslegen",
+      "showAgain": "Einführung nochmal anzeigen",
+      "surfaceButton": "Einführung",
+      "hideSurfaceButton": "Button ausblenden",
+      "steps": {
+        "alone": {
+          "title": "Eigene App",
+          "text": "Die Schublade funktioniert allein — ohne Tagesanker. Hier legst du Vorhaben ab, zerlegst sie und holst greifbare Schritte auf den Tag. Tagesanker ist optional, wenn du Fokus für „eine Sache“ willst."
+        },
+        "park": {
+          "title": "Ablegen",
+          "text": "Was nicht für jetzt ist: kurz reinwerfen — sicher weg, nicht weg. Unten der Blitz-Button parkt auch Geistesblitze, ohne die Schublade zu vermischen."
+        },
+        "chop": {
+          "title": "Zerlegen",
+          "text": "Große Dinge im Eingang in kleine, greifbare Schritte teilen. Manuell immer. Optional KI (Einstellungen) — Kontingent in der Beta/Trial, im Schublade-Abo mehr."
+        },
+        "ready": {
+          "title": "Zum Holen",
+          "text": "Nur greifbare Schritte liegen bereit. Es gibt ein Limit („Zum Holen“), damit kein Berg entsteht. Zu viel? Etwas holen oder in Ruhe legen."
+        },
+        "today": {
+          "title": "Jetzt dran",
+          "text": "Oben siehst du, was heute schon auf dem Plan liegt — erledigen geht hier. Einen Schritt aus „Zum Holen“ holen, wenn Kapazität da ist. Ohne Tagesanker bleibt der Tag trotzdem hier sichtbar."
+        },
+        "calmSparks": {
+          "title": "Ruhe & mehr",
+          "text": "Oben rechts: Ruhe — Atmen, Sinne, Körper, kein Timer. Unter Einstellungen: erweiterte Ablagen (Aufschub, Ruhe), KI, Limit „Zum Holen“, App installieren."
+        },
+        "syncSettings": {
+          "title": "Sync & Einstellungen",
+          "text": "Sync ist optional — mehrere Geräte, verschlüsselt. Die App kostet nach der Beta (Trial mit Zahlungsdaten, dann Abo), auch nur lokal. Einführung jederzeit unter Einstellungen nochmal."
+        }
+      }
+    },
     "installSummary": "Als App installieren",
     "open": "Schublade",
     "quickDrop": "Schnell ablegen",
@@ -257,9 +297,9 @@
     "chopAiSuggest": "Mit KI vorschlagen",
     "chopAiBusy": "KI denkt …",
     "chopAiOffline": "KI-Vorschläge nur mit Internet. Schritte kannst du offline selbst eintragen.",
-    "chopAiQuotaHintFree": "Free/Trial: heute {{dayLeft}}/{{dayLimit}}, Monat {{monthLeft}}/{{monthLimit}} · Guthaben {{wallet}}. Weiterzerlegen zählt. Manuell geht immer.",
+    "chopAiQuotaHintFree": "Ohne Abo (Beta/Trial): heute {{dayLeft}}/{{dayLimit}}, Monat {{monthLeft}}/{{monthLimit}} · Guthaben {{wallet}}. Weiterzerlegen zählt. Manuell geht immer.",
     "chopAiQuotaHintWallet": "Abo/Paket-Guthaben: {{wallet}}. Weiterzerlegen zählt. Manuell geht immer.",
-    "chopAiLimitReached": "KI-Kontingent aufgebraucht (Free/Trial oder Guthaben). Nachkauf unten — oder Schritte selbst eintragen.",
+    "chopAiLimitReached": "KI-Kontingent aufgebraucht (Beta/Trial oder Guthaben). Nachkauf unten — oder Schritte selbst eintragen.",
     "chopAiPackLead": "KI-Paket nachkaufen (einmalig). Im Abo sind Calls bereits enthalten.",
     "chopAiPackSettingsLead": "Zusätzliche KI-Vorschläge — günstiger pro Call im größeren Paket.",
     "chopAiPackButton": "{{size}} · {{credits}}× · {{price}}",
@@ -338,11 +378,11 @@
     "shortMorning": "Kurzer Morgen (weniger auf einmal)",
     "shortMorningHint": "Aus = bisherige volle Plan-Ansicht. Du kannst jederzeit zurückschalten.",
     "drawerEnabled": "Die Schublade aktivieren",
-    "drawerEnabledHint": "Optional. Öffnet die Brücke zur Schublade-App (/schublade). Standard: aus.",
+    "drawerEnabledHint": "Zeigt den Wechsel zur Schublade. Besuch der Schublade schaltet das automatisch ein.",
     "drawerAdvanced": "Erweiterte Schublade",
     "drawerAdvancedHint": "Aufschub, Ruhe und „Demnächst“. Aus = nur Ablegen, Eingang, Zum Holen.",
     "drawerAiChop": "KI-Hilfe beim Zerlegen",
-    "drawerAiChopHint": "Wenn an: Titel geht an unseren KI-Server. Free/Trial: 10/Tag, max. 50/Monat. Im Schublade-/Bundle-Abo sind Extra-Calls enthalten; Nachkauf möglich. Manuell immer. Standard: aus.",
+    "drawerAiChopHint": "Wenn an: Titel geht an unseren KI-Server. Ohne Abo (Beta/Trial): 10/Tag, max. 50/Monat. Im Schublade-/Bundle-Abo Extra-Calls; Nachkauf möglich. Manuell immer. Standard: aus.",
     "drawerReadyCap": "Max. zum Holen: {{n}}",
     "drawerReadyCapHint": "Höchstens so viele greifbare Schritte unter „Zum Holen“ (15–40). Wenn voll: erst holen oder in Ruhe legen.",
     "capacity": {
@@ -411,11 +451,11 @@
   "billing": {
     "paywall": {
       "tagesankerTitle": "Tagesanker mit Abo",
-      "tagesankerBody": "Für den Tagesanker brauchst du ein Tagesanker- oder Bundle-Abo. Probezeit zählt mit.",
+      "tagesankerBody": "Nach der offenen Beta: 7 Tage Trial, dann Tagesanker- oder Bundle-Abo — auch nur lokal, ohne Sync. Es gibt kein Free.",
       "schubladeTitle": "Schublade mit Abo",
-      "schubladeBody": "Für die Schublade brauchst du ein Schublade- oder Bundle-Abo. Probezeit zählt mit.",
-      "needSignIn": "Zum Freischalten zuerst unter Sync anmelden — dann kannst du kaufen oder ein bestehendes Abo nutzen.",
-      "signInCta": "Zur Anmeldung",
+      "schubladeBody": "Nach der offenen Beta: 7 Tage Trial, dann Schublade- oder Bundle-Abo — auch nur lokal, ohne Sync. Es gibt kein Free.",
+      "needSignIn": "Zum Freischalten zuerst anmelden (Konto für Trial/Abo) — Sync für Geräte ist optional.",
+      "signInCta": "Konto / Anmeldung",
       "pricesCta": "Zu den Preisen"
     },
     "portal": {
@@ -427,7 +467,8 @@
   },
   "backup": {
     "title": "Sichern & Wiederherstellen",
-    "hint": "Als Markdown-Datei: Tag, Schublade und Geistesblitze. Gut vor dem Löschen oder beim Gerätewechsel.",
+    "sectionTitle": "Lokales Backup (ohne Cloud)",
+    "hint": "Als Markdown-Datei auf diesem Gerät: Tag, Schublade und Geistesblitze. Unabhängig vom Sync — gut vor dem Löschen oder beim Gerätewechsel.",
     "export": "Backup speichern (.md)",
     "import": "Backup laden (.md)",
     "importConfirm": "Backup laden und lokale Daten ersetzen? (Tag, Schublade, Geistesblitze, passende Einstellungen)",
@@ -451,7 +492,7 @@
   "sync": {
     "title": "Geräte-Sync",
     "notConfigured": "Sync ist auf diesem Build noch nicht konfiguriert (Supabase-Env fehlt).",
-    "hint": "Optional. Ohne Anmeldung bleibt alles nur auf diesem Gerät — nichts ändert sich. Mit Sync: Ende-zu-Ende verschlüsselt; Tagesanker kann nicht mitlesen.",
+    "hint": "Optional für mehrere Geräte. Die App selbst ist nach der Beta immer mit Trial/Abo — auch nur lokal. Mit Sync: Ende-zu-Ende verschlüsselt; Tagesanker kann nicht mitlesen.",
     "connectedAs": "Verbunden als {{email}}",
     "signOut": "Abmelden",
     "emailLabel": "1. Deine E-Mail (nicht der Code)",
@@ -482,10 +523,11 @@
       "vaultText": "Geschützter Speicher für deine Cloud-Kopie. Nur mit Passwort lesbar — auch Tagesanker kann nicht mitlesen.",
       "passTerm": "Sync-Passwort",
       "passText": "Dein Schlüssel für den Tresor. Am besten im Passwortmanager speichern.",
-      "recoveryTerm": "Recovery-Code",
-      "recoveryText": "Notfall-Ersatz, falls das Passwort weg ist. Einmal gut aufbewahren.",
-      "outro": "Ohne Sync bleibt alles wie bisher nur auf diesem Gerät."
+      "recoveryTerm": "Notfallcode",
+      "recoveryText": "Ersatz, falls das Passwort weg ist. Einmal gut aufbewahren.",
+      "outro": "Ohne Sync bleiben die Daten nur auf diesem Gerät — die App kostet nach der Beta trotzdem (Trial/Abo)."
     },
+    "openSettings": "Zu Sync",
     "conflict": {
       "ariaLabel": "Sync-Konflikt",
       "body": "Cloud und dieses Gerät wurden beide geändert — z. B. offline hier und parallel woanders. Was behalten? (Kein automatisches Zusammenführen.)",
@@ -511,13 +553,16 @@
       "badCode": "Code stimmt nicht. Nochmal prüfen.",
       "sessionFailed": "Anmeldung nach Code-Check fehlgeschlagen.",
       "generic": "Etwas ist schiefgelaufen. Kurz nochmal versuchen.",
-      "vaultLocked": "Sync-Tresor gesperrt — Passwort oder Recovery-Code eingeben.",
+      "vaultLocked": "Sync-Tresor gesperrt — Passwort oder Notfallcode eingeben.",
       "vaultSetupRequired": "Bitte zuerst ein Sync-Passwort festlegen.",
       "decryptFailed": "Entschlüsselung fehlgeschlagen. Passwort prüfen.",
       "passphraseMismatch": "Passwörter stimmen nicht überein.",
-      "passphraseShort": "Mind. 8 Zeichen.",
+      "passphraseShort": "Mind. 12 Zeichen.",
       "wrongPassphrase": "Passwort stimmt nicht.",
-      "wrongRecovery": "Recovery-Code stimmt nicht."
+      "wrongRecovery": "Notfallcode stimmt nicht.",
+      "legacyBlocked": "Alte unverschlüsselte Cloud-Daten — bitte Sync-Tresor neu einrichten (lokale Daten behalten).",
+      "cloudStale": "Cloud wurde geändert — Sync erneut versuchen.",
+      "rateLimited": "Zu viele Codes angefordert. Kurz warten, dann nochmal."
     },
     "vault": {
       "trust": "Nur du kannst den Inhalt lesen — nicht Tagesanker. Ohne Sync bleibt alles nur lokal, unverändert.",
@@ -527,11 +572,11 @@
       "passphraseConfirm": "Passwort wiederholen",
       "setupSubmit": "Tresor einrichten",
       "unlockTitle": "Sync-Tresor entsperren",
-      "unlockHint": "Einmal pro Gerät. Danach bleibt er auf diesem Gerät entsperrt.",
+      "unlockHint": "Pro Browser-Sitzung. Nach Neuladen der App erneut eingeben — der Schlüssel bleibt nicht gespeichert.",
       "unlockSubmit": "Entsperren",
       "forgot": "Passwort vergessen?",
-      "recoveryTitle": "Mit Recovery-Code",
-      "recoveryLabel": "Recovery-Code",
+      "recoveryTitle": "Mit Notfallcode",
+      "recoveryLabel": "Notfallcode",
       "recoveryNewPass": "Neues Sync-Passwort",
       "recoverySubmit": "Mit Code entsperren",
       "restoreLocalTitle": "Von diesem Gerät wiederherstellen",
@@ -539,23 +584,24 @@
       "restoreLocalSubmit": "Hier neu sichern",
       "changeTitle": "Passwort ändern",
       "changeSubmit": "Passwort speichern",
-      "recoveryShow": "Recovery-Code anzeigen",
+      "recoveryShow": "Notfallcode anzeigen",
       "recoveryHide": "Verbergen",
       "recoveryCopy": "Kopieren",
       "recoveryMail": "An mich mailen",
       "recoveryRegen": "Neuen Code erzeugen",
       "recoverySaved": "Ich habe den Code gespeichert",
       "recoveryOnce": "Bewahre diesen Code auf. Damit holst du den Sync zurück, wenn das Passwort weg ist.",
-      "mailSubject": "Tagesanker — Sync Recovery-Code",
-      "mailBody": "Dein Tagesanker Sync Recovery-Code (nur für dich):\n\n{{code}}\n\nTagesanker kann diesen Code nicht lesen — die Mail kommt von deinem Gerät.",
+      "mailSubject": "Tagesanker — Sync-Notfallcode",
+      "mailBody": "Dein Tagesanker Sync-Notfallcode (nur für dich):\n\n{{code}}\n\nTagesanker kann diesen Code nicht lesen — die Mail kommt von deinem Gerät.",
       "unlocked": "Tresor offen — Sync aktiv.",
-      "noticeSetupOk": "Tresor eingerichtet. Recovery-Code bitte sichern.",
+      "noticeSetupOk": "Tresor eingerichtet. Notfallcode bitte sichern.",
       "noticeUnlocked": "Tresor entsperrt.",
+      "noticeRecoveryRotated": "Tresor entsperrt — neuer Notfallcode (alter ungültig). Bitte sichern.",
       "noticeRestored": "Von diesem Gerät neu gesichert.",
       "noticeChanged": "Passwort geändert.",
       "noticeCopied": "Kopiert.",
       "noticeMailed": "Mail-App geöffnet — Key geht nicht über Tagesanker.",
-      "noticeRegen": "Neuer Recovery-Code — bitte erneut sichern."
+      "noticeRegen": "Neuer Notfallcode — bitte erneut sichern."
     }
   },
   "pwa": {

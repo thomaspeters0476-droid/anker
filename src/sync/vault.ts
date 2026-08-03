@@ -1,11 +1,10 @@
 import {
   buildEnvelope,
-  exportDekRaw,
   formatRecoveryCode,
   generateDek,
   generateRecoveryCode,
-  importDekRaw,
   isSyncEnvelope,
+  MIN_PASSPHRASE_LEN,
   normalizeRecoveryCode,
   openEnvelopeWithPassphrase,
   openEnvelopeWithRecovery,
@@ -13,14 +12,7 @@ import {
   rotateRecovery,
   type SyncEnvelopeV1,
 } from './crypto'
-import { bufToB64, b64ToBuf } from './bytes'
-import {
-  dekCacheKey,
-  getLocalSecret,
-  recoveryCacheKey,
-  removeLocalSecret,
-  setLocalSecret,
-} from './secretStore'
+import { purgePersistedVaultSecrets } from './secretStore'
 
 export type VaultStatus =
   | { state: 'locked' }
@@ -28,44 +20,42 @@ export type VaultStatus =
   | { state: 'needs_setup' }
 
 let memoryDek: { userId: string; key: CryptoKey } | null = null
+let purgedLegacy = false
+
+function ensureLegacyPurged() {
+  if (purgedLegacy) return
+  purgedLegacy = true
+  purgePersistedVaultSecrets()
+}
 
 export function clearVaultMemory(): void {
   memoryDek = null
 }
 
 export async function cacheDek(userId: string, dek: CryptoKey): Promise<void> {
+  ensureLegacyPurged()
   memoryDek = { userId, key: dek }
-  const raw = await exportDekRaw(dek)
-  setLocalSecret(dekCacheKey(userId), bufToB64(raw))
 }
 
+/** Nur Session-Memory — kein localStorage. */
 export async function loadCachedDek(userId: string): Promise<CryptoKey | null> {
+  ensureLegacyPurged()
   if (memoryDek?.userId === userId) return memoryDek.key
-  const b64 = getLocalSecret(dekCacheKey(userId))
-  if (!b64) return null
-  try {
-    const dek = await importDekRaw(b64ToBuf(b64))
-    memoryDek = { userId, key: dek }
-    return dek
-  } catch {
-    removeLocalSecret(dekCacheKey(userId))
-    return null
-  }
+  return null
 }
 
 export function clearCachedDek(userId: string): void {
   if (memoryDek?.userId === userId) memoryDek = null
-  removeLocalSecret(dekCacheKey(userId))
-  removeLocalSecret(recoveryCacheKey(userId))
+  purgePersistedVaultSecrets()
 }
 
-export function getCachedRecoveryCode(userId: string): string | null {
-  const raw = getLocalSecret(recoveryCacheKey(userId))
-  return raw ? formatRecoveryCode(raw) : null
+/** @deprecated Recovery wird nicht mehr lokal gespeichert — nur UI-State nach Setup/Regen. */
+export function getCachedRecoveryCode(_userId: string): string | null {
+  return null
 }
 
-export function setCachedRecoveryCode(userId: string, code: string): void {
-  setLocalSecret(recoveryCacheKey(userId), normalizeRecoveryCode(code))
+export function setCachedRecoveryCode(_userId: string, _code: string): void {
+  /* no-op — absichtlich nicht persistieren */
 }
 
 export async function getUnlockedDek(userId: string): Promise<CryptoKey | null> {
@@ -73,10 +63,11 @@ export async function getUnlockedDek(userId: string): Promise<CryptoKey | null> 
 }
 
 export function isVaultUnlocked(userId: string): boolean {
-  return memoryDek?.userId === userId || !!getLocalSecret(dekCacheKey(userId))
+  ensureLegacyPurged()
+  return memoryDek?.userId === userId
 }
 
-/** After login: setup if no envelope / no local DEK */
+/** After login: setup if no envelope / no session DEK */
 export async function resolveVaultStatus(
   userId: string,
   remotePayload: unknown,
@@ -102,7 +93,6 @@ export async function setupVault(params: {
     recoveryCode,
   )
   await cacheDek(params.userId, dek)
-  setCachedRecoveryCode(params.userId, recoveryCode)
   return { envelope, recoveryCode }
 }
 
@@ -119,6 +109,10 @@ export async function unlockWithPassphrase(params: {
   return { plaintext }
 }
 
+/**
+ * Recovery-Unlock: neues Passwort + neuer Recovery-Code (alter Recovery ungültig).
+ * Neuer Code nur einmal an die UI zurück — nicht speichern.
+ */
 export async function unlockWithRecovery(params: {
   userId: string
   envelope: SyncEnvelopeV1
@@ -129,16 +123,20 @@ export async function unlockWithRecovery(params: {
     params.envelope,
     params.recoveryCode,
   )
-  const recoveryCode = params.recoveryCode
-  const envelope = await rewrapPassphrase(
+  const newRecovery = generateRecoveryCode()
+  let envelope = await rewrapPassphrase(
     params.envelope,
     dek,
     plaintext,
     params.newPassphrase,
   )
+  envelope = await rotateRecovery(envelope, dek, plaintext, newRecovery)
   await cacheDek(params.userId, dek)
-  setCachedRecoveryCode(params.userId, recoveryCode)
-  return { plaintext, envelope, recoveryCode: formatRecoveryCode(recoveryCode) }
+  return {
+    plaintext,
+    envelope,
+    recoveryCode: formatRecoveryCode(newRecovery),
+  }
 }
 
 export async function changePassphrase(params: {
@@ -149,13 +147,12 @@ export async function changePassphrase(params: {
 }): Promise<SyncEnvelopeV1> {
   const dek = await getUnlockedDek(params.userId)
   if (!dek) throw new Error('vault_locked')
-  const next = await rewrapPassphrase(
+  return rewrapPassphrase(
     params.envelope,
     dek,
     params.plaintext,
     params.newPassphrase,
   )
-  return next
 }
 
 export async function regenerateRecovery(params: {
@@ -172,7 +169,6 @@ export async function regenerateRecovery(params: {
     params.plaintext,
     recoveryCode,
   )
-  setCachedRecoveryCode(params.userId, recoveryCode)
   return { envelope, recoveryCode }
 }
 
@@ -188,4 +184,10 @@ export async function restoreFromLocalDevice(params: {
   return setupVault(params)
 }
 
-export { isSyncEnvelope, type SyncEnvelopeV1, formatRecoveryCode, normalizeRecoveryCode }
+export {
+  isSyncEnvelope,
+  type SyncEnvelopeV1,
+  formatRecoveryCode,
+  normalizeRecoveryCode,
+  MIN_PASSPHRASE_LEN,
+}

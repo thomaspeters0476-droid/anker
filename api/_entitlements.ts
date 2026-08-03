@@ -2,18 +2,26 @@ import type Stripe from 'stripe'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import {
   getAdminSupabase,
+  getWallet,
   monthlyCreditsForTier,
+  revokeAboWalletAccess,
   tierFromPriceId,
   type ChopTier,
 } from './_chopWallet.js'
+import {
+  canUseSchublade as canUseSchubladeRule,
+  canUseTagesanker as canUseTagesankerRule,
+  effectiveEntitlementStatus,
+  isEntitlementActive as isEntitlementActiveRule,
+  subscriptionHasPaymentMethod,
+  type EntitlementStatus,
+} from './_entitlementRules.js'
 
-export type EntitlementStatus =
-  | 'none'
-  | 'trialing'
-  | 'active'
-  | 'past_due'
-  | 'canceled'
-  | 'unpaid'
+export type { EntitlementStatus }
+export {
+  TRIAL_PERIOD_DAYS,
+  CHECKOUT_PAYMENT_METHOD_COLLECTION,
+} from './_entitlementRules.js'
 
 export type EntitlementRow = {
   user_id: string
@@ -30,32 +38,21 @@ export function entitlementsEnforced(): boolean {
 }
 
 export function isEntitlementActive(status: EntitlementStatus): boolean {
-  return status === 'trialing' || status === 'active'
+  return isEntitlementActiveRule(status)
 }
 
 export function canUseTagesanker(
   tier: ChopTier | null,
   status: EntitlementStatus,
 ): boolean {
-  if (!isEntitlementActive(status) || !tier) return false
-  return tier === 'tagesanker' || tier === 'bundle'
+  return canUseTagesankerRule(tier, status)
 }
 
 export function canUseSchublade(
   tier: ChopTier | null,
   status: EntitlementStatus,
 ): boolean {
-  if (!isEntitlementActive(status) || !tier) return false
-  return tier === 'schublade' || tier === 'bundle'
-}
-
-function mapStripeStatus(status: Stripe.Subscription.Status): EntitlementStatus {
-  if (status === 'trialing') return 'trialing'
-  if (status === 'active') return 'active'
-  if (status === 'past_due') return 'past_due'
-  if (status === 'unpaid') return 'unpaid'
-  if (status === 'canceled') return 'canceled'
-  return 'canceled'
+  return canUseSchubladeRule(tier, status)
 }
 
 export async function getEntitlement(
@@ -152,10 +149,27 @@ export async function syncEntitlementFromSubscription(
   stripe: Stripe,
   sub: Stripe.Subscription,
 ): Promise<void> {
-  const customerId =
-    typeof sub.customer === 'string' ? sub.customer : sub.customer?.id || null
+  // Webhook-Payloads ohne PM-Felder → nachladen, sonst False-'none'
+  let resolved = sub
+  if (
+    !subscriptionHasPaymentMethod(sub) &&
+    (sub.status === 'trialing' || sub.status === 'active')
+  ) {
+    try {
+      resolved = await stripe.subscriptions.retrieve(sub.id, {
+        expand: ['default_payment_method'],
+      })
+    } catch {
+      /* keep original */
+    }
+  }
 
-  let userId = sub.metadata?.user_id?.trim() || ''
+  const customerId =
+    typeof resolved.customer === 'string'
+      ? resolved.customer
+      : resolved.customer?.id || null
+
+  let userId = resolved.metadata?.user_id?.trim() || ''
   if (!userId && customerId) {
     const sb = getAdminSupabase()
     if (sb) {
@@ -176,31 +190,42 @@ export async function syncEntitlementFromSubscription(
     }
   }
   if (!userId) {
-    console.error('entitlement sync: missing user_id', sub.id)
+    console.error('entitlement sync: missing user_id', resolved.id)
     return
   }
 
-  const tier = tierFromSubscription(sub)
-  const status = mapStripeStatus(sub.status)
+  const tier = tierFromSubscription(resolved)
+  const status = effectiveEntitlementStatus(resolved.status, resolved)
+  if (
+    (resolved.status === 'trialing' || resolved.status === 'active') &&
+    status === 'none'
+  ) {
+    console.warn(
+      'entitlement sync: subscription without payment method',
+      resolved.id,
+      resolved.status,
+    )
+  }
   const active = isEntitlementActive(status)
 
   const result = await upsertEntitlement({
     userId,
     stripeCustomerId: customerId,
-    stripeSubscriptionId: sub.id,
-    tier,
+    stripeSubscriptionId: resolved.id,
+    tier: active ? tier : null,
     status,
-    currentPeriodEnd: periodEndIso(sub),
+    currentPeriodEnd: periodEndIso(resolved),
   })
   if (result.ok === false) {
     console.error('entitlement upsert', result.error)
     return
   }
 
-  // Keep KI wallet tier in sync when subscription is active
+  const sb = getAdminSupabase()
+  if (!sb) return
+
+  // Keep KI wallet tier in sync — bei Inactive Abo-Credits forfeit
   if (active && tier) {
-    const sb = getAdminSupabase()
-    if (!sb) return
     const { data } = await sb
       .from('chop_ai_wallets')
       .select('balance')
@@ -216,6 +241,15 @@ export async function syncEntitlementFromSubscription(
       },
       { onConflict: 'user_id' },
     )
+  } else {
+    const wallet = await getWallet(sb, userId)
+    // Idempotent: nur wenn noch Abo-Tier oder Guthaben bereinigt werden muss
+    if (wallet.tier !== null) {
+      const revoked = await revokeAboWalletAccess(userId)
+      if (revoked.ok === false) {
+        console.error('chop wallet revoke', revoked.error)
+      }
+    }
   }
 }
 

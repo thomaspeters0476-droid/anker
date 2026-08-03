@@ -11,13 +11,13 @@ function syncMsg(key: string): string {
 function messageFromApiError(error?: string): string {
   switch (error) {
     case 'no_code':
-      return syncMsg('noCode')
     case 'expired':
-      return syncMsg('codeExpired')
     case 'too_many_attempts':
-      return syncMsg('tooManyAttempts')
     case 'bad_code':
-      return syncMsg('badCode')
+    case 'invalid_code':
+      return syncMsg('invalidCode')
+    case 'rate_limited':
+      return syncMsg('rateLimited')
     case 'session_failed':
     case 'session_link_failed':
       return syncMsg('sessionFailed')
@@ -135,6 +135,16 @@ export async function verifySyncOtp(
 export async function signOut(): Promise<void> {
   const sb = getSupabase()
   if (!sb) return
+  try {
+    const { data } = await sb.auth.getSession()
+    const uid = data.session?.user?.id
+    if (uid) {
+      const { clearCachedDek } = await import('./vault')
+      clearCachedDek(uid)
+    }
+  } catch {
+    /* ignore */
+  }
   await sb.auth.signOut()
 }
 

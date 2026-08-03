@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { loadPrefs, savePrefs } from '../storage'
@@ -25,6 +25,8 @@ export function ShellSettings({
   onSyncVaultReady,
   drawerEnabled,
   onDrawerEnabledChange,
+  forceOpenSync = false,
+  onForceOpenSyncConsumed,
 }: {
   onClose: () => void
   syncEmail: string | null
@@ -37,6 +39,8 @@ export function ShellSettings({
   onSyncVaultReady?: () => void
   drawerEnabled: boolean
   onDrawerEnabledChange?: (on: boolean) => void
+  forceOpenSync?: boolean
+  onForceOpenSyncConsumed?: () => void
 }) {
   const { t } = useTranslation()
   const [locale, setLocale] = useState<AppLocale>(() => loadPrefs().locale)
@@ -46,6 +50,15 @@ export function ShellSettings({
   const [drawerAdvanced, setDrawerAdvanced] = useState(
     () => loadPrefs().drawerAdvanced,
   )
+  const [syncOpen, setSyncOpen] = useState(
+    () => Boolean(syncEmail) || forceOpenSync,
+  )
+
+  useEffect(() => {
+    if (!forceOpenSync) return
+    setSyncOpen(true)
+    onForceOpenSyncConsumed?.()
+  }, [forceOpenSync, onForceOpenSyncConsumed])
 
   return (
     <div className="spark-overlay" role="dialog" aria-modal>
@@ -126,7 +139,13 @@ export function ShellSettings({
           </select>
         </label>
 
-        <details className="settings-section" open={Boolean(syncEmail)}>
+        <details
+          className="settings-section"
+          open={syncOpen || forceOpenSync}
+          onToggle={(e) =>
+            setSyncOpen((e.target as HTMLDetailsElement).open)
+          }
+        >
           <summary>{t('settings.sync.summary')}</summary>
           <SyncSettings
             email={syncEmail}

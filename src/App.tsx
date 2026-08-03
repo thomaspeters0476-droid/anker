@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  Suspense,
+  lazy,
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { setAppLocale } from './i18n'
 import { normalizeLocale } from './i18n/locales'
@@ -7,35 +15,43 @@ import { emptyDay, loadDay, loadPrefs } from './storage'
 import { bindPersistFlush, scheduleSaveDay } from './persist'
 import { ProductNav } from './components/ProductNav'
 import { SettingsGear } from './components/SettingsGear'
-import { ShellSettings } from './components/ShellSettings'
 import { reconcileExpiredSparks } from './sparkExpiry'
-import { PlanScreen } from './screens/PlanScreen'
-import { FocusScreen } from './screens/FocusScreen'
-import { DoneScreen } from './screens/DoneScreen'
 import { Intro, hasSeenIntro } from './components/Intro'
-import { RegulateButton, RegulateDown } from './components/RegulateDown'
-import {
-  getSession,
-  isSyncConfigured,
-  onAuthChange,
-  resolveKeepLocal,
-  resolveUseCloud,
-  schedulePush,
-  syncNow,
-  flushSyncOutbox,
-  outboxPendingCount,
-  subscribeUserState,
-  type SyncConflict,
-} from './sync'
+import { RegulateButton } from './components/RegulateDown'
+import { afterPaint } from './afterPaint'
+import { isSyncConfigured, loadSync, schedulePushLazy } from './sync/load'
+import type { SyncConflict } from './sync/sync'
 import { useOnline } from './online'
 import { PaywallGate } from './components/PaywallGate'
+import { SyncConflictBanner } from './components/SyncConflictBanner'
+import { BridgeTip } from './components/BridgeTip'
+import { hasSeenBridgeTip } from './bridge/bridgeTip'
 import {
   clearEntitlementsCache,
   getCachedEntitlements,
-  refreshEntitlements,
   type EntitlementsState,
-} from './billing/entitlements'
+} from './billing/entitlementsCache'
 import './App.css'
+
+const PlanScreen = lazy(() =>
+  import('./screens/PlanScreen').then((m) => ({ default: m.PlanScreen })),
+)
+const FocusScreen = lazy(() =>
+  import('./screens/FocusScreen').then((m) => ({ default: m.FocusScreen })),
+)
+const DoneScreen = lazy(() =>
+  import('./screens/DoneScreen').then((m) => ({ default: m.DoneScreen })),
+)
+const ShellSettings = lazy(() =>
+  import('./components/ShellSettings').then((m) => ({
+    default: m.ShellSettings,
+  })),
+)
+const RegulateDown = lazy(() =>
+  import('./components/RegulateDown').then((m) => ({
+    default: m.RegulateDown,
+  })),
+)
 
 const REGULATE_TIP_KEY = 'anker-regulate-tip-seen'
 
@@ -71,7 +87,9 @@ function App() {
   const [drawerEnabled, setDrawerEnabled] = useState(
     () => loadPrefs().drawerEnabled,
   )
+  const [showBridgeTip, setShowBridgeTip] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [forceOpenSync, setForceOpenSync] = useState(false)
   const [entitlements, setEntitlements] = useState<EntitlementsState>(() =>
     getCachedEntitlements(),
   )
@@ -84,16 +102,19 @@ function App() {
 
   const applySyncedDay = useCallback((next: DayState) => {
     skipPersistRef.current = true
-    setDay(next)
-    setDrawerEnabled(loadPrefs().drawerEnabled)
+    startTransition(() => {
+      setDay(next)
+      setDrawerEnabled(loadPrefs().drawerEnabled)
+    })
   }, [])
 
   const runSync = useCallback(async () => {
     if (!isSyncConfigured() || syncingRef.current) return
     syncingRef.current = true
     try {
-      const pendingBefore = await flushSyncOutbox()
-      const result = await syncNow()
+      const sync = await loadSync()
+      const pendingBefore = await sync.flushSyncOutbox()
+      const result = await sync.syncNow()
       if (result.status === 'applied_remote') {
         applySyncedDay(result.day)
         setSyncConflict(null)
@@ -110,7 +131,7 @@ function App() {
       } else if (result.status === 'error') {
         setSyncNotice(result.message)
       }
-      const pending = outboxPendingCount()
+      const pending = sync.outboxPendingCount()
       if (pending > 0 && pendingBefore > 0) {
         setSyncNotice(t('app.syncNotice.pending', { count: pending }))
       }
@@ -127,43 +148,62 @@ function App() {
       return
     }
     scheduleSaveDay(day)
-    if (isSyncConfigured() && syncEmail) schedulePush()
+    if (syncEmail) schedulePushLazy()
   }, [day, syncEmail])
 
   useEffect(() => {
     if (!isSyncConfigured()) return
-    void getSession().then((s) => {
-      setSyncEmail(s?.user?.email ?? null)
-      if (s) void refreshEntitlements().then(setEntitlements)
+    let unsubAuth = () => {}
+    const cancelIdle = afterPaint(() => {
+      void Promise.all([
+        loadSync(),
+        import('./billing/entitlements'),
+      ]).then(([sync, billing]) => {
+        // Immer — auch ohne Session (enforced-Flag für Unsigned-Paywall)
+        void billing.refreshEntitlements().then(setEntitlements)
+        void sync.getSession().then((s) => {
+          setSyncEmail(s?.user?.email ?? null)
+        })
+        unsubAuth = sync.onAuthChange((session) => {
+          setSyncEmail(session?.user?.email ?? null)
+          if (session) {
+            void runSync()
+            void billing.refreshEntitlements().then(setEntitlements)
+          } else {
+            setSyncConflict(null)
+            clearEntitlementsCache()
+            void billing.refreshEntitlements().then(setEntitlements)
+          }
+        })
+      })
     })
-    return onAuthChange((session) => {
-      setSyncEmail(session?.user?.email ?? null)
-      if (session) {
-        void runSync()
-        void refreshEntitlements().then(setEntitlements)
-      } else {
-        setSyncConflict(null)
-        clearEntitlementsCache()
-        setEntitlements(getCachedEntitlements())
-      }
-    })
+    return () => {
+      cancelIdle()
+      unsubAuth()
+    }
   }, [runSync])
 
   useEffect(() => {
     if (!isSyncConfigured() || !syncEmail) return
+    let unsubRt = () => {}
     const onVis = () => {
       if (document.visibilityState === 'visible') void runSync()
     }
     const onOnline = () => void runSync()
-    document.addEventListener('visibilitychange', onVis)
-    window.addEventListener('online', onOnline)
-    const unsub = subscribeUserState(() => {
-      void runSync()
+    const cancel = afterPaint(() => {
+      document.addEventListener('visibilitychange', onVis)
+      window.addEventListener('online', onOnline)
+      void loadSync().then((sync) => {
+        unsubRt = sync.subscribeUserState(() => {
+          void runSync()
+        })
+      })
     })
     return () => {
+      cancel()
       document.removeEventListener('visibilitychange', onVis)
       window.removeEventListener('online', onOnline)
-      unsub()
+      unsubRt()
     }
   }, [syncEmail, runSync])
 
@@ -172,15 +212,19 @@ function App() {
     reconciledRef.current = true
     const email = day.sparksMailEmail ?? ''
     const sparks = day.sparks
-    void reconcileExpiredSparks(sparks, email).then((result) => {
-      if (result.notice) setSparkMailNotice(result.notice)
-      if (
-        result.mailed > 0 ||
-        result.purgedWithoutMail > 0 ||
-        result.sparks.length !== sparks.length
-      ) {
-        setDay((d) => ({ ...d, sparks: result.sparks }))
-      }
+    return afterPaint(() => {
+      void reconcileExpiredSparks(sparks, email).then((result) => {
+        if (result.notice) setSparkMailNotice(result.notice)
+        if (
+          result.mailed > 0 ||
+          result.purgedWithoutMail > 0 ||
+          result.sparks.length !== sparks.length
+        ) {
+          startTransition(() => {
+            setDay((d) => ({ ...d, sparks: result.sparks }))
+          })
+        }
+      })
     })
     // Einmal beim Start — E-Mail/Sparks aus initialem State
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -202,6 +246,14 @@ function App() {
     setShowIntro(true)
   }
 
+  function onDrawerEnabledChange(on: boolean) {
+    const was = drawerEnabled
+    setDrawerEnabled(on)
+    if (on && !was && !hasSeenBridgeTip('anker')) {
+      setShowBridgeTip(true)
+    }
+  }
+
   function openRegulate() {
     markRegulateTipSeen()
     setShowRegulateTip(false)
@@ -220,7 +272,8 @@ function App() {
 
   async function keepLocalConflict() {
     if (!syncConflict) return
-    const result = await resolveKeepLocal(syncConflict)
+    const sync = await loadSync()
+    const result = await sync.resolveKeepLocal(syncConflict)
     setSyncConflict(null)
     if (result.status === 'error') setSyncNotice(result.message)
     else setSyncNotice(t('app.syncNotice.keptLocal'))
@@ -228,7 +281,8 @@ function App() {
 
   async function useCloudConflict() {
     if (!syncConflict) return
-    const result = await resolveUseCloud(syncConflict)
+    const sync = await loadSync()
+    const result = await sync.resolveUseCloud(syncConflict)
     setSyncConflict(null)
     if (result.status === 'applied_remote') {
       applySyncedDay(result.day)
@@ -265,7 +319,36 @@ function App() {
             {t('app.offlineBanner')}
           </p>
         )}
+        {!showIntro && (
+          <SyncConflictBanner
+            conflict={syncConflict}
+            notice={
+              syncConflict
+                ? null
+                : syncNotice === t('sync.errors.vaultLocked') ||
+                    syncNotice === t('sync.errors.vaultSetupRequired')
+                  ? syncNotice
+                  : null
+            }
+            onKeepLocal={() => void keepLocalConflict()}
+            onUseCloud={() => void useCloudConflict()}
+            onOpenSync={() => {
+              setForceOpenSync(true)
+              setSettingsOpen(true)
+            }}
+            onDismissNotice={() => setSyncNotice(null)}
+          />
+        )}
         {!showIntro && drawerEnabled && <ProductNav active="anker" />}
+        {!showIntro &&
+          !regulateOpen &&
+          showBridgeTip &&
+          drawerEnabled && (
+            <BridgeTip
+              side="anker"
+              onDismiss={() => setShowBridgeTip(false)}
+            />
+          )}
         {!showIntro && !regulateOpen && showRegulateTip && (
           <div className="regulate-tip" role="status">
             <p>
@@ -292,10 +375,13 @@ function App() {
           <PaywallGate
             product="tagesanker"
             signedIn={Boolean(syncEmail)}
-            onOpenSettings={() => setSettingsOpen(true)}
+            onOpenSettings={() => {
+              setForceOpenSync(true)
+              setSettingsOpen(true)
+            }}
           />
         ) : (
-          <>
+          <Suspense fallback={<div className="app-route-fallback" aria-busy />}>
             {screen === 'plan' && (
               <PlanScreen
                 day={day}
@@ -315,9 +401,11 @@ function App() {
                 }}
                 onSyncVaultReady={() => void runSync()}
                 drawerEnabled={drawerEnabled}
-                onDrawerEnabledChange={setDrawerEnabled}
+                onDrawerEnabledChange={onDrawerEnabledChange}
                 settingsOpen={settingsOpen}
                 onSettingsOpenChange={setSettingsOpen}
+                forceOpenSync={forceOpenSync}
+                onForceOpenSyncConsumed={() => setForceOpenSync(false)}
               />
             )}
             {screen === 'focus' && (
@@ -335,32 +423,41 @@ function App() {
                 drawerEnabled={drawerEnabled}
               />
             )}
-          </>
+          </Suspense>
         )}
       </main>
 
       {regulateOpen && (
-        <RegulateDown onClose={() => setRegulateOpen(false)} />
+        <Suspense fallback={null}>
+          <RegulateDown onClose={() => setRegulateOpen(false)} />
+        </Suspense>
       )}
       {settingsOpen &&
         !showIntro &&
         (paywallBlocked || screen !== 'plan') && (
-        <ShellSettings
-          onClose={() => setSettingsOpen(false)}
-          syncEmail={syncEmail}
-          syncNotice={syncNotice}
-          syncConflict={syncConflict}
-          onSyncNotice={setSyncNotice}
-          onSyncKeepLocal={() => void keepLocalConflict()}
-          onSyncUseCloud={() => void useCloudConflict()}
-          onSyncSignedOut={() => {
-            setSyncEmail(null)
-            setSyncConflict(null)
-          }}
-          onSyncVaultReady={() => void runSync()}
-          drawerEnabled={drawerEnabled}
-          onDrawerEnabledChange={setDrawerEnabled}
-        />
+        <Suspense fallback={null}>
+          <ShellSettings
+            onClose={() => {
+              setSettingsOpen(false)
+              setForceOpenSync(false)
+            }}
+            syncEmail={syncEmail}
+            syncNotice={syncNotice}
+            syncConflict={syncConflict}
+            onSyncNotice={setSyncNotice}
+            onSyncKeepLocal={() => void keepLocalConflict()}
+            onSyncUseCloud={() => void useCloudConflict()}
+            onSyncSignedOut={() => {
+              setSyncEmail(null)
+              setSyncConflict(null)
+            }}
+            onSyncVaultReady={() => void runSync()}
+            drawerEnabled={drawerEnabled}
+            onDrawerEnabledChange={onDrawerEnabledChange}
+            forceOpenSync={forceOpenSync}
+            onForceOpenSyncConsumed={() => setForceOpenSync(false)}
+          />
+        </Suspense>
       )}
     </div>
   )

@@ -5,6 +5,15 @@ const SALT_LEN = 16
 const IV_LEN = 12
 const DEK_BITS = 256
 
+/** Mindestlänge Sync-Passphrase (auch serverseitig/API-unabhängig erzwingen). */
+export const MIN_PASSPHRASE_LEN = 12
+
+export function assertPassphrase(passphrase: string): void {
+  if (typeof passphrase !== 'string' || passphrase.length < MIN_PASSPHRASE_LEN) {
+    throw new Error('passphrase_too_short')
+  }
+}
+
 export type KeyWrap = {
   kdf: 'PBKDF2'
   iter: number
@@ -213,6 +222,7 @@ export async function buildEnvelope(
   passphrase: string,
   recoveryCode: string,
 ): Promise<SyncEnvelopeV1> {
+  assertPassphrase(passphrase)
   const body = await encryptJson(dek, plaintext)
   const passphraseWrap = await wrapDek(dek, passphrase)
   const recoveryWrap = await wrapDek(dek, recoveryCodeForKdf(recoveryCode))
@@ -262,6 +272,7 @@ export async function rewrapPassphrase(
   plaintext: unknown,
   newPassphrase: string,
 ): Promise<SyncEnvelopeV1> {
+  assertPassphrase(newPassphrase)
   const body = await encryptJson(dek, plaintext)
   const passphraseWrap = await wrapDek(dek, newPassphrase)
   return {

@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
+import { secretsEqual } from './_timingSafe.js'
 
 type LedgerRow = {
   source: string
@@ -27,8 +28,8 @@ function reportTokenOk(req: VercelRequest): boolean {
     ? auth.slice(7).trim()
     : ''
   const header = String(req.headers['x-tagesanker-report-token'] ?? '')
-  const q = String(req.query?.token ?? '')
-  return bearer === expected || header === expected || q === expected
+  // Query-Token absichtlich nicht mehr — Leak in Logs/Referer
+  return secretsEqual(bearer, expected) || secretsEqual(header, expected)
 }
 
 function startOfUtcMonth(d: Date): Date {

@@ -73,42 +73,6 @@ export type SyncResult =
   | { status: 'conflict'; conflict: SyncConflict }
   | { status: 'error'; message: string }
 
-function asPlainPayload(raw: unknown): SyncSnapshotPayload | null {
-  if (!raw || typeof raw !== 'object') return null
-  const o = raw as Record<string, unknown>
-  if (!o.prefs) return null
-  const sparksRaw = Array.isArray(o.sparks) ? o.sparks : []
-  const sparks: CloudSpark[] = sparksRaw.map((s) => {
-    const x = s as Spark & CloudSpark
-    return {
-      id: x.id,
-      createdAt: x.createdAt,
-      mode: x.mode,
-      text: x.text,
-      audioMimeType: x.audioMimeType,
-      hasDrawing: x.hasDrawing ?? Boolean(x.drawingDataUrl),
-      hasAudio: x.hasAudio ?? Boolean(x.audioDataUrl),
-    }
-  })
-  return {
-    day: (o.day as DayState | null) ?? null,
-    prefs: o.prefs as Prefs,
-    carry: Array.isArray(o.carry) ? (o.carry as CarryItem[]) : [],
-    sparks,
-    drawer:
-      o.drawer && typeof o.drawer === 'object'
-        ? {
-            items: Array.isArray((o.drawer as DrawerState).items)
-              ? (o.drawer as DrawerState).items
-              : [],
-            readyCapLatched: Boolean(
-              (o.drawer as DrawerState).readyCapLatched,
-            ),
-          }
-        : emptyDrawer(),
-  }
-}
-
 function stripDaySparksMedia(day: DayState | null): DayState | null {
   if (!day) return null
   return {
@@ -147,19 +111,42 @@ export async function fetchRemoteRaw(): Promise<
 export async function writeEnvelope(
   envelope: SyncEnvelopeV1,
   updatedAt = new Date().toISOString(),
-): Promise<{ ok: true } | { ok: false; message: string }> {
+  opts?: { expectedUpdatedAt?: string | null; force?: boolean },
+): Promise<{ ok: true } | { ok: false; message: string; stale?: boolean }> {
   const sb = getSupabase()
   const session = await getSession()
   if (!sb || !session) return { ok: false, message: syncMsg('notSignedIn') }
 
-  const { error } = await sb.from('user_state').upsert(
-    {
-      user_id: session.user.id,
-      payload: envelope,
-      updated_at: updatedAt,
-    },
-    { onConflict: 'user_id' },
-  )
+  const row = {
+    user_id: session.user.id,
+    payload: envelope,
+    updated_at: updatedAt,
+  }
+
+  // CAS: Update nur wenn updated_at noch dem gelesenen Stand entspricht
+  if (!opts?.force && opts?.expectedUpdatedAt) {
+    const { data, error } = await sb
+      .from('user_state')
+      .update(row)
+      .eq('user_id', session.user.id)
+      .eq('updated_at', opts.expectedUpdatedAt)
+      .select('user_id')
+    if (error) {
+      const msg = /payload|size|too large|bytes/i.test(error.message)
+        ? syncMsg('payloadTooLarge')
+        : syncMsg('generic')
+      return { ok: false, message: msg }
+    }
+    if (!data?.length) {
+      return { ok: false, message: syncMsg('cloudStale'), stale: true }
+    }
+    markSynced(updatedAt)
+    return { ok: true }
+  }
+
+  const { error } = await sb.from('user_state').upsert(row, {
+    onConflict: 'user_id',
+  })
   if (error) {
     const msg = /payload|size|too large|bytes/i.test(error.message)
       ? syncMsg('payloadTooLarge')
@@ -215,7 +202,12 @@ export async function pushSnapshot(
       wraps,
     }
     const updatedAt = snap.updatedAt || new Date().toISOString()
-    return writeEnvelope(envelope, updatedAt)
+    const expected =
+      !('empty' in raw) && raw.updatedAt ? raw.updatedAt : null
+    return writeEnvelope(envelope, updatedAt, {
+      expectedUpdatedAt: expected,
+      force: !expected,
+    })
   } catch {
     return { ok: false, message: syncMsg('generic') }
   }
@@ -252,18 +244,8 @@ async function decryptRemote(
     }
   }
 
-  // Legacy plaintext — readable without vault; migration needed
-  const plain = asPlainPayload(payload)
-  if (!plain) return { ok: false, message: syncMsg('invalidCloudData') }
-  return {
-    ok: true,
-    remote: {
-      updatedAt,
-      payload: plain,
-      envelope: null,
-      legacyPlain: true,
-    },
-  }
+  // Legacy-Klartext nicht mehr akzeptieren — Setup/Restore vom Gerät nötig
+  return { ok: false, message: syncMsg('legacyBlocked'), kind: 'setup' }
 }
 
 export async function fetchRemoteState(): Promise<
@@ -311,9 +293,31 @@ export async function applyRemote(remote: RemoteState): Promise<DayState> {
 export async function resolveKeepLocal(
   conflict: SyncConflict,
 ): Promise<SyncResult> {
-  const pushed = await pushSnapshot(conflict.local)
-  if (!pushed.ok) return { status: 'error', message: pushed.message }
-  return { status: 'pushed_local' }
+  // Bewusst Cloud überschreiben — CAS umgehen
+  const session = await getSession()
+  if (!session) return { status: 'error', message: syncMsg('notSignedIn') }
+  const userId = session.user.id
+  const dek = await getUnlockedDek(userId)
+  if (!dek) return { status: 'error', message: syncMsg('vaultLocked') }
+  try {
+    const plain = await buildCloudPlaintext(conflict.local, dek)
+    const wraps = conflict.remote.envelope?.wraps
+    if (!wraps) return { status: 'error', message: syncMsg('vaultSetupRequired') }
+    const body = await encryptJson(dek, plain)
+    const envelope: SyncEnvelopeV1 = {
+      v: 1,
+      alg: 'AES-GCM',
+      iv: body.iv,
+      ciphertext: body.ciphertext,
+      wraps,
+    }
+    const updatedAt = conflict.local.updatedAt || new Date().toISOString()
+    const written = await writeEnvelope(envelope, updatedAt, { force: true })
+    if (!written.ok) return { status: 'error', message: written.message }
+    return { status: 'pushed_local' }
+  } catch {
+    return { status: 'error', message: syncMsg('generic') }
+  }
 }
 
 export async function resolveUseCloud(

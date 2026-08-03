@@ -177,7 +177,7 @@ export function DatenschutzPage() {
         Wenn Sie die KI-Zerlegung (Häppchen) nutzen, werden die dafür erforderlichen Eingaben
         (z.&nbsp;B. Aufgabentitel und ggf. kurzer Kontext) an unseren KI-Anbieter{' '}
         <strong>Microsoft Azure OpenAI</strong> übermittelt, um Vorschläge zu erzeugen. Die Nutzung
-        ist optional und kann in den Einstellungen ausgeschaltet werden. Für Kontingente (Free/Trial,
+        ist optional und kann in den Einstellungen ausgeschaltet werden. Für Kontingente (Beta/Trial,
         Abo-Guthaben, Nachkauf) speichern wir Guthabenstand und Buchungen an Ihrem Sync-Konto
         (Supabase). Rechtsgrundlage: Vertragserfüllung bzw. Einwilligung durch Nutzung der Funktion
         (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b bzw. lit.&nbsp;a DSGVO). Bitte keine besonders
@@ -316,18 +316,23 @@ export function AgbPage() {
         denn, die Anbieterin stimmt ausdrücklich zu.
       </p>
 
-      <h2>§ 2 Unverbindliche Darstellung und kostenlose Nutzung</h2>
+      <h2>§ 2 Unverbindliche Darstellung, Beta und Trial</h2>
       <p>
         (1) Die Darstellung von Leistungen und Preisen auf der Website ist unverbindlich, solange kein
         Bestellvorgang (Checkout) abgeschlossen ist. Solange der Verkauf auf der Preise-Seite nicht
         freigeschaltet ist, kommt kein entgeltlicher Vertrag über die bloße Darstellung zustande.
       </p>
       <p>
-        (2) Die Anwendungen können ohne Entgelt und ohne Kaufvertrag genutzt werden (lokal auf dem
-        Gerät), solange die Anbieterin dies anbietet (Testphase). Daraus entsteht kein Anspruch auf
-        unbegrenzte oder unveränderte Weiterführung. Sobald entgeltliche Angebote freigeschaltet
-        sind, kann der Zugang zu einzelnen Modulen an ein gültiges Abo gebunden sein. Optionale
-        Cloud-Funktionen (z.&nbsp;B. Geräte-Sync, KI-Hilfe) können eine Anmeldung erfordern.
+        (2) Während einer von der Anbieterin angebotenen offenen Beta können die Anwendungen ohne
+        Entgelt genutzt werden. Daraus entsteht kein Anspruch auf unbegrenzte oder unveränderte
+        Weiterführung und kein dauerhafter Free-Tarif. Nach Freischaltung des Verkaufs ist die
+        Nutzung der Anwendungen entgeltlich — auch bei rein lokaler Speicherung ohne Geräte-Sync.
+        Es gibt keinen kostenlosen Nur-Lokal-Tarif. Die Nutzung beginnt in der Regel mit einer
+        Testphase (Trial) von sieben Tagen — ohne hinterlegte Zahlungsdaten kommt kein Trial
+        zustande; danach ist der Zugang an ein gültiges Abo gebunden. Zur Zuordnung von Trial/Abo
+        ist in der Regel eine Anmeldung erforderlich.
+        Geräte-Sync und optionale KI-Hilfe sind zusätzliche Cloud-Funktionen und ändern nichts an der
+        Entgeltlichkeit der App selbst.
       </p>
 
       <h2>§ 3 Vertragsschluss bei entgeltlichen Angeboten</h2>
@@ -385,9 +390,11 @@ export function AgbPage() {
       </p>
       <p>
         (2) Angeboten werden insbesondere Abos für Tagesanker, Die Schublade und Bundle (Monat/Jahr).
-        Soweit im Checkout ausgewiesen, beginnt das Abo mit einer Testphase (Trial) von sieben Tagen;
-        in dieser Zeit kann nach den dort genannten Bedingungen gekündigt werden, ohne dass die erste
-        volle Abo-Periode berechnet wird (maßgeblich ist die Darstellung im Checkout / bei Stripe).
+        Das Abo berechtigt zur Nutzung der jeweiligen Anwendung (inkl. lokaler Nutzung ohne Sync).
+        Sync ist optional und kein eigener kostenloser Tarif. Soweit im Checkout ausgewiesen, beginnt
+        das Abo mit einer Testphase (Trial) von sieben Tagen. Ohne hinterlegte Zahlungsdaten kommt
+        kein Trial zustande. Die erste Abbuchung erfolgt nach Ende des Trials, sofern nicht
+        rechtzeitig gekündigt wurde (maßgeblich ist die Darstellung im Checkout / bei Stripe).
       </p>
       <p>
         (3) Abos verlängern sich automatisch um die gewählte Periode, wenn sie nicht rechtzeitig zum
@@ -500,8 +507,8 @@ export function WiderrufPage() {
         des Spendentopfs, soweit ein entgeltlicher Vertrag zustande gekommen ist.
       </p>
       <p>
-        Solange kein entgeltlicher Vertrag geschlossen wurde (reine kostenlose Testnutzung ohne
-        Checkout), entsteht kein Widerrufsverhältnis aus einem Kauf.
+        Solange kein entgeltlicher Vertrag geschlossen wurde (offene Beta ohne Checkout bzw. vor
+        Beginn eines entgeltlichen Trials/Abos), entsteht kein Widerrufsverhältnis aus einem Kauf.
       </p>
 
       <h2>Besondere Hinweise zu digitalen Inhalten / Diensten</h2>

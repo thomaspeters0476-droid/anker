@@ -14,9 +14,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ ok: false, error: 'method_not_allowed' })
   }
 
+  const enforced = entitlementsEnforced()
   const userId = await userIdFromAuthHeader(req)
+
+  // Ohne Auth: nur Enforcement-Flag — Client-Paywall für Unsigned
   if (!userId) {
-    return res.status(401).json({ ok: false, error: 'not_signed_in' })
+    return res.status(200).json({
+      ok: true,
+      enforced,
+      tier: null,
+      status: 'none',
+      stripeCustomerId: null,
+      subscriptionId: null,
+      currentPeriodEnd: null,
+      canUseTagesanker: !enforced,
+      canUseSchublade: !enforced,
+      hasPortal: false,
+    })
   }
 
   const sb = getAdminSupabase()
@@ -27,7 +41,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const row = await getEntitlement(sb, userId)
   const tier = row?.tier ?? null
   const status: EntitlementStatus = row?.status ?? 'none'
-  const enforced = entitlementsEnforced()
 
   return res.status(200).json({
     ok: true,

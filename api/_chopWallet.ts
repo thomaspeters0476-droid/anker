@@ -130,6 +130,67 @@ export async function creditWallet(input: {
   return { ok: true, balance: nextBalance }
 }
 
+/**
+ * Nach Entitlement-Verlust: Abo-Credits verfallen (FIFO: Consume zuerst gegen Abo),
+ * gekaufte Pack-Credits bleiben. Tier wird genullt.
+ * `entitlement_revoke`-Zeilen werden ignoriert (Idempotenz).
+ */
+export function remainingPurchaseBalance(
+  ledger: ReadonlyArray<{ delta: number; reason: string }>,
+): number {
+  let purchases = 0
+  let abo = 0
+  let consumed = 0
+  for (const row of ledger) {
+    if (row.reason === 'entitlement_revoke') continue
+    if (row.reason === 'purchase' && row.delta > 0) purchases += row.delta
+    else if (row.reason === 'abo_grant' && row.delta > 0) abo += row.delta
+    else if (row.reason === 'consume' && row.delta < 0) consumed += -row.delta
+  }
+  const consumedFromAbo = Math.min(abo, consumed)
+  const consumedFromPurchases = Math.max(0, consumed - consumedFromAbo)
+  return Math.max(0, purchases - consumedFromPurchases)
+}
+
+/** Tier clear + Abo-Guthaben forfeit; Pack-Rest bleibt. */
+export async function revokeAboWalletAccess(
+  userId: string,
+): Promise<{ ok: true; balance: number } | { ok: false; error: string }> {
+  const sb = getAdminSupabase()
+  if (!sb) return { ok: false, error: 'db_not_configured' }
+
+  const { data: rows, error } = await sb
+    .from('chop_ai_ledger')
+    .select('delta, reason')
+    .eq('user_id', userId)
+  if (error) return { ok: false, error: error.message }
+
+  const nextBalance = remainingPurchaseBalance(rows ?? [])
+  const current = await getWallet(sb, userId)
+  const { error: upErr } = await sb.from('chop_ai_wallets').upsert(
+    {
+      user_id: userId,
+      balance: nextBalance,
+      tier: null,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id' },
+  )
+  if (upErr) return { ok: false, error: upErr.message }
+
+  const forfeited = Math.max(0, current.balance - nextBalance)
+  if (forfeited > 0 || current.tier) {
+    const { error: ledErr } = await sb.from('chop_ai_ledger').insert({
+      user_id: userId,
+      delta: -forfeited,
+      reason: 'entitlement_revoke',
+      note: 'abo_forfeit_on_inactive',
+    })
+    if (ledErr) console.error('chop ledger revoke', ledErr.message)
+  }
+  return { ok: true, balance: nextBalance }
+}
+
 export async function consumeWalletCredit(
   userId: string,
 ): Promise<
@@ -149,12 +210,14 @@ export async function consumeWalletCredit(
   if (bal < 1) return { ok: false, error: 'empty' }
 
   const next = bal - 1
-  const { error: upErr } = await sb
+  const { data: updated, error: upErr } = await sb
     .from('chop_ai_wallets')
     .update({ balance: next, updated_at: new Date().toISOString() })
     .eq('user_id', userId)
     .eq('balance', bal)
+    .select('balance')
   if (upErr) return { ok: false, error: upErr.message }
+  if (!updated?.length) return { ok: false, error: 'empty' }
 
   const { error: ledErr } = await sb.from('chop_ai_ledger').insert({
     user_id: userId,
@@ -163,6 +226,117 @@ export async function consumeWalletCredit(
   })
   if (ledErr) console.error('chop ledger consume', ledErr.message)
   return { ok: true, balance: next }
+}
+
+export const FREE_CHOP_DAILY = 10
+export const FREE_CHOP_MONTHLY = 50
+
+async function freeUsageCount(
+  userId: string,
+  periodType: 'day' | 'month',
+  periodKey: string,
+): Promise<number> {
+  const sb = getAdminSupabase()
+  if (!sb) return FREE_CHOP_MONTHLY
+  const { data } = await sb
+    .from('chop_ai_free_usage')
+    .select('count')
+    .eq('user_id', userId)
+    .eq('period_type', periodType)
+    .eq('period_key', periodKey)
+    .maybeSingle()
+  return typeof data?.count === 'number' ? data.count : 0
+}
+
+async function incrementFreeUsage(
+  userId: string,
+  periodType: 'day' | 'month',
+  periodKey: string,
+): Promise<void> {
+  const sb = getAdminSupabase()
+  if (!sb) return
+  const cur = await freeUsageCount(userId, periodType, periodKey)
+  await sb.from('chop_ai_free_usage').upsert(
+    {
+      user_id: userId,
+      period_type: periodType,
+      period_key: periodKey,
+      count: cur + 1,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id,period_type,period_key' },
+  )
+}
+
+/** Free-Quota oder Wallet — vor Azure-Call. */
+export async function authorizeChopAiUse(
+  userId: string,
+): Promise<
+  | { ok: true; source: 'free' | 'wallet'; balance?: number }
+  | { ok: false; error: 'rate_limited' | 'empty_balance' | 'db_not_configured' }
+> {
+  const sb = getAdminSupabase()
+  if (!sb) return { ok: false, error: 'db_not_configured' }
+
+  const wallet = await getWallet(sb, userId)
+  const day = new Date().toISOString().slice(0, 10)
+  const month = day.slice(0, 7)
+
+  if (useFreeQuota(wallet.tier)) {
+    const dayUsed = await freeUsageCount(userId, 'day', day)
+    const monthUsed = await freeUsageCount(userId, 'month', month)
+    if (dayUsed < FREE_CHOP_DAILY && monthUsed < FREE_CHOP_MONTHLY) {
+      await incrementFreeUsage(userId, 'day', day)
+      await incrementFreeUsage(userId, 'month', month)
+      return { ok: true, source: 'free' }
+    }
+  }
+
+  const consumed = await consumeWalletCredit(userId)
+  if (consumed.ok === true) {
+    return { ok: true, source: 'wallet', balance: consumed.balance }
+  }
+  if (useFreeQuota(wallet.tier)) {
+    return { ok: false, error: 'rate_limited' }
+  }
+  return { ok: false, error: 'empty_balance' }
+}
+
+/** Durable Rate-Limit über api_rate_buckets. */
+export async function consumeRateBucket(opts: {
+  key: string
+  windowMs: number
+  max: number
+}): Promise<boolean> {
+  const sb = getAdminSupabase()
+  if (!sb) return true // fail-open nur wenn DB fehlt (lokal)
+  const now = Date.now()
+  const { data } = await sb
+    .from('api_rate_buckets')
+    .select('window_start, count')
+    .eq('bucket_key', opts.key)
+    .maybeSingle()
+
+  let windowStart = now
+  let count = 0
+  if (data?.window_start) {
+    const start = Date.parse(data.window_start)
+    if (!Number.isNaN(start) && now - start < opts.windowMs) {
+      windowStart = start
+      count = typeof data.count === 'number' ? data.count : 0
+    }
+  }
+  if (count >= opts.max) return false
+  await sb.from('api_rate_buckets').upsert(
+    {
+      bucket_key: opts.key,
+      window_start: new Date(windowStart).toISOString(),
+      count: count + 1,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'bucket_key' },
+  )
+  return true
 }
 
 export const PACK_CREDITS: Record<string, number> = {

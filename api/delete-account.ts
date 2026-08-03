@@ -12,6 +12,48 @@ function getStripe(): Stripe | null {
   return new Stripe(key)
 }
 
+type AdminSb = NonNullable<ReturnType<typeof getAdminSupabase>>
+
+/** Alle Objektpfade unter userId/ (inkl. Pagination). */
+async function listAllBlobPaths(
+  sb: AdminSb,
+  userId: string,
+): Promise<string[]> {
+  const paths: string[] = []
+  const pageSize = 1000
+  let offset = 0
+  for (;;) {
+    const { data: entries, error } = await sb.storage
+      .from('sync-blobs')
+      .list(userId, { limit: pageSize, offset })
+    if (error) throw error
+    if (!entries?.length) break
+    for (const f of entries) {
+      if (!f.name) continue
+      // Ordner (spark ids) → eine Ebene tiefer listen
+      let nestedOffset = 0
+      let sawNested = false
+      for (;;) {
+        const { data: nested, error: nErr } = await sb.storage
+          .from('sync-blobs')
+          .list(`${userId}/${f.name}`, { limit: pageSize, offset: nestedOffset })
+        if (nErr) break
+        if (!nested?.length) break
+        sawNested = true
+        for (const n of nested) {
+          if (n.name) paths.push(`${userId}/${f.name}/${n.name}`)
+        }
+        if (nested.length < pageSize) break
+        nestedOffset += pageSize
+      }
+      if (!sawNested) paths.push(`${userId}/${f.name}`)
+    }
+    if (entries.length < pageSize) break
+    offset += pageSize
+  }
+  return paths
+}
+
 /**
  * Deletes the signed-in user's cloud data and auth account.
  * Body: { confirm: "DELETE" }
@@ -65,31 +107,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Encrypted media blobs
+    // Encrypted media blobs (paginate folders + nested objects)
     try {
-      const { data: files } = await sb.storage
-        .from('sync-blobs')
-        .list(userId, { limit: 1000 })
-      if (files?.length) {
-        const paths: string[] = []
-        for (const f of files) {
-          if (f.name) {
-            // list may return folders (spark ids) — list one level deeper
-            const { data: nested } = await sb.storage
-              .from('sync-blobs')
-              .list(`${userId}/${f.name}`, { limit: 100 })
-            if (nested?.length) {
-              for (const n of nested) {
-                if (n.name) paths.push(`${userId}/${f.name}/${n.name}`)
-              }
-            } else {
-              paths.push(`${userId}/${f.name}`)
-            }
-          }
-        }
-        if (paths.length) {
-          await sb.storage.from('sync-blobs').remove(paths)
-        }
+      const paths = await listAllBlobPaths(sb, userId)
+      for (let i = 0; i < paths.length; i += 100) {
+        const chunk = paths.slice(i, i + 100)
+        await sb.storage.from('sync-blobs').remove(chunk)
       }
     } catch (err) {
       console.error('delete-account storage', err)
@@ -98,6 +121,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Explicit table cleanup (cascade also on auth delete)
     await sb.from('chop_ai_ledger').delete().eq('user_id', userId)
     await sb.from('chop_ai_wallets').delete().eq('user_id', userId)
+    try {
+      await sb.from('chop_ai_free_usage').delete().eq('user_id', userId)
+    } catch {
+      /* Tabelle ggf. noch nicht migriert */
+    }
     await sb.from('user_entitlements').delete().eq('user_id', userId)
     await sb.from('user_state').delete().eq('user_id', userId)
 

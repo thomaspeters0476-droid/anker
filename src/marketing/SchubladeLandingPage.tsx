@@ -42,7 +42,7 @@ export function SchubladeLandingPage() {
                 Schublade öffnen
               </Link>
               <Link to="/preise" className="mkt-btn mkt-btn-ghost">
-                Preise (bald)
+                Preise
               </Link>
             </div>
           </div>
@@ -121,7 +121,10 @@ export function SchubladeLandingPage() {
 
       <section className="mkt-section mkt-cta-band">
         <h2>Schublade ausprobieren</h2>
-        <p>In der Testphase kostenlos — ohne Checkout, ohne Druck.</p>
+        <p>
+          Offene Beta — gerade kostenlos. Später: 7 Tage Trial (ohne Zahlungsdaten
+          kein Trial), dann Abo — auch ohne Sync. Kein Free.
+        </p>
         <Link to={SCHUBLADE.appPath} className="mkt-btn mkt-btn-primary">
           Zur App
         </Link>

@@ -20,10 +20,10 @@ import {
   changePassphrase,
   clearCachedDek,
   formatRecoveryCode,
-  getCachedRecoveryCode,
   isSyncEnvelope,
   isVaultUnlocked,
   loadCachedDek,
+  MIN_PASSPHRASE_LEN as MIN_PASS,
   regenerateRecovery,
   restoreFromLocalDevice,
   setupVault,
@@ -46,7 +46,6 @@ import {
 } from '../backup/markdownBackup'
 
 const PENDING_EMAIL_KEY = 'anker-sync-pending-email'
-const MIN_PASS = 8
 
 function readPendingEmail(): string {
   try {
@@ -146,7 +145,6 @@ export function SyncSettings({
       const dek = await loadCachedDek(uid)
       if (dek) {
         setVaultMode('ready')
-        setRecoveryCode(getCachedRecoveryCode(uid))
         return
       }
       if (!env) {
@@ -254,7 +252,7 @@ export function SyncSettings({
         passphrase: pass,
         plaintext,
       })
-      const written = await writeEnvelope(env)
+      const written = await writeEnvelope(env, undefined, { force: true })
       if (!written.ok) {
         onNotice?.(written.message)
         setLocalBusy(false)
@@ -287,7 +285,8 @@ export function SyncSettings({
       })
       setPass('')
       setVaultMode('ready')
-      setRecoveryCode(getCachedRecoveryCode(userId))
+      setRecoveryCode(null)
+      setShowRecovery(false)
       onNotice?.(t('sync.vault.noticeUnlocked'))
       onVaultReady?.()
     } catch {
@@ -314,7 +313,9 @@ export function SyncSettings({
         recoveryCode: recoveryInput,
         newPassphrase: pass,
       })
-      const written = await writeEnvelope(result.envelope)
+      const written = await writeEnvelope(result.envelope, undefined, {
+        force: true,
+      })
       if (!written.ok) {
         onNotice?.(written.message)
         setLocalBusy(false)
@@ -327,7 +328,7 @@ export function SyncSettings({
       setPass2('')
       setRecoveryInput('')
       setVaultMode('ready')
-      onNotice?.(t('sync.vault.noticeUnlocked'))
+      onNotice?.(t('sync.vault.noticeRecoveryRotated'))
       onVaultReady?.()
     } catch {
       onNotice?.(t('sync.errors.wrongRecovery'))
@@ -371,7 +372,7 @@ export function SyncSettings({
         passphrase: pass,
         plaintext,
       })
-      const written = await writeEnvelope(env)
+      const written = await writeEnvelope(env, undefined, { force: true })
       if (!written.ok) {
         onNotice?.(written.message)
         setLocalBusy(false)
@@ -425,7 +426,7 @@ export function SyncSettings({
         plaintext,
         newPassphrase: pass,
       })
-      const written = await writeEnvelope(next)
+      const written = await writeEnvelope(next, undefined, { force: true })
       if (!written.ok) {
         onNotice?.(written.message)
         setLocalBusy(false)
@@ -466,7 +467,9 @@ export function SyncSettings({
         envelope,
         plaintext,
       })
-      const written = await writeEnvelope(result.envelope)
+      const written = await writeEnvelope(result.envelope, undefined, {
+        force: true,
+      })
       if (!written.ok) {
         onNotice?.(written.message)
         setLocalBusy(false)
@@ -505,6 +508,33 @@ export function SyncSettings({
   return (
     <div className={`sync-settings${embedded ? ' sync-settings-embedded' : ''}`}>
       {!embedded && <h3 className="sync-title">{t('sync.title')}</h3>}
+      {conflict && (
+        <div
+          className="sync-conflict"
+          role="dialog"
+          aria-label={t('sync.conflict.ariaLabel')}
+        >
+          <p>{t('sync.conflict.body')}</p>
+          <div className="sync-conflict-actions">
+            <button
+              type="button"
+              className="primary"
+              disabled={localBusy}
+              onClick={() => onKeepLocal?.()}
+            >
+              {t('sync.conflict.keepLocal')}
+            </button>
+            <button
+              type="button"
+              className="ghost"
+              disabled={localBusy}
+              onClick={() => onUseCloud?.()}
+            >
+              {t('sync.conflict.useCloud')}
+            </button>
+          </div>
+        </div>
+      )}
       {!online && (
         <p className="block-hint" role="status">
           {t('sync.offlineHint')}
@@ -818,21 +848,26 @@ export function SyncSettings({
               >
                 {t('sync.vault.changeTitle')}
               </button>
-              <button
-                type="button"
-                className="ghost"
-                onClick={() => {
-                  setRecoveryCode(
-                    recoveryCode ||
-                      (userId ? getCachedRecoveryCode(userId) : null),
-                  )
-                  setShowRecovery((v) => !v)
-                }}
-              >
-                {showRecovery
-                  ? t('sync.vault.recoveryHide')
-                  : t('sync.vault.recoveryShow')}
-              </button>
+              {recoveryCode ? (
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={() => setShowRecovery((v) => !v)}
+                >
+                  {showRecovery
+                    ? t('sync.vault.recoveryHide')
+                    : t('sync.vault.recoveryShow')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="ghost"
+                  disabled={localBusy}
+                  onClick={() => void doRegenRecovery()}
+                >
+                  {t('sync.vault.recoveryRegen')}
+                </button>
+              )}
               {showRecovery && recoveryCode && (
                 <div className="sync-recovery-box">
                   <p className="block-hint">{t('sync.vault.recoveryOnce')}</p>
@@ -1003,7 +1038,7 @@ export function SyncSettings({
       )}
 
       <div className="sync-backup">
-        <h4>{t('backup.title')}</h4>
+        <h4>{t('backup.sectionTitle')}</h4>
         <p className="block-hint">{t('backup.hint')}</p>
         <div className="sync-backup-actions">
           <button
@@ -1082,34 +1117,6 @@ export function SyncSettings({
           {t('privacy.deleteLocal')}
         </button>
       </div>
-
-      {conflict && (
-        <div
-          className="sync-conflict"
-          role="dialog"
-          aria-label={t('sync.conflict.ariaLabel')}
-        >
-          <p>{t('sync.conflict.body')}</p>
-          <div className="sync-conflict-actions">
-            <button
-              type="button"
-              className="primary"
-              disabled={localBusy}
-              onClick={() => onKeepLocal?.()}
-            >
-              {t('sync.conflict.keepLocal')}
-            </button>
-            <button
-              type="button"
-              className="ghost"
-              disabled={localBusy}
-              onClick={() => onUseCloud?.()}
-            >
-              {t('sync.conflict.useCloud')}
-            </button>
-          </div>
-        </div>
-      )}
 
       {notice && (
         <p className="block-hint sync-notice" role="status">

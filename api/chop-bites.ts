@@ -1,4 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import {
+  authorizeChopAiUse,
+  consumeRateBucket,
+  userIdFromAuthHeader,
+} from './_chopWallet.js'
 
 type Body = {
   title?: string
@@ -16,12 +21,9 @@ const MAX_BITES = 5
 /** Parse-Obergrenze nur zum Erkennen von „zu viele“, nicht zum Kürzen */
 const PARSE_DETECT_CAP = 20
 
-/** Server-Backstop (pro IP/Tag) — Client-Limit liegt darunter */
 const RATE_LIMIT_PER_DAY = Number(
   process.env.CHOP_AI_IP_DAILY_LIMIT?.trim() || 40,
 )
-type RateBucket = { day: string; count: number }
-const rateByIp = new Map<string, RateBucket>()
 
 function clientIp(req: VercelRequest): string {
   const xf = req.headers['x-forwarded-for']
@@ -30,25 +32,6 @@ function clientIp(req: VercelRequest): string {
   }
   if (Array.isArray(xf) && xf[0]) return String(xf[0]).trim()
   return req.socket?.remoteAddress || 'unknown'
-}
-
-function todayUtc(): string {
-  return new Date().toISOString().slice(0, 10)
-}
-
-function checkRateLimit(ip: string): boolean {
-  if (!Number.isFinite(RATE_LIMIT_PER_DAY) || RATE_LIMIT_PER_DAY <= 0) {
-    return true
-  }
-  const day = todayUtc()
-  const cur = rateByIp.get(ip)
-  if (!cur || cur.day !== day) {
-    rateByIp.set(ip, { day, count: 1 })
-    return true
-  }
-  if (cur.count >= RATE_LIMIT_PER_DAY) return false
-  cur.count += 1
-  return true
 }
 
 function azureConfigured(): boolean {
@@ -315,8 +298,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(503).json({ ok: false, error: 'not_configured' })
   }
 
-  if (!checkRateLimit(clientIp(req))) {
+  const userId = await userIdFromAuthHeader(req)
+  if (!userId) {
+    return res.status(401).json({ ok: false, error: 'not_signed_in' })
+  }
+
+  const ip = clientIp(req)
+  const ipOk = await consumeRateBucket({
+    key: `chop-bites:ip:${ip}`,
+    windowMs: 24 * 60 * 60 * 1000,
+    max: Number.isFinite(RATE_LIMIT_PER_DAY) ? RATE_LIMIT_PER_DAY : 40,
+  })
+  if (!ipOk) {
     return res.status(429).json({ ok: false, error: 'rate_limited' })
+  }
+
+  const authz = await authorizeChopAiUse(userId)
+  if (authz.ok === false) {
+    if (authz.error === 'rate_limited') {
+      return res.status(429).json({ ok: false, error: 'rate_limited' })
+    }
+    if (authz.error === 'empty_balance') {
+      return res.status(402).json({ ok: false, error: 'empty_balance' })
+    }
+    return res.status(503).json({ ok: false, error: authz.error })
   }
 
   const body = (req.body ?? {}) as Body

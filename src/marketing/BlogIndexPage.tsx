@@ -1,11 +1,21 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { blogPosts, formatPostDate } from './blog'
+import {
+  formatPostDate,
+  loadBlogIndex,
+  type BlogPostMeta,
+} from './blog'
 import { setPageMeta, SITE } from './site'
 
 export function BlogIndexPage() {
+  const [posts, setPosts] = useState<BlogPostMeta[]>([])
+
   useEffect(() => {
-    setPageMeta(`Blog — ${SITE.name}`, 'Artikel zu Fokus, Kapazität und Alltag mit Tagesanker.')
+    setPageMeta(
+      `Blog — ${SITE.name}`,
+      'Artikel zu Fokus, Kapazität und Alltag mit Tagesanker.',
+    )
+    void loadBlogIndex().then(setPosts)
   }, [])
 
   return (
@@ -15,7 +25,7 @@ export function BlogIndexPage() {
         <p>Kurze Texte zu Halt, Fokus und Alltag — ohne Optimierungszwang.</p>
       </header>
       <ul className="mkt-post-list mkt-post-list-lg">
-        {blogPosts.map((post) => (
+        {posts.map((post) => (
           <li key={post.slug}>
             <Link to={`/blog/${post.slug}`}>
               <time dateTime={post.date}>{formatPostDate(post.date)}</time>

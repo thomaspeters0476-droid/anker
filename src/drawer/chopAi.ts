@@ -1,6 +1,7 @@
+import { getSession } from '../sync/auth'
 import {
   canUseChopAi,
-  recordChopAiUse,
+  noteFreeUseLocally,
   refreshChopWallet,
 } from './chopAiQuota'
 
@@ -30,6 +31,11 @@ export async function suggestChopBites(
     return { ok: false, error: 'daily_limit' }
   }
 
+  const session = await getSession()
+  if (!session?.access_token) {
+    return { ok: false, error: 'not_signed_in' }
+  }
+
   const mode =
     input.mode ??
     (input.parentTitle?.trim() ? 'further' : 'first')
@@ -37,7 +43,10 @@ export async function suggestChopBites(
   try {
     const res = await fetch('/api/chop-bites', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
       body: JSON.stringify({
         title: input.title,
         locale: input.locale,
@@ -58,6 +67,12 @@ export async function suggestChopBites(
       if (res.status === 429 || err === 'rate_limited') {
         return { ok: false, error: 'daily_limit' }
       }
+      if (res.status === 401 || err === 'not_signed_in') {
+        return { ok: false, error: 'not_signed_in' }
+      }
+      if (res.status === 402 || err === 'empty_balance') {
+        return { ok: false, error: 'empty_balance' }
+      }
       return { ok: false, error: err }
     }
 
@@ -67,7 +82,9 @@ export async function suggestChopBites(
     if (bites.length < 3) {
       return { ok: false, error: 'bad_ai_response' }
     }
-    await recordChopAiUse()
+    // Server hat bereits Free/Wallet abgezogen — nur UI-Cache nachziehen
+    noteFreeUseLocally()
+    await refreshChopWallet()
     return { ok: true, bites }
   } catch {
     return { ok: false, error: 'network' }

@@ -1,30 +1,25 @@
 /**
- * Local secret cache — swap later for Capacitor Secure Storage.
- * Only used when Sync is enabled; no-op path for local-only users.
+ * Früher: DEK/Recovery in localStorage (XSS-/Geräte-Risiko).
+ * Jetzt: nur noch Aufräumen alter Keys — Secrets liegen in Vault-Memory.
  */
 
 const DEK_PREFIX = 'anker-sync-dek:'
 const RECOVERY_PREFIX = 'anker-sync-recovery:'
 
-export function getLocalSecret(key: string): string | null {
+/** Einmalig/idempotent: alte Klartext-Secrets aus localStorage entfernen. */
+export function purgePersistedVaultSecrets(): void {
   try {
-    return localStorage.getItem(key)
-  } catch {
-    return null
-  }
-}
-
-export function setLocalSecret(key: string, value: string): void {
-  try {
-    localStorage.setItem(key, value)
-  } catch {
-    /* ignore quota */
-  }
-}
-
-export function removeLocalSecret(key: string): void {
-  try {
-    localStorage.removeItem(key)
+    const keys: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (
+        k &&
+        (k.startsWith(DEK_PREFIX) || k.startsWith(RECOVERY_PREFIX))
+      ) {
+        keys.push(k)
+      }
+    }
+    for (const k of keys) localStorage.removeItem(k)
   } catch {
     /* ignore */
   }

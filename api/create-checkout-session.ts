@@ -9,6 +9,11 @@ import {
   ensureStripeCustomer,
   priceIdForProduct,
 } from './_entitlements.js'
+import {
+  CHECKOUT_PAYMENT_METHOD_COLLECTION,
+  TRIAL_PERIOD_DAYS,
+} from './_entitlementRules.js'
+import { secretsEqual } from './_timingSafe.js'
 
 type Interval = 'month' | 'year'
 
@@ -25,7 +30,7 @@ function checkoutEnabled(): boolean {
 function previewTokenOk(reqToken: string | undefined): boolean {
   const expected = process.env.STRIPE_CHECKOUT_PREVIEW_TOKEN?.trim()
   if (!expected) return false
-  return Boolean(reqToken && reqToken === expected)
+  return secretsEqual(reqToken, expected)
 }
 
 function siteOrigin(): string {
@@ -53,6 +58,8 @@ function parseProduct(raw: unknown): ChopTier {
  *   topupCents?: number
  * }
  * Requires Authorization Bearer (Sync login).
+ *
+ * Regel: Ohne Zahlungsmittel startet kein Trial (payment_method_collection=always).
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -126,14 +133,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       line_items: lineItems,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
+      locale: 'de',
+      // Ohne Zahlungsdaten ist Checkout nicht abschließbar → kein Trial.
+      payment_method_collection: CHECKOUT_PAYMENT_METHOD_COLLECTION,
       subscription_data: {
-        trial_period_days: 7,
+        trial_period_days: TRIAL_PERIOD_DAYS,
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: 'cancel',
+          },
+        },
         metadata: {
           product,
           tier: product,
           user_id: userId,
           chop_monthly_credits: chopCreditsMeta(product),
           interval,
+          require_payment_method: 'true',
+        },
+      },
+      custom_text: {
+        submit: {
+          message:
+            'Ohne Zahlungsdaten startet kein Trial. 7 Tage testen — erste Abbuchung danach, wenn du nicht vorher kündigst.',
         },
       },
       metadata: {
@@ -142,6 +164,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         user_id: userId,
         interval,
         topup_cents: topupCents >= 100 ? String(topupCents) : '0',
+        trial_days: String(TRIAL_PERIOD_DAYS),
+        require_payment_method: 'true',
       },
       success_url: `${origin}/preise?checkout=success`,
       cancel_url: `${origin}/preise?checkout=cancel`,

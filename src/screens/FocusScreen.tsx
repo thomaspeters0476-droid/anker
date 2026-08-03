@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DayState, Spark, Task, TaskSize } from '../types'
 import { workTasksSettled } from '../types'
@@ -21,13 +28,16 @@ import {
   welcomeBack,
 } from '../buddy'
 import { SparkCapture } from '../components/SparkCapture'
-import { SparkVault } from '../components/SparkVault'
 import { notifyAsync, notifyIfHidden } from '../notifications'
 import { lifeTemplateLabel } from '../i18n/lifeLabels'
 import { deleteSparkRemote, pushSparkNow } from '../sync'
 import { addInboxItem } from '../drawer/logic'
 import { scheduleSaveDrawer } from '../persist'
 import { loadDrawer } from '../storage'
+
+const SparkVault = lazy(() =>
+  import('../components/SparkVault').then((m) => ({ default: m.SparkVault })),
+)
 
 type Props = {
   day: DayState
@@ -631,21 +641,23 @@ export function FocusScreen({
           onSave={saveSpark}
         />
         {vaultVisible && (
-          <SparkVault
-            sparks={day.sparks}
-            unlocked={vaultOpen}
-            onClose={() => setVaultVisible(false)}
-            onDelete={(id) => {
-              void deleteSparkRemote(id)
-              setDay((d) => ({
-                ...d,
-                sparks: d.sparks.filter((s) => s.id !== id),
-              }))
-            }}
-            onSendToDrawer={
-              drawerEnabled ? sendSparkToDrawer : undefined
-            }
-          />
+          <Suspense fallback={null}>
+            <SparkVault
+              sparks={day.sparks}
+              unlocked={vaultOpen}
+              onClose={() => setVaultVisible(false)}
+              onDelete={(id) => {
+                void deleteSparkRemote(id)
+                setDay((d) => ({
+                  ...d,
+                  sparks: d.sparks.filter((s) => s.id !== id),
+                }))
+              }}
+              onSendToDrawer={
+                drawerEnabled ? sendSparkToDrawer : undefined
+              }
+            />
+          </Suspense>
         )}
       </section>
     )
@@ -823,24 +835,26 @@ export function FocusScreen({
         onSave={saveSpark}
       />
       {vaultVisible && (
-        <SparkVault
-          sparks={day.sparks}
-          unlocked={vaultOpen}
-          onClose={() => {
-            setVaultVisible(false)
-            if (active.kind === 'life') {
-              setBuddyMsg(lifeContinue(active, ctxFromDay(day)))
-            }
-          }}
-          onDelete={(id) => {
-            void deleteSparkRemote(id)
-            setDay((d) => ({
-              ...d,
-              sparks: d.sparks.filter((s) => s.id !== id),
-            }))
-          }}
-          onSendToDrawer={drawerEnabled ? sendSparkToDrawer : undefined}
-        />
+        <Suspense fallback={null}>
+          <SparkVault
+            sparks={day.sparks}
+            unlocked={vaultOpen}
+            onClose={() => {
+              setVaultVisible(false)
+              if (active.kind === 'life') {
+                setBuddyMsg(lifeContinue(active, ctxFromDay(day)))
+              }
+            }}
+            onDelete={(id) => {
+              void deleteSparkRemote(id)
+              setDay((d) => ({
+                ...d,
+                sparks: d.sparks.filter((s) => s.id !== id),
+              }))
+            }}
+            onSendToDrawer={drawerEnabled ? sendSparkToDrawer : undefined}
+          />
+        </Suspense>
       )}
     </section>
   )

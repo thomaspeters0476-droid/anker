@@ -1,25 +1,51 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { marked } from 'marked'
-import { formatPostDate, getPost } from './blog'
+import { formatPostDate, loadPost, type BlogPost } from './blog'
 import { setPageMeta, SITE } from './site'
 
 export function BlogPostPage() {
   const { slug = '' } = useParams()
-  const post = getPost(slug)
-
-  const html = useMemo(() => {
-    if (!post) return ''
-    return marked.parse(post.body, { async: false }) as string
-  }, [post])
+  const [post, setPost] = useState<BlogPost | null | undefined>(undefined)
+  const [html, setHtml] = useState('')
 
   useEffect(() => {
+    let cancelled = false
+    setPost(undefined)
+    setHtml('')
+    void (async () => {
+      const next = await loadPost(slug)
+      if (cancelled) return
+      setPost(next ?? null)
+      if (!next) return
+      const [{ marked }, DOMPurify] = await Promise.all([
+        import('marked'),
+        import('dompurify').then((m) => m.default),
+      ])
+      if (cancelled) return
+      const raw = marked.parse(next.body, { async: false }) as string
+      setHtml(DOMPurify.sanitize(raw))
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [slug])
+
+  useEffect(() => {
+    if (post === undefined) return
     if (post) {
       setPageMeta(`${post.title} — ${SITE.name}`, post.description)
     } else {
       setPageMeta(`Beitrag nicht gefunden — ${SITE.name}`, SITE.description)
     }
   }, [post])
+
+  if (post === undefined) {
+    return (
+      <main className="mkt-main mkt-narrow">
+        <p className="mkt-section-lead">Laden …</p>
+      </main>
+    )
+  }
 
   if (!post) {
     return (

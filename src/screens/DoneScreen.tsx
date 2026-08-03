@@ -1,15 +1,18 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DayState } from '../types'
 import { workTasksSettled } from '../types'
 import { ctxFromDay, dayDone } from '../buddy'
 import { emptyDay, rollDayForward, startNextRound } from '../storage'
-import { SparkVault } from '../components/SparkVault'
 import { lifeTemplateLabel } from '../i18n/lifeLabels'
 import { deleteSparkRemote } from '../sync'
 import { addInboxItem } from '../drawer/logic'
 import { scheduleSaveDrawer } from '../persist'
 import { loadDrawer } from '../storage'
+
+const SparkVault = lazy(() =>
+  import('../components/SparkVault').then((m) => ({ default: m.SparkVault })),
+)
 
 type Props = {
   day: DayState
@@ -147,19 +150,21 @@ export function DoneScreen({ day, setDay, drawerEnabled = false }: Props) {
       )}
 
       {vaultVisible && (
-        <SparkVault
-          sparks={day.sparks}
-          unlocked={unlocked}
-          onClose={() => setVaultVisible(false)}
-          onDelete={(id) => {
-            void deleteSparkRemote(id)
-            setDay((d) => ({
-              ...d,
-              sparks: d.sparks.filter((s) => s.id !== id),
-            }))
-          }}
-          onSendToDrawer={drawerOn ? sendSparkToDrawer : undefined}
-        />
+        <Suspense fallback={null}>
+          <SparkVault
+            sparks={day.sparks}
+            unlocked={unlocked}
+            onClose={() => setVaultVisible(false)}
+            onDelete={(id) => {
+              void deleteSparkRemote(id)
+              setDay((d) => ({
+                ...d,
+                sparks: d.sparks.filter((s) => s.id !== id),
+              }))
+            }}
+            onSendToDrawer={drawerOn ? sendSparkToDrawer : undefined}
+          />
+        </Suspense>
       )}
     </section>
   )
