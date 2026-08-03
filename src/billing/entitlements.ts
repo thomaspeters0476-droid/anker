@@ -18,7 +18,6 @@ function parseEntitlementsPayload(data: {
   enforced?: boolean
   tier?: AboTier | null
   status?: string
-  stripeCustomerId?: string | null
   canUseTagesanker?: boolean
   canUseSchublade?: boolean
   hasPortal?: boolean
@@ -28,7 +27,6 @@ function parseEntitlementsPayload(data: {
     enforced,
     tier: data.tier ?? null,
     status: data.status || 'none',
-    stripeCustomerId: data.stripeCustomerId ?? null,
     canUseTagesanker: enforced
       ? data.canUseTagesanker === true
       : data.canUseTagesanker !== false,
@@ -57,7 +55,6 @@ export async function refreshEntitlements(): Promise<EntitlementsState> {
       enforced?: boolean
       tier?: AboTier | null
       status?: string
-      stripeCustomerId?: string | null
       canUseTagesanker?: boolean
       canUseSchublade?: boolean
       hasPortal?: boolean

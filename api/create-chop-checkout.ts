@@ -99,7 +99,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               metadata: {
                 tagesanker: 'chop_pack',
                 pack,
-                credits: String(credits),
               },
             },
           },
@@ -117,7 +116,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       metadata: {
         product: 'chop_pack',
         pack,
-        credits: String(credits),
         user_id: userId,
       },
       success_url: `${origin}/schublade?chop_checkout=success`,

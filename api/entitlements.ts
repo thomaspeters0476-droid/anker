@@ -24,9 +24,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       enforced,
       tier: null,
       status: 'none',
-      stripeCustomerId: null,
-      subscriptionId: null,
-      currentPeriodEnd: null,
       canUseTagesanker: !enforced,
       canUseSchublade: !enforced,
       hasPortal: false,
@@ -42,14 +39,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const tier = row?.tier ?? null
   const status: EntitlementStatus = row?.status ?? 'none'
 
+  // Keine Stripe-IDs an den Client — Portal nutzt Server-Lookup
   return res.status(200).json({
     ok: true,
     enforced,
     tier,
     status,
-    stripeCustomerId: row?.stripe_customer_id ?? null,
-    subscriptionId: row?.stripe_subscription_id ?? null,
-    currentPeriodEnd: row?.current_period_end ?? null,
     canUseTagesanker: enforced ? canUseTagesanker(tier, status) : true,
     canUseSchublade: enforced ? canUseSchublade(tier, status) : true,
     hasPortal: Boolean(row?.stripe_customer_id),

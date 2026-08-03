@@ -4,21 +4,19 @@ export type EntitlementsState = {
   enforced: boolean
   tier: AboTier | null
   status: string
-  stripeCustomerId: string | null
   canUseTagesanker: boolean
   canUseSchublade: boolean
   hasPortal: boolean
   updatedAt: number
 }
 
-const CACHE_KEY = 'anker-entitlements-v1'
+const CACHE_KEY = 'anker-entitlements-v2'
 
 /** Fail-closed bis der Server etwas anderes sagt. */
 const deniedAccess: EntitlementsState = {
   enforced: true,
   tier: null,
   status: 'none',
-  stripeCustomerId: null,
   canUseTagesanker: false,
   canUseSchublade: false,
   hasPortal: false,
@@ -29,7 +27,6 @@ const openAccess: EntitlementsState = {
   enforced: false,
   tier: null,
   status: 'none',
-  stripeCustomerId: null,
   canUseTagesanker: true,
   canUseSchublade: true,
   hasPortal: false,
@@ -64,6 +61,7 @@ export function getCachedEntitlements(): EntitlementsState {
 export function clearEntitlementsCache() {
   try {
     localStorage.removeItem(CACHE_KEY)
+    localStorage.removeItem('anker-entitlements-v1')
   } catch {
     /* ignore */
   }

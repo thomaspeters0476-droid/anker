@@ -179,8 +179,9 @@ async function creditChopPackFromSession(session: Stripe.Checkout.Session) {
     session.metadata.user_id?.trim() ||
     session.client_reference_id?.trim() ||
     ''
-  if (!userId) {
-    console.error('chop pack: missing user_id')
+  // Nur UUID aus unserer Checkout-Session (client_reference_id / metadata)
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)) {
+    console.error('chop pack: bad user_id')
     return
   }
 

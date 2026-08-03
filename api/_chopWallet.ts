@@ -231,41 +231,26 @@ export async function consumeWalletCredit(
 export const FREE_CHOP_DAILY = 10
 export const FREE_CHOP_MONTHLY = 50
 
-async function freeUsageCount(
+/** Atomar: Free-Quota prüfen + verbuchen (FOR UPDATE in DB). */
+async function tryConsumeFreeChop(
   userId: string,
-  periodType: 'day' | 'month',
-  periodKey: string,
-): Promise<number> {
+  dayKey: string,
+  monthKey: string,
+): Promise<boolean> {
   const sb = getAdminSupabase()
-  if (!sb) return FREE_CHOP_MONTHLY
-  const { data } = await sb
-    .from('chop_ai_free_usage')
-    .select('count')
-    .eq('user_id', userId)
-    .eq('period_type', periodType)
-    .eq('period_key', periodKey)
-    .maybeSingle()
-  return typeof data?.count === 'number' ? data.count : 0
-}
-
-async function incrementFreeUsage(
-  userId: string,
-  periodType: 'day' | 'month',
-  periodKey: string,
-): Promise<void> {
-  const sb = getAdminSupabase()
-  if (!sb) return
-  const cur = await freeUsageCount(userId, periodType, periodKey)
-  await sb.from('chop_ai_free_usage').upsert(
-    {
-      user_id: userId,
-      period_type: periodType,
-      period_key: periodKey,
-      count: cur + 1,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'user_id,period_type,period_key' },
-  )
+  if (!sb) return false
+  const { data, error } = await sb.rpc('try_consume_free_chop', {
+    p_user_id: userId,
+    p_day_key: dayKey,
+    p_month_key: monthKey,
+    p_daily_max: FREE_CHOP_DAILY,
+    p_monthly_max: FREE_CHOP_MONTHLY,
+  })
+  if (error) {
+    console.error('try_consume_free_chop', error.message)
+    return false
+  }
+  return data === true
 }
 
 /** Free-Quota oder Wallet — vor Azure-Call. */
@@ -283,11 +268,7 @@ export async function authorizeChopAiUse(
   const month = day.slice(0, 7)
 
   if (useFreeQuota(wallet.tier)) {
-    const dayUsed = await freeUsageCount(userId, 'day', day)
-    const monthUsed = await freeUsageCount(userId, 'month', month)
-    if (dayUsed < FREE_CHOP_DAILY && monthUsed < FREE_CHOP_MONTHLY) {
-      await incrementFreeUsage(userId, 'day', day)
-      await incrementFreeUsage(userId, 'month', month)
+    if (await tryConsumeFreeChop(userId, day, month)) {
       return { ok: true, source: 'free' }
     }
   }
@@ -302,41 +283,24 @@ export async function authorizeChopAiUse(
   return { ok: false, error: 'empty_balance' }
 }
 
-/** Durable Rate-Limit über api_rate_buckets. */
+/** Durable Rate-Limit — atomar in DB; ohne DB fail-closed. */
 export async function consumeRateBucket(opts: {
   key: string
   windowMs: number
   max: number
 }): Promise<boolean> {
   const sb = getAdminSupabase()
-  if (!sb) return true // fail-open nur wenn DB fehlt (lokal)
-  const now = Date.now()
-  const { data } = await sb
-    .from('api_rate_buckets')
-    .select('window_start, count')
-    .eq('bucket_key', opts.key)
-    .maybeSingle()
-
-  let windowStart = now
-  let count = 0
-  if (data?.window_start) {
-    const start = Date.parse(data.window_start)
-    if (!Number.isNaN(start) && now - start < opts.windowMs) {
-      windowStart = start
-      count = typeof data.count === 'number' ? data.count : 0
-    }
+  if (!sb) return false
+  const { data, error } = await sb.rpc('consume_api_rate_bucket', {
+    p_key: opts.key,
+    p_window_ms: opts.windowMs,
+    p_max: opts.max,
+  })
+  if (error) {
+    console.error('consume_api_rate_bucket', error.message)
+    return false
   }
-  if (count >= opts.max) return false
-  await sb.from('api_rate_buckets').upsert(
-    {
-      bucket_key: opts.key,
-      window_start: new Date(windowStart).toISOString(),
-      count: count + 1,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'bucket_key' },
-  )
-  return true
+  return data === true
 }
 
 export const PACK_CREDITS: Record<string, number> = {
