@@ -9,6 +9,7 @@ import {
   useLocation,
 } from 'react-router-dom'
 import { registerSW } from 'virtual:pwa-register'
+import './fonts.css'
 import './index.css'
 import { applyProductShell, productShellFromPath } from './pwa'
 import { MarketingLayout } from './marketing/MarketingLayout'
