@@ -1,10 +1,20 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-const INTRO_KEY = 'anker-intro-seen'
+/** v4: Alltagssprache, klar verständlich. */
+const INTRO_KEY = 'anker-intro-seen-v4'
 
-/** Kurz: Nutzen zuerst — Details später in Einstellungen. */
-const STEP_KEYS = ['oneThing', 'park', 'calm'] as const
+/**
+ * Reihenfolge = Bedienfluss: Morgen → Fokus → Zwei Bereiche → Parken → Ruhe → Start.
+ */
+const STEP_KEYS = [
+  'morning',
+  'focus',
+  'twoAreas',
+  'park',
+  'calm',
+  'ready',
+] as const
 
 type Props = {
   onDone: () => void
@@ -15,6 +25,7 @@ export function Intro({ onDone }: Props) {
   const [step, setStep] = useState(0)
   const stepKey = STEP_KEYS[step]
   const last = step === STEP_KEYS.length - 1
+  const detail = t(`intro.steps.${stepKey}.detail`, { defaultValue: '' })
 
   function finish() {
     localStorage.setItem(INTRO_KEY, '1')
@@ -36,6 +47,7 @@ export function Intro({ onDone }: Props) {
       </p>
       <h2 className="intro-title">{t(`intro.steps.${stepKey}.title`)}</h2>
       <p className="intro-text">{t(`intro.steps.${stepKey}.text`)}</p>
+      {detail ? <p className="intro-detail">{detail}</p> : null}
 
       <div className="intro-dots" aria-hidden>
         {STEP_KEYS.map((_, i) => (

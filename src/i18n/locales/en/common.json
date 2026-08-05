@@ -42,17 +42,35 @@
     "next": "Next",
     "start": "Get started",
     "steps": {
-      "oneThing": {
-        "title": "One thing",
-        "text": "In focus you only see the current task. The rest waits — on purpose. Plan less, stay realistic."
+      "morning": {
+        "title": "How you start",
+        "text": "First the app asks how you feel today. You can skip that — then it assumes “pretty good”.",
+        "detail": "Want to prepare something? Tap “Plan a little more”. When you’re ready: “Start day”. Or “Start with an empty day” if you’ll decide later."
+      },
+      "focus": {
+        "title": "Just one thing",
+        "text": "After that you only see the task that’s up now — with a clock. When you’re done, check it off. Then the next one appears. Everything else waits.",
+        "detail": "At the top you can switch: Plan (overview), Focus (work now), Evening (end the day)."
+      },
+      "twoAreas": {
+        "title": "Two separate lists",
+        "text": "Under “Plan a little more” there are two fields. Top: Work — job and important to-dos. First pick Small, Medium or Large, then type the title.",
+        "detail": "Bottom: Life — dog, food, meds and the like. That doesn’t count as work. Always type in the matching field. If it says “Work:” or “Life:” at the front, you’re in the right place."
       },
       "park": {
-        "title": "Park instead of losing",
-        "text": "Thoughts and big projects belong in sparks or the drawer — not on today’s pile."
+        "title": "Put a thought aside",
+        "text": "The spark button saves a short thought without putting it on today’s plan.",
+        "detail": "Nothing gets lost — and your day stays clear."
       },
       "calm": {
-        "title": "Without pressure",
-        "text": "No points, no streaks. When it’s too much: Calm button. Open beta for now — later 7-day trial, then a subscription (even without sync)."
+        "title": "When it’s too much",
+        "text": "Top right: Calm. Breathe, sense, settle. No clock and no contest with yourself.",
+        "detail": "The gear opens Settings. You can also reopen this introduction there."
+      },
+      "ready": {
+        "title": "Your turn",
+        "text": "Next: pick a mood or leave it. If you like, add something under “Plan a little more”. Then “Start day” — and one thing in focus.",
+        "detail": "You’ll find this introduction later under Settings → Help."
       }
     }
   },
@@ -86,21 +104,23 @@
     },
     "work": {
       "title": "Work",
+      "kindShort": "W",
       "count": "{{used}}/{{max}} pts",
       "hint": "Pick a size — the timer follows.",
       "hintShort": "Pick a size first (Small / Medium / Large), then the title. For existing tasks: tap S · M · L.",
       "cycleSize": "Change size",
       "sizeAria": "Size",
       "minutes": "{{n}} min",
-      "placeholder": "e.g. finish report"
+      "placeholder": "Work: e.g. finish report"
     },
     "life": {
       "title": "Life",
+      "kindShort": "L",
       "count": "{{used}}/{{max}}",
       "hint": "Doesn’t count toward work points. × on a suggestion hides it — your own stay saved.",
       "hintShort": "Can wait. Or suggest 1–2 usual life anchors.",
       "suggestTypical": "Suggest usual life anchors",
-      "placeholder": "Your own life anchor…",
+      "placeholder": "Life: e.g. meds / cook",
       "forgetAria": "Don’t suggest {{title}} again",
       "forgetTitle": "Don’t suggest again",
       "templates": {
@@ -374,11 +394,11 @@
   },
   "settings": {
     "summary": "Settings",
-    "shellHint": "Short version here — the full set is on the morning plan under Settings.",
+    "shellHint": "The most important settings are here. Under the gear in the morning you’ll find more.",
     "shortMorning": "Short morning (less at once)",
-    "shortMorningHint": "Off = previous full plan view. You can switch back anytime.",
-    "drawerEnabled": "Enable the drawer",
-    "drawerEnabledHint": "Shows the switch to the drawer. Visiting the drawer turns this on automatically.",
+    "shortMorningHint": "On = fewer fields at once. Off = the longer plan view. You can change this anytime.",
+    "drawerEnabled": "Show the drawer",
+    "drawerEnabledHint": "Then a switch to the drawer appears — a second app for big projects that don’t belong on today. There you can park them and split them into small steps. Turning it off only hides the switch; nothing is deleted.",
     "drawerAdvanced": "Advanced drawer",
     "drawerAdvancedHint": "Snooze, rest, and “Coming up”. Off = drop, inbox, ready to pull only.",
     "drawerAiChop": "AI help when breaking down",

@@ -42,17 +42,35 @@
     "next": "Weiter",
     "start": "Loslegen",
     "steps": {
-      "oneThing": {
-        "title": "Eine Sache",
-        "text": "Im Fokus siehst du nur die aktuelle Aufgabe. Der Rest wartet — absichtlich. Wenig planen, realistisch bleiben."
+      "morning": {
+        "title": "So fängst du an",
+        "text": "Zuerst fragst die App, wie es dir heute geht. Das darfst du auch auslassen — dann gilt „ziemlich gut“.",
+        "detail": "Willst du etwas vorbereiten? Tippe auf „Noch etwas planen“. Wenn du fertig bist: „Tag starten“. Oder „Mit leerem Tag starten“, wenn du erst später entscheidest."
+      },
+      "focus": {
+        "title": "Nur eine Sache",
+        "text": "Danach siehst du nur die Aufgabe, die jetzt dran ist — mit einer Uhr. Wenn du fertig bist, hakst du ab. Dann kommt die nächste. Alles andere wartet.",
+        "detail": "Oben kannst du wechseln: Plan (Übersicht), Fokus (jetzt arbeiten), Abend (Tag beenden)."
+      },
+      "twoAreas": {
+        "title": "Zwei getrennte Listen",
+        "text": "Unter „Noch etwas planen“ gibt es zwei Felder. Oben: Arbeit — Job und wichtige Aufgaben. Dort wählst du erst Klein, Mittel oder Groß, dann schreibst du den Titel.",
+        "detail": "Unten: Alltag — Hund, Essen, Medikamente und ähnliches. Das zählt nicht zur Arbeit. Schreib immer in das passende Feld. Steht vorne „Arbeit:“ oder „Alltag:“, bist du richtig."
       },
       "park": {
-        "title": "Parken statt verlieren",
-        "text": "Gedanken und große Vorhaben gehören in Geistesblitze oder die Schublade — nicht auf den heutigen Berg."
+        "title": "Gedanken kurz weglegen",
+        "text": "Der Blitz-Button speichert einen kurzen Gedanken, ohne ihn auf den heutigen Plan zu legen.",
+        "detail": "So geht nichts verloren — und dein Tag bleibt trotzdem klar."
       },
       "calm": {
-        "title": "Ohne Druck",
-        "text": "Keine Punkte, keine Streaks. Wenn’s zu viel wird: Ruhe-Button. Gerade offene Beta — später 7 Tage Trial, dann Abo (auch ohne Sync)."
+        "title": "Wenn es zu viel wird",
+        "text": "Oben rechts: Ruhe. Kurz atmen, spüren, ankommen. Keine Uhr und kein Wettkampf mit dir selbst.",
+        "detail": "Das Zahnrad öffnet die Einstellungen. Dort kannst du diese Einführung auch nochmal ansehen."
+      },
+      "ready": {
+        "title": "Jetzt du",
+        "text": "Als Nächstes: Gefühl wählen oder lassen. Wenn du magst, unter „Noch etwas planen“ etwas eintragen. Dann „Tag starten“ — und eine Sache im Fokus.",
+        "detail": "Die Einführung findest du später unter Einstellungen → Hilfe."
       }
     }
   },
@@ -86,21 +104,23 @@
     },
     "work": {
       "title": "Arbeit",
+      "kindShort": "A",
       "count": "{{used}}/{{max}} Pkt",
-      "hint": "Größe wählen — Timer richtet sich danach.",
-      "hintShort": "Zuerst Größe wählen (Klein / Mittel / Groß), dann Titel. Bei vorhandenen Aufgaben: K · M · G tippen.",
+      "hint": "Zuerst die Größe wählen — danach richtet sich die Uhr.",
+      "hintShort": "Zuerst Klein, Mittel oder Groß tippen, dann den Titel schreiben. Bei bestehenden Einträgen: K, M oder G tippen, um die Größe zu ändern.",
       "cycleSize": "Größe wechseln",
-      "sizeAria": "Umfang",
+      "sizeAria": "Größe",
       "minutes": "{{n}} Min",
-      "placeholder": "z. B. Bericht fertigstellen"
+      "placeholder": "Arbeit: z. B. Bericht fertigstellen"
     },
     "life": {
       "title": "Alltag",
+      "kindShort": "All",
       "count": "{{used}}/{{max}}",
-      "hint": "Zählt nicht in die Arbeitspunkte. × am Vorschlag blendet ihn aus — eigene bleiben gespeichert.",
-      "hintShort": "Darf später kommen. Oder 1–2 Typische vorschlagen lassen.",
+      "hint": "Gehört nicht zur Arbeit. Mit × blendest du einen Vorschlag aus — eigene Einträge bleiben.",
+      "hintShort": "Darf auch später kommen. Oder tippe auf „Typische Alltagsanker vorschlagen“.",
       "suggestTypical": "Typische Alltagsanker vorschlagen",
-      "placeholder": "Eigener Alltagsanker…",
+      "placeholder": "Alltag: z. B. Medikamente / kochen",
       "forgetAria": "{{title}} nicht mehr vorschlagen",
       "forgetTitle": "Nicht mehr vorschlagen",
       "templates": {
@@ -374,11 +394,11 @@
   },
   "settings": {
     "summary": "Einstellungen",
-    "shellHint": "Kurz hier — der volle Satz sitzt am Morgen unter Einstellungen.",
+    "shellHint": "Hier die wichtigsten Einstellungen. Am Morgen unter dem Zahnrad findest du noch mehr.",
     "shortMorning": "Kurzer Morgen (weniger auf einmal)",
-    "shortMorningHint": "Aus = bisherige volle Plan-Ansicht. Du kannst jederzeit zurückschalten.",
-    "drawerEnabled": "Die Schublade aktivieren",
-    "drawerEnabledHint": "Zeigt den Wechsel zur Schublade. Besuch der Schublade schaltet das automatisch ein.",
+    "shortMorningHint": "An = weniger Felder auf einmal. Aus = die längere Plan-Ansicht. Du kannst das jederzeit ändern.",
+    "drawerEnabled": "Die Schublade anzeigen",
+    "drawerEnabledHint": "Dann erscheint ein Wechsel zur Schublade — einer zweiten App für große Vorhaben, die nicht auf den heutigen Tag gehören. Dort kannst du sie ablegen und in kleine Schritte teilen. Ausschalten entfernt nur den Wechsel; nichts wird gelöscht.",
     "drawerAdvanced": "Erweiterte Schublade",
     "drawerAdvancedHint": "Aufschub, Ruhe und „Demnächst“. Aus = nur Ablegen, Eingang, Zum Holen.",
     "drawerAiChop": "KI-Hilfe beim Zerlegen",

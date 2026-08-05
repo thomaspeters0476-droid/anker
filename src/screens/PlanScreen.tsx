@@ -645,7 +645,12 @@ export function PlanScreen({
   const workBlock = (
       <div className="block block--work">
         <div className="block-head">
-          <h2>{t('plan.work.title')}</h2>
+          <div className="block-head-title">
+            <span className="kind work" aria-hidden>
+              {t('plan.work.kindShort')}
+            </span>
+            <h2 id="plan-work-heading">{t('plan.work.title')}</h2>
+          </div>
           <span className="count">
             {t('plan.work.count', { used: usedPts, max: maxPts })}
           </span>
@@ -653,7 +658,7 @@ export function PlanScreen({
         <p className="block-hint">
           {compactMorning ? t('plan.work.hintShort') : t('plan.work.hint')}
         </p>
-        <ul className="task-list">
+        <ul className="task-list" aria-labelledby="plan-work-heading">
           {work.map((task) => (
             <li key={task.id} className={compactMorning ? 'task-row--sized' : undefined}>
               <span className="task-main">
@@ -760,7 +765,12 @@ export function PlanScreen({
   const lifeBlock = (
       <div className="block block--life">
         <div className="block-head">
-          <h2>{t('plan.life.title')}</h2>
+          <div className="block-head-title">
+            <span className="kind life" aria-hidden>
+              {t('plan.life.kindShort')}
+            </span>
+            <h2 id="plan-life-heading">{t('plan.life.title')}</h2>
+          </div>
           <span className="count">
             {t('plan.life.count', { used: life.length, max: day.lifeMax })}
           </span>
@@ -777,7 +787,7 @@ export function PlanScreen({
             {t('plan.life.suggestTypical')}
           </button>
         )}
-        <ul className="task-list">
+        <ul className="task-list" aria-labelledby="plan-life-heading">
           {life.map((task) => (
             <li key={task.id}>
               <span>{lifeTemplateLabel(task.title, t)}</span>
@@ -1172,10 +1182,36 @@ export function PlanScreen({
           onToggle={(e) => {
             setSettingsOpen((e.target as HTMLDetailsElement).open)
           }}
+          onClick={(e) => {
+            if (
+              settingsOpenProp !== undefined &&
+              e.target === e.currentTarget
+            ) {
+              setSettingsOpen(false)
+            }
+          }}
         >
           <summary className="settings-panel-summary">
             {t('settings.summary')}
           </summary>
+
+          <div
+            className={
+              settingsOpenProp !== undefined ? 'settings-panel-sheet' : undefined
+            }
+          >
+            {settingsOpenProp !== undefined && (
+              <div className="drawer-panel-head settings-panel-head">
+                <h2>{t('settings.summary')}</h2>
+                <button
+                  type="button"
+                  className="ghost sm"
+                  onClick={() => setSettingsOpen(false)}
+                >
+                  {t('common.ok')}
+                </button>
+              </div>
+            )}
 
           <label className="intro-hide-check settings-check">
             <input
@@ -1696,7 +1732,8 @@ export function PlanScreen({
               </Suspense>
             )}
           </details>
-        </details>
+            </div>
+          </details>
 
         {syncEmail ? (
           <p className="sync-status-bar" role="status">
