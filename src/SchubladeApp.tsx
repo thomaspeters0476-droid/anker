@@ -505,151 +505,167 @@ export function SchubladeApp() {
           <details
             className="settings-panel settings-panel--from-gear"
             open={settingsOpen}
-            onToggle={(e) =>
-              setSettingsOpen((e.target as HTMLDetailsElement).open)
-            }
+            onToggle={(e) => {
+              // Nested <details> fire bubbling toggle — only react to this panel.
+              if (e.target !== e.currentTarget) return
+              setSettingsOpen(e.currentTarget.open)
+            }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSettingsOpen(false)
+            }}
           >
             <summary className="settings-panel-summary">
               {t('settings.summary')}
             </summary>
-            <p className="block-hint">{t('drawer.appBridgeHint')}</p>
-            <p>
-              <Link to="/app" className="secondary sm">
-                {t('productNav.openAnker')}
-              </Link>
-            </p>
+            <div className="settings-panel-sheet">
+              <div className="drawer-panel-head settings-panel-head">
+                <h2>{t('settings.summary')}</h2>
+                <button
+                  type="button"
+                  className="ghost sm"
+                  onClick={() => setSettingsOpen(false)}
+                >
+                  {t('common.ok')}
+                </button>
+              </div>
+              <p className="block-hint">{t('drawer.appBridgeHint')}</p>
+              <p>
+                <Link to="/app" className="secondary sm">
+                  {t('productNav.openAnker')}
+                </Link>
+              </p>
 
-            <details className="settings-section" open>
-              <summary>{t('settings.help.summary')}</summary>
+              <details className="settings-section">
+                <summary>{t('settings.help.summary')}</summary>
+                <label className="intro-hide-check settings-check">
+                  <input
+                    type="checkbox"
+                    checked={day.introButtonOnSurface}
+                    onChange={(e) =>
+                      setDay((d) => ({
+                        ...d,
+                        introButtonOnSurface: e.target.checked,
+                      }))
+                    }
+                  />
+                  {t('settings.help.introButton')}
+                </label>
+                <button
+                  type="button"
+                  className="secondary sm"
+                  onClick={openIntro}
+                >
+                  {t('drawer.intro.showAgain')}
+                </button>
+              </details>
+
               <label className="intro-hide-check settings-check">
                 <input
                   type="checkbox"
-                  checked={day.introButtonOnSurface}
-                  onChange={(e) =>
-                    setDay((d) => ({
-                      ...d,
-                      introButtonOnSurface: e.target.checked,
-                    }))
-                  }
+                  checked={drawerAdvanced}
+                  onChange={(e) => {
+                    const on = e.target.checked
+                    setDrawerAdvanced(on)
+                    savePrefs({ ...loadPrefs(), drawerAdvanced: on })
+                  }}
                 />
-                {t('settings.help.introButton')}
+                {t('settings.drawerAdvanced')}
               </label>
-              <button
-                type="button"
-                className="secondary sm"
-                onClick={openIntro}
-              >
-                {t('drawer.intro.showAgain')}
-              </button>
-            </details>
-
-            <label className="intro-hide-check settings-check">
-              <input
-                type="checkbox"
-                checked={drawerAdvanced}
-                onChange={(e) => {
-                  const on = e.target.checked
-                  setDrawerAdvanced(on)
-                  savePrefs({ ...loadPrefs(), drawerAdvanced: on })
-                }}
-              />
-              {t('settings.drawerAdvanced')}
-            </label>
-            <p className="block-hint">{t('settings.drawerAdvancedHint')}</p>
-            <label className="intro-hide-check settings-check">
-              <input
-                type="checkbox"
-                checked={aiChopOptIn}
-                onChange={(e) => {
-                  const on = e.target.checked
-                  setAiChopOptIn(on)
-                  savePrefs({ ...loadPrefs(), drawerAiChopOptIn: on })
-                }}
-              />
-              {t('settings.drawerAiChop')}
-            </label>
-            <p className="block-hint">{t('settings.drawerAiChopHint')}</p>
-            {aiChopOptIn && (
-              <div className="settings-section chop-pack-settings">
-                <p className="block-hint">{t('drawer.chopAiPackSettingsLead')}</p>
-                <Suspense fallback={null}>
-                  <ChopAiPackBuy />
-                </Suspense>
-              </div>
-            )}
-            <div className="settings-row">
-              <span>{t('settings.drawerReadyCap', { n: readyCap })}</span>
-              <button
-                type="button"
-                className="ghost sm"
-                disabled={readyCap <= 15}
-                onClick={() => {
-                  const n = Math.max(15, readyCap - 1)
-                  setReadyCap(n)
-                  savePrefs({ ...loadPrefs(), drawerReadyCap: n })
-                }}
-              >
-                −
-              </button>
-              <button
-                type="button"
-                className="ghost sm"
-                disabled={readyCap >= 40}
-                onClick={() => {
-                  const n = Math.min(40, readyCap + 1)
-                  setReadyCap(n)
-                  savePrefs({ ...loadPrefs(), drawerReadyCap: n })
-                }}
-              >
-                +
-              </button>
-            </div>
-            <p className="block-hint">{t('settings.drawerReadyCapHint')}</p>
-            <details className="settings-section">
-              <summary>{t('drawer.installSummary')}</summary>
-              <PwaGuide product="schublade" compact />
-            </details>
-            <details
-              className="settings-section"
-              open={Boolean(syncEmail) || forceOpenSync}
-              onToggle={(e) => {
-                if (!(e.target as HTMLDetailsElement).open) {
-                  setForceOpenSync(false)
-                }
-              }}
-            >
-              <summary>
-                {t('settings.sync.summary')}
-                <span className="settings-section-meta">
-                  {syncEmail
-                    ? t('settings.sync.metaConnected')
-                    : t('settings.sync.metaLocalOnly')}
-                </span>
-              </summary>
-              {settingsOpen && (
-                <Suspense fallback={null}>
-                  <SyncSettings
-                    email={syncEmail}
-                    notice={syncNotice}
-                    conflict={syncConflict}
-                    onNotice={setSyncNotice}
-                    onKeepLocal={() => void keepLocalConflict()}
-                    onUseCloud={() => void useCloudConflict()}
-                    onSignedOut={() => {
-                      setSyncEmail(null)
-                      setSyncConflict(null)
-                    }}
-                    onVaultReady={() => void runSync()}
-                    embedded
-                  />
-                </Suspense>
+              <p className="block-hint">{t('settings.drawerAdvancedHint')}</p>
+              <label className="intro-hide-check settings-check">
+                <input
+                  type="checkbox"
+                  checked={aiChopOptIn}
+                  onChange={(e) => {
+                    const on = e.target.checked
+                    setAiChopOptIn(on)
+                    savePrefs({ ...loadPrefs(), drawerAiChopOptIn: on })
+                  }}
+                />
+                {t('settings.drawerAiChop')}
+              </label>
+              <p className="block-hint">{t('settings.drawerAiChopHint')}</p>
+              {aiChopOptIn && (
+                <div className="settings-section chop-pack-settings">
+                  <p className="block-hint">{t('drawer.chopAiPackSettingsLead')}</p>
+                  <Suspense fallback={null}>
+                    <ChopAiPackBuy />
+                  </Suspense>
+                </div>
               )}
-            </details>
-            {syncEmail ? (
-              <p className="sync-status-bar" role="status">
-                {t('settings.syncStatusBar', { email: syncEmail })}
-              </p>
-            ) : null}
+              <div className="settings-row">
+                <span>{t('settings.drawerReadyCap', { n: readyCap })}</span>
+                <button
+                  type="button"
+                  className="ghost sm"
+                  disabled={readyCap <= 15}
+                  onClick={() => {
+                    const n = Math.max(15, readyCap - 1)
+                    setReadyCap(n)
+                    savePrefs({ ...loadPrefs(), drawerReadyCap: n })
+                  }}
+                >
+                  −
+                </button>
+                <button
+                  type="button"
+                  className="ghost sm"
+                  disabled={readyCap >= 40}
+                  onClick={() => {
+                    const n = Math.min(40, readyCap + 1)
+                    setReadyCap(n)
+                    savePrefs({ ...loadPrefs(), drawerReadyCap: n })
+                  }}
+                >
+                  +
+                </button>
+              </div>
+              <p className="block-hint">{t('settings.drawerReadyCapHint')}</p>
+              <details className="settings-section">
+                <summary>{t('drawer.installSummary')}</summary>
+                <PwaGuide product="schublade" compact />
+              </details>
+              <details
+                className="settings-section"
+                open={Boolean(syncEmail) || forceOpenSync}
+                onToggle={(e) => {
+                  if (e.target !== e.currentTarget) return
+                  if (!e.currentTarget.open) setForceOpenSync(false)
+                }}
+              >
+                <summary>
+                  {t('settings.sync.summary')}
+                  <span className="settings-section-meta">
+                    {syncEmail
+                      ? t('settings.sync.metaConnected')
+                      : t('settings.sync.metaLocalOnly')}
+                  </span>
+                </summary>
+                {settingsOpen && (
+                  <Suspense fallback={null}>
+                    <SyncSettings
+                      email={syncEmail}
+                      notice={syncNotice}
+                      conflict={syncConflict}
+                      onNotice={setSyncNotice}
+                      onKeepLocal={() => void keepLocalConflict()}
+                      onUseCloud={() => void useCloudConflict()}
+                      onSignedOut={() => {
+                        setSyncEmail(null)
+                        setSyncConflict(null)
+                      }}
+                      onVaultReady={() => void runSync()}
+                      embedded
+                    />
+                  </Suspense>
+                )}
+              </details>
+              {syncEmail ? (
+                <p className="sync-status-bar" role="status">
+                  {t('settings.syncStatusBar', { email: syncEmail })}
+                </p>
+              ) : null}
+            </div>
           </details>
         </div>
         )}

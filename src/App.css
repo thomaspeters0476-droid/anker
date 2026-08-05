@@ -150,6 +150,11 @@
   box-shadow: none;
 }
 
+/* WebView: nested open <details> can otherwise leak into the page */
+.settings-panel--from-gear:not([open]) > *:not(summary) {
+  display: none !important;
+}
+
 /* Zahnrad oben → Einstellungen als Overlay, nicht unten in der Seite */
 .settings-panel--from-gear[open] {
   position: fixed;

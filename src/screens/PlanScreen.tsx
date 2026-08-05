@@ -1074,9 +1074,10 @@ export function PlanScreen({
         <details
           className="morning-more"
           open={planMoreOpen}
-          onToggle={(e) =>
-            setPlanMoreOpen((e.target as HTMLDetailsElement).open)
-          }
+          onToggle={(e) => {
+            if (e.target !== e.currentTarget) return
+            setPlanMoreOpen(e.currentTarget.open)
+          }}
         >
           <summary>
             {t('plan.morningMore')}
@@ -1180,7 +1181,9 @@ export function PlanScreen({
           className={`settings-panel${compactMorning ? ' settings-panel--quiet' : ''}${settingsOpenProp !== undefined ? ' settings-panel--from-gear' : ''}`}
           open={settingsOpen}
           onToggle={(e) => {
-            setSettingsOpen((e.target as HTMLDetailsElement).open)
+            // Nested <details> bubble toggle — only this panel.
+            if (e.target !== e.currentTarget) return
+            setSettingsOpen(e.currentTarget.open)
           }}
           onClick={(e) => {
             if (
@@ -1704,9 +1707,10 @@ export function PlanScreen({
           <details
             className="settings-section"
             open={syncSectionOpen || Boolean(syncEmail) || forceOpenSync}
-            onToggle={(e) =>
-              setSyncSectionOpen((e.target as HTMLDetailsElement).open)
-            }
+            onToggle={(e) => {
+              if (e.target !== e.currentTarget) return
+              setSyncSectionOpen(e.currentTarget.open)
+            }}
           >
             <summary>
               {t('settings.sync.summary')}
