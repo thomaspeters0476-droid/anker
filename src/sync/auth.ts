@@ -1,5 +1,6 @@
 import type { Session, User } from '@supabase/supabase-js'
 import i18n, { ensureI18n } from '../i18n'
+import { apiUrl } from '../native/platform'
 import { getSupabase, isSyncConfigured } from './client'
 
 function syncMsg(key: string): string {
@@ -64,7 +65,7 @@ export async function signInWithMagicLink(
   const locale = i18n.language === 'en' ? 'en' : 'de'
 
   try {
-    const res = await fetch('/api/sync-request-otp', {
+    const res = await fetch(apiUrl('/api/sync-request-otp'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: normalized, locale }),
@@ -103,7 +104,7 @@ export async function verifySyncOtp(
   }
 
   try {
-    const res = await fetch('/api/sync-verify-otp', {
+    const res = await fetch(apiUrl('/api/sync-verify-otp'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: normalized, code }),

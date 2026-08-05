@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { applyCors } from './_cors.js'
 import Stripe from 'stripe'
 import {
   userIdFromAuthHeader,
@@ -62,6 +63,7 @@ function parseProduct(raw: unknown): ChopTier {
  * Regel: Ohne Zahlungsmittel startet kein Trial (payment_method_collection=always).
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (applyCors(req, res)) return
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ ok: false, error: 'method_not_allowed' })

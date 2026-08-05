@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { applyCors } from './_cors.js'
 import { Resend } from 'resend'
 import {
   consumeRateBucket,
@@ -79,6 +80,7 @@ function copyFor(locale: 'de' | 'en', retentionDays: number, count: number) {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (applyCors(req, res)) return
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ ok: false, error: 'method_not_allowed' })

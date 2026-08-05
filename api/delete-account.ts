@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { applyCors } from './_cors.js'
 import Stripe from 'stripe'
 import {
   getAdminSupabase,
@@ -60,6 +61,7 @@ async function listAllBlobPaths(
  * Does not cancel legal invoice archives at Stripe; cancels open subscriptions.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (applyCors(req, res)) return
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ ok: false, error: 'method_not_allowed' })

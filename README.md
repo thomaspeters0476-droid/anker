@@ -34,7 +34,8 @@ npm install
 npm run dev
 ```
 
-Build, Deploy, PWA: [`docs/DEPLOY.md`](docs/DEPLOY.md)
+Build, Deploy, PWA: [`docs/DEPLOY.md`](docs/DEPLOY.md)  
+Store-Apps (Capacitor / Play Store, später iOS): [`docs/CAPACITOR.md`](docs/CAPACITOR.md)
 
 ---
 

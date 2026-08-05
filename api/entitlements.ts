@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { applyCors } from './_cors.js'
 import { getAdminSupabase, userIdFromAuthHeader } from './_chopWallet.js'
 import {
   canUseSchublade,
@@ -9,6 +10,7 @@ import {
 } from './_entitlements.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (applyCors(req, res)) return
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET')
     return res.status(405).json({ ok: false, error: 'method_not_allowed' })

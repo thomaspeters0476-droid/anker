@@ -36,10 +36,20 @@ dist-ssr
 # Vercel
 .vercel
 
-# Android TWA local build
+# Capacitor / Android
 android/local.properties
 android/app/build/
 android/build/
 android/.gradle/
 android/*.apk
 android/*.aab
+android-twa/local.properties
+android-twa/app/build/
+android-twa/build/
+android-twa/.gradle/
+android-twa/*.apk
+android-twa/*.aab
+
+emu-*.png
+android-emulator-check.png
+

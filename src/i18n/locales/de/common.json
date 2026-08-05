@@ -454,8 +454,10 @@
       "tagesankerBody": "Nach der offenen Beta: 7 Tage Trial, dann Tagesanker- oder Bundle-Abo — auch nur lokal, ohne Sync. Es gibt kein Free.",
       "schubladeTitle": "Schublade mit Abo",
       "schubladeBody": "Nach der offenen Beta: 7 Tage Trial, dann Schublade- oder Bundle-Abo — auch nur lokal, ohne Sync. Es gibt kein Free.",
-      "needSignIn": "Zum Freischalten zuerst anmelden (Konto für Trial/Abo) — Sync für Geräte ist optional.",
-      "signInCta": "Konto / Anmeldung",
+      "needSignIn": "Zum Freischalten zuerst anmelden — für Trial und Abo.",
+      "signInCta": "Anmelden",
+      "signInTitle": "Anmelden",
+      "signInSheetHint": "E-Mail und Code aus der Mail. Backup und Geräte-Sync liegen unter Einstellungen.",
       "pricesCta": "Zu den Preisen"
     },
     "portal": {
@@ -493,6 +495,7 @@
     "title": "Geräte-Sync",
     "notConfigured": "Sync ist auf diesem Build noch nicht konfiguriert (Supabase-Env fehlt).",
     "hint": "Optional für mehrere Geräte. Die App selbst ist nach der Beta immer mit Trial/Abo — auch nur lokal. Mit Sync: Ende-zu-Ende verschlüsselt; Tagesanker kann nicht mitlesen.",
+    "loginHint": "Mit E-Mail und Code anmelden — für Trial und Abo. Geräte-Sync kannst du später in den Einstellungen einrichten.",
     "connectedAs": "Verbunden als {{email}}",
     "signOut": "Abmelden",
     "emailLabel": "1. Deine E-Mail (nicht der Code)",

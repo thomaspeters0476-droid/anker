@@ -3,6 +3,7 @@ import { clearCachedDek } from './vault'
 import { clearLocalAppData } from '../storage'
 import { clearEntitlementsCache } from '../billing/entitlements'
 import { signOut } from './auth'
+import { apiUrl } from '../native/platform'
 
 export async function deleteAccountAndLocalData(): Promise<
   { ok: true } | { ok: false; error: string }
@@ -13,7 +14,7 @@ export async function deleteAccountAndLocalData(): Promise<
   }
 
   try {
-    const res = await fetch('/api/delete-account', {
+    const res = await fetch(apiUrl('/api/delete-account'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${session.access_token}`,

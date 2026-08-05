@@ -36,6 +36,7 @@ import { isSyncConfigured, loadSync, schedulePushLazy } from './sync/load'
 import type { SyncConflict } from './sync/sync'
 import { useOnline } from './online'
 import { PaywallGate } from './components/PaywallGate'
+import { SignInSheet } from './components/SignInSheet'
 import { SyncConflictBanner } from './components/SyncConflictBanner'
 import {
   SchubladeIntro,
@@ -89,6 +90,7 @@ export function SchubladeApp() {
   const [syncConflict, setSyncConflict] = useState<SyncConflict | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [forceOpenSync, setForceOpenSync] = useState(false)
+  const [signInOpen, setSignInOpen] = useState(false)
   const [showIntro, setShowIntro] = useState(() => !hasSeenSchubladeIntro())
   const [introKey, setIntroKey] = useState(0)
   const [showBridgeTip, setShowBridgeTip] = useState(false)
@@ -394,10 +396,7 @@ export function SchubladeApp() {
           <PaywallGate
             product="schublade"
             signedIn={Boolean(syncEmail)}
-            onOpenSettings={() => {
-              setForceOpenSync(true)
-              setSettingsOpen(true)
-            }}
+            onSignIn={() => setSignInOpen(true)}
           />
         ) : (
         <section className="block drawer-app-block">
@@ -659,6 +658,24 @@ export function SchubladeApp() {
       {regulateOpen && (
         <Suspense fallback={null}>
           <RegulateDown onClose={() => setRegulateOpen(false)} />
+        </Suspense>
+      )}
+      {signInOpen && !showIntro && (
+        <Suspense fallback={null}>
+          <SignInSheet
+            onClose={() => setSignInOpen(false)}
+            syncEmail={syncEmail}
+            syncNotice={syncNotice}
+            syncConflict={syncConflict}
+            onSyncNotice={setSyncNotice}
+            onSyncKeepLocal={() => void keepLocalConflict()}
+            onSyncUseCloud={() => void useCloudConflict()}
+            onSyncSignedOut={() => {
+              setSyncEmail(null)
+              setSyncConflict(null)
+            }}
+            onSyncVaultReady={() => void runSync()}
+          />
         </Suspense>
       )}
     </div>

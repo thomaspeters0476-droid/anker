@@ -5,6 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   // SVGs mit url(#id) nicht als data: inlinen — # zerlegt die Data-URL
   build: {
+    // Android WebView (API 30 Emulator) kennt kein ||= / ??= (ES2021+)
+    target: 'es2019',
     assetsInlineLimit: 1024,
     // Kein manualChunks: shared __vitePreload würde sonst in große Vendor-Chunks
     // rutschen und per modulepreload jede Route blockieren (PDF/Supabase).

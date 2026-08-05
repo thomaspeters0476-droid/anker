@@ -1,4 +1,5 @@
 import { getSession } from '../sync/auth'
+import { apiUrl } from '../native/platform'
 import {
   cacheEntitlements,
   deniedEntitlementsAccess,
@@ -49,7 +50,7 @@ export async function refreshEntitlements(): Promise<EntitlementsState> {
     if (session?.access_token) {
       headers.Authorization = `Bearer ${session.access_token}`
     }
-    const res = await fetch('/api/entitlements', { headers })
+    const res = await fetch(apiUrl('/api/entitlements'), { headers })
     const data = (await res.json().catch(() => null)) as {
       ok?: boolean
       enforced?: boolean
@@ -97,7 +98,7 @@ export async function startSubscriptionCheckout(opts: {
     return { ok: false, error: 'not_signed_in' }
   }
   try {
-    const res = await fetch('/api/create-checkout-session', {
+    const res = await fetch(apiUrl('/api/create-checkout-session'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${session.access_token}`,
@@ -131,7 +132,7 @@ export async function startPortalSession(
     return { ok: false, error: 'not_signed_in' }
   }
   try {
-    const res = await fetch('/api/create-portal-session', {
+    const res = await fetch(apiUrl('/api/create-portal-session'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${session.access_token}`,

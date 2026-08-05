@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { applyCors } from './_cors.js'
 import {
   consumeWalletCredit,
   getAdminSupabase,
@@ -8,6 +9,7 @@ import {
 } from './_chopWallet.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (applyCors(req, res)) return
   const userId = await userIdFromAuthHeader(req)
   if (!userId) {
     return res.status(401).json({ ok: false, error: 'not_signed_in' })

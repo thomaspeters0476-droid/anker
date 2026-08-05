@@ -454,8 +454,10 @@
       "tagesankerBody": "After open beta: 7-day trial, then a Tagesanker or Bundle plan — even local-only, without sync. No free tier.",
       "schubladeTitle": "Schublade with a subscription",
       "schubladeBody": "After open beta: 7-day trial, then a Schublade or Bundle plan — even local-only, without sync. No free tier.",
-      "needSignIn": "Sign in first (account for trial/plan) — device sync is optional.",
-      "signInCta": "Account / sign in",
+      "needSignIn": "Sign in first to unlock trial and subscription.",
+      "signInCta": "Sign in",
+      "signInTitle": "Sign in",
+      "signInSheetHint": "Email and code from the mail. Backup and device sync are under Settings.",
       "pricesCta": "See pricing"
     },
     "portal": {
@@ -493,6 +495,7 @@
     "title": "Device sync",
     "notConfigured": "Sync isn’t configured in this build yet (Supabase env missing).",
     "hint": "Optional for multiple devices. After beta the app always needs a trial/plan — even local-only. With sync: end-to-end encrypted; Tagesanker cannot read it.",
+    "loginHint": "Sign in with email and code — for trial and subscription. Device sync can be set up later in Settings.",
     "connectedAs": "Connected as {{email}}",
     "signOut": "Sign out",
     "emailLabel": "1. Your email (not the code)",

@@ -1,9 +1,12 @@
 /** PWA / Home-Bildschirm Hilfen */
 
+import { Capacitor } from '@capacitor/core'
+
 export type ProductShell = 'anker' | 'schublade'
 
 export function isStandaloneApp(): boolean {
   if (typeof window === 'undefined') return false
+  if (Capacitor.isNativePlatform()) return true
   const mq = window.matchMedia('(display-mode: standalone)').matches
   const iosStandalone =
     'standalone' in navigator &&

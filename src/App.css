@@ -1,6 +1,9 @@
 .app-shell {
   width: min(var(--app-shell-max), 100%);
-  padding: var(--app-pad-y) var(--app-pad-x) 2.5rem;
+  padding-top: max(var(--app-pad-y), env(safe-area-inset-top, 0px));
+  padding-right: max(var(--app-pad-x), env(safe-area-inset-right, 0px));
+  padding-bottom: max(2.5rem, calc(env(safe-area-inset-bottom, 0px) + 1.25rem));
+  padding-left: max(var(--app-pad-x), env(safe-area-inset-left, 0px));
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -1744,9 +1747,10 @@
 }
 
 .intro-screen {
+  flex: 1;
+  min-height: 0;
   padding-top: 1.25rem;
-  min-height: 55dvh;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .intro-progress {
@@ -1797,7 +1801,16 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--bg0) 92%, transparent) 55%,
+    transparent
+  );
 }
 
 .intro-again {

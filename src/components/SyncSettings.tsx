@@ -81,6 +81,8 @@ type Props = {
   onNotice?: (msg: string | null) => void
   onVaultReady?: () => void
   embedded?: boolean
+  /** login = nur Anmeldung (Paywall); full = Sync + Backup + Wipe */
+  mode?: 'full' | 'login'
 }
 
 export function SyncSettings({
@@ -93,7 +95,9 @@ export function SyncSettings({
   onNotice,
   onVaultReady,
   embedded = false,
+  mode = 'full',
 }: Props) {
+  const loginOnly = mode === 'login'
   const { t } = useTranslation()
   const online = useOnline()
   const configured = isSyncConfigured()
@@ -540,47 +544,53 @@ export function SyncSettings({
           {t('sync.offlineHint')}
         </p>
       )}
-      <p className="block-hint">{t('sync.hint')}</p>
-      <p className="block-hint">{t('sync.vault.trust')}</p>
-      <button
-        type="button"
-        className="ghost sm sync-explain-toggle"
-        aria-expanded={showExplain}
-        onClick={() => setShowExplain((v) => !v)}
-      >
-        {showExplain ? t('sync.explain.hide') : t('sync.explain.show')}
-      </button>
-      {showExplain && (
-        <div
-          className="sync-explain"
-          role="region"
-          aria-label={t('sync.explain.aria')}
-        >
-          <p>{t('sync.explain.intro')}</p>
-          <ul>
-            <li>
-              <strong>{t('sync.explain.syncTerm')}</strong>{' '}
-              {t('sync.explain.syncText')}
-            </li>
-            <li>
-              <strong>{t('sync.explain.mailTerm')}</strong>{' '}
-              {t('sync.explain.mailText')}
-            </li>
-            <li>
-              <strong>{t('sync.explain.vaultTerm')}</strong>{' '}
-              {t('sync.explain.vaultText')}
-            </li>
-            <li>
-              <strong>{t('sync.explain.passTerm')}</strong>{' '}
-              {t('sync.explain.passText')}
-            </li>
-            <li>
-              <strong>{t('sync.explain.recoveryTerm')}</strong>{' '}
-              {t('sync.explain.recoveryText')}
-            </li>
-          </ul>
-          <p className="block-hint">{t('sync.explain.outro')}</p>
-        </div>
+      {loginOnly ? (
+        <p className="block-hint">{t('sync.loginHint')}</p>
+      ) : (
+        <>
+          <p className="block-hint">{t('sync.hint')}</p>
+          <p className="block-hint">{t('sync.vault.trust')}</p>
+          <button
+            type="button"
+            className="ghost sm sync-explain-toggle"
+            aria-expanded={showExplain}
+            onClick={() => setShowExplain((v) => !v)}
+          >
+            {showExplain ? t('sync.explain.hide') : t('sync.explain.show')}
+          </button>
+          {showExplain && (
+            <div
+              className="sync-explain"
+              role="region"
+              aria-label={t('sync.explain.aria')}
+            >
+              <p>{t('sync.explain.intro')}</p>
+              <ul>
+                <li>
+                  <strong>{t('sync.explain.syncTerm')}</strong>{' '}
+                  {t('sync.explain.syncText')}
+                </li>
+                <li>
+                  <strong>{t('sync.explain.mailTerm')}</strong>{' '}
+                  {t('sync.explain.mailText')}
+                </li>
+                <li>
+                  <strong>{t('sync.explain.vaultTerm')}</strong>{' '}
+                  {t('sync.explain.vaultText')}
+                </li>
+                <li>
+                  <strong>{t('sync.explain.passTerm')}</strong>{' '}
+                  {t('sync.explain.passText')}
+                </li>
+                <li>
+                  <strong>{t('sync.explain.recoveryTerm')}</strong>{' '}
+                  {t('sync.explain.recoveryText')}
+                </li>
+              </ul>
+              <p className="block-hint">{t('sync.explain.outro')}</p>
+            </div>
+          )}
+        </>
       )}
 
       {email ? (
@@ -1037,6 +1047,7 @@ export function SyncSettings({
         </div>
       )}
 
+      {!loginOnly && (
       <div className="sync-backup">
         <h4>{t('backup.sectionTitle')}</h4>
         <p className="block-hint">{t('backup.hint')}</p>
@@ -1100,7 +1111,9 @@ export function SyncSettings({
           />
         </div>
       </div>
+      )}
 
+      {!loginOnly && (
       <div className="sync-privacy sync-privacy--local">
         <p className="block-hint">{t('privacy.deleteLocalHint')}</p>
         <button
@@ -1117,6 +1130,7 @@ export function SyncSettings({
           {t('privacy.deleteLocal')}
         </button>
       </div>
+      )}
 
       {notice && (
         <p className="block-hint sync-notice" role="status">

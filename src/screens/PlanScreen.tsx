@@ -43,6 +43,7 @@ import {
   notificationPermission,
   notificationsReadyToEnable,
   notifyTestPing,
+  refreshNativePermCache,
   requestNotificationPermission,
 } from '../notifications'
 import { PwaGuide } from '../components/PwaGuide'
@@ -624,7 +625,10 @@ export function PlanScreen({
   const sizes: TaskSize[] = ['small', 'medium', 'large']
   const [perm, setPerm] = useState(notificationPermission)
   useEffect(() => {
-    const refresh = () => setPerm(notificationPermission())
+    const refresh = () => {
+      void refreshNativePermCache().then(() => setPerm(notificationPermission()))
+      setPerm(notificationPermission())
+    }
     refresh()
     document.addEventListener('visibilitychange', refresh)
     window.addEventListener('focus', refresh)

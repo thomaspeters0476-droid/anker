@@ -1,6 +1,7 @@
 /** Beta/Trial ohne Abo: 10/Tag + max. 50/Monat; Wallet (Abo/Nachkauf) vom Server */
 
 import { getSession } from '../sync/auth'
+import { apiUrl } from '../native/platform'
 
 export const CHOP_AI_DAILY_LIMIT = 10
 export const CHOP_AI_MONTHLY_LIMIT = 50
@@ -148,7 +149,7 @@ export async function refreshChopWallet(): Promise<WalletCache> {
     return cleared
   }
   try {
-    const res = await fetch('/api/chop-credits', {
+    const res = await fetch(apiUrl('/api/chop-credits'), {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
     const data = (await res.json().catch(() => null)) as {
@@ -195,7 +196,7 @@ export async function startChopPackCheckout(
     return { ok: false, error: 'not_signed_in' }
   }
   try {
-    const res = await fetch('/api/create-chop-checkout', {
+    const res = await fetch(apiUrl('/api/create-chop-checkout'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${session.access_token}`,

@@ -23,6 +23,7 @@ import { isSyncConfigured, loadSync, schedulePushLazy } from './sync/load'
 import type { SyncConflict } from './sync/sync'
 import { useOnline } from './online'
 import { PaywallGate } from './components/PaywallGate'
+import { SignInSheet } from './components/SignInSheet'
 import { SyncConflictBanner } from './components/SyncConflictBanner'
 import { BridgeTip } from './components/BridgeTip'
 import { hasSeenBridgeTip } from './bridge/bridgeTip'
@@ -90,6 +91,7 @@ function App() {
   const [showBridgeTip, setShowBridgeTip] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [forceOpenSync, setForceOpenSync] = useState(false)
+  const [signInOpen, setSignInOpen] = useState(false)
   const [entitlements, setEntitlements] = useState<EntitlementsState>(() =>
     getCachedEntitlements(),
   )
@@ -375,10 +377,7 @@ function App() {
           <PaywallGate
             product="tagesanker"
             signedIn={Boolean(syncEmail)}
-            onOpenSettings={() => {
-              setForceOpenSync(true)
-              setSettingsOpen(true)
-            }}
+            onSignIn={() => setSignInOpen(true)}
           />
         ) : (
           <Suspense fallback={<div className="app-route-fallback" aria-busy />}>
@@ -430,6 +429,24 @@ function App() {
       {regulateOpen && (
         <Suspense fallback={null}>
           <RegulateDown onClose={() => setRegulateOpen(false)} />
+        </Suspense>
+      )}
+      {signInOpen && !showIntro && (
+        <Suspense fallback={null}>
+          <SignInSheet
+            onClose={() => setSignInOpen(false)}
+            syncEmail={syncEmail}
+            syncNotice={syncNotice}
+            syncConflict={syncConflict}
+            onSyncNotice={setSyncNotice}
+            onSyncKeepLocal={() => void keepLocalConflict()}
+            onSyncUseCloud={() => void useCloudConflict()}
+            onSyncSignedOut={() => {
+              setSyncEmail(null)
+              setSyncConflict(null)
+            }}
+            onSyncVaultReady={() => void runSync()}
+          />
         </Suspense>
       )}
       {settingsOpen &&

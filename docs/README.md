@@ -43,6 +43,7 @@ Dateinamen mit Präfix `ANKER_` bleiben vorerst (Repo-Historie); Inhalt spricht 
 | [DATENMODELL.md](./DATENMODELL.md) | DayState, Prefs, localStorage, Retention |
 | [BUDDY.md](./BUDDY.md) | Ton, Kontext (`BuddyCtx`), Regeln |
 | [DEPLOY.md](./DEPLOY.md) | Lokal, Vercel, PWA, Domains, One-Pager-Skript |
+| [CAPACITOR.md](./CAPACITOR.md) | Store-Apps (Android jetzt, iOS später) — auch für andere Projekte |
 | [CHANGELOG.md](./CHANGELOG.md) | Release-Historie |
 
 ---

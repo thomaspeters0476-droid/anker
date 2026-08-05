@@ -2,6 +2,7 @@ import type { Spark } from './types'
 import { SPARK_RETENTION_DAYS } from './storage'
 import i18n, { ensureI18n } from './i18n'
 import { normalizeLocale } from './i18n/locales'
+import { apiUrl } from './native/platform'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -100,7 +101,7 @@ async function postExpiredSparks(
     const { getSession } = await import('./sync/auth')
     const session = await getSession()
     if (!session?.access_token) return false
-    const res = await fetch('/api/send-expired-sparks', {
+    const res = await fetch(apiUrl('/api/send-expired-sparks'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

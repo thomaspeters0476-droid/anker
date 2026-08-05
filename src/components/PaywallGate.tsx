@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next'
 type Props = {
   product: 'tagesanker' | 'schublade'
   signedIn: boolean
-  onOpenSettings?: () => void
+  onSignIn?: () => void
 }
 
 /** Thin paywall — one message, one path forward. Shown only when enforcement is on. */
-export function PaywallGate({ product, signedIn, onOpenSettings }: Props) {
+export function PaywallGate({ product, signedIn, onSignIn }: Props) {
   const { t } = useTranslation()
   const title =
     product === 'schublade'
@@ -27,8 +27,8 @@ export function PaywallGate({ product, signedIn, onOpenSettings }: Props) {
         <p className="paywall-gate-hint">{t('billing.paywall.needSignIn')}</p>
       )}
       <div className="paywall-gate-actions">
-        {!signedIn && onOpenSettings && (
-          <button type="button" className="primary" onClick={onOpenSettings}>
+        {!signedIn && onSignIn && (
+          <button type="button" className="primary" onClick={onSignIn}>
             {t('billing.paywall.signInCta')}
           </button>
         )}

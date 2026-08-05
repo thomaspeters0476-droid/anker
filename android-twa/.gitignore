@@ -1,0 +1,23 @@
+# Lokal
+local.properties
+.idea/
+*.iml
+.DS_Store
+
+# Signing (falls später eigener Key im Ordner)
+android.keystore
+*.keystore
+*.jks
+!../**/.android/**
+
+# Build
+*.apk
+*.aab
+*.apks
+app/build/
+build/
+.gradle/
+captures/
+
+# Bubblewrap
+.bubblewrap/

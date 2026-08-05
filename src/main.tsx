@@ -1,7 +1,8 @@
-import { StrictMode, Suspense, lazy, useEffect } from 'react'
+import { StrictMode, Suspense, lazy, useEffect, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   BrowserRouter,
+  HashRouter,
   Navigate,
   Route,
   Routes,
@@ -11,6 +12,8 @@ import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import { applyProductShell, productShellFromPath } from './pwa'
 import { MarketingLayout } from './marketing/MarketingLayout'
+import { isNativeApp } from './native/platform'
+import { bootNativeShell } from './native/boot'
 
 const LandingPage = lazy(() =>
   import('./marketing/LandingPage').then((m) => ({ default: m.LandingPage })),
@@ -68,6 +71,8 @@ function ProductShellMeta() {
 
 function RegisterServiceWorker() {
   useEffect(() => {
+    // Capacitor: kein Service Worker — sonst Cache-Kampf mit Store-Builds
+    if (isNativeApp()) return
     let cancelled = false
     const boot = () => {
       if (cancelled) return
@@ -82,13 +87,11 @@ function RegisterServiceWorker() {
         },
       })
     }
-    // Nicht mit First-Paint um Bandbreite kämpfen
     const idleId =
       typeof requestIdleCallback === 'function'
         ? requestIdleCallback(boot, { timeout: 2500 })
         : 0
-    const timeoutId =
-      idleId === 0 ? window.setTimeout(boot, 1200) : 0
+    const timeoutId = idleId === 0 ? window.setTimeout(boot, 1200) : 0
     return () => {
       cancelled = true
       if (idleId && typeof cancelIdleCallback === 'function') {
@@ -100,34 +103,54 @@ function RegisterServiceWorker() {
   return null
 }
 
+function NativeBoot() {
+  useEffect(() => {
+    void bootNativeShell()
+  }, [])
+  return null
+}
+
 function PageFallback() {
   return <div className="app-route-fallback" aria-busy="true" />
 }
 
+function NativeHomeRedirect({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation()
+  if (isNativeApp() && (pathname === '/' || pathname === '')) {
+    return <Navigate to="/app" replace />
+  }
+  return children
+}
+
+const AppRouter = isNativeApp() ? HashRouter : BrowserRouter
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <AppRouter>
       <ScrollToTop />
       <ProductShellMeta />
+      <NativeBoot />
       <RegisterServiceWorker />
-      <Suspense fallback={<PageFallback />}>
-        <Routes>
-          <Route element={<MarketingLayout />}>
-            <Route index element={<LandingPage />} />
-            <Route path="blog" element={<BlogIndexPage />} />
-            <Route path="blog/:slug" element={<BlogPostPage />} />
-            <Route path="preise" element={<PreisePage />} />
-            <Route path="die-schublade" element={<SchubladeLandingPage />} />
-            <Route path="impressum" element={<ImpressumPage />} />
-            <Route path="datenschutz" element={<DatenschutzPage />} />
-            <Route path="agb" element={<AgbPage />} />
-            <Route path="widerruf" element={<WiderrufPage />} />
-          </Route>
-          <Route path="app/*" element={<AppEntry />} />
-          <Route path="schublade/*" element={<SchubladeEntry />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+      <NativeHomeRedirect>
+        <Suspense fallback={<PageFallback />}>
+          <Routes>
+            <Route element={<MarketingLayout />}>
+              <Route index element={<LandingPage />} />
+              <Route path="blog" element={<BlogIndexPage />} />
+              <Route path="blog/:slug" element={<BlogPostPage />} />
+              <Route path="preise" element={<PreisePage />} />
+              <Route path="die-schublade" element={<SchubladeLandingPage />} />
+              <Route path="impressum" element={<ImpressumPage />} />
+              <Route path="datenschutz" element={<DatenschutzPage />} />
+              <Route path="agb" element={<AgbPage />} />
+              <Route path="widerruf" element={<WiderrufPage />} />
+            </Route>
+            <Route path="app/*" element={<AppEntry />} />
+            <Route path="schublade/*" element={<SchubladeEntry />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </NativeHomeRedirect>
+    </AppRouter>
   </StrictMode>,
 )

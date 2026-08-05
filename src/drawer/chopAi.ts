@@ -1,4 +1,5 @@
 import { getSession } from '../sync/auth'
+import { apiUrl } from '../native/platform'
 import {
   canUseChopAi,
   noteFreeUseLocally,
@@ -41,7 +42,7 @@ export async function suggestChopBites(
     (input.parentTitle?.trim() ? 'further' : 'first')
 
   try {
-    const res = await fetch('/api/chop-bites', {
+    const res = await fetch(apiUrl('/api/chop-bites'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
