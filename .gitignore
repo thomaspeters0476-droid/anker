@@ -14,6 +14,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+!.env.schublade
 
 # Editor directories and files
 .vscode/*
@@ -43,6 +44,12 @@ android/build/
 android/.gradle/
 android/*.apk
 android/*.aab
+android-schublade/local.properties
+android-schublade/app/build/
+android-schublade/build/
+android-schublade/.gradle/
+android-schublade/*.apk
+android-schublade/*.aab
 android-twa/local.properties
 android-twa/app/build/
 android-twa/build/

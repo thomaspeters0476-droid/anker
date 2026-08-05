@@ -14,9 +14,13 @@
     "test:e2e:headed": "playwright test --headed",
     "preview": "vite preview",
     "build:native": "tsc -b && vite build --base /",
+    "build:native:schublade": "tsc -b && vite build --base / --mode schublade",
     "android:sync": "npm run build:native && npx cap sync android",
     "android:open": "npx cap open android",
     "android:apk": "npm run android:sync && cd android && gradlew.bat assembleDebug",
+    "android:schublade:sync": "npm run build:native:schublade && node scripts/cap-with-product.mjs schublade sync android",
+    "android:schublade:open": "node scripts/cap-with-product.mjs schublade open android",
+    "android:schublade:apk": "npm run android:schublade:sync && cd android-schublade && gradlew.bat assembleDebug",
     "android:twa:update": "cd android-twa && npx --yes @bubblewrap/cli update --skipVersionUpgrade",
     "android:twa:apk": "cd android-twa && gradlew.bat assembleDebug"
   },

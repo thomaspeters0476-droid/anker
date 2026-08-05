@@ -12,7 +12,7 @@ Nicht nötig, wenn nur Android-Vollbild der Live-Website reicht (dann Bubblewrap
 
 ## Voraussetzungen (pro Rechner)
 
-- **JDK 21+** (Capacitor 8) — empfohlen Microsoft OpenJDK 21 LTS; optional auch JDK 25
+- **JDK 21+** (Capacitor 8) — empfohlen Microsoft OpenJDK 21 LTS
 - Android Studio / Android SDK
 - Für iOS später: Mac + Xcode
 
@@ -20,68 +20,68 @@ Windows (winget):
 
 ```bash
 winget install Microsoft.OpenJDK.21
-# optional neueste LTS:
-winget install Microsoft.OpenJDK.25
 ```
 
-Dann `JAVA_HOME` auf JDK 21 setzen und ggf. in `android/gradle.properties`:
+`JAVA_HOME` auf JDK 21 setzen.
 
-`org.gradle.java.home=C:\\Program Files\\Microsoft\\jdk-21.…-hotspot`
+## Zwei Apps in diesem Repo
 
-## Einmalig pro Projekt
+| | Tagesanker | Die Schublade |
+|--|--|--|
+| Ordner | `android/` | `android-schublade/` |
+| appId | `de.tagesanker.app` | `de.tagesanker.schublade` |
+| Start | `#/app` | `#/schublade` |
+| Build | `npm run android:apk` | `npm run android:schublade:apk` |
 
-1. Web-App baut nach `dist/` (`vite` o.ä.).
-2. Packages:
+Steuerung: `NATIVE_PRODUCT` (Capacitor-Config) + `VITE_NATIVE_PRODUCT` (Vite, Mode `schublade` → `.env.schublade`).
 
-```bash
-npm i @capacitor/core @capacitor/app @capacitor/splash-screen @capacitor/status-bar @capacitor/keyboard @capacitor/local-notifications
-npm i -D @capacitor/cli @capacitor/android
-# später iOS (nur macOS): npm i -D @capacitor/ios && npx cap add ios
-```
+### Abrechnung (wichtig)
 
-3. `capacitor.config.ts` — `appId` (z.B. `de.firma.app`), `appName`, `webDir: 'dist'`.
-4. Native Build mit relativen Assets: `vite build --base ./`
-5. API: Im Browser relative `/api/...`, **in der Store-App absolute URLs** zur Live-Domain (sonst findet die App kein Backend). Pattern: `apiUrl()` wie in `src/native/platform.ts`.
-6. Service Worker in der nativen App **nicht** registrieren.
-7. `npx cap add android` → Ordner `android/`
-8. `npm run android:sync` (Build + `cap sync`)
-9. Android Studio öffnen: `npx cap open android` → Run auf Gerät/Emulator.
+- Freischaltung hängt am **Sync-Konto** (E-Mail) + Stripe-Tier, **nicht** an der App-ID.
+- Nur Tagesanker-Abo → nur Tagesanker-App. Nur Schublade-Abo → nur Schublade-App. **Bundle** → beide.
+- Zwei Store-Apps schaffen **keinen** kostenlosen Doppelzugang.
+- Checkout weiter über `tagesanker.de` / bestehende API (`product`: `tagesanker` \| `schublade` \| `bundle`).
 
-## Tagesanker-Scripts
+### Scripts
 
 | Befehl | Zweck |
 |--------|--------|
-| `npm run build:native` | Web-Build für Capacitor (`base ./`) |
-| `npm run android:sync` | Build + Sync in `android/` |
-| `npm run android:open` | Android Studio |
-| `npm run android:apk` | Debug-APK bauen |
+| `npm run build:native` | Web-Build Tagesanker (`VITE_NATIVE_PRODUCT` default) |
+| `npm run build:native:schublade` | Web-Build Schublade |
+| `npm run android:sync` / `android:apk` | Tagesanker sync / Debug-APK |
+| `npm run android:schublade:sync` / `android:schublade:apk` | Schublade sync / Debug-APK |
+| `npm run android:schublade:open` | Android Studio (Schublade) |
 
-Alte Bubblewrap-Hülle liegt unter `android-twa/` (nur Referenz).
+Alte Bubblewrap-Hülle: `android-twa/`.
 
-## Play Store (kurz)
+## Einmalig: Schublade-Android anlegen
 
-1. Eigener Upload-/Signing-Key (nicht der Debug-Keystore).
-2. In Android Studio: **Build → Generate Signed Bundle / APK** → AAB.
-3. Play Console: App anlegen, AAB hochladen, Store-Texte, Datenschutz-URL (`https://tagesanker.de/datenschutz`).
-4. SHA-256 des **Release**-Zertifikats in `public/.well-known/assetlinks.json` eintragen (Deep Links / verifizierte Domain).
+```bash
+npm run build:native:schublade
+node scripts/cap-with-product.mjs schublade add android
+```
+
+Erzeugt `android-schublade/`. Danach `npm run android:schublade:apk`.
+
+## Play Store (kurz, später)
+
+1. Eigenes Listing pro App-ID, eigener Signing-Key / AAB.
+2. Datenschutz-URL: `https://tagesanker.de/datenschutz`.
+3. Release-SHA-256 in `assetlinks.json` (pro App-Zertifikat).
+4. Vor öffentlichem Release: Stripe-Web-Checkout vs. Play Billing policy klären.
 
 ## iOS später
 
 ```bash
 npm i -D @capacitor/ios
-npx cap add ios
-npx cap sync ios
-npx cap open ios
+# je Produkt NATIVE_PRODUCT setzen, dann:
+node scripts/cap-with-product.mjs anker add ios
+node scripts/cap-with-product.mjs schublade add ios
 ```
-
-Braucht Mac + Apple Developer Account. Dieselbe Web-`dist/` und dieselben Native-Hooks.
-
-## Schublade / zweite App
-
-Zweites Capacitor-Projekt oder zweites `appId` + eigener Android-Ordner — nicht in dieselbe Store-Listing packen. Zuerst Tagesanker stabil, dann kopieren.
 
 ## Typische Stolpersteine
 
-- Relative `/api`-Calls in der APK → 404 (Origin ist nicht die Website).
-- Service Worker + Store-Build → veraltete UI.
-- Android WebView: Build-Target mindestens so alt wie die älteste Test-WebView (`es2019` im Vite-Build), sonst weißer Screen (`||=` SyntaxError).
+- Relative `/api`-Calls in der APK → 404 (Origin ist nicht die Website) → `apiUrl()`.
+- Service Worker + Store-Build → veraltete UI (native: kein SW).
+- Android WebView: Vite `build.target: 'es2019'`, sonst weißer Screen.
+- Falsches Produkt gebaut: Startroute stimmt nicht → Mode/`NATIVE_PRODUCT` prüfen.

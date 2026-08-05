@@ -12,7 +12,7 @@ import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import { applyProductShell, productShellFromPath } from './pwa'
 import { MarketingLayout } from './marketing/MarketingLayout'
-import { isNativeApp } from './native/platform'
+import { isNativeApp, nativeHomePath } from './native/platform'
 import { bootNativeShell } from './native/boot'
 
 const LandingPage = lazy(() =>
@@ -117,7 +117,7 @@ function PageFallback() {
 function NativeHomeRedirect({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
   if (isNativeApp() && (pathname === '/' || pathname === '')) {
-    return <Navigate to="/app" replace />
+    return <Navigate to={nativeHomePath()} replace />
   }
   return children
 }

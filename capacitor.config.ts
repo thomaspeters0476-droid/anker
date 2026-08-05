@@ -1,16 +1,24 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 /**
- * Tagesanker Android/iOS (Capacitor).
- * Wiederverwendbar: appId/appName/webDir anpassen; API-Origin in src/native/platform.ts.
+ * Tagesanker / Die Schublade — Produkt per NATIVE_PRODUCT steuern.
+ * Default: Tagesanker → android/
+ * Schublade: NATIVE_PRODUCT=schublade → android-schublade/
  */
+const isSchublade = process.env.NATIVE_PRODUCT === 'schublade'
+
+const splashBg = isSchublade ? '#E4EEF5' : '#E8F0EC'
+const accent = isSchublade ? '#3D6680' : '#2F6F5E'
+
 const config: CapacitorConfig = {
-  appId: 'de.tagesanker.app',
-  appName: 'Tagesanker',
+  appId: isSchublade ? 'de.tagesanker.schublade' : 'de.tagesanker.app',
+  appName: isSchublade ? 'Die Schublade' : 'Tagesanker',
   webDir: 'dist',
+  android: {
+    path: isSchublade ? 'android-schublade' : 'android',
+  },
   server: {
     androidScheme: 'https',
-    // Stripe Checkout / Portal + Supabase aus der WebView heraus
     allowNavigation: [
       'tagesanker.de',
       '*.tagesanker.de',
@@ -20,16 +28,16 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      backgroundColor: '#E8F0EC',
+      backgroundColor: splashBg,
       launchAutoHide: true,
       showSpinner: false,
     },
     StatusBar: {
       style: 'LIGHT',
-      backgroundColor: '#E8F0EC',
+      backgroundColor: splashBg,
     },
     LocalNotifications: {
-      iconColor: '#2F6F5E',
+      iconColor: accent,
     },
   },
 }
