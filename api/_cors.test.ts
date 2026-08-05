@@ -1,16 +1,15 @@
-import { describe, expect, it } from 'vitest'
-import { isAllowedCorsOrigin } from './_cors.js'
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { isAllowedCorsOrigin } from './_cors.ts'
 
-describe('isAllowedCorsOrigin', () => {
-  it('allows Capacitor and production origins', () => {
-    expect(isAllowedCorsOrigin('https://localhost')).toBe(true)
-    expect(isAllowedCorsOrigin('capacitor://localhost')).toBe(true)
-    expect(isAllowedCorsOrigin('https://tagesanker.de')).toBe(true)
-    expect(isAllowedCorsOrigin('http://127.0.0.1:5173')).toBe(true)
-  })
+test('isAllowedCorsOrigin — Capacitor und Produktion erlaubt', () => {
+  assert.equal(isAllowedCorsOrigin('https://localhost'), true)
+  assert.equal(isAllowedCorsOrigin('capacitor://localhost'), true)
+  assert.equal(isAllowedCorsOrigin('https://tagesanker.de'), true)
+  assert.equal(isAllowedCorsOrigin('http://127.0.0.1:5173'), true)
+})
 
-  it('rejects unknown origins', () => {
-    expect(isAllowedCorsOrigin('')).toBe(false)
-    expect(isAllowedCorsOrigin('https://evil.example')).toBe(false)
-  })
+test('isAllowedCorsOrigin — unbekannte Origins abweisen', () => {
+  assert.equal(isAllowedCorsOrigin(''), false)
+  assert.equal(isAllowedCorsOrigin('https://evil.example'), false)
 })

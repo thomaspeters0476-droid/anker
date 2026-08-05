@@ -30,6 +30,10 @@ test.describe('Apps (mit Seed)', () => {
     await page.goto('/schublade')
     await page.getByRole('button', { name: /Einstellungen|Settings/i }).click()
     await page
+      .getByText(/Hilfe & Oberfläche|Help & surface/i)
+      .first()
+      .click()
+    await page
       .getByRole('button', {
         name: /Einführung nochmal|Show introduction again/i,
       })
