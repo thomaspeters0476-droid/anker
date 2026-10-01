@@ -11,6 +11,10 @@ import {
 import { registerSW } from 'virtual:pwa-register'
 import './fonts.css'
 import './index.css'
+import {
+  applyPublicSeo,
+  isAppShellPath,
+} from './marketing/site'
 import { applyProductShell, productShellFromPath } from './pwa'
 import { MarketingLayout } from './marketing/MarketingLayout'
 import { isNativeApp, nativeHomePath } from './native/platform'
@@ -53,6 +57,11 @@ const WiderrufPage = lazy(() =>
 )
 const AppEntry = lazy(() => import('./routes/AppEntry'))
 const SchubladeEntry = lazy(() => import('./routes/SchubladeEntry'))
+const NotFoundPage = lazy(() =>
+  import('./marketing/NotFoundPage').then((m) => ({
+    default: m.NotFoundPage,
+  })),
+)
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -65,7 +74,10 @@ function ScrollToTop() {
 function ProductShellMeta() {
   const { pathname } = useLocation()
   useEffect(() => {
-    applyProductShell(productShellFromPath(pathname))
+    applyPublicSeo(pathname)
+    if (isAppShellPath(pathname)) {
+      applyProductShell(productShellFromPath(pathname))
+    }
   }, [pathname])
   return null
 }
@@ -148,7 +160,9 @@ createRoot(document.getElementById('root')!).render(
             </Route>
             <Route path="app/*" element={<AppEntry />} />
             <Route path="schublade/*" element={<SchubladeEntry />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route element={<MarketingLayout />}>
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
           </Routes>
         </Suspense>
       </NativeHomeRedirect>

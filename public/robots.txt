@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /app
+Disallow: /app/
+Disallow: /schublade
+Disallow: /schublade/
+Disallow: /api/
 
 Sitemap: https://tagesanker.de/sitemap.xml

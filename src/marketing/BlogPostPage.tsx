@@ -35,7 +35,9 @@ export function BlogPostPage() {
     if (post) {
       setPageMeta(`${post.title} — ${SITE.name}`, post.description)
     } else {
-      setPageMeta(`Beitrag nicht gefunden — ${SITE.name}`, SITE.description)
+      setPageMeta(`Beitrag nicht gefunden — ${SITE.name}`, SITE.description, {
+        noIndex: true,
+      })
     }
   }, [post])
 

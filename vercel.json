@@ -4,12 +4,24 @@
       "maxDuration": 30
     }
   },
+  "redirects": [
+    { "source": "/:path+/", "destination": "/:path+", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    {
-      "source": "/((?!api/|robots\\.txt|sitemap\\.xml|marketing/|\\.well-known/).*)",
-      "destination": "/index.html"
-    }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/blog", "destination": "/index.html" },
+    { "source": "/blog/:slug", "destination": "/index.html" },
+    { "source": "/preise", "destination": "/index.html" },
+    { "source": "/die-schublade", "destination": "/index.html" },
+    { "source": "/impressum", "destination": "/index.html" },
+    { "source": "/datenschutz", "destination": "/index.html" },
+    { "source": "/agb", "destination": "/index.html" },
+    { "source": "/widerruf", "destination": "/index.html" },
+    { "source": "/app", "destination": "/index.html" },
+    { "source": "/app/:path*", "destination": "/index.html" },
+    { "source": "/schublade", "destination": "/index.html" },
+    { "source": "/schublade/:path*", "destination": "/index.html" }
   ],
   "headers": [
     {
