@@ -304,7 +304,7 @@ export function SchubladeApp() {
     else setSyncNotice(t('app.syncNotice.keptLocal'))
   }
 
-  async function useCloudConflict() {
+  async function applyCloudConflict() {
     if (!syncConflict) return
     const sync = await loadSync()
     const result = await sync.resolveUseCloud(syncConflict)
@@ -372,7 +372,7 @@ export function SchubladeApp() {
                   : null
             }
             onKeepLocal={() => void keepLocalConflict()}
-            onUseCloud={() => void useCloudConflict()}
+            onUseCloud={() => void applyCloudConflict()}
             onOpenSync={() => {
               setForceOpenSync(true)
               setSettingsOpen(true)
@@ -649,7 +649,7 @@ export function SchubladeApp() {
                       conflict={syncConflict}
                       onNotice={setSyncNotice}
                       onKeepLocal={() => void keepLocalConflict()}
-                      onUseCloud={() => void useCloudConflict()}
+                      onUseCloud={() => void applyCloudConflict()}
                       onSignedOut={() => {
                         setSyncEmail(null)
                         setSyncConflict(null)
@@ -685,7 +685,7 @@ export function SchubladeApp() {
             syncConflict={syncConflict}
             onSyncNotice={setSyncNotice}
             onSyncKeepLocal={() => void keepLocalConflict()}
-            onSyncUseCloud={() => void useCloudConflict()}
+            onSyncUseCloud={() => void applyCloudConflict()}
             onSyncSignedOut={() => {
               setSyncEmail(null)
               setSyncConflict(null)

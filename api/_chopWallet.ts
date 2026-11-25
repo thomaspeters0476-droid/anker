@@ -55,8 +55,8 @@ export async function getWallet(
   }
 }
 
-/** useFreeQuota: kein Schublade/Bundle-Abo → Free 10/Tag + 50/Monat */
-export function useFreeQuota(tier: ChopTier | null): boolean {
+/** checkFreeQuota: kein Schublade/Bundle-Abo → Free 10/Tag + 50/Monat */
+export function checkFreeQuota(tier: ChopTier | null): boolean {
   return tier !== 'schublade' && tier !== 'bundle'
 }
 
@@ -267,7 +267,7 @@ export async function authorizeChopAiUse(
   const day = new Date().toISOString().slice(0, 10)
   const month = day.slice(0, 7)
 
-  if (useFreeQuota(wallet.tier)) {
+  if (checkFreeQuota(wallet.tier)) {
     if (await tryConsumeFreeChop(userId, day, month)) {
       return { ok: true, source: 'free' }
     }
@@ -277,7 +277,7 @@ export async function authorizeChopAiUse(
   if (consumed.ok === true) {
     return { ok: true, source: 'wallet', balance: consumed.balance }
   }
-  if (useFreeQuota(wallet.tier)) {
+  if (checkFreeQuota(wallet.tier)) {
     return { ok: false, error: 'rate_limited' }
   }
   return { ok: false, error: 'empty_balance' }

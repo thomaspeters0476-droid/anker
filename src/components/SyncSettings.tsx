@@ -116,6 +116,7 @@ export function SyncSettings({
     () => getCachedEntitlements().hasPortal,
   )
   const [portalBusy, setPortalBusy] = useState(false)
+  const [showExplain, setShowExplain] = useState(false)
   const backupFileRef = useRef<HTMLInputElement>(null)
 
   const emailOk = looksLikeEmail(draft)
@@ -500,8 +501,6 @@ export function SyncSettings({
     if (result === 'copied') onNotice?.(t('sync.vault.noticeCopied'))
     else if (result !== 'failed') onNotice?.(t('sync.vault.noticeMailed'))
   }
-
-  const [showExplain, setShowExplain] = useState(false)
 
   let gateHint: string | null = null
   if (!emailOk && otpOk) gateHint = t('sync.gateNeedEmail')
