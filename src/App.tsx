@@ -281,7 +281,7 @@ function App() {
     else setSyncNotice(t('app.syncNotice.keptLocal'))
   }
 
-  async function useCloudConflict() {
+  async function applyCloudConflict() {
     if (!syncConflict) return
     const sync = await loadSync()
     const result = await sync.resolveUseCloud(syncConflict)
@@ -333,7 +333,7 @@ function App() {
                   : null
             }
             onKeepLocal={() => void keepLocalConflict()}
-            onUseCloud={() => void useCloudConflict()}
+            onUseCloud={() => void applyCloudConflict()}
             onOpenSync={() => {
               setForceOpenSync(true)
               setSettingsOpen(true)
@@ -393,7 +393,7 @@ function App() {
                 syncConflict={syncConflict}
                 onSyncNotice={setSyncNotice}
                 onSyncKeepLocal={() => void keepLocalConflict()}
-                onSyncUseCloud={() => void useCloudConflict()}
+                onSyncUseCloud={() => void applyCloudConflict()}
                 onSyncSignedOut={() => {
                   setSyncEmail(null)
                   setSyncConflict(null)
@@ -440,7 +440,7 @@ function App() {
             syncConflict={syncConflict}
             onSyncNotice={setSyncNotice}
             onSyncKeepLocal={() => void keepLocalConflict()}
-            onSyncUseCloud={() => void useCloudConflict()}
+            onSyncUseCloud={() => void applyCloudConflict()}
             onSyncSignedOut={() => {
               setSyncEmail(null)
               setSyncConflict(null)
@@ -463,7 +463,7 @@ function App() {
             syncConflict={syncConflict}
             onSyncNotice={setSyncNotice}
             onSyncKeepLocal={() => void keepLocalConflict()}
-            onSyncUseCloud={() => void useCloudConflict()}
+            onSyncUseCloud={() => void applyCloudConflict()}
             onSyncSignedOut={() => {
               setSyncEmail(null)
               setSyncConflict(null)

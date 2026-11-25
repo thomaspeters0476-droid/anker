@@ -4,7 +4,7 @@ import {
   consumeWalletCredit,
   getAdminSupabase,
   getWallet,
-  useFreeQuota,
+  checkFreeQuota,
   userIdFromAuthHeader,
 } from './_chopWallet.js'
 
@@ -25,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ok: true,
       balance: wallet.balance,
       tier: wallet.tier,
-      useFreeQuota: useFreeQuota(wallet.tier),
+      useFreeQuota: checkFreeQuota(wallet.tier),
     })
   }
 
